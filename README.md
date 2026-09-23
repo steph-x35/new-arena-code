@@ -33,7 +33,9 @@ Poi apri http://localhost:8080
 
 ## Roadmap (hub di strumenti)
 
-- [ ] Calcolatore stipendio netto (con addizionali regionali)
-- [ ] Generatore CV
-- [ ] Versione Pro (fatture illimitate, template, promemoria pagamenti) via Stripe
-- [ ] Google Search Console + sitemap
+- [x] FatturaFacile (fatture & preventivi PDF)
+- [x] Calcolatore stipendio netto 2026 (con IRPEF, INPS, addizionali regionali/comunali, detrazioni)
+- [x] Generatore CV (modelli Moderno 2 colonne e Classico ATS, export PDF)
+- [x] Google Search Console + sitemap.xml
+- [ ] Dominio personalizzato (es. fatturafacile.it / hublavoro.it)
+- [ ] Monetizzazione: affiliazioni mirate (servizi P.IVA / conti) + Google AdSense + opzione Pro template
