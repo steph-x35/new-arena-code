@@ -33,7 +33,11 @@
         <span class="brand-mark">🧾</span>
         <span class="brand-name">Fattura<span>Facile</span></span>
       </div>
-      <p class="brand-tag">Fatture e preventivi PDF in 1 minuto — gratis, senza account</p>
+      <p class="brand-tag">Strumenti gratis per chi vive di lavoro</p>
+      <nav class="nav-links">
+        <a href="index.html" class="is-active">Fatture</a>
+        <a href="stipendio-netto/">Stipendio netto</a>
+      </nav>
     </div>
   </header>
 
@@ -172,6 +176,26 @@
       </div>
     </section>
 
+    <section class="tools no-print">
+      <div class="wrap">
+        <h2>Altri strumenti gratis</h2>
+        <div class="tools-grid">
+          <a class="tool-card" href="stipendio-netto/">
+            <span class="tool-icon">💶</span>
+            <strong>Calcolatore Stipendio Netto 2026</strong>
+            <p>Dal lordo al netto con IRPEF, INPS 9,19%, addizionali regionali e comunali e detrazioni per la famiglia.</p>
+            <span class="tool-cta">Calcola ora →</span>
+          </a>
+          <div class="tool-card coming">
+            <span class="tool-icon">📄</span>
+            <strong>Generatore CV</strong>
+            <p>In arrivo: un CV moderno e leggibile dalle macchine, da un template, in 5 minuti.</p>
+            <span class="tool-cta">Prossimamente</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="faq no-print">
       <div class="wrap">
         <h2>Domande frequenti</h2>
@@ -202,6 +226,30 @@
   </footer>
 
   <div id="toast" class="toast no-print" role="status"></div>
+
+  <style>
+    .nav-links { display: flex; gap: 4px; margin-left: auto; }
+    .nav-links a {
+      text-decoration: none; color: var(--muted); font-weight: 600; font-size: .9rem;
+      padding: 7px 14px; border-radius: 9px;
+    }
+    .nav-links a:hover { background: var(--bg); color: var(--ink); }
+    .nav-links a.is-active { background: var(--accent-soft); color: var(--accent); }
+    .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .tool-card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 22px; box-shadow: var(--shadow); display: block; text-decoration: none; color: var(--ink);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .tool-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(15,23,42,.12); }
+    .tool-card.coming { opacity: .65; }
+    .tool-icon { font-size: 1.8rem; }
+    .tool-card strong { display: block; margin: 8px 0 6px; font-size: 1.05rem; }
+    .tool-card p { margin: 0 0 12px; color: var(--muted); font-size: .9rem; }
+    .tool-cta { color: var(--accent); font-weight: 700; font-size: .9rem; }
+    .tools { padding: 8px 0 54px; }
+    .tools h2 { font-size: 1.35rem; letter-spacing: -.02em; margin: 0 0 16px; }
+  </style>
 
   <script src="app.js?v=2"></script>
 </body>

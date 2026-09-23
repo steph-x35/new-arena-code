@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calcolatore Stipendio Netto 2026 — Lordo a Netto online gratis</title>
+  <meta name="description" content="Calcola lo stipendio netto 2026 dal lordo: IRPEF (23/35/43), INPS 9,19%, addizionale regionale e comunale, detrazioni per carichi di famiglia. Gratis, senza account, i dati restano nel browser." />
+  <meta name="keywords" content="calcolatore stipendio netto, lordo a netto, stipendio netto 2026, calcolo busta paga, netto dal lordo, addizionale regionale" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💶</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Calcolatore Stipendio Netto",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "description": "Calcolatore di stipendio netto 2026: da lordo a netto con IRPEF, INPS, addizionali regionali e comunali e detrazioni. Gratis e senza registrazione.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+  }
+  </script>
+  <style>
+    .calc-grid {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      gap: 22px; align-items: start; padding-top: 26px; padding-bottom: 56px;
+    }
+    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+    .calc-form {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding: 8px 20px 20px;
+    }
+    .calc-form .fsection { padding: 14px 0; }
+    .results {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px;
+      position: sticky; top: 76px;
+    }
+    @media (max-width: 900px) { .results { position: static; } }
+    .result-big {
+      background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+      color: #fff; border-radius: 14px; padding: 20px 22px; margin-bottom: 18px;
+    }
+    .result-big .label { font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; opacity: .85; }
+    .result-big .amount { font-size: 2.1rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
+    .result-big .sub { font-size: .88rem; opacity: .9; margin-top: 4px; }
+    .breakdown { width: 100%; border-collapse: collapse; }
+    .breakdown td { padding: 8px 2px; border-bottom: 1px solid #eef2f7; font-size: .93rem; }
+    .breakdown td:last-child { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .breakdown tr.neg td:last-child { color: #dc2626; }
+    .breakdown tr.grand td { border-top: 2px solid var(--ink); border-bottom: 0; padding-top: 12px; font-weight: 800; font-size: 1.02rem; }
+    .rate-badge {
+      display: inline-block; margin-top: 14px; background: var(--accent-soft); color: var(--accent);
+      border: 1px solid #c7d7fe; border-radius: 999px; padding: 6px 14px;
+      font-size: .85rem; font-weight: 700;
+    }
+    .disclaimer {
+      margin-top: 18px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px;
+      padding: 12px 14px; font-size: .82rem; color: #92400e;
+    }
+    .nav-links { display: flex; gap: 4px; margin-left: auto; }
+    .nav-links a {
+      text-decoration: none; color: var(--muted); font-weight: 600; font-size: .9rem;
+      padding: 7px 14px; border-radius: 9px;
+    }
+    .nav-links a:hover { background: var(--bg); color: var(--ink); }
+    .nav-links a.is-active { background: var(--accent-soft); color: var(--accent); }
+    .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .tool-card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 22px; box-shadow: var(--shadow); display: block; text-decoration: none; color: var(--ink);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .tool-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(15,23,42,.12); }
+    .tool-card.coming { opacity: .65; }
+    .tool-icon { font-size: 1.8rem; }
+    .tool-card strong { display: block; margin: 8px 0 6px; font-size: 1.05rem; }
+    .tool-card p { margin: 0 0 12px; color: var(--muted); font-size: .9rem; }
+    .tool-cta { color: var(--accent); font-weight: 700; font-size: .9rem; }
+    .tools { padding: 8px 0 54px; }
+    .tools h2 { font-size: 1.35rem; letter-spacing: -.02em; margin: 0 0 16px; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header no-print">
+    <div class="wrap header-inner">
+      <a class="brand" href="../" style="text-decoration:none;color:inherit">
+        <span class="brand-mark">🧾</span>
+        <span class="brand-name">Fattura<span>Facile</span></span>
+      </a>
+      <p class="brand-tag">Strumenti gratis per chi vive di lavoro</p>
+      <nav class="nav-links">
+        <a href="../">Fatture</a>
+        <a href="index.html" class="is-active">Stipendio netto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero no-print">
+      <div class="wrap">
+        <h1>Calcolatore Stipendio Netto <em>2026</em>: da lordo a netto in 10 secondi</h1>
+        <p class="hero-sub">
+          Inserisci il reddito lordo, la regione e i carichi di famiglia: ottieni subito
+          <strong>netto mensile e annuale</strong> con il dettaglio di IRPEF, INPS, addizionali e detrazioni.
+          Zero registrazione, i dati restano nel tuo browser.
+        </p>
+        <ul class="hero-badges">
+          <li>✅ 100% gratuito</li>
+          <li>🇹 Parametri 2026: IRPEF 23/35/43 · INPS 9,19%</li>
+          <li>📍 Addizionale regionale di tutte le 20 regioni</li>
+          <li>👨‍‍👧 Detrazioni carichi di famiglia</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="calc-grid wrap">
+      <!-- ============ FORM ============ -->
+      <div class="calc-form no-print">
+        <fieldset class="fsection">
+          <legend>1 · Reddito</legend>
+          <div class="grid2">
+            <label>Reddito lordo annuo (€)
+              <input id="lordo" type="text" inputmode="decimal" placeholder="es. 30.000" />
+            </label>
+            <label>Mensilità
+              <select id="mensilita">
+                <option value="12">12</option>
+                <option value="13" selected>13 (tredicesima)</option>
+                <option value="14">14</option>
+              </select>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="fsection">
+          <legend>2 · Contributi e addizionali</legend>
+          <div class="grid3">
+            <label>INPS dipendenti (%)
+              <input id="inps" type="text" inputmode="decimal" value="9,19" />
+            </label>
+            <label>Regione
+              <select id="regione">
+                <option value="abruzzo">Abruzzo</option>
+                <option value="basilicata">Basilicata</option>
+                <option value="calabria">Calabria</option>
+                <option value="campania">Campania</option>
+                <option value="emilia">Emilia-Romagna</option>
+                <option value="friuli">Friuli-Venezia Giulia</option>
+                <option value="lazio">Lazio</option>
+                <option value="liguria">Liguria</option>
+                <option value="lombardia">Lombardia</option>
+                <option value="marche">Marche</option>
+                <option value="molise">Molise</option>
+                <option value="piemonte">Piemonte</option>
+                <option value="puglia">Puglia</option>
+                <option value="sardegna">Sardegna</option>
+                <option value="sicilia">Sicilia</option>
+                <option value="toscana">Toscana</option>
+                <option value="trentino">Trentino-Alto Adige</option>
+                <option value="umbria">Umbria</option>
+                <option value="valle">Valle d'Aosta</option>
+                <option value="veneto" selected>Veneto</option>
+              </select>
+            </label>
+            <label>Add. regionale (%)
+              <input id="reg-rate" type="text" inputmode="decimal" value="1,23" />
+            </label>
+            <label>Comune
+              <input id="comune" type="text" placeholder="es. Verona" />
+            </label>
+            <label>Add. comunale (%)
+              <input id="com-rate" type="text" inputmode="decimal" value="0,8" />
+            </label>
+            <label>Esente fino a (€)
+              <input id="com-exempt" type="text" inputmode="decimal" value="12.000" />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="fsection">
+          <legend>3 · Carichi di famiglia</legend>
+          <div class="grid2">
+            <label>Coniuge (reddito &lt; 2.880,71 €)
+              <select id="coniuge">
+                <option value="0" selected>Nessuno</option>
+                <option value="1">1 coniuge (−1.220 €)</option>
+              </select>
+            </label>
+            <label>Figli sotto i 3 anni (−950 €/figlio)
+              <input id="figli-0-3" type="text" inputmode="numeric" value="0" />
+            </label>
+            <label>Figli 3–10 anni (−840 €/figlio)
+              <input id="figli-3-10" type="text" inputmode="numeric" value="0" />
+            </label>
+            <label>Figli 10–18 anni (−695 €/figlio)
+              <input id="figli-10-18" type="text" inputmode="numeric" value="0" />
+            </label>
+            <label>Figli oltre 18 anni (−540 €/figlio)
+              <input id="figli-18" type="text" inputmode="numeric" value="0" />
+            </label>
+            <label>Detrazione lavoro (€)
+              <input id="det-manual" type="text" inputmode="decimal" placeholder="calcolata in automatico" />
+            </label>
+          </div>
+          <label class="checkline">
+            <input id="det-auto" type="checkbox" checked />
+            Calcola la detrazione lavoro in automatico (massimo 1.955 € per redditi fino a 15.000 €, scende a 0 a 28.000 €)
+          </label>
+        </fieldset>
+      </div>
+
+      <!-- ============ RISULTATI ============ -->
+      <div class="results">
+        <div class="result-big">
+          <div class="label">Netto mensile stimato</div>
+          <div class="amount" id="out-monthly">0,00 €</div>
+          <div class="sub" id="out-sub">Netto annuale: 0,00 €</div>
+        </div>
+        <table class="breakdown">
+          <tbody id="breakdown-body">
+            <tr><td>Reddito lordo annuo</td><td id="r-lordo">0,00 €</td></tr>
+            <tr class="neg"><td id="r-inps-label">INPS (9,19%)</td><td id="r-inps">−0,00 €</td></tr>
+            <tr><td>Imponibile IRPEF</td><td id="r-imponibile">0,00 €</td></tr>
+            <tr class="neg"><td>IRPEF lorda (23 / 35 / 43)</td><td id="r-irpef">−0,00 €</td></tr>
+            <tr><td id="r-det-label">Detrazioni (lavoro + famiglia)</td><td id="r-det">0,00 €</td></tr>
+            <tr class="neg"><td>IRPEF netta</td><td id="r-irpef-netta">−0,00 €</td></tr>
+            <tr class="neg"><td id="r-reg-label">Addizionale regionale (1,23%)</td><td id="r-reg">−0,00 €</td></tr>
+            <tr class="neg"><td id="r-com-label">Addizionale comunale (0,8%)</td><td id="r-com">−0,00 €</td></tr>
+            <tr class="grand"><td>Netto annuo</td><td id="r-netto-anno">0,00 €</td></tr>
+            <tr><td id="r-netto-mese-label">Netto mensile (÷ 13)</td><td id="r-netto-mese">0,00 €</td></tr>
+          </tbody>
+        </table>
+        <span class="rate-badge" id="out-rate">Prelievo fiscale effettivo: —</span>
+        <div class="disclaimer">
+          ⚠️ <strong>Stima indicativa.</strong> Il calcolo usa i parametri 2026 (IRPEF 23/35/43 su scaglioni 28.000/50.000 €, INPS 9,19%, aliquote base addizionali) e non tiene conto di detrazioni speciali (part-time, disabilità, lavoro al sud, ecc.). Per il dato esatto della busta paga rivolgiti a un CAF o al tuo consulente.
+        </div>
+      </div>
+    </section>
+
+    <section class="faq no-print">
+      <div class="wrap">
+        <h2>Domande frequenti</h2>
+        <details>
+          <summary>Come calcola il netto?</summary>
+          <p>Parte dal lordo annuo, toglie i contributi INPS (9,19%, deducibili), calcola l'IRPEF a scaglioni (23% fino a 28.000 €, 35% fino a 50.000 €, 43% oltre), applica le detrazioni (detrazione lavoro e carichi di famiglia) e infine sottrae le addizionali regionali e comunali. Il risultato viene diviso per le mensilità scelte (12, 13 o 14).</p>
+        </details>
+        <details>
+          <summary>I risultati sono esatti come la busta paga?</summary>
+          <p>No: è una stima di orientamento, accurata per la maggior parte dei dipendenti a tempo pieno ma non per casi particolari (contratti part-time, indennità, rimborsi spese, detrazioni per disabilità o lavoro al sud). Per il dato esatto usa il cedolino o un CAF. Le aliquote preimpostate sono modificabili se la tua regione/comune hanno scaglioni diversi.</p>
+        </details>
+        <details>
+          <summary>Cosa è la detrazione lavoro?</summary>
+          <p>Un bonus che riduce l'IRPEF per i redditi più bassi: massimo 1.955 € per redditi fino a 15.000 €, poi scende linearmente fino ad annullarsi a 28.000 €. Il calcolatore la applica in automatico, ma puoi inserirla a mano se conosci già l'importo esatto.</p>
+        </details>
+        <details>
+          <summary>Perché la regione conta?</summary>
+          <p>Sullo stesso imponibile si applica l'addizionale regionale, che varia da regione a regione (es. Veneto 1,23% unico, Lazio da 1,73% fino a 3,33% per i redditi alti) e l'addizionale comunale, che dipende dal tuo comune di residenza. A parità di stipendio, il netto mensile può cambiare di decine di euro.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer no-print">
+    <div class="wrap">
+      <p>🧾 <strong>FatturaFacile</strong> — strumenti gratis per freelance e dipendenti. I tuoi dati non lasciano mai il browser.</p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast no-print" role="status"></div>
+
+  <script src="app.js?v=1"></script>
+</body>
+</html>
