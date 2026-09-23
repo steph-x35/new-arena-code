@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FatturaFacile — Generatore di fatture e preventivi PDF gratis online</title>
+  <meta name="description" content="Crea fatture e preventivi PDF gratis online in 1 minuto. Senza registrazione, senza download: compili, vedi l'anteprima in tempo reale e scarichi il PDF. I dati restano nel tuo browser." />
+  <meta name="keywords" content="fattura pdf gratis, generatore fatture online, preventivo pdf gratis, fattura senza programmma, fattura piva, fattura elettronica pdf" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧾</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "FatturaFacile",
+    "url": "https://fatturafacile.example",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any",
+    "description": "Generatore di fatture e preventivi PDF gratis online. Compila, anteprima in tempo reale, scarica il PDF. Senza registrazione.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+  }
+  </script>
+</head>
+<body>
+
+  <header class="site-header no-print">
+    <div class="wrap header-inner">
+      <div class="brand">
+        <span class="brand-mark">🧾</span>
+        <span class="brand-name">Fattura<span>Facile</span></span>
+      </div>
+      <p class="brand-tag">Fatture e preventivi PDF in 1 minuto — gratis, senza account</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero no-print">
+      <div class="wrap">
+        <h1>Crea fatture e preventivi <em>PDF</em> gratis, online, senza account</h1>
+        <p class="hero-sub">
+          Compili i campi, vedi l'anteprima che si aggiorna in tempo reale e scarichi il PDF
+          con un clic. <strong>Zero registrazione, zero costi, zero dati inviati a server</strong>:
+          tutto succede nel tuo browser.
+        </p>
+        <ul class="hero-badges">
+          <li>✅ 100% gratuito</li>
+          <li>🔒 I dati restano nel tuo browser</li>
+          <li>⚡ PDF in un clic</li>
+          <li>🇮🇹 IVA 22% · 10% · 5% · Esente · Reverse charge</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="workspace wrap">
+      <!-- ============ FORM ============ -->
+      <div class="form-panel no-print">
+        <div class="toolbar">
+          <div class="seg" role="tablist" aria-label="Tipo documento">
+            <button type="button" id="type-fattura" class="seg-btn is-active" aria-pressed="true">Fattura</button>
+            <button type="button" id="type-preventivo" class="seg-btn" aria-pressed="false">Preventivo</button>
+          </div>
+          <div class="toolbar-actions">
+            <button type="button" id="btn-save" class="btn btn-ghost">💾 Salva</button>
+            <button type="button" id="btn-new" class="btn btn-ghost"> Nuovo</button>
+            <button type="button" id="btn-pdf" class="btn btn-primary">📄 Scarica PDF</button>
+          </div>
+        </div>
+
+        <details class="saved-wrap no-print">
+          <summary>📂 Documenti salvati nel browser (<span id="saved-count">0</span>)</summary>
+          <ul id="saved-list" class="saved-list"><li class="saved-empty">Nessun documento salvato: compila e premi “Salva”.</li></ul>
+        </details>
+
+        <div class="form-scroll">
+          <fieldset class="fsection">
+            <legend>1 · Le tue generalità</legend>
+            <div class="grid2">
+              <label>Nome / Ragione sociale
+                <input data-bind="seller.name" type="text" placeholder="Mario Rossi" />
+              </label>
+              <label>P.IVA / Cod. Fiscale
+                <input data-bind="seller.vat" type="text" placeholder="IT01234567890" />
+              </label>
+              <label class="span2">Indirizzo
+                <input data-bind="seller.address" type="text" placeholder="Via Roma 1, 37100 Verona (VR)" />
+              </label>
+              <label class="span2">PEC (facoltativa)
+                <input data-bind="seller.pec" type="text" placeholder="mario.rossi@pec.it" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="fsection">
+            <legend>2 · Cliente</legend>
+            <div class="grid2">
+              <label>Nome / Ragione sociale
+                <input data-bind="client.name" type="text" placeholder="Pasticceria Dolce Vita S.n.c." />
+              </label>
+              <label>P.IVA / Cod. Fiscale
+                <input data-bind="client.vat" type="text" placeholder="IT98765432109" />
+              </label>
+              <label class="span2">Indirizzo
+                <input data-bind="client.address" type="text" placeholder="Corso Porta Nuova 2, 25100 Brescia (BS)" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="fsection">
+            <legend>3 · Documento</legend>
+            <div class="grid3">
+              <label>Numero
+                <input data-bind="meta.number" type="text" placeholder="IT001/2026" />
+              </label>
+              <label>Data emissione
+                <input data-bind="meta.date" type="date" />
+              </label>
+              <label id="label-due">Scadenza
+                <input data-bind="meta.due" type="date" />
+              </label>
+            </div>
+            <label class="checkline">
+              <input data-bind="meta.rc" type="checkbox" />
+              Reverse charge (autofattura) — IVA non dovuta, art. 17 c.2 DPR 633/72
+            </label>
+          </fieldset>
+
+          <fieldset class="fsection">
+            <legend>4 · Voci di dettaglio</legend>
+            <div class="items-head" aria-hidden="true">
+              <span>Descrizione</span><span>Q.tà</span><span>Prezzo unit.</span><span>IVA</span><span>Importo</span><span></span>
+            </div>
+            <div id="items-body" class="items-body"></div>
+            <button type="button" id="btn-add-item" class="btn btn-ghost btn-block">＋ Aggiungi voce</button>
+          </fieldset>
+
+          <fieldset class="fsection" id="pay-section">
+            <legend>5 · Pagamento e note</legend>
+            <div class="grid2">
+              <label>Modalità di pagamento
+                <select data-bind="pay.method">
+                  <option>Bonifico bancario</option>
+                  <option>Carta di credito / debito</option>
+                  <option>Contanti</option>
+                  <option>PayPal</option>
+                  <option>Altro</option>
+                </select>
+              </label>
+              <label>IBAN / coordinate
+                <input data-bind="pay.iban" type="text" placeholder="IT60 X054 2811 1010 0000 0123 456" />
+              </label>
+              <label class="span2">Note (facoltative)
+                <textarea data-bind="pay.notes" rows="3" placeholder="Es. Pagamento entro 30 giorni dal ricevimento. Nessuna penale per ritardato pagamento."></textarea>
+              </label>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+
+      <!-- ============ PREVIEW ============ -->
+      <div class="preview-panel">
+        <div class="preview-bar no-print">
+          <span>👁️ Anteprima in tempo reale</span>
+          <span class="preview-hint">A4 · pronta da stampare</span>
+        </div>
+        <div class="preview-scroll">
+          <article id="sheet" class="sheet" aria-label="Anteprima del documento"></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq no-print">
+      <div class="wrap">
+        <h2>Domande frequenti</h2>
+        <details>
+          <summary>FatturaFacile è davvero gratuito?</summary>
+          <p>Sì: compilazione, anteprima ed export PDF sono gratuiti senza limiti di uso. Non richiede registrazione e non invia alcun dato a server: tutto avviene localmente nel tuo browser.</p>
+        </details>
+        <details>
+          <summary>Può essere usato per la fattura elettronica (SDI)?</summary>
+          <p>FatturaFacile genera fatture e preventivi in formato PDF (carta). Per la fatturazione elettronica verso la Pubblica Amministrazione o verso clienti privati tramite SDI servono strumenti abilitati (es. FatturaSemplificata) o un intermediario: questo documento può comunque essere usato come bozza o fattura “cartacea” quando ammessa.</p>
+        </details>
+        <details>
+          <summary>Quali regimi fiscali gestisce?</summary>
+          <p>IVA italiana al 22%, 10% e 5%, voci esenti (0%) e reverse charge. Le aliquote si selezionano per singola voce di dettaglio.</p>
+        </details>
+        <details>
+          <summary>Dove finiscono i miei dati?</summary>
+          <p>Esclusivamente nel <em>localStorage</em> del tuo browser: puoi salvarne più copie su questo dispositivo, ma nessuno, nemmeno noi, ha mai accesso a ciò che compili. Cancella i dati di navigazione per rimuoverli definitivamente.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer no-print">
+    <div class="wrap">
+      <p>🧾 <strong>FatturaFacile</strong> — più strumenti gratis in arrivo: calcolatori, generatori e utility per freelance. I tuoi dati non lasciano mai il browser.</p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast no-print" role="status"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
