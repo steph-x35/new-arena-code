@@ -5,7 +5,7 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
 
-  const DRAFT_KEY = 'ff_draft_v1';
+  const DRAFT_KEY = 'ff_draft_v2';
   const SAVED_KEY = 'ff_saved_v1';
 
   const emptyState = (type = 'fattura') => ({
