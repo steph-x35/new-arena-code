@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calcolo TFR Netto — Calcolatore Liquidazione Fine Rapporto online</title>
+  <meta name="description" content="Calcola il TFR netto e lordo spettante al termine del rapporto di lavoro. Stima la liquidazione con tassazione separata IRPEF e rivalutazione. Gratis e senza registrazione." />
+  <meta name="keywords" content="calcolo tfr netto, calcolatore tfr, calcolo liquidazione, tfr lordo a netto, tassazione separata tfr, calcolo tfr dipendenti" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Calcolatore TFR Netto",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "description": "Calcolatore online del Trattamento di Fine Rapporto (TFR) lordo e netto: calcolo della liquidazione con tassazione separata IRPEF e quote maturate. 100% gratuito e privato.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Come si calcola la quota di TFR che matura ogni anno?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "In base all'articolo 2120 del Codice Civile, ogni anno si accantona una quota pari alla retribuzione annua lorda utile divisa per 13,5, a cui viene sottratto un contributo IVS dello 0,50%."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Come funziona la tassazione separata sul TFR?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Il TFR non fa cumulo con gli altri redditi dell'anno per non penalizzare il lavoratore. Viene tassato con un'aliquota media IRPEF calcolata su un reddito di riferimento pari al TFR totale diviso gli anni di servizio e moltiplicato per 12."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Quando viene pagato il TFR al lavoratore?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nei contratti del settore privato, il TFR viene generalmente liquidato entro 30-45 giorni dalla data di cessazione del rapporto di lavoro, secondo i termini previsti dal rispettivo CCNL."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "I miei dati finanziari vengono salvati online?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Il calcolo avviene interamente all'interno del tuo browser. Nessun dato retributivo viene salvato o inviato a server esterni."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    .calc-grid {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      gap: 22px; align-items: start; padding-top: 26px; padding-bottom: 56px;
+    }
+    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+    .calc-form {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding: 8px 20px 20px;
+    }
+    .calc-form .fsection { padding: 14px 0; }
+    .results {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px;
+      position: sticky; top: 76px;
+    }
+    @media (max-width: 900px) { .results { position: static; } }
+    .result-big {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #fff; border-radius: 14px; padding: 20px 22px; margin-bottom: 18px;
+    }
+    .result-big .label { font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; opacity: .85; }
+    .result-big .amount { font-size: 2.1rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
+    .result-big .sub { font-size: .88rem; opacity: .9; margin-top: 4px; }
+    .breakdown { width: 100%; border-collapse: collapse; }
+    .breakdown td { padding: 8px 2px; border-bottom: 1px solid #eef2f7; font-size: .93rem; }
+    .breakdown td:last-child { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .breakdown tr.neg td:last-child { color: #dc2626; }
+    .breakdown tr.grand td { border-top: 2px solid var(--ink); border-bottom: 0; padding-top: 12px; font-weight: 800; font-size: 1.02rem; }
+    .rate-badge {
+      display: inline-block; margin-top: 14px; background: #ecfdf5; color: #047857;
+      border: 1px solid #a7f3d0; border-radius: 999px; padding: 6px 14px;
+      font-size: .85rem; font-weight: 700;
+    }
+    .disclaimer {
+      margin-top: 18px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px;
+      padding: 12px 14px; font-size: .82rem; color: #92400e;
+    }
+    .nav-links { display: flex; gap: 4px; margin-left: auto; }
+    .nav-links a {
+      text-decoration: none; color: var(--muted); font-weight: 600; font-size: .9rem;
+      padding: 7px 14px; border-radius: 9px;
+    }
+    .nav-links a:hover { background: var(--bg); color: var(--ink); }
+    .nav-links a.is-active { background: var(--accent-soft); color: var(--accent); }
+    .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .tool-card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 22px; box-shadow: var(--shadow); display: block; text-decoration: none; color: var(--ink);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .tool-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(15,23,42,.12); }
+    .tool-icon { font-size: 1.8rem; }
+    .tool-card strong { display: block; margin: 8px 0 6px; font-size: 1.05rem; }
+    .tool-card p { margin: 0 0 12px; color: var(--muted); font-size: .9rem; }
+    .tool-cta { color: var(--accent); font-weight: 700; font-size: .9rem; }
+    .tools { padding: 8px 0 54px; }
+    .tools h2 { font-size: 1.35rem; letter-spacing: -.02em; margin: 0 0 16px; }
+  </style>
+</head>
+<body>
+
+  <!-- ============ HEADER HUB ============ -->
+  <header class="site-header no-print">
+    <div class="wrap header-inner">
+      <a class="brand" href="../" style="text-decoration:none;color:inherit">
+        <span class="brand-mark">🧾</span>
+        <span class="brand-name">Fattura<span>Facile</span></span>
+      </a>
+      <p class="brand-tag">Strumenti gratis per chi vive di lavoro</p>
+      <nav class="nav-links">
+        <a href="../">Fatture</a>
+        <a href="../stipendio-netto/">Stipendio netto</a>
+        <a href="../crea-cv/">Crea CV</a>
+        <a href="index.html" class="is-active">Calcolo TFR</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero no-print">
+    <div class="wrap">
+      <h1>Calcolo <em>TFR Netto</em>: stima la tua liquidazione</h1>
+      <p class="hero-sub">
+        Inserisci la retribuzione lorda annua e il periodo lavorato: calcola subito il
+        <strong>TFR lordo maturato, l'imposta IRPEF a tassazione separata e il netto in tasca</strong>.
+        Zero registrazione, nessun dato inviato a server.
+      </p>
+      <ul class="hero-badges">
+        <li>✅ 100% gratuito e senza account</li>
+        <li>⚖️ Formula art. 2120 Codice Civile (RAL / 13,5)</li>
+        <li>🏛️ Tassazione separata IRPEF con aliquota media</li>
+        <li>🔒 I tuoi dati restano nel tuo browser</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ WORKSPACE ============ -->
+  <main class="wrap calc-grid">
+
+    <!-- COLONNA FORM -->
+    <section class="calc-form no-print">
+
+      <!-- 1 · RETRIBUZIONE -->
+      <fieldset class="fsection">
+        <legend>1 · Retribuzione</legend>
+        <div class="grid2">
+          <label>Retribuzione Annua Lorda (RAL in €)
+            <input type="text" id="tfr-ral" placeholder="Es. 28.000" inputmode="decimal" />
+          </label>
+          <label>Oppure Retribuzione Mensile Lorda (€)
+            <input type="text" id="tfr-mensile" placeholder="Es. 2.150" inputmode="decimal" />
+          </label>
+        </div>
+        <p style="font-size:.8rem; color:var(--muted); margin:4px 0 0;">
+          💡 Puoi inserire o la RAL annua o la busta paga mensile lorda (si aggiornano a vicenda).
+        </p>
+      </fieldset>
+
+      <!-- 2 · PERIODO DI SERVIZIO -->
+      <fieldset class="fsection">
+        <legend>2 · Anzianità aziendale</legend>
+        <div class="grid2">
+          <label>Anni di lavoro completi
+            <input type="number" id="tfr-anni" min="0" max="50" placeholder="Es. 4" />
+          </label>
+          <label>Mesi aggiuntivi (frazione d'anno)
+            <input type="number" id="tfr-mesi" min="0" max="11" placeholder="Es. 6" />
+          </label>
+        </div>
+        <p style="font-size:.8rem; color:var(--muted); margin:4px 0 0;">
+          Nota: una frazione di mese con almeno 15 giorni lavorati conta come un mese intero.
+        </p>
+      </fieldset>
+
+      <!-- 3 · DESTINAZIONE E ANTICIPI -->
+      <fieldset class="fsection">
+        <legend>3 · Destinazione TFR e anticipi</legend>
+        <div class="grid2">
+          <label>Destinazione del TFR
+            <select id="tfr-dest">
+              <option value="azienda" selected>Lasciato in azienda (Tassazione Separata IRPEF)</option>
+              <option value="fondo">Fondo Pensione Integrativo (Tassazione agevolata 15%-9%)</option>
+            </select>
+          </label>
+          <label>Anticipi TFR già riscossi (€)
+            <input type="text" id="tfr-anticipi" placeholder="0" inputmode="decimal" />
+          </label>
+        </div>
+      </fieldset>
+
+    </section>
+
+    <!-- COLONNA RISULTATI -->
+    <section class="results">
+      <div class="result-big">
+        <div class="label">TFR Netto stimato liquidabile</div>
+        <div class="amount" id="out-tfr-netto">0,00 €</div>
+        <div class="sub" id="out-tfr-lordo-sub">TFR Lordo totale: 0,00 €</div>
+      </div>
+
+      <table class="breakdown">
+        <tbody>
+          <tr><td>Retribuzione utile considerata</td><td id="r-ral">0,00 €</td></tr>
+          <tr><td>Quota TFR annua maturata (~7,41%)</td><td id="r-quota-annua">0,00 €</td></tr>
+          <tr><td>Anzianità totale considerata</td><td id="r-anzianita">0 anni</td></tr>
+          <tr class="grand"><td>TFR Lordo maturato</td><td id="r-tfr-lordo">0,00 €</td></tr>
+          <tr class="neg"><td>Anticipi di TFR percepiti</td><td id="r-anticipi">−0,00 €</td></tr>
+          <tr><td>Reddito di riferimento fiscale</td><td id="r-reddito-rif">0,00 €</td></tr>
+          <tr class="neg"><td id="r-imposta-label">Trattenuta IRPEF (tassazione separata)</td><td id="r-imposta">−0,00 €</td></tr>
+          <tr class="grand"><td>TFR Netto finale da riscuotere</td><td id="r-netto-finale">0,00 €</td></tr>
+        </tbody>
+      </table>
+
+      <span class="rate-badge" id="out-aliquota-badge">Aliquota media applicata: —</span>
+
+      <div class="disclaimer">
+        ⚠️ <strong>Stima indicativa.</strong> Il calcolo applica l'aliquota media IRPEF calcolata sul reddito di riferimento secondo l'art. 19 del TUIR. La liquidazione effettiva comunicata dall'Agenzia delle Entrate o indicata sul CUD finale può variare in base a rivalutazioni ISTAT storiche e accordi sindacali di secondo livello.
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ PARTNER & ALTRI STRUMENTI ============ -->
+  <section class="tools no-print">
+    <div class="wrap">
+
+      <aside class="partner-box" aria-label="Consulenza e dimissioni">
+        <div class="partner-content">
+          <span class="partner-badge">💡 Cambio lavoro o dimissioni?</span>
+          <div class="partner-title">Fai fruttare la tua liquidazione: conto deposito sicuro con interessi garantiti</div>
+          <p class="partner-desc">Non lasciare il TFR fermo sul conto a tasso zero: proteggi il tuo capitale dall'inflazione con un conto remunerato senza spese di gestione né vincoli.</p>
+        </div>
+        <a href="https://www.bbva.it/" target="_blank" rel="noopener sponsored" class="partner-btn">Vedi soluzioni di risparmio →</a>
+      </aside>
+
+      <h2>Altri strumenti gratis per il lavoro</h2>
+      <div class="tools-grid">
+        <a class="tool-card" href="../">
+          <span class="tool-icon">🧾</span>
+          <strong>FatturaFacile</strong>
+          <p>Crea fatture e preventivi PDF conformi in 1 minuto. Calcolo IVA automatica e reverse charge.</p>
+          <span class="tool-cta">Crea fattura →</span>
+        </a>
+        <a class="tool-card" href="../stipendio-netto/">
+          <span class="tool-icon">💶</span>
+          <strong>Calcolatore Stipendio Netto 2026</strong>
+          <p>Dal lordo al netto mensile con IRPEF 2026, INPS 9,19%, addizionali regionali e detrazioni.</p>
+          <span class="tool-cta">Calcola stipendio →</span>
+        </a>
+        <a class="tool-card" href="../crea-cv/">
+          <span class="tool-icon">📄</span>
+          <strong>Generatore CV</strong>
+          <p>Crea e scarica il tuo Curriculum Vitae in PDF in 5 minuti: gratis, senza account e compatibile ATS.</p>
+          <span class="tool-cta">Crea CV →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ SEO ============ -->
+  <section class="faq no-print">
+    <div class="wrap">
+      <h2>Domande frequenti sul TFR (Liquidazione)</h2>
+
+      <details>
+        <summary>Come si calcola la quota di TFR che matura ogni anno?</summary>
+        <p>In base all'articolo 2120 del Codice Civile, ogni anno si accantona una quota pari alla retribuzione annua lorda utile divisa per 13,5, a cui viene sottratto un contributo IVS dello 0,50%. In percentuale equivale a circa il 6,91% - 7,41% della RAL.</p>
+      </details>
+
+      <details>
+        <summary>Come funziona la tassazione separata sul TFR?</summary>
+        <p>Il TFR non fa cumulo con gli altri redditi dell'anno per non penalizzare il lavoratore facendolo saltare negli scaglioni IRPEF più alti. Viene tassato con un'aliquota media IRPEF calcolata su un “reddito di riferimento” pari al TFR totale diviso gli anni di servizio e moltiplicato per 12.</p>
+      </details>
+
+      <details>
+        <summary>Quando viene pagato il TFR al lavoratore?</summary>
+        <p>Nei contratti del settore privato, il TFR viene generalmente liquidato entro 30-45 giorni dalla data di cessazione del rapporto di lavoro, secondo i termini previsti dal rispettivo CCNL (es. Commercio, Metalmeccanica, Chimico).</p>
+      </details>
+
+      <details>
+        <summary>Cosa succede se il TFR è destinato a un Fondo Pensione?</summary>
+        <p>Se il TFR viene versato in un fondo di previdenza complementare, gode di una tassazione agevolata notevolmente inferiore: non si applicano le aliquote ordinarie IRPEF (minimo 23%), ma una ritenuta a titolo d'imposta che parte dal 15% e scende dello 0,30% per ogni anno oltre il 15° fino a un minimo del 9%.</p>
+      </details>
+
+      <details>
+        <summary>I miei dati retributivi vengono registrati o inviati a server?</summary>
+        <p>No, mai. Il calcolo avviene interamente all'interno del tuo browser web. Nessun dato finanziario o personale viene trasmesso o salvato su server esterni.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer no-print">
+    <div class="wrap">
+      <p>© 2026 FatturaFacile Hub · Strumenti gratuiti per chi lavora · 100% nel tuo browser, nessun dato su server esterni.</p>
+    </div>
+  </footer>
+
+  <script src="app.js?v=1"></script>
+</body>
+</html>
