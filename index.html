@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=3" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -61,7 +61,18 @@
       </div>
     </section>
 
-    <section class="workspace wrap">
+    <section class="workspace wrap" id="ff-workspace" data-mobile-view="form">
+
+      <!-- SELETTORE VISTA MOBILE -->
+      <div class="mobile-tabs no-print" style="grid-column: 1 / -1; width: 100%;">
+        <button type="button" class="mobile-tab-btn is-active" id="tab-ff-form">
+          ✍️ Compila fattura
+        </button>
+        <button type="button" class="mobile-tab-btn" id="tab-ff-preview">
+          👁️ Vedi Anteprima A4
+        </button>
+      </div>
+
       <!-- ============ FORM ============ -->
       <div class="form-panel no-print">
         <div class="toolbar">
@@ -269,6 +280,6 @@
     .tools h2 { font-size: 1.35rem; letter-spacing: -.02em; margin: 0 0 16px; }
   </style>
 
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

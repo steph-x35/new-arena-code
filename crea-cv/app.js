@@ -583,6 +583,24 @@
     form.addEventListener('input', render);
     form.addEventListener('change', render);
 
+    // Gestione schede Mobile (Compila / Anteprima)
+    const ws = $('#cv-workspace');
+    const tabForm = $('#tab-form');
+    const tabPreview = $('#tab-preview');
+    if (tabForm && tabPreview && ws) {
+      tabForm.addEventListener('click', () => {
+        ws.setAttribute('data-mobile-view', 'form');
+        tabForm.classList.add('is-active');
+        tabPreview.classList.remove('is-active');
+      });
+      tabPreview.addEventListener('click', () => {
+        ws.setAttribute('data-mobile-view', 'preview');
+        tabPreview.classList.add('is-active');
+        tabForm.classList.remove('is-active');
+        window.scrollTo({ top: ws.offsetTop - 20, behavior: 'smooth' });
+      });
+    }
+
     // Carica eventuale bozza esistente oppure parte VUOTO come richiesto
     const hasDraft = loadDraft();
     if (!hasDraft) {

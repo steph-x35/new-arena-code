@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../styles.css?v=3" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -27,18 +27,13 @@
       display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
       gap: 22px; align-items: start; padding-top: 26px; padding-bottom: 56px;
     }
-    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
-    .calc-form {
-      background: var(--card); border: 1px solid var(--line);
-      border-radius: var(--radius); box-shadow: var(--shadow); padding: 8px 20px 20px;
+    @media (max-width: 900px) {
+      .calc-grid { grid-template-columns: 1fr; gap: 16px; padding-top: 14px; padding-bottom: 36px; }
+      .calc-form { padding: 12px 14px; }
+      .results { position: static; padding: 16px 14px; }
+      .result-big { padding: 16px 18px; margin-bottom: 14px; }
+      .result-big .amount { font-size: 1.8rem; }
     }
-    .calc-form .fsection { padding: 14px 0; }
-    .results {
-      background: var(--card); border: 1px solid var(--line);
-      border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px;
-      position: sticky; top: 76px;
-    }
-    @media (max-width: 900px) { .results { position: static; } }
     .result-big {
       background: linear-gradient(135deg, #1d4ed8, #3b82f6);
       color: #fff; border-radius: 14px; padding: 20px 22px; margin-bottom: 18px;

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../styles.css?v=3" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -205,15 +205,78 @@
     .empty-cv-placeholder span { font-size: 2.2rem; margin-bottom: 8px; }
     .empty-cv-placeholder p { max-width: 360px; font-size: .95rem; margin: 0; }
 
+    @media (max-width: 860px) {
+      .sheet-cv {
+        width: 100% !important;
+        min-height: auto !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(15,23,42,.08);
+      }
+      .cv-modern {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: auto !important;
+      }
+      .cv-sidebar {
+        width: 100% !important;
+        border-right: none !important;
+        border-bottom: 2px solid #e2e8f0 !important;
+        padding: 16px !important;
+        box-sizing: border-box !important;
+        gap: 12px !important;
+      }
+      .cv-maincol {
+        width: 100% !important;
+        padding: 16px !important;
+        box-sizing: border-box !important;
+        gap: 14px !important;
+      }
+      .cv-name { font-size: 20px !important; }
+      .cv-role { font-size: 12px !important; }
+      .cv-photo-box img { width: 68px !important; height: 68px !important; }
+      .cv-classic { padding: 16px !important; min-height: auto !important; }
+      .cv-classic .cv-head-classic {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+      }
+      .cv-entry-head {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 2px !important;
+      }
+      .cv-options-bar {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+      }
+      .empty-cv-placeholder {
+        min-height: 140px;
+        padding: 24px 14px;
+      }
+    }
+
     @media print {
       body { background: #fff !important; }
       .no-print { display: none !important; }
+      .mobile-tabs { display: none !important; }
+      .form-panel { display: none !important; }
+      .preview-panel { display: block !important; }
       .workspace { display: block !important; padding: 0 !important; max-width: none !important; }
       .preview-panel { position: static !important; }
       .preview-scroll { background: none !important; border: 0 !important; padding: 0 !important; overflow: visible !important; }
       .sheet-cv {
         width: 210mm !important; min-height: 297mm !important; box-shadow: none !important; margin: 0 auto !important;
+        padding: 0 !important; font-size: 11px !important; border-radius: 0 !important;
       }
+      .cv-modern { display: grid !important; grid-template-columns: 66mm 1fr !important; min-height: 297mm !important; }
+      .cv-sidebar { width: auto !important; border-right: 1px solid #e2e8f0 !important; border-bottom: none !important; padding: 14mm 10mm !important; }
+      .cv-maincol { width: auto !important; padding: 14mm 14mm 10mm !important; }
+      .cv-photo-box img { width: 38mm !important; height: 38mm !important; }
+      .cv-classic { padding: 14mm 16mm !important; }
+      .cv-entry-head { flex-direction: row !important; }
       @page { size: A4 portrait; margin: 0; }
     }
   </style>
@@ -255,7 +318,17 @@
   </section>
 
   <!-- ============ WORKSPACE ============ -->
-  <main class="wrap workspace">
+  <main class="wrap workspace" id="cv-workspace" data-mobile-view="form">
+
+    <!-- SELETTORE VISTA MOBILE (COMPILAZIONE / ANTEPRIMA) -->
+    <div class="mobile-tabs no-print" style="grid-column: 1 / -1; width: 100%;">
+      <button type="button" class="mobile-tab-btn is-active" id="tab-form" data-target="form">
+        ✍️ Modifica dati
+      </button>
+      <button type="button" class="mobile-tab-btn" id="tab-preview" data-target="preview">
+        👁️ Vedi Anteprima CV
+      </button>
+    </div>
 
     <!-- COLONNA SINISTRA: FORM DI COMPILAZIONE -->
     <section class="form-panel no-print" aria-label="Compilazione Curriculum">
@@ -499,6 +572,6 @@
 
   <div id="toast" class="toast no-print" role="status"></div>
 
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

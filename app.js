@@ -363,6 +363,24 @@
       toast('Documento nuovo ✓');
     });
 
+    // Gestione schede Mobile (Compila / Anteprima)
+    const ws = $('#ff-workspace');
+    const tabForm = $('#tab-ff-form');
+    const tabPreview = $('#tab-ff-preview');
+    if (tabForm && tabPreview && ws) {
+      tabForm.addEventListener('click', () => {
+        ws.setAttribute('data-mobile-view', 'form');
+        tabForm.classList.add('is-active');
+        tabPreview.classList.remove('is-active');
+      });
+      tabPreview.addEventListener('click', () => {
+        ws.setAttribute('data-mobile-view', 'preview');
+        tabPreview.classList.add('is-active');
+        tabForm.classList.remove('is-active');
+        window.scrollTo({ top: ws.offsetTop - 20, behavior: 'smooth' });
+      });
+    }
+
     renderItems();
     syncForm();
     renderSavedList();
