@@ -205,6 +205,40 @@
     .empty-cv-placeholder span { font-size: 2.2rem; margin-bottom: 8px; }
     .empty-cv-placeholder p { max-width: 360px; font-size: .95rem; margin: 0; }
 
+    /* Promo Kit Digitale */
+    .kit-promo-box {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #fff; border-radius: var(--radius); padding: 26px 28px;
+      margin: 32px 0 24px; box-shadow: 0 10px 30px rgba(15,23,42,.2); border: 1px solid #334155;
+    }
+    .kit-promo-badge {
+      display: inline-block; background: #f59e0b; color: #78350f; font-size: .75rem;
+      font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: 4px 10px;
+      border-radius: 6px; margin-bottom: 12px;
+    }
+    .kit-promo-grid { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: center; }
+    @media (max-width: 768px) {
+      .kit-promo-grid { grid-template-columns: 1fr; gap: 20px; }
+      .kit-promo-cta { text-align: left; }
+    }
+    .kit-promo-text h3 { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #fff; }
+    .kit-promo-text p { color: #94a3b8; font-size: .92rem; margin: 0 0 12px; }
+    .kit-promo-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; font-size: .9rem; color: #e2e8f0; }
+    .kit-promo-list li { display: flex; align-items: center; gap: 8px; }
+    .kit-promo-cta {
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px; padding: 20px 24px; text-align: center; min-width: 240px;
+    }
+    .kit-price { font-size: 2rem; font-weight: 800; color: #38bdf8; line-height: 1; }
+    .kit-old-price { font-size: 1.1rem; color: #64748b; text-decoration: line-through; margin-left: 6px; font-weight: 500; }
+    .kit-sub { font-size: .75rem; color: #94a3b8; margin: 6px 0 14px; }
+    .kit-btn {
+      display: block; background: #38bdf8; color: #0f172a; font-weight: 800; font-size: .95rem;
+      padding: 12px 20px; border-radius: 10px; text-decoration: none; transition: all .15s ease;
+      box-shadow: 0 4px 14px rgba(56,189,248,.35); border: 0; cursor: pointer; text-align: center;
+    }
+    .kit-btn:hover { background: #7dd3fc; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(56,189,248,.5); }
+
     @media (max-width: 860px) {
       .sheet-cv {
         width: 100% !important;
@@ -497,6 +531,27 @@
   <!-- ============ ALTRI STRUMENTI ============ -->
   <section class="tools no-print">
     <div class="wrap">
+
+      <!-- PROMO KIT DIGITALE A 3,90€ -->
+      <aside class="kit-promo-box" aria-label="Kit Colloquio e CV">
+        <div class="kit-promo-badge">🔥 Offerta Completa per la Candidatura</div>
+        <div class="kit-promo-grid">
+          <div class="kit-promo-text">
+            <h3>Kit Colloquio & CV Professionale</h3>
+            <p>Vuoi aumentare subito le tue possibilità di essere richiamato per un colloquio? Scarica il pacchetto completo pronto all'uso:</p>
+            <ul class="kit-promo-list">
+              <li>📄 <strong>5 Modelli di CV pronti</strong> in formato Word (.docx), Google Docs e HTML (100% conformi ai filtri ATS)</li>
+              <li>✉️ <strong>10 Lettere di Presentazione già scritte</strong> per ogni settore lavorativo</li>
+              <li>🎯 <strong>Guida pratica PDF esclusiva</strong>: <em>"Le 20 domande trabocchetto ai colloqui di lavoro e come rispondere per farsi assumere"</em></li>
+            </ul>
+          </div>
+          <div class="kit-promo-cta">
+            <div class="kit-price">3,90 € <span class="kit-old-price">19,90 €</span></div>
+            <div class="kit-sub">Download immediato · Pagamento sicuro</div>
+            <a href="https://payhip.com/" target="_blank" id="btn-buy-kit" class="kit-btn">Scarica il Kit Completo →</a>
+          </div>
+        </div>
+      </aside>
 
       <aside class="partner-box" aria-label="Opportunità e formazione consigliata">
         <div class="partner-content">
