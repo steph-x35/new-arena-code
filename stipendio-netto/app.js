@@ -47,10 +47,33 @@
 
   /* ---------- helpers ---------- */
   function parseNum(v) {
-    if (typeof v === 'number') return v;
+    if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
     let s = String(v ?? '').trim().replace(/[€\s]/g, '');
     if (!s) return 0;
-    if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+
+    if (s.includes('.') && s.includes(',')) {
+      const lastDot = s.lastIndexOf('.');
+      const lastComma = s.lastIndexOf(',');
+      if (lastComma > lastDot) {
+        // Formato italiano: 1.234,56
+        s = s.replace(/\./g, '').replace(',', '.');
+      } else {
+        // Formato anglosassone: 1,234.56
+        s = s.replace(/,/g, '');
+      }
+    } else if (s.includes(',')) {
+      // Solo virgola (es. 1600,50 o 9,19)
+      s = s.replace(',', '.');
+    } else if (s.includes('.')) {
+      // Solo punto: separatore migliaia (30.000, 1.600) o decimale (9.19)
+      const parts = s.split('.');
+      if (parts.length > 2) {
+        s = s.replace(/\./g, '');
+      } else if (parts[1].length === 3) {
+        s = parts[0] + parts[1];
+      }
+    }
+
     const n = parseFloat(s);
     return Number.isFinite(n) ? n : 0;
   }
