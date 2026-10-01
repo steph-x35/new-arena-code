@@ -131,3 +131,41 @@ https://github.com/steph-x35/new-arena-code/releases/tag/v2.25.2
 - >5k views / completamento >50% → reel #2 con voce entro 3 giorni
 - 1-5k → stessa formula, soggetto nuovo (dunk compilation / green da metà campo)
 - <1k → NON cancellare, cambiare solo l'hook dei primi 2 secondi e ripartire col reel #2
+
+---
+
+## ✅ REEL #1 — VERSIONE FINALE (formato "DEV UPDATE", montaggio in TikTok)
+
+Formato scelto: showcase degli aggiornamenti con testi a schermo sulle feature,
+montato direttamente nell'editor TikTok (niente CapCut). Video orizzontale
+LASCIATO con le barre nere (letterbox): i testi vivono sulle barre = stile
+dev-log pulito e nessun problema di crop.
+
+### Lista testi esatti (in ordine, UNO alla volta)
+| # | Testo | Quando compare |
+|---|-------|----------------|
+| 1 | **NUOVO AGGIORNAMENTO 🏀** | secondo 0 (hook, bold) |
+| 2 | **🟢 GREEN = il tiro perfetto non sbaglia** | esattamente sullo swish del green #1 |
+| 3 | **SFIDA 1v1: check sistemato ✅** | sull'inizio 1v1 / check (se presente nel video) |
+| 4 | **LA SCHIACCIATA 🏀💀** | sul takeoff del dunk |
+| 5 | **GRATIS IN BIO 🔗** | chiusura, sul dunk a canestro |
+
+(Opzionale, solo se la vibrazione si è sentita sul telefono: "📳 e VIBRA quando la fai"
+tra il testo 2 e il 3.)
+
+### Regole testi
+- UN testo alla volta, max 6 parole, font bold, bianco/verde con bordo nero
+- Ogni testo deve comparire IN SYNC con l'azione (swish / takeoff): usa
+  "Imposta durata" e trascina l'inizio sul frame giusto
+- Nessuna didascalia automatica (l'audio del gioco è SFX, non voce)
+
+### Editing in TikTok (passaggi)
+1. + → seleziona il video → Avanti
+2. Modifica clip: taglia i tempi morti tra un'azione e l'altra
+3. NON pizzicare per zoomare: barre nere = tela gratuita per i testi
+4. Testo → scrivi → font bold → ✅ → tocca il testo → Imposta durata → sync
+5. Audio originale del video già attivo (swish/crowd) — eventuale suono trend al 20%
+6. Copertina: scegli il frame con il popup GREEN (la griglia del profilo ringrazia)
+7. Avanti → caption + hashtag → Pubblica → commento fissato subito
+
+Caption / hashtag / commento fissato / orario: invariati (vedi FASE 2-3 sopra).
