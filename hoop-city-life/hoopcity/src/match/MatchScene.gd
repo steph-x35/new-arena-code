@@ -1261,6 +1261,9 @@ func _on_shot_taken(quality: String, made: bool, pts: int) -> void:
 	if head.begins_with("VERY") or head == "LATE" or head == "EARLY":
 		col = Color(1, 0.5, 0.4)
 	if meter: meter.show_release(head, col)
+	if head == "PERFECT" and court != null and court.user != null:
+		Events.popup.emit("GREEN!", court.user.global_position + Vector2(0, -95), Color(0.3, 1.0, 0.45), true)
+		Sfx.haptic(50)
 	# No floating/toast words for the shot verdict: they covered the meter
 	# at the exact moment the player reads it. The frozen dot + score popup
 	# carry the feedback now.

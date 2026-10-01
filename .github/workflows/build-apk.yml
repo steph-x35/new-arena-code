@@ -54,21 +54,11 @@ jobs:
           cp -r /tmp/godot/tpl/templates/* ~/.local/share/godot/export_templates/4.3.stable/
           ls -la ~/.local/share/godot/export_templates/4.3.stable/
 
-      - name: Check for original export presets in release archive
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify Export Presets
         run: |
-          mkdir -p /tmp/hoop
-          gh release download hoop -p "*.zip" -D /tmp/hoop -R ${{ github.repository }} || true
-          if ls /tmp/hoop/*.zip 1> /dev/null 2>&1; then
-            ZIP_FILE=$(ls /tmp/hoop/*.zip | head -n 1)
-            unzip -q "$ZIP_FILE" -d /tmp/raw_extracted || true
-            find /tmp/raw_extracted -name "export_presets.cfg" -exec cp {} hoop-city-life/hoopcity/export_presets.cfg \; || true
-          fi
-          sed -i 's/version\/code=.*/version\/code=112/' hoop-city-life/hoopcity/export_presets.cfg
-          sed -i 's/version\/name=.*/version\/name="2.25.0"/' hoop-city-life/hoopcity/export_presets.cfg
-          sed -i 's|export_path=.*|export_path="build/HoopCity-v2.25.0.apk"|' hoop-city-life/hoopcity/export_presets.cfg
-          cat hoop-city-life/hoopcity/export_presets.cfg | head -n 35
+          echo "=== export_presets.cfg ==="
+          grep -E "permissions/vibrate|version/" hoop-city-life/hoopcity/export_presets.cfg
+          cat hoop-city-life/hoopcity/export_presets.cfg | head -n 45
 
       - name: Configure Godot Editor Settings
         run: |
@@ -88,8 +78,8 @@ jobs:
           echo "Importing project assets in headless mode..."
           godot -v --headless --import 2>&1 | tee /tmp/import.log || true
           echo "Exporting Android APK..."
-          godot -v --headless --export-release "Android" build/HoopCity-v2.25.0.apk 2>&1 | tee /tmp/export.log || true
-          if [ ! -f "build/HoopCity-v2.25.0.apk" ]; then
+          godot -v --headless --export-release "Android" build/HoopCity-v2.25.1.apk 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/HoopCity-v2.25.1.apk" ]; then
             echo "=== EXPORT FAILED! Printing log: ==="
             cat /tmp/export.log | tail -n 80
             cp /tmp/export.log $GITHUB_WORKSPACE/build_error.log
@@ -101,16 +91,17 @@ jobs:
             git push origin arena/01a0cac8-new-arena-code || true
             exit 1
           fi
-          ls -lh build/HoopCity-v2.25.0.apk
+          ls -lh build/HoopCity-v2.25.1.apk
 
       - name: Create or Update GitHub Release with APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp hoop-city-life/hoopcity/build/HoopCity-v2.25.0.apk /tmp/HoopCity-v2.25.0.apk
-          gh release delete v2.25.0 -y || true
-          gh release create v2.25.0 /tmp/HoopCity-v2.25.0.apk \
-            --title "Hoop City Life v2.25.0" \
-            --notes "Aggiornamento v2.25.0 con Feature 1: Game Feel del Canestro (Aptica al rilascio perfetto/canestro/schiacciata/stoppata, menu impostazioni vibrazione e buzzer-beater clutch slow-mo)." \
+          cp hoop-city-life/hoopcity/build/HoopCity-v2.25.1.apk /tmp/HoopCity-v2.25.1.apk
+          gh release delete v2.25.1 -y || true
+          gh release create v2.25.1 /tmp/HoopCity-v2.25.1.apk \
+            --title "Hoop City Life v2.25.1" \
+            --notes "Aggiornamento v2.25.1: fix permesso VIBRATE Android nel manifest, vibrazione abilitata nello Street Court a 50ms, effetto grafico GREEN LIGHT (aura radiante verde sullo shot meter e popup GREEN sopra la testa)." \
             --target arena/01a0cac8-new-arena-code
+          echo "Release created successfully."
           echo "Release created successfully."

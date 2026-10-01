@@ -20,7 +20,7 @@ func _ready() -> void:
 	apply()
 
 func is_vibration_enabled() -> bool:
-	return bool(data.get("vibration", true))
+	return bool(get_v("vibration", true))
 
 func get_v(k: String, def = null):
 	return data.get(k, def)

@@ -679,7 +679,9 @@ func _shoot_up() -> void:
 	var zone: String
 	if err <= pw:
 		zone = "green"
-		timing = 1.0; verdict = "SWISH"; verdict_col = Color(0.35, 1.0, 0.45)
+		timing = 1.0; verdict = "PERFECT"; verdict_col = Color(0.35, 1.0, 0.45)
+		Sfx.haptic(50)
+		Events.popup.emit("GREEN!", player_pos + Vector2(0, -95), Color(0.3, 1.0, 0.45), true)
 	elif err <= gw:
 		zone = "yellow"
 		timing = 0.66; verdict = "GOOD"; verdict_col = Color(0.95, 0.85, 0.30)

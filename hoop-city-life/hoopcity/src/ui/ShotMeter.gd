@@ -41,8 +41,8 @@ func show_release(name: String, made_col: Color) -> void:
 	freeze_t = 0.75
 	verdict = name
 	verdict_col = made_col
-	if name == "PERFECT":
-		Sfx.haptic(22)
+	if name == "PERFECT" or name == "GREEN" or (made_col.g > 0.85 and made_col.r < 0.6):
+		Sfx.haptic(50)
 
 func _center() -> Vector2:
 	return Vector2(size.x * 0.5, size.y)
@@ -97,7 +97,13 @@ func _draw() -> void:
 	# No words on the meter, ever: "WIDE OPEN / CONTESTED" headlines covered
 	# the arc and annoyed players on every court. Contest is now a silent
 	# coloured pip under the arc centre (green = free, red = smothered).
-	if frozen and verdict != "":
+	# GREEN LIGHT visual effect: radiant glowing green aura and burst ring!
+	if frozen and (verdict == "PERFECT" or verdict == "GREEN" or (verdict_col.g > 0.85 and verdict_col.r < 0.6)):
+		var flash_alpha: float = clampf(freeze_t / 0.75, 0.0, 1.0)
+		draw_arc(c, R, _ang(0.0), _ang(max_charge), 48, Color(0.2, 1.0, 0.35, 0.75 * flash_alpha), W * 1.8)
+		draw_circle(c + Vector2(0.0, R * 0.62), 8.0, Color(0.3, 1.0, 0.45, flash_alpha))
+		draw_arc(c + Vector2(0.0, R * 0.62), 16.0 * (1.0 - flash_alpha * 0.3), 0, TAU, 24, Color(0.5, 1.0, 0.65, flash_alpha), 2.5)
+	elif frozen and verdict != "":
 		draw_circle(c + Vector2(0.0, R * 0.62), 5.0, verdict_col)
 	elif charge >= 0.0:
 		var lcol := Color(0.5, 1, 0.55)

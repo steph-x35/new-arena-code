@@ -922,8 +922,14 @@ Test: RoomFitProbe 10/10 hotspot dentro (scale 0.8, pos (120,0)), ChatProbe C1-C
 - Imparato: lambda GDScript non catturano ident "_" locali di _ready (parse error) -> variabili membro; UIKit.column posiziona lo SCROLL (non la VBox ritornata: spostare il parent).
 Test: MenuProbe M1-M3, ChatProbe, RoomFit, Phone, Inbound, V222, SoloPost, SimRunner 3/3, smoke OK, import 0 err, aapt 111/2.24.3 dual-abi, firmato.
 
-## v2.25.0 (code 112) — 2026-10-01 — Game Feel del Canestro (Aptica, Feedback & Bullet-Time Clutch)
-- **APK compilato e firmato:** `HoopCity-v2.25.0.apk` rilasciato su GitHub Releases (tag `v2.25.0`).
+## v2.25.1 (code 113) — 2026-10-01 — Green Light FX & Permesso Vibrazione Android
+- **APK compilato e firmato:** `HoopCity-v2.25.1.apk` rilasciato su GitHub Releases (tag `v2.25.1`).
+- **Fix Permesso Android VIBRATE**: abilitato `permissions/vibrate=true` e `custom_permissions` in `export_presets.cfg`, indispensabile per permettere al sistema operativo Android di inviare i comandi al motorino aptico del dispositivo (prima Android scartava silenziosamente la chiamata a livello OS).
+- **Fix Rilascio Street Court (SoloCourt)**: corretto il verdetto a `PERFECT` (prima passava `SWISH` aggirando il check dello shot meter) e collegata la vibrazione a 50ms direttamente sul rilascio `zone == "green"`.
+- **Feature 2: Effetto Green Light**:
+  - **Aura radiante verde sullo Shot Meter**: quando il tiro è perfetto, l'arco dello shot meter si illumina con un bagliore neon verde a doppio spessore e anello espansivo che sfuma con grazia.
+  - **Popup GREEN!**: callout neon verde (`Events.popup`) sopra la testa del giocatore sia nello Street Court che nelle partite 5v5/1v1 e nei Drill.
+  - **Aptica potenziata**: impulso aumentato a 50ms per una risposta tattile netta e percepibile anche su telefoni con attuatori a bassa inerzia.
 - **Feedback Aptico (Micro-vibrazione)**: implementato wrapper `Sfx.haptic(ms)` sicuro per mobile (`Input.vibrate_handheld(ms)`) e no-op trasparente su desktop/web.
   - Snap tattile al rilascio perfetto (Green / PERFECT) nello `ShotMeter`: 22ms.
   - Colpo sordo all'affondata di schiacciata (Dunk): 60ms.

@@ -107,7 +107,7 @@ func apply_settings() -> void:
 	AudioServer.set_bus_mute(AudioServer.get_bus_index("Crowd"), crowd_v <= 0.001)
 
 ## Micro-vibrazione aptica per mobile (safe e silenziosa su desktop/web)
-func haptic(ms: int = 25) -> void:
+func haptic(ms: int = 50) -> void:
 	if Settings != null and Settings.has_method("is_vibration_enabled"):
 		if not Settings.is_vibration_enabled():
 			return
