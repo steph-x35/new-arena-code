@@ -392,6 +392,7 @@ func give_ball(p: BallPlayer) -> void:
 ## Grab a loose ball. Makes the SHOOT button meaningful even without possession
 ## (rebounds, blocked shots) instead of being a dead input.
 func try_grab(p: BallPlayer) -> bool:
+	if not play_live or restarting or awaiting_check: return false
 	if ball.holder != null or p.stun > 0.0: return false
 	var d := p.global_position.distance_to(ball.global_position)
 	if d > 90.0 or ball.h > 210.0: return false
@@ -1345,19 +1346,19 @@ func _check_ball(team: int) -> void:
 	def.global_position = rim + Vector2(-300.0, 0.0)
 	off.velocity = Vector2.ZERO
 	def.velocity = Vector2.ZERO
+	off.facing = 1.0
+	def.facing = -1.0
 	for p in players:
 		p.has_ball = false
+	off.has_ball = true
 	if ball:
-		ball.detach()
+		ball.attach(off)
 		ball.live = false
-		ball.global_position = off.global_position
-		ball.h = 40.0
-	must_clear = true
+	must_clear = false
 	Events.toast.emit("CHECK THE BALL  %d - %d" % [score[0], score[1]])
 	if team == 1:
-		# Palla dell'avversario: il check lo esegue LUI da solo, il bottone
-		# CHECK resta solo per i tuoi palloni.
-		await get_tree().create_timer(0.9).timeout
+		# Palla dell'avversario: check automatico dopo una breve pausa
+		await get_tree().create_timer(1.2).timeout
 		if is_inside_tree() and awaiting_check and not finished:
 			confirm_check()
 
@@ -1371,7 +1372,7 @@ func confirm_check() -> void:
 		return
 	give_ball(offs[0])
 	play_live = true
-	must_clear = true
+	must_clear = false
 	Sfx.play("go")
 	Sfx.add_hype(0.2)
 	Events.toast.emit("GO!")

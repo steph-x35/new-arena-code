@@ -922,7 +922,13 @@ Test: RoomFitProbe 10/10 hotspot dentro (scale 0.8, pos (120,0)), ChatProbe C1-C
 - Imparato: lambda GDScript non catturano ident "_" locali di _ready (parse error) -> variabili membro; UIKit.column posiziona lo SCROLL (non la VBox ritornata: spostare il parent).
 Test: MenuProbe M1-M3, ChatProbe, RoomFit, Phone, Inbound, V222, SoloPost, SimRunner 3/3, smoke OK, import 0 err, aapt 111/2.24.3 dual-abi, firmato.
 
-## v2.25.1 (code 113) — 2026-10-01 — Green Light FX & Permesso Vibrazione Android
+## v2.25.2 (code 114) — 2026-10-01 — Fix 1v1 Check-ball & AI Softlock
+- **Fix 1v1 Check-ball softlock**: risolto il bug critico in cui la palla durante il check veniva lasciata staccata a terra con `restarting = true`, permettendo all'AIBrain dell'avversario di scambiarla per un rimbalzo/palla vagante ed eseguire `try_grab()`, rubando il possesso all'utente prima dell'avvio della partita e congelandosi con la palla in mano mentre il pulsante CHECK spariva.
+- **Protezione try_grab**: `try_grab()` ora rifiuta categoricamente prese quando `not play_live or restarting or awaiting_check`.
+- **Attaccante con palla in mano**: in `_check_ball` la palla è correttamente agganciata all'attaccante (`off.has_ball = true`, `ball.attach(off)`), con l'attaccante posizionato alla linea dei 3 punti e il difensore di fronte.
+- **Blocco movimento pre-check**: durante la fase di check/countdown 1v1 entrambi i giocatori restano fermi sulle proprie posizioni fino alla conferma del CHECK, dopodiché la partita diventa live ("GO!").
+- **Fix must_clear**: al termine del check il flag `must_clear` è impostato a `false` (i giocatori sono già oltre l'arco dei tre punti al top of the key), consentendo subito la penetrazione o il tiro.
+
 - **APK compilato e firmato:** `HoopCity-v2.25.1.apk` rilasciato su GitHub Releases (tag `v2.25.1`).
 - **Fix Permesso Android VIBRATE**: abilitato `permissions/vibrate=true` e `custom_permissions` in `export_presets.cfg`, indispensabile per permettere al sistema operativo Android di inviare i comandi al motorino aptico del dispositivo (prima Android scartava silenziosamente la chiamata a livello OS).
 - **Fix Rilascio Street Court (SoloCourt)**: corretto il verdetto a `PERFECT` (prima passava `SWISH` aggirando il check dello shot meter) e collegata la vibrazione a 50ms direttamente sul rilascio `zone == "green"`.

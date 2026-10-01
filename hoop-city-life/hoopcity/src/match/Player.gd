@@ -193,12 +193,9 @@ func _physics_process(delta: float) -> void:
 		elif is_user and shot_anim > 0.0:
 			wish = move_input * 0.55
 	# Frozen before tip-off (the 3-second countdown) and after the whistle --
-	# except during YOUR inbound wait: everyone but the inbounder keeps moving.
+	# except during 5v5 inbound wait: everyone but the inbounder keeps moving.
 	if court != null and not court.play_live:
-		# Dalla rimessa nessuno resta piantato: si muovono TUTTI tranne il
-		# rimettitore (che e' fuori campo). Prima l'attesa auto (0.85s) li
-		# congelava TUTTI e gli "sfidanti restavano indietro".
-		var _inbound_phase: bool = court.inbound_wait > 0.0 or court.restarting
+		var _inbound_phase: bool = not court.one_on_one and (court.inbound_wait > 0.0 or court.restarting)
 		if not (_inbound_phase and self != court.ball_handler()):
 			wish = Vector2.ZERO
 	# DEFENSE: with GUARD held, glue to the ball-handler and stay between him

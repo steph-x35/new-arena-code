@@ -56,12 +56,9 @@ func setup(player: BallPlayer, c: Node2D) -> void:
 func _physics_process(delta: float) -> void:
 	if p != null and (p.entering or p.leaving):
 		return
-	# Durante la RIMESSA la brain lavora (torna in formazione): solo la
-	# pausa tip-off/controlli ti congela davvero.
-	if p == null or court == null or (not court.play_live and not court.restarting): 
-		# Rimessa chiamata: la difesa NON si congela. Ogni difensore ombreggia
-		# il suo mark a meta' strada tra lui e il nostro canestro, cosi' il
-		# rilascio non puo' diventare un cherry-pick senza contrasto.
+	# Gioco fermo (countdown, check 1v1, pausa fischietto): non eseguire azioni o rebound
+	if p == null or court == null or not court.play_live:
+		# Durante la rimessa 5v5 la difesa ombreggia il proprio uomo
 		if court != null and p != null and court.inbound_wait > 0.0 \
 		and p.team != int(court.possession) and not court.one_on_one:
 			var mk: BallPlayer = court.man_mark_for(p)
