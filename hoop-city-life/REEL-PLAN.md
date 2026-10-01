@@ -111,3 +111,23 @@ https://github.com/steph-x35/new-arena-code/releases/tag/v2.25.2
 - ✅ Solo gameplay diretto con payoff concreto (formula che ha funzionato coi TFR)
 - ❌ Link nei commenti TikTok non cliccabili → sempre "in bio"
 - ✅ Sempre la versione APK firmata più recente (attuale: v2.25.2, code 114)
+
+---
+
+## ⚠️ DECISIONI FINALI (post-registrazione)
+
+### ❌ Acquistare views: MAI
+- Bot con watch time 1-2s → l'algoritmo legge "video pessimo" e seppellisce il reel,
+  bloccando anche la distribuzione organica. Views false = zero download, zero Payhip.
+- Viola la regola zero-spese. Il video TFR (744 likes) è cresciuto da solo: la formula c'è.
+
+### ❌ Voce sotto: NO per il reel #1
+- L'hook È l'audio del gioco (swish + crowd + popup GREEN). La voce lo copre.
+- Formato gaming vincente su TikTok = gameplay + testo a schermo (come i green di 2K).
+- PIANO B (solo se il video non ha audio dispositivo): la voce che racconta diventa il salvagente.
+- La voce serve invece per il reel #2 "Ho creato un videogioco da solo".
+
+### 📊 Lettura risultati a 48h
+- >5k views / completamento >50% → reel #2 con voce entro 3 giorni
+- 1-5k → stessa formula, soggetto nuovo (dunk compilation / green da metà campo)
+- <1k → NON cancellare, cambiare solo l'hook dei primi 2 secondi e ripartire col reel #2
