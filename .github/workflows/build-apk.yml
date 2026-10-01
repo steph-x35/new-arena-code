@@ -85,9 +85,21 @@ jobs:
           cd hoop-city-life/hoopcity
           mkdir -p build
           echo "Importing project assets in headless mode..."
-          godot --headless --import || true
+          godot -v --headless --import 2>&1 | tee /tmp/import.log || true
           echo "Exporting Android APK..."
-          godot -v --headless --export-release "Android" build/HoopCity-v2.25.0.apk || godot -v --headless --export-debug "Android" build/HoopCity-v2.25.0.apk
+          godot -v --headless --export-release "Android" build/HoopCity-v2.25.0.apk 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/HoopCity-v2.25.0.apk" ]; then
+            echo "=== EXPORT FAILED! Printing log: ==="
+            cat /tmp/export.log | tail -n 80
+            cp /tmp/export.log $GITHUB_WORKSPACE/build_error.log
+            cd $GITHUB_WORKSPACE
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add build_error.log
+            git commit -m "ci: debug export failure log" || true
+            git push origin arena/01a0cac8-new-arena-code || true
+            exit 1
+          fi
           ls -lh build/HoopCity-v2.25.0.apk
 
       - name: Create or Update GitHub Release with APK
