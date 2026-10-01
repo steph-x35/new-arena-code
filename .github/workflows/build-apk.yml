@@ -49,7 +49,7 @@ jobs:
           cp -r /tmp/godot/tpl/templates/* ~/.local/share/godot/export_templates/4.3.stable/
           ls -la ~/.local/share/godot/export_templates/4.3.stable/
 
-      - name: Extract original export presets if present
+      - name: Check for original export presets in release archive
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -60,66 +60,9 @@ jobs:
             unzip -q "$ZIP_FILE" -d /tmp/raw_extracted || true
             find /tmp/raw_extracted -name "export_presets.cfg" -exec cp {} hoop-city-life/hoopcity/export_presets.cfg \; || true
           fi
-
-      - name: Ensure export_presets.cfg exists
-        run: |
-          if [ ! -f "hoop-city-life/hoopcity/export_presets.cfg" ]; then
-            echo "Generating export_presets.cfg..."
-            cat << 'EOF' > hoop-city-life/hoopcity/export_presets.cfg
-[preset.0]
-
-name="Android"
-platform="Android"
-runnable=true
-dedicated_server=false
-custom_features=""
-export_filter="all_resources"
-include_filter=""
-exclude_filter=""
-export_path="build/HoopCity-v2.25.0.apk"
-encryption_include_filters=""
-encryption_exclude_filters=""
-encrypt_pck=false
-encrypt_directory=false
-
-[preset.0.options]
-
-custom_template/debug=""
-custom_template/release=""
-gradle_build/use_gradle_build=false
-architectures/arm64-v8a=true
-architectures/armeabi-v7a=true
-architectures/x86_64=false
-architectures/x86=false
-package/unique_name="com.example.hoopcity"
-package/name="Hoop City Life"
-package/signed=true
-package/app_category=0
-package/retain_data_on_uninstall=false
-package/exclude_from_recents=false
-package/show_in_launcher=true
-version/code=112
-version/name="2.25.0"
-keystore/debug="res://keystore/debug.keystore"
-keystore/debug_user="androiddebugkey"
-keystore/debug_password="android"
-keystore/release=""
-keystore/release_user=""
-keystore/release_password=""
-screen/immersive_mode=true
-screen/support_small=true
-screen/support_normal=true
-screen/support_large=true
-screen/support_xlarge=true
-user_data_backup/allow=false
-command_line/extra_args=""
-EOF
-          else
-            # Update version code and name
-            sed -i 's/version\/code=.*/version\/code=112/' hoop-city-life/hoopcity/export_presets.cfg
-            sed -i 's/version\/name=.*/version\/name="2.25.0"/' hoop-city-life/hoopcity/export_presets.cfg
-            sed -i 's|export_path=.*|export_path="build/HoopCity-v2.25.0.apk"|' hoop-city-life/hoopcity/export_presets.cfg
-          fi
+          sed -i 's/version\/code=.*/version\/code=112/' hoop-city-life/hoopcity/export_presets.cfg
+          sed -i 's/version\/name=.*/version\/name="2.25.0"/' hoop-city-life/hoopcity/export_presets.cfg
+          sed -i 's|export_path=.*|export_path="build/HoopCity-v2.25.0.apk"|' hoop-city-life/hoopcity/export_presets.cfg
           cat hoop-city-life/hoopcity/export_presets.cfg | head -n 35
 
       - name: Configure Godot Editor Settings
