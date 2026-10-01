@@ -76,6 +76,9 @@ jobs:
           cp hoop-city-life/.config/godot/editor_settings-4.3.tres ~/.config/godot/ 2>/dev/null || true
           sed -i "s|export/android/android_sdk_path = .*|export/android/android_sdk_path = \"$ANDROID_HOME\"|g" ~/.config/godot/editor_settings-4.3.tres || true
           sed -i "s|export/android/debug_keystore = .*|export/android/debug_keystore = \"$GITHUB_WORKSPACE/hoop-city-life/hoopcity/keystore/debug.keystore\"|g" ~/.config/godot/editor_settings-4.3.tres || true
+          cp ~/.config/godot/editor_settings-4.3.tres ~/.config/godot/editor_settings-4.tres || true
+          echo "=== editor_settings-4.tres ==="
+          grep "export/android" ~/.config/godot/editor_settings-4.tres
 
       - name: Export Android APK
         run: |
@@ -84,7 +87,7 @@ jobs:
           echo "Importing project assets in headless mode..."
           godot --headless --import || true
           echo "Exporting Android APK..."
-          godot --headless --export-release "Android" build/HoopCity-v2.25.0.apk
+          godot -v --headless --export-release "Android" build/HoopCity-v2.25.0.apk || godot -v --headless --export-debug "Android" build/HoopCity-v2.25.0.apk
           ls -lh build/HoopCity-v2.25.0.apk
 
       - name: Create or Update GitHub Release with APK
