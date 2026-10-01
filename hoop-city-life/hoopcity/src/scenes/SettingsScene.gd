@@ -28,6 +28,7 @@ func _ready() -> void:
 
 	_section(v, Loc.t("settings.controls"))
 	_row_slider(v, Loc.t("settings.stick"), "joystick_sensitivity", 0.4, 2.0, 0.1)
+	_row_toggle(v, Loc.t("settings.vibration"), "vibration", true, false)
 
 	_section(v, Loc.t("settings.audio"))
 	_row_slider(v, Loc.t("settings.sfx"), "sfx", 0.0, 1.0, 0.05)

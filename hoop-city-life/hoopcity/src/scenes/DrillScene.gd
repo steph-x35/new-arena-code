@@ -583,6 +583,7 @@ func _step_drill_ball(delta: float) -> void:
 				return
 			net_wobble = 1.0
 			Sfx.play("swish", -3.0, randf_range(0.94, 1.04))
+			Sfx.haptic(35)
 			if court_art and court_art.has_method("net_bump"):
 				court_art.net_bump(1, 1.0)
 			ball_court = rim_c

@@ -12,11 +12,15 @@ var data := {
 	"crowd": 1.0,
 	"left_handed_ui": false,
 	"show_shot_meter": true,
+	"vibration": true,
 }
 
 func _ready() -> void:
 	load_settings()
 	apply()
+
+func is_vibration_enabled() -> bool:
+	return bool(data.get("vibration", true))
 
 func get_v(k: String, def = null):
 	return data.get(k, def)

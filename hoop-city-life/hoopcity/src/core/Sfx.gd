@@ -106,6 +106,13 @@ func apply_settings() -> void:
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Crowd"), _crowd_base_db)
 	AudioServer.set_bus_mute(AudioServer.get_bus_index("Crowd"), crowd_v <= 0.001)
 
+## Micro-vibrazione aptica per mobile (safe e silenziosa su desktop/web)
+func haptic(ms: int = 25) -> void:
+	if Settings != null and Settings.has_method("is_vibration_enabled"):
+		if not Settings.is_vibration_enabled():
+			return
+	Input.vibrate_handheld(ms)
+
 # ---------------------------------------------------------------- one-shots
 # Per-asset mix trims (dB), measured off each WAV's RMS so the whole set sits
 # at one perceived loudness: shouts over the parquet, refs over the shouts.

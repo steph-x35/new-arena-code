@@ -69,6 +69,8 @@ var last_pass_time := 0.0
 var finished := false
 var total_attempts := 0
 var total_makes := 0
+var _clutch_slowmo := false
+var _buzzer_sounded := false
 var _dead_time := 0.0               # watchdog accumulator, see _deadball_watchdog
 var restarting := false             # true during a scripted inbound/check pause
 var awaiting_check := false         # 1v1: CHECK button before the ball is live
@@ -358,6 +360,10 @@ func _run_jump_ball() -> void:
 		back.tween_callback(func(): ref.tossing = false)
 
 func _reset_possession(full := false) -> void:
+	if _clutch_slowmo:
+		_clutch_slowmo = false
+		Engine.time_scale = 1.0
+	_buzzer_sounded = false
 	shot_clock = 18.0
 	var team_players := players.filter(func(p): return p.team == possession)
 	var carrier: BallPlayer = team_players[0]
@@ -599,11 +605,17 @@ func _physics_process(delta: float) -> void:
 		if h != null and h.team == possession and _clear_distance_ok(h):
 			must_clear = false
 			Events.toast.emit("Cleared - go!")
-	if shot_clock <= 0.0:
+	if shot_clock <= 0.0 and (ball == null or not ball.shot_result_pending):
 		Events.toast.emit("Shot clock violation")
 		_turnover_to(1 - possession)
 	if game_clock <= 0.0:
-		_end_quarter()
+		if not _buzzer_sounded:
+			_buzzer_sounded = true
+			Sfx.play("buzzer")
+		if ball != null and (ball.shot_result_pending or (ball.live and ball.h > 15.0)):
+			pass  # il buzzer e' suonato ma il tiro e' per aria: lascia finire la parabola!
+		else:
+			_end_quarter()
 	_try_inflight_block()
 
 ## THE ANTI-FREEZE NET.
@@ -694,6 +706,9 @@ func _close_quarter_book() -> void:
 	_end_run()
 
 func _end_quarter() -> void:
+	if _clutch_slowmo:
+		_clutch_slowmo = false
+		Engine.time_scale = 1.0
 	if is_fixture and not user_on_court and not finished:
 		unbench_user()
 		benched_time = 0.0
@@ -701,7 +716,9 @@ func _end_quarter() -> void:
 		# no quarters in a race to 11: the clock is just a safety valve
 		game_clock = quarter_len
 		return
-	Sfx.play("buzzer")
+	if not _buzzer_sounded:
+		Sfx.play("buzzer")
+	_buzzer_sounded = false
 	_close_quarter_book()
 	quarter += 1
 	if quarter > QUARTERS:
@@ -714,6 +731,10 @@ func _end_quarter() -> void:
 	Events.toast.emit("Q%d" % quarter)
 
 func _finish() -> void:
+	if _clutch_slowmo:
+		_clutch_slowmo = false
+		Engine.time_scale = 1.0
+	_buzzer_sounded = false
 	finished = true
 	play_live = false
 	var won: bool = score[0] > score[1]
@@ -838,6 +859,7 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 		Events.toast.emit("BLOCKED by #%d" % blocker.jersey_num)
 		Sfx.play("block", -1.0)
 		Sfx.ooh()
+		Sfx.haptic(45)
 		Events.shake.emit(0.7)
 		Events.popup.emit("BLOCK!", blocker.global_position, Color(1.0, 0.45, 0.3), true)
 		res["made"] = false
@@ -892,6 +914,13 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 	ball.swish_clean = bool(res.get("swish", false))
 	ball.shoot(shooter.global_position + Vector2(0, -50), aim, 520.0, flight, res["made"], shooter)
 	ball.last_touch_team = shooter.team
+
+	# Bullet-time / Slow-mo al buzzer o tiro clutch decisivo nei finali
+	var is_clutch_shot: bool = play_live and not one_on_one and (game_clock <= 2.8 or shot_clock <= 1.2 or (quarter >= QUARTERS and abs(score[0] - score[1]) <= 3 and game_clock <= 6.0))
+	if is_clutch_shot and Engine.time_scale <= 1.05:
+		_clutch_slowmo = true
+		Engine.time_scale = 0.45
+		Events.popup.emit("CLUTCH!", shooter.global_position + Vector2(0, -70), Color(1.0, 0.85, 0.2), true)
 
 	if shooter.is_user:
 		box["fga"] += 1
@@ -1024,6 +1053,7 @@ func _try_inflight_block() -> void:
 			box["blk"] += 1
 		Sfx.play("block", -0.5)
 		Sfx.ooh()
+		Sfx.haptic(45)
 		Events.shake.emit(0.8)
 		Events.popup.emit("CHASEDOWN!", d.global_position, Color(1.0, 0.45, 0.3), true)
 		Events.toast.emit("BLOCKED!")
@@ -1191,6 +1221,9 @@ func on_dunk_started(p: BallPlayer) -> void:
 	_dunk_scored(p)
 
 func _dunk_scored(p: BallPlayer) -> void:
+	if _clutch_slowmo:
+		_clutch_slowmo = false
+		Engine.time_scale = 1.0
 	var pts: int = 1 if one_on_one else 2
 	total_makes += 1
 	_add_score(p, pts)
@@ -1204,6 +1237,7 @@ func _dunk_scored(p: BallPlayer) -> void:
 	_rim_fx("swish", hoop_for(p.team))
 	# La rete CANTA anche sulla schiacciata: swish piu' cupo e spinto.
 	Sfx.play("swish", -1.5, randf_range(0.84, 0.92))
+	Sfx.haptic(60)
 	Events.toast.emit("%s! +%d" % [DunkStyle.label(p.dunk_style), pts])
 	p.has_ball = false
 	# Hang on the rim until the player (or AI) lets go of dunk.
@@ -1250,7 +1284,18 @@ func _score_basket(b: Ball) -> void:
 	_add_score(shooter, pts)
 	Sfx.play("swish", -1.5 if b.swish_clean else -3.5)
 	Sfx.cheer(beyond_arc)
-	Events.shake.emit(0.5 if beyond_arc else 0.32)
+	Sfx.haptic(35)
+	if _clutch_slowmo:
+		_clutch_slowmo = false
+		Engine.time_scale = 1.0
+	if _buzzer_sounded:
+		Events.popup.emit("BUZZER BEATER!", hoop_for(shooter.team), Color(1.0, 0.3, 0.2), true)
+		Events.shake.emit(0.9)
+		Sfx.cheer(true)
+	elif shooter.is_user and beyond_arc:
+		Events.shake.emit(0.65)
+	else:
+		Events.shake.emit(0.5 if beyond_arc else 0.32)
 	Events.popup.emit("+%d%s" % [pts, "  THREE!" if beyond_arc and not one_on_one else ""],
 		hoop_for(shooter.team),
 		Color(0.45, 0.85, 1.0) if beyond_arc else Color(0.7, 1.0, 0.75),
@@ -1333,6 +1378,9 @@ func confirm_check() -> void:
 
 func resolve_missed_shot(b: Ball) -> void:
 	b.shot_result_pending = false
+	if _clutch_slowmo:
+		_clutch_slowmo = false
+		Engine.time_scale = 1.0
 	if b.is_free_throw:
 		# A missed free throw has no rebound battle: the sequence continues.
 		_rim_fx("iron" if b.global_position.distance_to(hoops[0] if b.global_position.x < 0 else hoops[1]) < 80.0 else "miss", b.global_position)

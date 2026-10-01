@@ -34,6 +34,7 @@ const STR := {
 	"settings.meter": ["Show shot meter", "Mostra indicatore di tiro"],
 	"settings.left":  ["Left-handed buttons", "Pulsanti per mancini"],
 	"settings.stick": ["Joystick sensitivity", "Sensibilità joystick"],
+	"settings.vibration": ["Vibration feedback", "Feedback vibrazione"],
 	"settings.sfx":   ["Sound effects", "Effetti sonori"],
 	"settings.music": ["Music", "Musica"],
 	"settings.lang":  ["Language", "Lingua"],

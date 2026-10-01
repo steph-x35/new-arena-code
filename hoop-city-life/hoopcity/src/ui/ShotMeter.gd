@@ -41,6 +41,8 @@ func show_release(name: String, made_col: Color) -> void:
 	freeze_t = 0.75
 	verdict = name
 	verdict_col = made_col
+	if name == "PERFECT":
+		Sfx.haptic(22)
 
 func _center() -> Vector2:
 	return Vector2(size.x * 0.5, size.y)

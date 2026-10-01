@@ -921,3 +921,17 @@ Test: RoomFitProbe 10/10 hotspot dentro (scale 0.8, pos (120,0)), ChatProbe C1-C
 - CHAT (fix "coach lungo, altri corti"): preview UNA riga sola (34 caratteri + ellissi, wrap OFF), righe altezza uniforme 84. Scrollbar telefono: da spesso dito di colonna a linea da 6px al 22% opaco.
 - Imparato: lambda GDScript non catturano ident "_" locali di _ready (parse error) -> variabili membro; UIKit.column posiziona lo SCROLL (non la VBox ritornata: spostare il parent).
 Test: MenuProbe M1-M3, ChatProbe, RoomFit, Phone, Inbound, V222, SoloPost, SimRunner 3/3, smoke OK, import 0 err, aapt 111/2.24.3 dual-abi, firmato.
+
+## v2.25.0 — Game Feel del Canestro (Aptica, Feedback & Bullet-Time Clutch)
+- **Feedback Aptico (Micro-vibrazione)**: implementato wrapper `Sfx.haptic(ms)` sicuro per mobile (`Input.vibrate_handheld(ms)`) e no-op trasparente su desktop/web.
+  - Snap tattile al rilascio perfetto (Green / PERFECT) nello `ShotMeter`: 22ms.
+  - Colpo sordo all'affondata di schiacciata (Dunk): 60ms.
+  - Vibrazione fluida al canestro segnato (Swish / Made shot): 35ms.
+  - Impatto deciso alla stoppata (Block) su tiro o chasedown: 45ms.
+  - Feedback tattile su furto palla riuscito (Steal): 35ms.
+- **Opzione Impostazioni**: nuovo toggle `Feedback vibrazione` in Impostazioni -> Comandi (`SettingsScene` + `Loc.gd` multilingua), persistito in `settings.json`.
+- **Bullet-Time / Slow-Motion Clutch & Buzzer Beater**:
+  - Quando scocca un tiro decisivo o all'ultimo secondo (`game_clock <= 2.8s`, `shot_clock <= 1.2s`, o finale tirato a 1 possesso), il tempo rallenta dolcemente in slow-motion (`Engine.time_scale = 0.45`) durante la parabola della palla.
+  - Parabola protetta: se la sirena scatta mentre la palla e' in volo, il quarto attende la risoluzione e convalida il canestro con popup `BUZZER BEATER!` e camera shake dedicato (0.90).
+  - Ripristino robusto a 1.0 su qualsiasi esito (canestro, rimbalzo, cambio possesso, timeout/uscita).
+- **Camera Punch**: calibrato il micro-shake sui tiri da 3 dell'utente (0.65) e al buzzer beater (0.90).

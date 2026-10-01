@@ -617,6 +617,7 @@ func _dunk_throw() -> void:
 	streak += 1
 	best_streak = maxi(best_streak, streak)
 	net_wobble = 1.0
+	Sfx.haptic(60)
 	if court_art != null:
 		court_art.net_bump(1, 1.0)
 	Events.shot_taken.emit("DUNK %s" % DunkStyle.label(dunk_style), true, 2)
@@ -838,6 +839,7 @@ func _collide_rim() -> void:
 				scored_this_shot = true
 				net_wobble = 1.0
 				Sfx.play("swish", -2.5)
+				Sfx.haptic(35)
 				if court_art != null:
 					court_art.net_bump(1, 1.0)
 					if court_art.has_method("rim_fx"):

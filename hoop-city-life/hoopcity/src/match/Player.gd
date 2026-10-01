@@ -823,6 +823,8 @@ func try_steal() -> void:
 		court.give_ball(self)
 		Sfx.play("steal", -1.0)
 		Sfx.cheer(false)
+		if is_user:
+			Sfx.haptic(35)
 		Events.toast.emit("STEAL!")
 		Events.popup.emit("STEAL!", global_position, Color(0.45, 0.85, 1.0), false)
 		if is_user: court.stat_add("stl", 1)
