@@ -922,7 +922,8 @@ Test: RoomFitProbe 10/10 hotspot dentro (scale 0.8, pos (120,0)), ChatProbe C1-C
 - Imparato: lambda GDScript non catturano ident "_" locali di _ready (parse error) -> variabili membro; UIKit.column posiziona lo SCROLL (non la VBox ritornata: spostare il parent).
 Test: MenuProbe M1-M3, ChatProbe, RoomFit, Phone, Inbound, V222, SoloPost, SimRunner 3/3, smoke OK, import 0 err, aapt 111/2.24.3 dual-abi, firmato.
 
-## v2.25.0 — Game Feel del Canestro (Aptica, Feedback & Bullet-Time Clutch)
+## v2.25.0 (code 112) — 2026-10-01 — Game Feel del Canestro (Aptica, Feedback & Bullet-Time Clutch)
+- **APK compilato e firmato:** `HoopCity-v2.25.0.apk` rilasciato su GitHub Releases (tag `v2.25.0`).
 - **Feedback Aptico (Micro-vibrazione)**: implementato wrapper `Sfx.haptic(ms)` sicuro per mobile (`Input.vibrate_handheld(ms)`) e no-op trasparente su desktop/web.
   - Snap tattile al rilascio perfetto (Green / PERFECT) nello `ShotMeter`: 22ms.
   - Colpo sordo all'affondata di schiacciata (Dunk): 60ms.
