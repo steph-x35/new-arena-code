@@ -146,12 +146,13 @@ dev-log pulito e nessun problema di crop.
 |---|-------|----------------|
 | 1 | **NUOVO AGGIORNAMENTO 🏀** | secondo 0 (hook, bold) |
 | 2 | **🟢 GREEN = il tiro perfetto non sbaglia** | esattamente sullo swish del green #1 |
-| 3 | **SFIDA 1v1: check sistemato ✅** | sull'inizio 1v1 / check (se presente nel video) |
+| 3 | **📳 e il telefono VIBRA quando la fai** | sul green #2 (secondo green) |
 | 4 | **LA SCHIACCIATA 🏀💀** | sul takeoff del dunk |
-| 5 | **GRATIS IN BIO 🔗** | chiusura, sul dunk a canestro |
+| 5 | **GRATIS, SOLO ANDROID 🔗 IN BIO** | chiusura, sul canestro del dunk |
 
-(Opzionale, solo se la vibrazione si è sentita sul telefono: "📳 e VIBRA quando la fai"
-tra il testo 2 e il 3.)
+I due aggiornamenti in showcase sono GREEN + VIBRAZIONE: il testo 1 li promette,
+i testi 2-3 li mantengono, il 4 regala spettacolo, il 5 converte.
+La vibrazione NON si vede nel video → è la scritta a comunicarla (emoji 📳).
 
 ### Regole testi
 - UN testo alla volta, max 6 parole, font bold, bianco/verde con bordo nero
