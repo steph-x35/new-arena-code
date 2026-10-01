@@ -123,11 +123,24 @@
   function init() {
     let syncing = false;
 
+    function checkRalWarning(v) {
+      const warnEl = $('#tfr-ral-warn');
+      const warnVal = $('#warn-val');
+      if (!warnEl) return;
+      if (v > 0 && v < 6000) {
+        if (warnVal) warnVal.textContent = fmt(v);
+        warnEl.style.display = 'block';
+      } else {
+        warnEl.style.display = 'none';
+      }
+    }
+
     // Sincronizzazione automatica RAL annua <-> Retribuzione mensile
     $('#tfr-ral').addEventListener('input', (e) => {
       if (syncing) return;
       syncing = true;
       const v = parseNum(e.target.value);
+      checkRalWarning(v);
       if (v > 0) {
         $('#tfr-mensile').value = Math.round(v / 13).toLocaleString('it-IT');
       } else {
@@ -140,6 +153,7 @@
     $('#tfr-mensile').addEventListener('input', (e) => {
       if (syncing) return;
       syncing = true;
+      checkRalWarning(0);
       const v = parseNum(e.target.value);
       if (v > 0) {
         $('#tfr-ral').value = Math.round(v * 13).toLocaleString('it-IT');
@@ -149,6 +163,21 @@
       syncing = false;
       render();
     });
+
+    const btnFix = $('#btn-fix-mensile');
+    if (btnFix) {
+      btnFix.addEventListener('click', () => {
+        const v = parseNum($('#tfr-ral').value);
+        if (v > 0) {
+          syncing = true;
+          $('#tfr-mensile').value = Math.round(v).toLocaleString('it-IT');
+          $('#tfr-ral').value = Math.round(v * 13).toLocaleString('it-IT');
+          syncing = false;
+          checkRalWarning(0);
+          render();
+        }
+      });
+    }
 
     // Tutti gli altri input aggiornano in tempo reale
     ['#tfr-anni', '#tfr-mesi', '#tfr-dest', '#tfr-anticipi'].forEach((sel) => {
