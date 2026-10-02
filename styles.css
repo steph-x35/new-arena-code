@@ -357,8 +357,7 @@ textarea { resize: vertical; }
   border-radius: 12px;
   object-fit: cover;
   flex-shrink: 0;
-  box-shadow: 0 8px 20px rgba(0,0,0,.4);
-  border: 2px solid rgba(255,255,255,.15);
+  box-shadow: 0 8px 20px rgba(0,0,0,.4);  border: 2px solid rgba(255,255,255,.15);
 }
 .kit-promo-content { flex: 1; min-width: 0; }
 .kit-promo-badge {
@@ -600,3 +599,62 @@ html, body {
   }
   @page { size: A4; margin: 0; }
 }
+
+/* ===== Social proof (domande vere della community) ===== */
+.social-proof {
+  margin: 26px 0 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  background: #f8fafc;
+}
+.social-proof .sp-head {
+  font-weight: 800;
+  font-size: .95rem;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+.social-proof .sp-quotes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+.social-proof blockquote {
+  margin: 0;
+  font-size: .88rem;
+  font-style: italic;
+  color: #334155;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #f59e0b;
+  border-radius: 8px;
+  padding: 10px 12px;
+  line-height: 1.45;
+}
+.social-proof .sp-stats {
+  margin-top: 12px;
+  font-size: .85rem;
+  color: #475569;
+  line-height: 1.5;
+}
+.social-proof .sp-trust {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #e2e8f0;
+  font-size: .78rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: .02em;
+}
+
+/* Citazione reale dentro i box promo prodotti */
+.kit-quote {
+  margin: 12px 0 0;
+  font-size: .84rem;
+  font-style: italic;
+  color: #cbd5e1;
+  border-top: 1px dashed rgba(255,255,255,.18);
+  padding-top: 10px;
+  line-height: 1.5;
+}
+.kit-quote b, .kit-quote strong { color: #fff; font-style: normal; }
