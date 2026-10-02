@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Busta Paga Esempio — Documento dimostrativo</title>
+<style>
+  :root{
+    --ink:#1e293b; --muted:#64748b; --line:#e2e8f0;
+    --paper:#ffffff; --bg:#f1f5f9; --green:#166534; --red:#b91c1c;
+    --hl:#fef08a; --hlborder:#f59e0b;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:var(--bg); font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); padding:18px 10px 120px; }
+  .sheet{ max-width:760px; margin:0 auto; background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:26px 22px; box-shadow:0 8px 30px rgba(15,23,42,.08); }
+  h1{ font-size:1.02rem; letter-spacing:.14em; text-transform:uppercase; text-align:center; color:#0f172a; }
+  .sub{ text-align:center; color:var(--muted); font-size:.78rem; margin:4px 0 18px; }
+  .head{ display:grid; grid-template-columns:1fr 1fr; gap:10px 18px; border:1px solid var(--line); border-radius:6px; padding:12px 14px; font-size:.82rem; margin-bottom:18px; }
+  .head b{ display:block; font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; margin-bottom:2px; }
+  h2{ font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:#0f172a; border-bottom:2px solid #0f172a; padding-bottom:4px; margin:20px 0 8px; }
+  table{ width:100%; border-collapse:collapse; font-size:.85rem; }
+  th{ font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); text-align:left; padding:6px 6px; border-bottom:1px solid var(--line); }
+  td{ padding:7px 6px; border-bottom:1px solid var(--line); }
+  td.num, th.num{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .tot td{ font-weight:800; border-top:2px solid #0f172a; border-bottom:none; font-size:.95rem; }
+  .tot td.num{ color:var(--green); }
+  .neg{ color:var(--red); }
+  .giac{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:6px; }
+  .giac div{ border:1px solid var(--line); border-radius:6px; padding:8px 6px; text-align:center; font-size:.8rem; font-weight:700; }
+  .giac span{ display:block; font-size:.62rem; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px; }
+  .note{ font-size:.68rem; color:var(--muted); margin-top:16px; text-align:center; }
+  /* --- modalita' errori --- */
+  .err-note{ display:none; font-size:.72rem; font-weight:700; color:#7c2d12; background:var(--hl); border:1px dashed var(--hlborder); border-radius:6px; padding:8px 10px; margin:10px 0; }
+  body.show-errors .err-note{ display:block; }
+  body.show-errors tr.hl td, body.show-errors .hl{ background:#fef9c3; }
+  body.show-errors tr.hl td:first-child{ box-shadow:inset 4px 0 0 var(--hlborder); }
+  .toggle{ position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:9; background:#0f172a; color:#fff; border:none; border-radius:999px; padding:13px 22px; font-size:.85rem; font-weight:700; box-shadow:0 10px 25px rgba(15,23,42,.35); cursor:pointer; }
+  .toggle.on{ background:var(--hlborder); color:#431407; }
+  @media (max-width:480px){ .head{ grid-template-columns:1fr; } .sheet{ padding:18px 12px; } }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1>Cedolino Stipendio</h1>
+  <div class="sub">Documento dimostrativo per uso didattico — dati inventati</div>
+
+  <div class="head">
+    <div><b>Azienda</b>Pizzeria Da Milano S.r.l.</div>
+    <div><b>Dipendente</b>Rossi Marco</div>
+    <div><b>CCNL / Livello</b>Commercio · 3° livello</div>
+    <div><b>Periodo</b>Ottobre 2026</div>
+    <div><b>Assunzione</b>01/03/2022 · tempo indeterminato</div>
+    <div><b>Matricola</b>0042</div>
+  </div>
+
+  <h2>Conto ore</h2>
+  <table>
+    <tr><th>Voce</th><th class="num">Giorni</th><th class="num">Ore</th><th class="num">Retrib.</th></tr>
+    <tr><td>Ore contrattuali</td><td class="num">26</td><td class="num">152,00</td><td class="num">152,00</td></tr>
+    <tr class="hl"><td>Ore retribuite</td><td class="num">—</td><td class="num">148,00</td><td class="num">148,00</td></tr>
+    <tr><td>Straordinari diurni</td><td class="num">—</td><td class="num">6,00</td><td class="num">6,00</td></tr>
+  </table>
+  <div class="err-note">🔍 ERRORE 1 — Contratto = 152 ore, ma le ore retribuite sono 148. Quattro ore pagate in meno senza nessuna voce che le giustifichi (permesso? malattia? niente). ≈ 40 € persi in un mese, 480 € l'anno.</div>
+
+  <h2>Corrispettivi</h2>
+  <table>
+    <tr><th>Voce</th><th class="num">Quantità</th><th class="num">Importo</th></tr>
+    <tr><td>Paga base</td><td class="num">—</td><td class="num">1.622,62</td></tr>
+    <tr><td>EDR / Contingenza</td><td class="num">—</td><td class="num">44,76</td></tr>
+    <tr><td>Superminimo</td><td class="num">—</td><td class="num">120,00</td></tr>
+    <tr><td>Straordinari diurni +25%</td><td class="num">6 h</td><td class="num">96,75</td></tr>
+    <tr><td>Rateo 13ª mensilità</td><td class="num">—</td><td class="num">148,95</td></tr>
+    <tr><td>Rateo ferie</td><td class="num">—</td><td class="num">21,50</td></tr>
+    <tr class="tot"><td>Totale lordo</td><td class="num"></td><td class="num">2.054,58</td></tr>
+  </table>
+
+  <h2>Trattenute</h2>
+  <table>
+    <tr><th>Voce</th><th class="num">Importo</th></tr>
+    <tr><td>Contributi INPS 9,19%</td><td class="num neg">− 188,82</td></tr>
+    <tr><td>IRPEF (ratenale)</td><td class="num neg">− 214,60</td></tr>
+    <tr><td>Addizionale regionale</td><td class="num neg">− 15,40</td></tr>
+    <tr><td>Addizionale comunale</td><td class="num neg">− 7,20</td></tr>
+    <tr class="hl"><td>Trattenute varie</td><td class="num neg">− 42,00</td></tr>
+    <tr class="tot"><td>Netto a pagare</td><td class="num">1.586,56</td></tr>
+  </table>
+  <div class="err-note">🔍 ERRORE 3 — "Trattenute varie − 42,00 €": una voce senza nome né motivo. Ogni trattenuta deve essere spiegata (anticipo? prestito? pignoramento?). Quarantadue euro al mese per un anno = 504 € spariti senza spiegazione.</div>
+
+  <h2>Giacenze</h2>
+  <div class="giac">
+    <div><span>Ferie · Gia.</span>12,0</div>
+    <div><span>Ferie · Spett.</span>2,0</div>
+    <div><span>Ferie · Usate</span>1,0</div>
+    <div class="hl"><span>Ferie · Saldo</span>11,0</div>
+  </div>
+  <div class="err-note">🔍 ERRORE 2 — Il saldo delle ferie non torna: 12 + 2 − 1 = 13, ma la busta segna 11. Due giorni di ferie spariti dal box. Alla fine del rapporto, il saldo del box è quello che vieni pagato: per questo va fotografato ogni mese.</div>
+
+  <div class="note">Comunicazione ai sensi dell'art. 1 L. 4/1953 ·Documento di esempio creato da LavoroFacile a scopo didattico. Importi e dati fittizi.</div>
+</div>
+
+<button class="toggle" id="toggleBtn" onclick="document.body.classList.toggle('show-errors'); this.classList.toggle('on'); this.textContent = document.body.classList.contains('show-errors') ? '✅ Errori evidenziati' : '🔍 Mostra i 3 errori'">🔍 Mostra i 3 errori</button>
+</body>
+</html>
