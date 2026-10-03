@@ -78,6 +78,17 @@ var streak := 0
 var best_streak := 0
 var hot := false               # HEAT CHECK: 3 canestri di fila
 
+# ── HALF-COURT GREEN CHALLENGE ──────────────────────────────────────
+# 60 secondi, spawn casuale oltre la linea di metà campo, contano SOLO
+# i rilasci GREEN (da quella distanza la finestra perfetta è una fessura).
+# Il record personale resta salvato nel profilo: è la sfida da battere.
+const HC_SECONDS := 60.0
+const HC_MIN_FT := 38.0          # più vicino di così il green non vale
+var hc_mode := false
+var hc_greens := 0
+var hc_best := 0
+var btn_hc: Button
+
 # street-court bystanders who shoot at the left hoop, so the park feels alive
 var npcs: Array = []
 
@@ -103,6 +114,7 @@ func _ready() -> void:
 	Sfx.stop_music()   # solo/1v1 courts: squeaks, swish and bounces only
 	outdoor = String(Game.profile.get("last_building", "park")) != "court"
 	hand_left = Game.shooting_hand() < 0.0
+	hc_best = int(Game.profile.get("hc_best", 0))
 	# Same packed CourtVisual as 1v1 — Script.new() never painted the floor
 	# on device, which is why shoot-around was a blank brown/grey sheet.
 	court_art = $CourtVisual
@@ -241,6 +253,16 @@ func _build_hud() -> void:
 	leave.pressed.connect(_leave)
 	root.add_child(leave)
 
+	# HALF-COURT GREEN CHALLENGE: acceso/spento da qui.
+	btn_hc = Button.new()
+	btn_hc.text = "🏆 HALF-COURT"
+	btn_hc.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	btn_hc.position = Vector2(-190, 92)
+	btn_hc.custom_minimum_size = Vector2(180, 56)
+	btn_hc.add_theme_font_size_override("font_size", 19)
+	btn_hc.pressed.connect(_toggle_hc)
+	root.add_child(btn_hc)
+
 func _leave() -> void:
 	SaveSystem.save_game()
 	SceneRouter.goto("res://src/scenes/CityScene.tscn")
@@ -339,6 +361,9 @@ func _process(delta: float) -> void:
 			reset_timer = -1.0
 			ball_ghost_rim = false
 			through_rim = false
+			# HALF-COURT: ogni tentativo finito = nuovo spot oltre la metà.
+			if hc_mode and not session_over:
+				_hc_teleport()
 
 	pump_t = maxf(0.0, pump_t - delta)
 	#Solo parquet life: squeaks on hard cuts, dribble thuds while handling.
@@ -404,9 +429,13 @@ func _process(delta: float) -> void:
 
 	var ft: float = _distance_ft()
 	var tag: String = "  ·  DUNK READY" if (can_dunk() and dunk_phase == "") else ""
-	lbl_top.text = "⏱ %d:%02d   SCORE %d   %d/%d   streak %d (best %d)   %.0f ft%s" % [
-		int(session_left) / 60, int(session_left) % 60, session_score,
-		makes, attempts, streak, best_streak, ft, tag]
+	if hc_mode:
+		lbl_top.text = "🏆 HALF-COURT   ⏱ 0:%02d   GREEN %d   RECORD %d   %.0f ft" % [
+			int(session_left), hc_greens, hc_best, ft]
+	else:
+		lbl_top.text = "⏱ %d:%02d   SCORE %d   %d/%d   streak %d (best %d)   %.0f ft%s" % [
+			int(session_left) / 60, int(session_left) % 60, session_score,
+			makes, attempts, streak, best_streak, ft, tag]
 	lbl_top.modulate = Color(1, 0.45, 0.4) if session_left <= 15.0 else Color(1, 1, 1)
 	if btn_shoot:
 		var want: String = "SHOOT"
@@ -580,9 +609,51 @@ func _try_spin() -> void:
 	lbl_mid.modulate = Color(0.6, 0.86, 1.0)
 
 func can_dunk() -> bool:
+	if hc_mode:
+		return false       # nella sfida si vince solo col GREEN, niente scorciatoie
 	if _distance_ft() > DUNK_FT:
 		return false
 	return float(Game.profile.get("energy", 10)) > 1.0
+
+## ── HALF-COURT GREEN CHALLENGE ──────────────────────────────────────
+func _toggle_hc() -> void:
+	if ball_live or charging or dunk_phase != "":
+		Events.toast.emit("Finisci prima il tiro!")
+		return
+	hc_mode = not hc_mode
+	hc_greens = 0
+	makes = 0
+	attempts = 0
+	streak = 0
+	hot = false
+	session_score = 0
+	session_over = false
+	shot_anim = 0.0
+	dunk_phase = ""
+	ball_live = false
+	ball_settled = 0.0
+	ball_ghost_rim = false
+	through_rim = false
+	lbl_mid.text = ""
+	if hc_mode:
+		session_left = HC_SECONDS
+		Events.toast.emit("HALF-COURT CHALLENGE: 60s, contano solo i GREEN 🟢")
+		_hc_teleport()
+	else:
+		session_left = SESSION_SECONDS
+		Events.toast.emit("Tiro libero")
+	if btn_hc:
+		btn_hc.text = "🏆 HALF-COURT: ON" if hc_mode else "🏆 HALF-COURT"
+
+func _hc_teleport() -> void:
+	## Spot casuale oltre la linea di metà campo: da lì la banda verde è
+	## una fessura, e la distanza è la difficoltà della sfida.
+	player_pos = Vector2(randf_range(-320.0, -60.0), randf_range(-300.0, 300.0))
+	facing = 1.0
+	ball_live = false
+	ball_settled = 0.0
+	ball_ghost_rim = false
+	through_rim = false
 
 func _shoot_down() -> void:
 	if shot_anim > 0.0 or dunk_phase != "":
@@ -729,6 +800,18 @@ func _shoot_up() -> void:
 			Events.popup.emit("COLD", player_pos, Color(0.7, 0.75, 0.85), false)
 		streak = 0
 		lbl_mid.text = ""
+	# HALF-COURT CHALLENGE: conta SOLO il green da oltre la linea.
+	if hc_mode:
+		if zone == "green" and ft >= HC_MIN_FT:
+			hc_greens += 1
+			session_score = hc_greens
+			if hc_greens > hc_best:
+				lbl_mid.text = "GREEN %d   ·   NEW RECORD! 🏆" % hc_greens
+			else:
+				lbl_mid.text = "GREEN %d   ·   RECORD %d" % [hc_greens, hc_best]
+		elif zone == "green":
+			Events.popup.emit("TOO CLOSE!", player_pos + Vector2(0, -70), Color(1.0, 0.75, 0.2), false)
+			lbl_mid.text = "TOO CLOSE — serve da oltre la metà!"
 	lbl_mid.modulate = verdict_col
 	if meter:
 		meter.show_release(verdict, verdict_col)
@@ -898,16 +981,34 @@ func _end_session() -> void:
 		return
 	session_over = true
 	charging = false
+	# HALF-COURT: aggiorna il record personale del profilo.
+	var hc_new_record := false
+	if hc_mode and hc_greens > hc_best:
+		hc_best = hc_greens
+		Game.profile["hc_best"] = hc_best
+		hc_new_record = true
 	SaveSystem.save_game()
 	var p: GamePanel = GamePanel.new().build("⏱  TIME", Vector2(760, 560))
 	hud_layer.add_child(p)
 	var pct: int = int(round(100.0 * float(makes) / maxf(float(attempts), 1.0)))
-	p.add_text("SCORE  %d" % session_score, 46, Color(1, 0.88, 0.35))
-	p.add_text("%d of %d shots made  ·  %d%%" % [makes, attempts, pct], 24)
-	p.add_text("Best streak: %d" % best_streak, 22, Color(1, 1, 1, 0.7))
+	if hc_mode:
+		p.add_text("GREEN  %d" % hc_greens, 46, Color(0.3, 1.0, 0.45))
+		if hc_new_record:
+			p.add_text("🏆 NEW RECORD!  (record: %d)" % hc_best, 28, Color(1, 0.88, 0.35))
+		else:
+			p.add_text("Record da battere:  %d" % hc_best, 24, Color(1, 1, 1, 0.8))
+	else:
+		p.add_text("SCORE  %d" % session_score, 46, Color(1, 0.88, 0.35))
+		p.add_text("%d of %d shots made  ·  %d%%" % [makes, attempts, pct], 24)
+		p.add_text("Best streak: %d" % best_streak, 22, Color(1, 1, 1, 0.7))
 	p.add_text("")
-	p.add_button("Shoot again (2 more minutes)", func():
-		session_left = SESSION_SECONDS
+	p.add_button("Try again (60 seconds)" if hc_mode else "Shoot again (2 more minutes)", func():
+		if hc_mode:
+			session_left = HC_SECONDS
+			hc_greens = 0
+			_hc_teleport()
+		else:
+			session_left = SESSION_SECONDS
 		session_over = false
 		session_score = 0
 		makes = 0

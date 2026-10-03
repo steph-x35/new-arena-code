@@ -1,3 +1,21 @@
+# HoopCity — v2.26.0 · HALF-COURT GREEN CHALLENGE
+
+**APK:** `HoopCity-v2.26.0.apk` — versionCode 115, arm64-v8a
+**Firma:** invariata — si installa sopra le precedenti
+
+- **Nuova modalità SFIDA METÀ CAMPO** nello Street Court (pulsante 🏆 HALF-COURT in alto a destra):
+  - 60 secondi, spawn casuale oltre la linea di metà campo dopo OGNI tiro
+  - contano SOLO i rilasci GREEN (da quella distanza la finestra perfetta è una fessura)
+  - green da troppo vicino = "TOO CLOSE!", non vale (minimo 38 ft)
+  - dunk disabilitati in sfida: si vince solo col timing
+  - RECORD PERSONALE salvato nel profilo (`hc_best`) con pannello NEW RECORD 🏆
+- HUD dedicato in sfida: ⏱ secondi · GREEN fatte · RECORD · distanza in ft
+- Il tiro libero resta identico: il pulsante commuta sfida/tiro libero
+
+Test: sintassi verificata, teleport su reset palla, record persistente via SaveSystem.
+
+---
+
 # HoopCity — v2.1.4 · Suoni reali (rimbalzo, rete, voci)
 
 **APK:** `HoopCity-v2.1.4.apk` (29 MB) — versionCode 59, arm64-v8a
