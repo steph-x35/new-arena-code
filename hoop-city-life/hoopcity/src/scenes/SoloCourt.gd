@@ -1013,11 +1013,10 @@ func _end_session() -> void:
 	if hc_mode:
 		# Crescita organica: il punteggio finisce negli appunti, pronto da
 		# incollare su WhatsApp/TikTok — è il gioco che si pubblicita da solo.
-		p.add_button("🏁 SFIDA GLI AMICI (copia messaggio)", func():
-			DisplayServer.clipboard_set(
-				"🟢 %d GREEN in 60 secondi nella SFIDA METÀ CAMPO di Hoop City Life 🏀\nRiesci a battermi? Gratis, solo Android 👉 https://github.com/steph-x35/new-arena-code/releases" % hc_greens)
+		var _share := func() -> void:
+			DisplayServer.clipboard_set("🟢 %d GREEN in 60 secondi nella SFIDA METÀ CAMPO di Hoop City Life 🏀\nRiesci a battermi? Gratis, solo Android 👉 https://github.com/steph-x35/new-arena-code/releases" % hc_greens)
 			Events.toast.emit("Copiato! Incollalo su WhatsApp o TikTok 📋")
-		, true)
+		p.add_button("🏁 SFIDA GLI AMICI (copia messaggio)", _share, true)
 	p.add_button("Try again (60 seconds)" if hc_mode else "Shoot again (2 more minutes)", func():
 		if hc_mode:
 			session_left = HC_SECONDS

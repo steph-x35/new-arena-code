@@ -72,6 +72,27 @@ jobs:
           echo "=== editor_settings-4.tres ==="
           grep "export/android" ~/.config/godot/editor_settings-4.tres
 
+      - name: Script Health Check (headless scene smoke)
+        run: |
+          cd hoop-city-life/hoopcity
+          godot --headless --import > /tmp/import.log 2>&1 || true
+          if grep -E "SCRIPT ERROR|Parse Error" /tmp/import.log; then
+            echo "!!! Errori di script già in import"
+          fi
+          ERR=0
+          for SC in src/scenes/IntroScene.tscn src/scenes/MainMenu.tscn src/scenes/CityScene.tscn src/scenes/SoloCourt.tscn src/scenes/ArenaLobby.tscn src/scenes/TeamCourt.tscn src/scenes/GymScene.tscn src/scenes/DrillScene.tscn; do
+            echo "=== SMOKE: $SC ==="
+            timeout 90 godot --headless "res://$SC" --quit-after 150 > /tmp/smoke.log 2>&1 || true
+            if grep -E "SCRIPT ERROR|Parse Error" /tmp/smoke.log > /tmp/smoke_err.txt; then
+              echo "!!! SCRIPT ERRORS in $SC:"
+              cat /tmp/smoke_err.txt
+              ERR=1
+            else
+              echo "OK: $SC"
+            fi
+          done
+          exit $ERR
+
       - name: Export Android APK
         run: |
           cd hoop-city-life/hoopcity
@@ -79,8 +100,8 @@ jobs:
           echo "Importing project assets in headless mode..."
           godot -v --headless --import 2>&1 | tee /tmp/import.log || true
           echo "Exporting Android APK..."
-          godot -v --headless --export-release "Android" build/HoopCity-v2.27.0.apk 2>&1 | tee /tmp/export.log || true
-          if [ ! -f "build/HoopCity-v2.27.0.apk" ]; then
+          godot -v --headless --export-release "Android" build/HoopCity-v2.27.1.apk 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/HoopCity-v2.27.1.apk" ]; then
             echo "=== EXPORT FAILED! Printing log: ==="
             cat /tmp/export.log | tail -n 80
             cp /tmp/export.log $GITHUB_WORKSPACE/build_error.log
@@ -97,21 +118,21 @@ jobs:
             --ks-pass pass:android \
             --ks-key-alias androiddebugkey \
             --key-pass pass:android \
-            build/HoopCity-v2.27.0.apk
+            build/HoopCity-v2.27.1.apk
           echo "Verifying APK signature..."
-          apksigner verify --verbose build/HoopCity-v2.27.0.apk
+          apksigner verify --verbose build/HoopCity-v2.27.1.apk
           echo "Checking APK launcher icons..."
-          unzip -l build/HoopCity-v2.27.0.apk | grep -i "mipmap" | head -n 20
-          ls -lh build/HoopCity-v2.27.0.apk
+          unzip -l build/HoopCity-v2.27.1.apk | grep -i "mipmap" | head -n 20
+          ls -lh build/HoopCity-v2.27.1.apk
 
       - name: Create or Update GitHub Release with APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp hoop-city-life/hoopcity/build/HoopCity-v2.27.0.apk /tmp/HoopCity-v2.27.0.apk
-          gh release delete v2.27.0 -y || true
-          gh release create v2.27.0 /tmp/HoopCity-v2.27.0.apk \
-            --title "Hoop City Life v2.27.0" \
-            --notes "Aggiornamento v2.27.0 NBA JAM PACK 🔥: la palla PRENDE FUOCO quando sei HOT, il tuo pet ti SEGUE in città e dalla sfida metà campo puoi SFIDARE GLI AMICI con un tap. 🐶🏆" \
+          cp hoop-city-life/hoopcity/build/HoopCity-v2.27.1.apk /tmp/HoopCity-v2.27.1.apk
+          gh release delete v2.27.1 -y || true
+          gh release create v2.27.1 /tmp/HoopCity-v2.27.1.apk \
+            --title "Hoop City Life v2.27.1" \
+            --notes "Aggiornamento v2.27.1 NBA JAM PACK 🔥: la palla PRENDE FUOCO quando sei HOT, il tuo pet ti SEGUE in città e dalla sfida metà campo puoi SFIDARE GLI AMICI con un tap. Fix courts congelati. 🐶🏆" \
             --target arena/01a0cac8-new-arena-code
           echo "Release created successfully."

@@ -1,3 +1,19 @@
+# HoopCity — v2.27.1 · Fix courts congelati + smoke test in CI
+
+**APK:** `HoopCity-v2.27.1.apk` — versionCode 118, arm64-v8a
+
+- **FIX COURT CONGELATI**: riscritti due costrutti a rischio di parse error che
+  bloccavano il caricamento degli script (lambda multiriga con argomento in
+  coda nel pannello sfida; continuazione di riga con backslash nel wiring
+  della palla di fuoco). Un parse error in Court.gd/Ball.gd congela TUTTE le
+  scene che li usano sull'immagine fissa del campo indoor.
+- **NUOVO: Script Health Check in CI** — ogni build carica in headless le 8
+  scene chiave (Intro, Menu, Città, Street Court, Arena, Team Court, Palestra,
+  Drill) per 150 frame e FALLISCE indicando file e riga di ogni SCRIPT ERROR:
+  un errore del genere non arriva mai più all'APK.
+
+---
+
 # HoopCity — v2.27.0 · NBA JAM Pack: palla di fuoco, pet in città, sfida gli amici
 
 **APK:** `HoopCity-v2.27.0.apk` — versionCode 117, arm64-v8a

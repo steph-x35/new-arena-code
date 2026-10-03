@@ -561,9 +561,8 @@ func _physics_process(delta: float) -> void:
 	_process_voices(delta)
 	# NBA JAM HEAT: la palla prende fuoco finché l'utente in fiamme la tiene
 	# o sta volando da un suo tiro (chi la ruba si spegne la fiamma in mano).
-	if ball != null:
-		ball.flame = user_heat and user != null \
-			and (ball.holder == user or (ball.live and ball.shooter == user))
+	if ball != null and user != null:
+		ball.flame = user_heat and (ball.holder == user or (ball.live and ball.shooter == user))
 	if intermission and not finished:
 		# teams jog to their bench-side huddles while the cheerleaders dance
 		for pi in players.size():
