@@ -170,3 +170,36 @@ La vibrazione NON si vede nel video → è la scritta a comunicarla (emoji 📳)
 7. Avanti → caption + hashtag → Pubblica → commento fissato subito
 
 Caption / hashtag / commento fissato / orario: invariati (vedi FASE 2-3 sopra).
+
+
+---
+
+## 🎬 REEL v2.26.0 — "SFIDA METÀ CAMPO: 9 su 10 non riescono" (BOMBA #3)
+
+Feature: HALF-COURT GREEN CHALLENGE (v2.26.0). 60s, spawn oltre metà campo,
+contano SOLO i GREEN, record personale salvato. È una CHALLENGE: la gente
+risponde coi propri punteggi = commenti = distribuzione.
+
+### Registrazione (10 min)
+1. Installare v2.26.0: https://github.com/steph-x35/new-arena-code/releases/download/v2.26.0/HoopCity-v2.26.0.apk
+2. Street Court → pulsante 🏆 HALF-COURT (alto a destra) → parte la sfida
+3. Registrare lo schermo (audio dispositivo ON) una sessione intera da 3+ green
+4. Riprendere anche il pannello finale col RECORD
+
+### Scritte (corte, stile nostro)
+1. **La sfida che 9 su 10 non vincono 🏆**
+2. **Oltre metà campo. Solo GREEN 🟢**
+3. **Ogni tiro = posizione nuova 🎲**
+4. **Il record resta salvato 🏆**
+5. **Quanti GREEN fai? Scrivilo 👇 in bio 🔗**
+
+### Caption
+> Da metà campo la banda verde è UNA FESSURA. 60 secondi, contano solo i GREEN 🟢 Il record è 4… lo batti? App in bio, gratis, solo Android 🏀 #basket #streetball #gamingitalia #gamedev #nba2k
+
+### Commento fissato
+> Il MIO record è 4 GREEN 🏆 Voi quanti ne fate? Scrivetelo qui 👇 (Android: se chiede "origini sconosciute" è normale, è un APK. Serve aiuto? Scrivetemi) App gratis in bio 🔗
+
+### Perché può esplodere
+- CHALLENGE format = il più virale del gaming (la gente posta il proprio tentativo)
+- Il record nel commento fissato dà un numero da battere = sfida diretta
+- Doppio pubblico: gamer (sfida) + gamedev (devlog: "ho aggiunto questa modalità in una sera")
