@@ -36,6 +36,17 @@
   body.show-errors tr.hl td:first-child{ box-shadow:inset 4px 0 0 var(--hlborder); }
   .toggle{ position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:9; background:#0f172a; color:#fff; border:none; border-radius:999px; padding:13px 22px; font-size:.85rem; font-weight:700; box-shadow:0 10px 25px rgba(15,23,42,.35); cursor:pointer; }
   .toggle.on{ background:var(--hlborder); color:#431407; }
+  .cta{
+    max-width:760px; margin:22px auto 0; background:linear-gradient(135deg,#0f172a,#1e293b);
+    color:#fff; border-radius:12px; padding:20px 22px; text-align:center;
+    font-size:.9rem; line-height:1.55; border:1px solid #334155;
+  }
+  .cta b{ color:#fbbf24; }
+  .cta a{
+    display:inline-block; margin-top:10px; background:#f59e0b; color:#431407;
+    font-weight:800; text-decoration:none; border-radius:8px; padding:10px 18px; font-size:.9rem;
+  }
+  .cta .cta-sub{ display:block; margin-top:6px; font-size:.75rem; color:#94a3b8; }
   @media (max-width:480px){ .head{ grid-template-columns:1fr; } .sheet{ padding:18px 12px; } }
 </style>
 </head>
@@ -96,6 +107,13 @@
   <div class="err-note">🔍 ERRORE 2 — Il saldo delle ferie non torna: 12 + 2 − 1 = 13, ma la busta segna 11. Due giorni di ferie spariti dal box. Alla fine del rapporto, il saldo del box è quello che vieni pagato: per questo va fotografato ogni mese.</div>
 
   <div class="note">Comunicazione ai sensi dell'art. 1 L. 4/1953 ·Documento di esempio creato da LavoroFacile a scopo didattico. Importi e dati fittizi.</div>
+</div>
+
+<div class="cta">
+  <b>🧾 Questi 3 errori valgono quasi 1.000€ l'anno.</b><br>
+  La guida completa spiega OGNI voce della busta paga con esempi numerici veri — IRPEF 2026, INPS, ratei, giacenze — e la procedura esatta per farti ridare le differenze.
+  <a href="https://payhip.com/b/kbpxY" target="_blank" rel="noopener">La Busta Paga Decodificata — 2,90 € →</a>
+  <span class="cta-sub">Download immediato · accesso a vita · zero abbonamenti · pagamento sicuro PayPal e carte</span>
 </div>
 
 <button class="toggle" id="toggleBtn" onclick="document.body.classList.toggle('show-errors'); this.classList.toggle('on'); this.textContent = document.body.classList.contains('show-errors') ? '✅ Errori evidenziati' : '🔍 Mostra i 3 errori'">🔍 Mostra i 3 errori</button>
