@@ -69,6 +69,16 @@ func _build_world() -> void:
 	player.position = _spawn_point()
 	add_child(player)
 
+	# Il tuo pet ti segue in città (se ne possiedi almeno uno): non vive
+	# più solo nell'appartamento. Il primo della lista è quello che esce.
+	if Pets.owned().size() > 0:
+		var pet := Node2D.new()
+		pet.set_script(preload("res://src/city/CityPet.gd"))
+		pet.position = player.position + Vector2(-46.0, 26.0)
+		pet.target = player
+		pet.species = String(Pets.owned()[0].get("species", "dog"))
+		add_child(pet)
+
 	var end_trees := Node2D.new()
 	end_trees.set_script(preload("res://src/city/CityEndTrees.gd"))
 	add_child(end_trees)

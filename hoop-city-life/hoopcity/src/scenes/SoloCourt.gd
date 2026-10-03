@@ -1010,6 +1010,14 @@ func _end_session() -> void:
 		p.add_text("%d of %d shots made  ·  %d%%" % [makes, attempts, pct], 24)
 		p.add_text("Best streak: %d" % best_streak, 22, Color(1, 1, 1, 0.7))
 	p.add_text("")
+	if hc_mode:
+		# Crescita organica: il punteggio finisce negli appunti, pronto da
+		# incollare su WhatsApp/TikTok — è il gioco che si pubblicita da solo.
+		p.add_button("🏁 SFIDA GLI AMICI (copia messaggio)", func():
+			DisplayServer.clipboard_set(
+				"🟢 %d GREEN in 60 secondi nella SFIDA METÀ CAMPO di Hoop City Life 🏀\nRiesci a battermi? Gratis, solo Android 👉 https://github.com/steph-x35/new-arena-code/releases" % hc_greens)
+			Events.toast.emit("Copiato! Incollalo su WhatsApp o TikTok 📋")
+		, true)
 	p.add_button("Try again (60 seconds)" if hc_mode else "Shoot again (2 more minutes)", func():
 		if hc_mode:
 			session_left = HC_SECONDS
@@ -1217,7 +1225,11 @@ func _draw_player() -> void:
 
 	if ball_live:
 		var bs: Vector2 = _screen(ball_pos)
-		_draw_ball_at(Vector2(bs.x, bs.y - ball_h), BALL_R)
+		var bpos := Vector2(bs.x, bs.y - ball_h)
+		# NBA JAM HEAT: palla in fiamme quando sei HOT (3 canestri di fila)
+		if hot and not bool(Settings.get_v("lowgfx", false)):
+			Avatar.draw_flames(self, bpos + Vector2(0.0, BALL_R * 0.35), Time.get_ticks_msec() / 1000.0)
+		_draw_ball_at(bpos, BALL_R)
 
 	# Dunk ball dropping through the net while the player hangs.
 	if dunk_phase == "hang" or dunk_phase == "drop":

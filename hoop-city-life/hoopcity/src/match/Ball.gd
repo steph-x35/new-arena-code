@@ -25,6 +25,7 @@ var is_free_throw := false   # this shot counts one and skips normal possession
 var prev_h := 0.0
 var prev_pos := Vector2.ZERO
 var _dribble_falling := true
+var flame := false        # NBA JAM: la palla brucia quando il tiratore è HOT
 
 ## Closed-form ballistic flight. Integrating the arc with Euler steps made
 ## the landing point depend on the physics delta: at coarse steps (fast sim,
@@ -228,6 +229,9 @@ func _draw() -> void:
 	draw_line(c + Vector2(-r, 0), c + Vector2(r, 0),
 		Color(0.35, 0.18, 0.07), maxf(r * 0.11, 1.0))
 	draw_line(c + Vector2(0, -r), c + Vector2(0, r), Color(0.15, 0.09, 0.05), 1.2)
+	# NBA JAM HEAT: palla in fiamme mentre il giocatore HOT la tiene o l'ha tirata
+	if flame and not bool(Settings.get_v("lowgfx", false)):
+		Avatar.draw_flames(self, c + Vector2(0.0, r * 0.35), Time.get_ticks_msec() / 1000.0)
 
 func draw_ellipse_filled(pos: Vector2, radii: Vector2, col: Color) -> void:
 	var pts := PackedVector2Array()

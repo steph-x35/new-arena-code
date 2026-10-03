@@ -1,3 +1,25 @@
+# HoopCity — v2.27.0 · NBA JAM Pack: palla di fuoco, pet in città, sfida gli amici
+
+**APK:** `HoopCity-v2.27.0.apk` — versionCode 117, arm64-v8a
+**Firma:** invariata — si installa sopra le precedenti
+
+- 🔥 **PALLA DI FUOCO (NBA Jam style)**: quando sei HOT (3 canestri di fila) la
+  palla prende fuoco — lingue di fiamma animate sia nel court solo sia in
+  partita, mentre la tieni in mano e mentre vola dal tuo tiro. Chi te la ruba
+  vede spegnersi la fiamma. Rispetta l'impostazione lowgfx.
+- 🐶 **IL PET TI SEGUE IN CITTÀ**: il primo pet posseduto (cane, gatto,
+  coniglio, uccello, tartaruga…) non vive più solo in appartamento: ti accompagna
+  nelle passeggiate, scodinzola quando cammini, ti aspetta se ti fermi e si
+  teletrasporta se entri in un palazzo lontano. Ogni specie ha il suo disegno
+  e la sua andatura (l'uccello vola sopra la spalla, la tartaruga è lenta).
+- 🏁 **"SFIDA GLI AMICI"**: nel pannello finale della Half-Court Challenge un
+  pulsante copia negli appunti "🟢 X GREEN in 60 secondi… riesci a battermi?"
+  con il link di download — pronto da incollare su WhatsApp/TikTok.
+
+Test: indentazione verificata su tutti i file toccati, nessun asset esterno.
+
+---
+
 # HoopCity — v2.26.1 · Fix energia: la sfida non consuma più
 
 **APK:** `HoopCity-v2.26.1.apk` — versionCode 116, arm64-v8a
