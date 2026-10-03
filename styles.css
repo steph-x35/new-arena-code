@@ -676,3 +676,24 @@ html, body {
   text-decoration: underline;
 }
 .result-cta a:hover { color: #92400e; }
+
+
+/* ---------- Home FatturaFacile: canvas full-bleed + anti-bande ---------- */
+body.ff-home { overflow-x: clip; }
+#ff-workspace { position: relative; }
+#ff-workspace::before {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  left: calc(50% - 50vw);
+  right: calc(50% - 50vw);
+  background: linear-gradient(180deg, #f1f5f9 0%, #e9eef4 100%);
+  z-index: -1;
+}
+@media (max-width: 980px) {
+  #ff-workspace::before { left: 0; right: 0; }
+  .workspace { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 860px) {
+  body.ff-home, body.ff-home html { overflow-x: hidden; }
+}
