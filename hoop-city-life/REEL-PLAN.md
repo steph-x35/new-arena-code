@@ -203,3 +203,28 @@ risponde coi propri punteggi = commenti = distribuzione.
 - CHALLENGE format = il più virale del gaming (la gente posta il proprio tentativo)
 - Il record nel commento fissato dà un numero da battere = sfida diretta
 - Doppio pubblico: gamer (sfida) + gamedev (devlog: "ho aggiunto questa modalità in una sera")
+
+
+---
+
+## 🎬 REEL v2.27.0 — "NBA JAM PACK" (il reel della svolta)
+
+Tre feature in un solo reel: fuoco + cane + sfida. Struttura a escalation.
+
+### Registrazioni (15 min, v2.27.0)
+1. **FUOCO**: 3 canestri di fila in Street Court o 1v1 → da lì la palla brucia in mano e in volo (registra con audio)
+2. **CANE**: esci di casa col pet → cammina in città e fatti seguire (scodinzola!)
+3. **SFIDA**: completa una Half-Court Challenge → pannello finale → tap "🏁 SFIDA GLI AMICI" → toast "Copiato!"
+
+### Scritte
+1. **Questo gioco ha la PALLA DI FUOCO 🔥**
+2. **3 canestri di fila e SI ACCENDE**
+3. **E sì, il cane ti segue 🐶**
+4. **Sfida gli amici con un tap 🏁**
+5. **Gratis in bio 🔗**
+
+### Caption
+> NBA Jam nel 1993 ti dava il fuoco. Io l'ho appena messo nel mio gioco 🏀🔥 (e c'è pure il cane). Gratis, solo Android, in bio. #basket #streetball #gamingitalia #gamedev #nbajam
+
+### Commento fissato
+> Il fuoco si accende con 3 canestri di fila 🔥 Voi quanto resistete accesi? E quanti GREEN fate nella sfida? (il bottone per sfidare gli amici è DENTRO il gioco 🏁) App in bio 🔗
