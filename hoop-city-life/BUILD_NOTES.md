@@ -1,3 +1,16 @@
+# HoopCity — v2.28.0 · Graffiti col nome sullo Street Court
+
+**APK:** `HoopCity-v2.28.0.apk` — versionCode 119, arm64-v8a
+
+- 🎨 **GRAFFITI PERSONALIZZATO**: il nome della carriera è dipinto sull'asfalto
+  a metà campo dello Street Court — tag in stile blacktop con ombra spray,
+  contorno e doppia passata arancio/ambra, schiacciato in prospettiva come
+  fosse vernice vera. I giocatori ci camminano sopra. Nomi lunghi si
+  autoridimensionano. Solo outdoor (il court indoor resta pulito).
+  Personalizzazione inclusa gratis con la carriera.
+
+---
+
 # HoopCity — v2.27.1 · Fix courts congelati + smoke test in CI
 
 **APK:** `HoopCity-v2.27.1.apk` — versionCode 118, arm64-v8a

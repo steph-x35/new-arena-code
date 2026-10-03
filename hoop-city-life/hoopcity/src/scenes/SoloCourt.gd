@@ -1034,10 +1034,39 @@ func _end_session() -> void:
 
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
+	_draw_graffiti()
 	_draw_npcs()
 	_draw_player()
 	if outdoor:
 		_draw_park()
+
+## GRAFFITI: il nome della carriera dipinto sull'asfalto a metà campo,
+## come i tag sui blacktop veri. Sotto NPC e giocatori: ci si cammina sopra.
+## (Personalizzazione inclusa gratis con la carriera.)
+func _draw_graffiti() -> void:
+	if not outdoor:
+		return
+	var tag: String = String(Game.profile.get("name", "")).to_upper().strip_edges()
+	if tag == "":
+		return
+	var center: Vector2 = _screen(Vector2(0.0, 60.0))
+	var f: Font = ThemeDB.fallback_font
+	var size: int = 64
+	var w: float = f.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	if w > 900.0:                       # nomi lunghi: si stringe per stare nel campo
+		size = int(64.0 * 900.0 / w)
+		w = f.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	# schiacciato e leggermente inclinato: effetto "dipinto per terra"
+	draw_set_transform(center, -0.06, Vector2(1.0, 0.52))
+	# ombra spray
+	draw_string(f, Vector2(-w * 0.5 + 4, 4), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.04, 0.06, 0.05, 0.35))
+	# contorno scuro
+	for off in [Vector2(-2, 0), Vector2(2, 0), Vector2(0, -2), Vector2(0, 2), Vector2(-2, -2), Vector2(2, 2)]:
+		draw_string(f, Vector2(-w * 0.5, 0) + off, tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.10, 0.12, 0.10, 0.55))
+	# riempimento: due passate arancio/ambra
+	draw_string(f, Vector2(-w * 0.5, 0), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.93, 0.45, 0.08, 0.85))
+	draw_string(f, Vector2(-w * 0.5, -3), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(1.0, 0.70, 0.16, 0.85))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 ## Primo piano del parco: panchine e cestini lungo il bordo in basso,
 ## disegnati come se fossero vicino alla telecamera.
