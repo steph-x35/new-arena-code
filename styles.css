@@ -658,3 +658,21 @@ html, body {
   line-height: 1.5;
 }
 .kit-quote b, .kit-quote strong { color: #fff; font-style: normal; }
+
+/* CTA contestuale sotto il risultato dei calcolatori */
+.result-cta {
+  margin: 14px 0 4px;
+  border: 1px dashed #f59e0b;
+  background: #fffbeb;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: .86rem;
+  color: #475569;
+  line-height: 1.5;
+}
+.result-cta a {
+  color: #b45309;
+  font-weight: 800;
+  text-decoration: underline;
+}
+.result-cta a:hover { color: #92400e; }
