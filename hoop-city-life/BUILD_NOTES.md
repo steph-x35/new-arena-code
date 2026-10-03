@@ -1,3 +1,19 @@
+# HoopCity — v2.26.1 · Fix energia: la sfida non consuma più
+
+**APK:** `HoopCity-v2.26.1.apk` — versionCode 116, arm64-v8a
+**Firma:** invariata — si installa sopra le precedenti
+
+- **FIX DUNK**: la Half-Court Challenge consumava 0,35 energia a tiro (trick 0,5, dunk 1,6).
+  Con tanti tentativi l'energia della carriera crollava sotto la soglia richiesta per
+  schiacciare, e nel court solo il dunk spariva. Ora la sfida è a consumo ZERO
+  (nuovo wrapper `_drain_energy`): allenarsi sui green non tocca più le riserve.
+- Nota per chi ha già l'energia bassa: basta mangiare in gioco (o dormire a casa)
+  e il dunk torna subito.
+
+Test: 5 punti di consumo instradati sul wrapper, sfida = zero consumo.
+
+---
+
 # HoopCity — v2.26.0 · HALF-COURT GREEN CHALLENGE
 
 **APK:** `HoopCity-v2.26.0.apk` — versionCode 115, arm64-v8a

@@ -533,7 +533,7 @@ func _do_trick() -> void:
 		trick_kind = "dropstep"
 		trick_t = 0.45
 		Sfx.squeak()
-		Game.add_energy(-0.5)
+			_drain_energy(-0.5)
 		lbl_mid.text = "DROP STEP"
 		lbl_mid.modulate = Color(0.6, 0.86, 1.0)
 		return
@@ -563,7 +563,7 @@ func _do_trick() -> void:
 			facing = signf(mv.x)
 	trick_t = 0.45
 	Sfx.squeak()
-	Game.add_energy(-0.5)
+		_drain_energy(-0.5)
 	lbl_mid.text = {"crossover": "TRICK", "stepback": "STEPBACK",
 		"behind": "BEHIND THE BACK", "hand_switch": "HAND SWITCH",
 		"hesi": "HESITATION", "dropstep": "DROP STEP"}.get(trick_kind, "MOVE")
@@ -604,7 +604,7 @@ func _try_spin() -> void:
 	hand_left = not hand_left
 	player_pos.x = clampf(player_pos.x + facing * 55.0,
 		-Court.COURT_W * 0.5 + 40.0, Court.COURT_W * 0.5 - 40.0)
-	Game.add_energy(-0.5)
+		_drain_energy(-0.5)
 	lbl_mid.text = "SPIN MOVE"
 	lbl_mid.modulate = Color(0.6, 0.86, 1.0)
 
@@ -637,13 +637,21 @@ func _toggle_hc() -> void:
 	lbl_mid.text = ""
 	if hc_mode:
 		session_left = HC_SECONDS
-		Events.toast.emit("HALF-COURT CHALLENGE: 60s, contano solo i GREEN 🟢")
+		Events.toast.emit("HALF-COURT CHALLENGE: 60s, contano solo i GREEN 🟢 (non consuma energia)")
 		_hc_teleport()
 	else:
 		session_left = SESSION_SECONDS
 		Events.toast.emit("Tiro libero")
 	if btn_hc:
 		btn_hc.text = "🏆 HALF-COURT: ON" if hc_mode else "🏆 HALF-COURT"
+
+## La sfida è una modalità skill pura: zero consumo di energia, altrimenti
+## chi si allena sui green si ritrova senza gambe per il resto della carriera
+## (e il dunk, che richiede energia, spariva da tutti i court).
+func _drain_energy(v: float) -> void:
+	if hc_mode:
+		return
+	Game.add_energy(v)
 
 func _hc_teleport() -> void:
 	## Spot casuale oltre la linea di metà campo: da lì la banda verde è
@@ -693,7 +701,7 @@ func _dunk_throw() -> void:
 		court_art.net_bump(1, 1.0)
 	Events.shot_taken.emit("DUNK %s" % DunkStyle.label(dunk_style), true, 2)
 	Game.add_xp(SPOT_XP + 4, "solo_shots")
-	Game.add_energy(-1.6)
+		_drain_energy(-1.6)
 	session_score += 2
 	dunk_ball_t = 0.0
 	lbl_mid.text = "%s!  x%d" % [DunkStyle.label(dunk_style), streak]
@@ -816,7 +824,7 @@ func _shoot_up() -> void:
 	if meter:
 		meter.show_release(verdict, verdict_col)
 
-	Game.add_energy(-0.35)
+		_drain_energy(-0.35)
 	shot_anim = 0.001
 	ball_from = player_pos
 
