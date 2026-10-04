@@ -657,27 +657,41 @@ static func _gear_col(g: Dictionary, fallback: Color) -> Color:
 		return Color(hs)
 	return fallback
 
-## Fiamme GRANDI per la palla NBA JAM: quelle da giocatore (draw_flames) sono
-## pensate per i piedi e su un pallone sparivano. Qui: alone caldo, corona di
-## fiamme che avvolge tutta la palla e scintille che salgono. Scala col raggio.
-static func draw_ball_flames(c: CanvasItem, center: Vector2, r: float, t: float) -> void:
-	# alone caldo attorno alla palla: la rende leggibile anche da lontano
-	c.draw_circle(center, r * 1.9, Color(1.0, 0.45, 0.10, 0.16))
-	c.draw_circle(center, r * 1.45, Color(1.0, 0.55, 0.12, 0.22))
-	for i in 7:
-		var ph: float = t * 9.0 + float(i) * 0.9
-		var ang: float = TAU * i / 7.0 + sin(ph) * 0.25
-		var fx: float = center.x + cos(ang) * r * 0.5
-		var fy: float = center.y + sin(ang) * r * 0.35
-		var fh: float = r * (1.15 + (sin(ph * 1.6) * 0.5 + 0.5) * 1.15)
-		var fw: float = r * 0.40
-		var sway: float = sin(ph * 1.3) * r * 0.14
-		c.draw_circle(Vector2(fx, fy - fh * 0.35), fw, Color(1.0, 0.32, 0.04, 0.85))
-		c.draw_circle(Vector2(fx + sway, fy - fh * 0.72), fw * 0.62, Color(1.0, 0.62, 0.10, 0.92))
-		c.draw_circle(Vector2(fx + sway * 1.5, fy - fh * 1.05), fw * 0.34, Color(1.0, 0.90, 0.35, 0.95))
-	# scintille che salgono sopra la palla
-	for k in 4:
-		var ph2: float = t * 5.0 + float(k) * 1.7
-		var sx: float = center.x + sin(ph2 * 1.1 + float(k)) * r * 0.9
-		var sy: float = center.y - r * 0.6 - fmod(t * 60.0 + float(k) * 23.0, r * 2.8)
-		c.draw_circle(Vector2(sx, sy), 1.7 + 1.3 * absf(sin(ph2)), Color(1.0, 0.85, 0.30, 0.8))
+## Fiamme per la palla NBA JAM: SCIA DI FUOCO orientata contro il verso del
+## moto (segue la parabola: in salita punta in basso, in discesa in alto),
+## stile cometa. `sv` = velocità apparente dello schermo; se è ~0 (palla in
+## mano) piccole fiammelle radiali. Contenuta: non copre il gioco.
+static func draw_ball_flames(c: CanvasItem, center: Vector2, r: float, t: float,
+		sv := Vector2.ZERO) -> void:
+	# alone caldo discreto attorno alla palla
+	c.draw_circle(center, r * 1.30, Color(1.0, 0.50, 0.12, 0.16))
+	var sp: float = sv.length()
+	if sp < 40.0:
+		# palla tenuta in mano: tre fiammelle dolci sopra il pallone
+		for i in 3:
+			var ph: float = t * 8.0 + float(i) * 2.1
+			var fx: float = center.x + (float(i) - 1.0) * r * 0.42 + sin(ph) * 1.5
+			var fh: float = r * (0.55 + (sin(ph * 1.7) * 0.5 + 0.5) * 0.5)
+			c.draw_circle(Vector2(fx, center.y - r - fh * 0.4), r * 0.16, Color(1.0, 0.42, 0.06, 0.8))
+			c.draw_circle(Vector2(fx, center.y - r - fh * 0.75), r * 0.09, Color(1.0, 0.75, 0.18, 0.85))
+		return
+	# SCIA: il fuoco scivola ALL'INDIETRO rispetto al moto (parabola vera)
+	var ang: float = (-sv / sp).angle()
+	c.draw_set_transform(center, ang, Vector2.ONE)
+	for i in 4:
+		var ph: float = t * 10.0 + float(i) * 1.3
+		var d: float = r * (0.55 + float(i) * 0.42)      # quanto dietro
+		var sway: float = sin(ph + float(i)) * r * 0.12   # serpentello della scia
+		var fw: float = r * maxf(0.46 - float(i) * 0.085, 0.14)
+		var ln: float = r * (0.55 + (sin(ph * 1.6) * 0.5 + 0.5) * 0.35)
+		var base := Vector2(d, sway)
+		# lingua di fuoco: goccia allungata che si restringe all'indietro
+		c.draw_circle(base, fw, Color(1.0, 0.34, 0.05, 0.72))
+		c.draw_circle(base + Vector2(ln * 0.45, sway * 0.4), fw * 0.62, Color(1.0, 0.60, 0.10, 0.8))
+		c.draw_circle(base + Vector2(ln * 0.85, sway * 0.7), fw * 0.32, Color(1.0, 0.88, 0.30, 0.85))
+	# scintille che si staccano lungo la scia
+	for k in 3:
+		var ph2: float = t * 6.0 + float(k) * 2.0
+		c.draw_circle(Vector2(r * (0.7 + float(k) * 0.55), sin(ph2) * r * 0.28),
+			1.4 + 1.2 * absf(sin(ph2)), Color(1.0, 0.85, 0.30, 0.75))
+	c.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

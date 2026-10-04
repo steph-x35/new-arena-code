@@ -1,3 +1,17 @@
+# HoopCity — v2.28.3 · Scia di fuoco + bubble letters vere
+
+**APK:** `HoopCity-v2.28.3.apk` — versionCode 122, arm64-v8a
+
+- 🔥 **SCIA DI FUOCO**: le fiamme della palla ora sono orientate contro il verso
+  del moto e seguono la parabola — in salita puntano in basso, in discesa in
+  alto, come una cometa. Lingue che si restringono + scintille lungo la scia.
+  Palla in mano: fiammelle dolci radiali. Contenuta, non invasiva.
+- 🎨 **BUBBLE LETTERS**: lettere del graffiti GONFIATE (contorno ripassato 16
+  volte, riempimento 8), riflesso chiaro effetto bolla, e COLATURE realistiche:
+  capsule di vernice con goccia finale e attacco "bagnato", 1-2 per lettera.
+
+---
+
 # HoopCity — v2.28.2 · Fiamme grandi, graffiti writers, zampine animate
 
 **APK:** `HoopCity-v2.28.2.apk` — versionCode 121, arm64-v8a

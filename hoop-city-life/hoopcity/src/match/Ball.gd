@@ -231,7 +231,7 @@ func _draw() -> void:
 	draw_line(c + Vector2(0, -r), c + Vector2(0, r), Color(0.15, 0.09, 0.05), 1.2)
 	# NBA JAM HEAT: palla in fiamme mentre il giocatore HOT la tiene o l'ha tirata
 	if flame and not bool(Settings.get_v("lowgfx", false)):
-		Avatar.draw_ball_flames(self, c, r, Time.get_ticks_msec() / 1000.0)
+		Avatar.draw_ball_flames(self, c, r, Time.get_ticks_msec() / 1000.0, Vector2(vel.x, vel.y * 0.5 - vh))
 
 func draw_ellipse_filled(pos: Vector2, radii: Vector2, col: Color) -> void:
 	var pts := PackedVector2Array()

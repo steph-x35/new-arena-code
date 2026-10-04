@@ -1040,14 +1040,18 @@ func _draw() -> void:
 	if outdoor:
 		_draw_park()
 
-## GRAFFITI: il nome della carriera dipinto sul MURO in fondo al campo,
-## stile piece dei writers: lettere bubble colorate, ognuna ruotata un po'
-## per conto suo, contorno spesso e GOCCE DI VERNICE che colano sotto le
-## lettere. Tutto deterministico sul nome: il tuo mural è sempre uguale.
+## GRAFFITI: il nome della carriera sul MURO in fondo, stile BUBBLE / throw-up
+## dei writers: lettere GONFIATE (disegnate più volte con offset radiale: il
+## contorno 16 volte, il riempimento 8), ognuna leggermente ruotata, riflesso
+## chiaro in alto e COLATURE di vernice a capsula con goccia in fondo.
+## Deterministico sul nome: il tuo piece è sempre identico.
 const GRAF_COLORS := [
 	Color(0.98, 0.30, 0.45), Color(0.20, 0.75, 0.95), Color(1.0, 0.80, 0.15),
 	Color(0.45, 0.95, 0.35), Color(0.95, 0.45, 0.10),
 ]
+const GRAF_INFLATE_OUT := 3.4   # quanto gonfiare il contorno
+const GRAF_INFLATE_FILL := 1.9  # quanto gonfiare il riempimento
+
 func _draw_graffiti() -> void:
 	if not outdoor:
 		return
@@ -1057,37 +1061,56 @@ func _draw_graffiti() -> void:
 	var base: Vector2 = _screen(Vector2(0.0, -Court.COURT_H * 0.5))
 	base.y -= 52.0
 	var f: Font = ThemeDB.fallback_font
-	var size := 46
+	var size := 48
 	var widths: Array = []
 	var total := _graf_measure(tag, f, size, widths)
 	if total > 560.0:
-		size = int(46.0 * 560.0 / total)
+		size = int(48.0 * 560.0 / total)
 		widths = []
 		total = _graf_measure(tag, f, size, widths)
 	var x := -total * 0.5
 	for i in tag.length():
 		var ch := tag[i]
 		var h1 := float(abs(hash(ch + str(i))))    # pseudo-random STABILE
-		var rot := fmod(h1 * 0.00000013, 0.20) - 0.10
-		var dy := fmod(h1 * 0.0000007, 8.0) - 4.0
+		var rot := fmod(h1 * 0.00000013, 0.14) - 0.07
+		var dy := fmod(h1 * 0.0000007, 7.0) - 3.5
 		var col: Color = GRAF_COLORS[i % GRAF_COLORS.size()]
 		var cw: float = widths[i]
 		draw_set_transform(Vector2(base.x + x + cw * 0.5, base.y + dy), rot, Vector2.ONE)
-		# contorno spesso scuro (alone bomboletta)
-		for off in [Vector2(-3, 0), Vector2(3, 0), Vector2(0, -3), Vector2(0, 3),
-				Vector2(-3, -3), Vector2(3, 3), Vector2(-3, 3), Vector2(3, -3)]:
-			draw_string(f, Vector2(-cw * 0.5, 0) + off, ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.06, 0.07, 0.06, 0.9))
-		# lettera colorata + riflesso
-		draw_string(f, Vector2(-cw * 0.5, 0), ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
-		draw_string(f, Vector2(-cw * 0.5, -2), ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size,
-			Color(minf(col.r + 0.3, 1.0), minf(col.g + 0.3, 1.0), minf(col.b + 0.3, 1.0), 0.6))
-		# goccia di vernice che cola (circa una lettera su tre)
-		if fmod(h1 * 0.0000001, 3.0) < 1.0:
-			var dl := 10.0 + fmod(h1 * 0.000002, 24.0)
-			var dx := fmod(h1 * 0.0000003, cw) - cw * 0.5
-			var top := size * 0.18
-			draw_line(Vector2(dx, top), Vector2(dx, top + dl), Color(col, 0.9), 3.5)
-			draw_circle(Vector2(dx, top + dl + 2.0), 2.6, Color(col, 0.9))
+		var half := Vector2(-cw * 0.5, 0)
+		# 1) CONTORNO GROSSO scuro: la lettera ripassata 16 volte attorno
+		for k in 16:
+			var a := TAU * float(k) / 16.0
+			draw_string(f, half + Vector2(cos(a), sin(a)) * GRAF_INFLATE_OUT,
+				ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.05, 0.06, 0.05, 0.92))
+		# 2) RIEMPIMENTO gonfio: 8 passate + quella centrale piena
+		for k in 8:
+			var a := TAU * float(k) / 8.0
+			draw_string(f, half + Vector2(cos(a), sin(a)) * GRAF_INFLATE_FILL,
+				ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
+		draw_string(f, half, ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
+		# 3) RIFLESSO: passata chiara spostata in alto-sinistra (effetto bolla)
+		draw_string(f, half + Vector2(-1.5, -2.5), ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size,
+			Color(minf(col.r + 0.45, 1.0), minf(col.g + 0.45, 1.0), minf(col.b + 0.35, 1.0), 0.55))
+		# 4) COLATURE: capsule di vernice con goccia, sotto alcune lettere
+		var drips := 1
+		if fmod(h1 * 0.0000001, 2.4) < 1.0:
+			drips = 2
+		for d in drips:
+			var h2 := float(abs(hash(ch + str(i) + "d" + str(d))))
+			if fmod(h2 * 0.0000001, 3.2) >= 1.6 and d > 0:
+				continue          # la seconda colatura non c'è sempre
+			var dx := fmod(h2 * 0.0000003, cw * 0.7) - cw * 0.35
+			var dl := 12.0 + fmod(h2 * 0.000002, 26.0)
+			var dw := 3.0 + fmod(h2 * 0.0000004, 2.0)
+			var y0 := 2.0         # parte da sotto la base della lettera
+			var dcol := Color(col, 0.92).darkened(0.12)
+			# capsula: linea + cerchi alle estremità
+			draw_line(Vector2(dx, y0), Vector2(dx, y0 + dl), dcol, dw)
+			draw_circle(Vector2(dx, y0), dw * 0.5, dcol)
+			draw_circle(Vector2(dx, y0 + dl), dw * 0.62 + 0.8, dcol)
+			# piccola scia di vernice appena sotto la lettera (attacco bagnato)
+			draw_circle(Vector2(dx, y0 + 1.0), dw * 0.75, Color(dcol, 0.7))
 		x += cw
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
@@ -1095,7 +1118,7 @@ func _draw_graffiti() -> void:
 func _graf_measure(tag: String, f: Font, size: int, out: Array) -> float:
 	var total := 0.0
 	for i in tag.length():
-		var cw: float = f.get_string_size(tag[i], HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 4.0
+		var cw: float = f.get_string_size(tag[i], HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 7.0
 		out.append(cw)
 		total += cw
 	return total
@@ -1288,7 +1311,7 @@ func _draw_player() -> void:
 		var bpos := Vector2(bs.x, bs.y - ball_h)
 		# NBA JAM HEAT: palla in fiamme quando sei HOT (3 canestri di fila)
 		if hot and not bool(Settings.get_v("lowgfx", false)):
-			Avatar.draw_ball_flames(self, bpos, BALL_R, Time.get_ticks_msec() / 1000.0)
+			Avatar.draw_ball_flames(self, bpos, BALL_R, Time.get_ticks_msec() / 1000.0, Vector2(ball_vel.x, ball_vel.y * 0.5 - ball_vh))
 		_draw_ball_at(bpos, BALL_R)
 
 	# Dunk ball dropping through the net while the player hangs.
