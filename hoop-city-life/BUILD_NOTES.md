@@ -1,3 +1,17 @@
+# HoopCity — v2.39.1 · Prese sul ferro rosso
+
+**APK:** `HoopCity-v2.39.1.apk` — versionCode 135, arm64-v8a
+
+- 🏀 **DUE MANI: PIÙ SU, SUL ROSSO DEL FERRO**: il punto di presa era basso
+  (sulla retina); ora le mani convergono leggermente più su, dentro la banda
+  rossa del ferro.
+- ✋ **UNA MANO (SINISTRA) SISTEMATA**: quando ti appendi con la mano
+  sinistra, la mano finiva fuori dall'anello (nel vuoto). Il pivot ora
+  compensa l'apertura naturale della mano forte (0.139h): sinistra e destra
+  cadono tutte e due dentro il ferro. La destra resta dov'era (era giusta).
+
+---
+
 # HoopCity — v2.39.0 · Due mani sul tubo + peso che si vede
 
 **APK:** `HoopCity-v2.39.0.apk` — versionCode 134, arm64-v8a

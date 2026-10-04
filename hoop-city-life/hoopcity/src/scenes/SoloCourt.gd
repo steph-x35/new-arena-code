@@ -1392,14 +1392,19 @@ func _draw_player() -> void:
 				var ramp: float = clampf(hang_swing_t / 0.6, 0.0, 1.0)
 				hang_one = not bool(DunkStyle.sample(dunk_style, 1.0).get("both", false))
 				var hd: float = -1.0 if hand_left else 1.0
-				# UNA mano: labbro apicale del suo lato. DUE mani: centro del
-				# tubo sul lato del giocatore, dove le mani convergono.
+				# PUNTI DI PRESA SUL FERRO ROSSO (mai sulla retina):
+				# UNA mano: la mano forte si apre di 0.139h dalla linea dei
+				# piedi — il pivot la COMPENSA, cosi' la mano cade sempre
+				# dentro la banda del ferro (destra: -22 come prima, bene;
+				# sinistra: pivot a 0, mano a -11, dentro il ferro).
+				# DUE mani: convergono sul tubo leggermente PIU' SU, nel
+				# rosso del ferro (prima erano basse, sulla retina).
 				if hang_one:
-					hang_pivot = _rim_screen() + Vector2(-22.0,
+					hang_pivot = _rim_screen() + Vector2(-11.0 - hd * h * 0.139,
 						22.0 * HoopArt.RIM_SQUASH + bend_now * 5.0)
 				else:
 					hang_pivot = _rim_screen() + Vector2(-17.0,
-						22.0 * HoopArt.RIM_SQUASH * 1.6 + bend_now * 5.0)
+						22.0 * HoopArt.RIM_SQUASH * 0.9 + bend_now * 6.0)
 				hang_theta = sin(hang_swing_t * 2.0) * 0.10 * ramp
 				hang_body = true
 				# Le mani stanno 1.20h sopra la linea dei piedi; il corpo
