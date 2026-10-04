@@ -96,6 +96,7 @@ var hc_mode := false
 var hc_greens := 0
 var hc_best := 0
 var btn_hc: Button
+var btn_hc_big: Button      # bottone APERTO: due controlli, zero spostamenti
 var hc_expanded := false   # quadratino -> tap -> bottone pieno -> tap -> parte
 
 # street-court bystanders who shoot at the left hoop, so the park feels alive
@@ -274,16 +275,26 @@ func _build_hud() -> void:
 	btn_hc.add_theme_font_size_override("font_size", 24)
 	btn_hc.pressed.connect(_toggle_hc)
 	root.add_child(btn_hc)
+	# Il bottone APERTO: creato una volta, nascosto. Mai mosso o ridimensionato.
+	btn_hc_big = Button.new()
+	btn_hc_big.text = "🏆 SFIDA METÀ CAMPO"
+	btn_hc_big.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	btn_hc_big.position = Vector2(-312, 92)
+	btn_hc_big.size = Vector2(302, 56)
+	btn_hc_big.custom_minimum_size = Vector2(302, 56)
+	btn_hc_big.add_theme_font_size_override("font_size", 19)
+	btn_hc_big.pressed.connect(_toggle_hc)
+	btn_hc_big.visible = false
+	root.add_child(btn_hc_big)
 
 func _hc_expand() -> void:
-	## quadratino -> bottone pieno col nome; si richiude da solo in 6 secondi
+	## quadratino -> bottone pieno; si richiude da solo in 8 secondi.
+	## Si tocca SOLO la visibilita': la geometria resta fissata alla creazione.
 	hc_expanded = true
 	if btn_hc:
-		btn_hc.text = "🏆 SFIDA METÀ CAMPO"
-		btn_hc.position = Vector2(-312, 92)
-		btn_hc.size = Vector2(302, 56)
-		btn_hc.custom_minimum_size = Vector2(302, 56)
-		btn_hc.add_theme_font_size_override("font_size", 19)
+		btn_hc.visible = false
+	if btn_hc_big:
+		btn_hc_big.visible = true
 	get_tree().create_timer(8.0).timeout.connect(_hc_auto_collapse)
 
 func _hc_auto_collapse() -> void:
@@ -292,17 +303,12 @@ func _hc_auto_collapse() -> void:
 
 func _hc_collapse() -> void:
 	hc_expanded = false
+	if btn_hc_big:
+		btn_hc_big.visible = false
 	if btn_hc:
-		btn_hc.disabled = false
-		btn_hc.text = "🏆"
-		_hc_shrink()
-
-func _hc_shrink() -> void:
-	if btn_hc:
-		btn_hc.position = Vector2(-66, 92)
-		btn_hc.size = Vector2(56, 56)
-		btn_hc.custom_minimum_size = Vector2(56, 56)
-		btn_hc.add_theme_font_size_override("font_size", 24)
+		btn_hc.visible = true
+		btn_hc.disabled = hc_mode
+		btn_hc.text = "⏱" if hc_mode else "🏆"
 
 func _leave() -> void:
 	SaveSystem.save_game()
@@ -739,10 +745,7 @@ func _toggle_hc() -> void:
 	Events.toast.emit("SFIDA METÀ CAMPO: 60 secondi, contano solo i GREEN 🟢")
 	_hc_teleport()
 	hc_expanded = false
-	if btn_hc:
-		btn_hc.text = "⏱"
-		btn_hc.disabled = true
-		_hc_shrink()
+	_hc_collapse()
 
 ## La sfida è una modalità skill pura: zero consumo di energia, altrimenti
 ## chi si allena sui green si ritrova senza gambe per il resto della carriera
@@ -1158,9 +1161,7 @@ func _end_session() -> void:
 			attempts = 0
 			streak = 0
 			hot = false
-			if btn_hc:
-				btn_hc.text = "🏆 SFIDA METÀ CAMPO"
-				btn_hc.disabled = false
+			_hc_collapse()
 			p.close())
 	p.add_button("Leave", func(): _leave())
 
@@ -1467,10 +1468,10 @@ func _draw_player() -> void:
 	if dunk_phase == "hang":
 		po["hang"] = true
 		if grip_at.x < 1e8:
-			# RELATIVO ai piedi del disegno: le mani vanno al punto esatto
-			# del ferro qualunque sia la posa del corpo (era il bug delle
-			# braccia lunghissime: coordinate assolute prese come offset).
-			po["grip_at"] = grip_at - screen
+			# ASSOLUTO nello spazio del canvas (lo stesso delle spalle
+			# dentro Avatar): le mani finiscono ESATTAMENTE sul bordo del
+			# ferro. Il "- screen" le spedisce al centro campo!
+			po["grip_at"] = grip_at
 	po["hand"] = -1.0 if hand_left else 1.0
 	# SPIN MOVE: la rotazione del corpo come in partita (passa di schiena
 	# alla telecamera mentre gira, come lo yaw dei giocatori del match).

@@ -1,3 +1,21 @@
+# HoopCity — v2.36.0 · Mani sul ferro + bottone sfida a due controlli
+
+**APK:** `HoopCity-v2.36.0.apk` — versionCode 130, arm64-v8a
+
+- ✋ **MANI SUL FERRO, A DESTRA DOVE STA IL CANESTRO**: bug trovato — il punto
+  del ferro veniva passato RELATIVO alla posa (`grip_at - screen`) invece che
+  ASSOLUTO: le mani finivano al punto (0,-91) = centro campo. Ora absolute:
+  braccia naturali dal corpo basso fino al bordo del ferro piegato.
+  L'oscillazione pendolare resta (le mani inchiodate, le braccia si angolano).
+- 🏆 **BOTTONE SFIDA RIFATTO A DUE CONTROLLI**: quadratino 🏆 e bottone aperto
+  "🏆 SFIDA METÀ CAMPO" sono DUE bottoni sovrapposti che si scambiano solo la
+  VISIBILITÀ — niente più spostamenti/resize dinamici (era quello che li
+  rompeva: spariva, riappariva male). Un tap apre, secondo tap la sfida parte,
+  chiusura automatica dopo 8 secondi. Fix anche a "Torno a tirare" che
+  lasciava il testo lungo nel formato quadratino.
+
+---
+
 # HoopCity — v2.35.0 · L'hang ora si muove DAVVERO + bottone sfida affidabile
 
 **APK:** `HoopCity-v2.35.0.apk` — versionCode 129, arm64-v8a
