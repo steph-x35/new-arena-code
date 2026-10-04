@@ -1,3 +1,20 @@
+# HoopCity — v2.33.0 · Hang realistico + graffiti bianco/nero
+
+**APK:** `HoopCity-v2.33.0.apk` — versionCode 127, arm64-v8a
+
+- ✋ **MANI SUL FERRO PIEGATO**: le braccia non sono più dritte verso l'alto:
+  le mani si incollano al punto ESATTO del ferro (grip_at), che scende quando
+  si piega — le braccia si tendono fin lì, angolate, e il corpo pende sotto.
+  La testa esce dal canestro (il corpo affonda col ferro che cede). Street e
+  match (anche la mano dello slam segue il labbro piegato).
+- 🕰️ **OSCILLAZIONE**: appeso al ferro, il corpo ondeggia a destra e sinistra
+  come un pendolo (dopo mezzo secondo dal grab, dolce, non frenetica).
+- 🎨 **GRAFFITI B/N ROVINATO**: più piccolo (~20%), bianco sporco + nero,
+  contorno spesso ma sconnesso, chiazze di usura e GRAFFI netti che
+  attraversano le lettere. Niente più gloss candy.
+
+---
+
 # HoopCity — v2.32.0 · Ferro mensola + rete che segue + parco VERO
 
 **APK:** `HoopCity-v2.32.0.apk` — versionCode 126, arm64-v8a

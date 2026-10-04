@@ -51,6 +51,7 @@ var dunk_anim := 0.0        # progress within the current phase
 var dust_t := 0.0           # nuvolette all'atterraggio
 var dust_big := false       # atterraggio da slam
 var dunk_phase := ""        # "" | "rise" | "hang" | "drop"
+var hang_swing_t := 0.0    # tempo appeso: oscilla dx/sx come un pendolo
 var dunk_style := ""        # DunkStyle: windmill / spin360 / tomahawk ...
 var dunk_rise_t := 0.70     # seconds of the rise, from DunkStyle (per style)
 var dunk_ball_t := 0.0      # time since the throw-down, drives the ball drop
@@ -333,6 +334,10 @@ func _process(delta: float) -> void:
 	net_wobble = HoopArt.decay(net_wobble, delta)
 	trick_t = maxf(trick_t - delta, 0.0)
 	dust_t = maxf(dust_t - delta, 0.0)
+	if dunk_phase == "hang":
+		hang_swing_t += delta
+	else:
+		hang_swing_t = 0.0
 	if has_meta("cam"):
 		var cam: Camera2D = get_meta("cam")
 		var want_x: float = CourtStage.m_project(player_pos, Court.COURT_H).x
@@ -1126,13 +1131,12 @@ func _draw() -> void:
 	if outdoor:
 		_draw_park()
 
-## GRAFFITI: il nome della carriera sul MURO in fondo, stile BUBBLE / throw-up
-## dei writers: lettere GONFIATE (disegnate più volte con offset radiale: il
-## contorno 16 volte, il riempimento 8), ognuna leggermente ruotata, riflesso
-## chiaro in alto e COLATURE di vernice a capsula con goccia in fondo.
-## Deterministico sul nome: il tuo piece è sempre identico.
-const GRAF_FILL := Color(1.0, 0.78, 0.10)     # UN colore di riempimento (candy)
-const GRAF_LINE := Color(0.09, 0.10, 0.28)    # UN colore di contorno (blu notte)
+## GRAFFITI: il nome della carriera sul MURO in fondo — BIANCO E NERO,
+## lettere gonfiate ma ROVINATE e trasandate: usura (la vernice si è
+## consumata a chiazze) e GRAFFI netti che attraversano le lettere.
+## Più piccolo del bubble candy che c'era prima. Deterministico sul nome.
+const GRAF_FILL := Color(0.92, 0.92, 0.90)    # BIANCO sporco: vernice sbiadita
+const GRAF_LINE := Color(0.06, 0.06, 0.07)    # NERO: contorno consumato
 const GRAF_OVERLAP := 0.78                    # le lettere si SOPRAPPPONGONO
 
 func _draw_graffiti() -> void:
@@ -1144,45 +1148,57 @@ func _draw_graffiti() -> void:
 	var base: Vector2 = _screen(Vector2(0.0, -Court.COURT_H * 0.5))
 	base.y -= 52.0
 	var f: Font = ThemeDB.fallback_font
-	var size := 52
+	var size := 42
 	var widths: Array = []
 	var total := _graf_measure(tag, f, size, widths)
-	if total > 540.0:
-		size = int(52.0 * 540.0 / total)
+	if total > 470.0:
+		size = int(42.0 * 470.0 / total)
 		widths = []
 		total = _graf_measure(tag, f, size, widths)
-	# 1) NUBE d'appoggio: blob chiaro dietro tutto il piece (come i writers
-	#    che riempiono lo sfondo prima delle lettere) — rompe l'effetto "stampa".
-	var nub := 0
-	for k in 7:
+	# 1) NUBE grigia spenta dietro il piece: il muro che sbuca dove la
+	#    vernice si è consumata
+	for k in 5:
 		var hx := float(abs(hash(tag + "n" + str(k))))
-		draw_circle(Vector2(base.x + (hx * 0.0000001 - 0.5) * total * 0.95,
-			base.y - 18.0 + fmod(hx * 0.0000003, 26.0) - 13.0),
-			26.0 + fmod(hx * 0.000002, 16.0), Color(0.55, 0.75, 0.92, 0.5))
-		nub += 1
+		draw_circle(Vector2(base.x + (hx * 0.0000001 - 0.5) * total * 0.9,
+			base.y - 16.0 + fmod(hx * 0.0000003, 22.0) - 11.0),
+			22.0 + fmod(hx * 0.000002, 12.0), Color(0.58, 0.58, 0.60, 0.28))
 	var x := -total * 0.5
 	for i in tag.length():
 		var ch := tag[i]
 		var h1 := float(abs(hash(ch + str(i))))    # pseudo-random STABILE
-		var rot := fmod(h1 * 0.00000013, 0.16) - 0.08
-		var dy := fmod(h1 * 0.0000007, 9.0) - 4.5
+		var rot := fmod(h1 * 0.00000013, 0.20) - 0.10
+		var dy := fmod(h1 * 0.0000007, 11.0) - 5.5
 		var cw: float = widths[i]
-		draw_set_transform(Vector2(base.x + x + cw * 0.5, base.y + dy), rot, Vector2(1.0, 1.08))
+		draw_set_transform(Vector2(base.x + x + cw * 0.5, base.y + dy), rot, Vector2(1.0, 1.06))
 		var half := Vector2(-cw * 0.5, 0)
-		# 2) CONTORNO unico spesso (stesso colore per tutto il piece)
-		for k in 16:
-			var a := TAU * float(k) / 16.0
-			draw_string(f, half + Vector2(cos(a), sin(a)) * 3.4,
+		# 2) CONTORNO nero spesso ma ROVINATO: 10 passate, alcune sconnesse
+		for k in 10:
+			var a := TAU * float(k) / 10.0
+			var wob: float = 3.6 + (0.9 if k % 3 == 0 else 0.0)
+			draw_string(f, half + Vector2(cos(a), sin(a)) * wob,
 				ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, GRAF_LINE)
-		# 3) RIEMPIMENTO gonfio (una sola tinta candy)
-		for k in 8:
-			var a := TAU * float(k) / 8.0
+		# 3) RIEMPIMENTO bianco sporco, gonfio
+		for k in 6:
+			var a := TAU * float(k) / 6.0
 			draw_string(f, half + Vector2(cos(a), sin(a)) * 1.9,
 				ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, GRAF_FILL)
 		draw_string(f, half, ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, GRAF_FILL)
-		# 4) GLOSS: riflesso bianco in alto (la bolla che "pop")
-		draw_string(f, half + Vector2(-1.0, -2.0), ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size,
-			Color(1.0, 1.0, 0.95, 0.4))
+		# 4) USURA: chiazze trasparenti, la vernice consumata dagli anni
+		for k in 2:
+			var h2 := float(abs(hash(ch + "w" + str(i) + str(k))))
+			var ux: float = half.x + 2.0 + fmod(h2 * 0.0000009, maxf(cw - 6.0, 2.0))
+			var uy: float = -size * (0.55 + fmod(h2 * 0.0000004, 0.30))
+			draw_rect(Rect2(ux, uy, 5.0 + fmod(h2 * 0.000002, 9.0),
+				4.0 + fmod(h2 * 0.000003, 7.0)), Color(0.45, 0.45, 0.47, 0.30))
+		# 5) GRAFFI: segni netti che attraversano la lettera
+		for k in 3:
+			var h3 := float(abs(hash(ch + "s" + str(i) + str(k))))
+			var gx: float = half.x + 1.0 + fmod(h3 * 0.0000007, maxf(cw - 2.0, 2.0))
+			var gy: float = -size * (0.25 + fmod(h3 * 0.0000005, 0.45))
+			var ga: float = fmod(h3 * 0.00000011, 1.2) - 0.6
+			var gl: float = 6.0 + fmod(h3 * 0.000002, 9.0)
+			draw_line(Vector2(gx, gy), Vector2(gx + cos(ga) * gl, gy + sin(ga) * gl),
+				Color(0.10, 0.10, 0.11, 0.55), 1.6)
 		x += cw * GRAF_OVERLAP
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
@@ -1302,6 +1318,7 @@ func _draw_player() -> void:
 	# Dunk pose from the shared catalogue, so the street court plays the same
 	# slams as the arena. Empty for every other animation.
 	var slam: Dictionary = {}
+	var grip_at := Vector2(1e9, 1e9)
 
 	if dunk_phase != "":
 		var rim_x: Vector2 = RIM - Vector2(20.0, 0.0)
@@ -1395,6 +1412,8 @@ func _draw_player() -> void:
 		po["lean_back"] = clampf(fade_t / 0.75, 0.0, 1.0)
 	if dunk_phase == "hang":
 		po["hang"] = true
+		if grip_at.x < 1e8:
+			po["grip_at"] = grip_at
 	po["hand"] = -1.0 if hand_left else 1.0
 	# SPIN MOVE: la rotazione del corpo come in partita (passa di schiena
 	# alla telecamera mentre gira, come lo yaw dei giocatori del match).
