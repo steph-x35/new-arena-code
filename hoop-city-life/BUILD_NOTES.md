@@ -1,3 +1,24 @@
+# HoopCity — v2.38.0 · Hang naturale: 1/2 mani, fronte, lato giusto
+
+**APK:** `HoopCity-v2.38.0.apk` — versionCode 133, arm64-v8a
+
+- ✋ **UNA O DUE MANI COME LO SLAM**: se lo schiacciata era a una mano, ti
+  appendi con UNA mano (l'altro braccio pende giù); se era a due, due.
+  Letto dallo stile di schiacciata (DunkStyle).
+- 🧍 **CORPO DRETTO DI FRONTE**: trovato il flag che girava il personaggio
+  di schiena durante l'hang (per questo vedevi tutti i capelli) — rimosso:
+  ora è frontale, appeso dritto.
+- 🏀 **LATO GIUSTO**: le mani agganciano il LABBRO DEL FERRO SUL LATO DEL
+  GIOCATORE — quello che stringi davvero attaccando il canestro verso
+  destra — non più il centro davanti alla retina.
+- 💪 **BRACCIA NORMALI**: eliminate le braccia custom dell'hang: si usa la
+  posa standard del braccio alzato (stessa identica lunghezza di quando
+  sei fermo in campo). Il corpo pende a 1.20 altezze sotto le mani.
+- 🕰️ Ondulazione dolce: tutto il corpo rigido oscilla appena attorno alle
+  mani (angolo piccolo, ritmo lento).
+
+---
+
 # HoopCity — v2.37.1 · Retina sotto il giocatore appeso
 
 **APK:** `HoopCity-v2.37.1.apk` — versionCode 132, arm64-v8a

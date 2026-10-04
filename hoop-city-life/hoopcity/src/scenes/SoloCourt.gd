@@ -1360,9 +1360,11 @@ func _draw_player() -> void:
 	# Dunk pose from the shared catalogue, so the street court plays the same
 	# slams as the arena. Empty for every other animation.
 	var slam: Dictionary = {}
-	var hang_pivot := Vector2.ZERO   # bordo del ferro DAVANTI: dove stanno le mani
+	var hang_pivot := Vector2.ZERO   # labbro del ferro SUL LATO DEL GIOCATORE
 	var hang_theta := 0.0            # angolo del pendolo (corpo rigido che oscilla)
 	var hang_body := false           # true = il corpo si disegna nel pendolo
+	var hang_one := false            # appeso con UNA mano (slam a una mano)
+	var hang_feet_off := Vector2.ZERO  # piedi rispetto alle mani (braccio standard)
 
 	if dunk_phase != "":
 		var rim_x: Vector2 = RIM - Vector2(20.0, 0.0)
@@ -1379,19 +1381,27 @@ func _draw_player() -> void:
 				carry = true
 				slam = DunkStyle.sample(dunk_style, f)
 			"hang":
-				# PENDOLO RIGIDO: le mani stanno sul BORDO DEL FERRO DAVANTI
-				# (in primo piano, non dentro la retina) e TUTTO il corpo —
-				# braccia comprese, alla loro lunghezza naturale — oscilla
-				# dx/sx attorno a quel punto. Nessuna parte si allunga.
+				# APPESO DRETTO, DI FRONTE: il giocatore attacca guardando
+				# il canestro (verso destra per lui) e aggancia il LABBRO
+				# DEL FERRO SUL SUO LATO (sinistro sullo schermo). Corpo
+				# frontale (mai di schiena), braccia alla LUNGHEZZA STANDARD
+				# del disegno, UNA mano se lo slam era a una mano, DUE se a
+				# due. Ondulazione: tutto il corpo ruota appena attorno alle
+				# mani (pendolo rigido, angolo piccolo).
 				var bend_now: float = clampf(court_art.rim_bend[1], 0.0, 1.0)
 				var ramp: float = clampf(hang_swing_t / 0.6, 0.0, 1.0)
-				hang_pivot = _rim_screen() + Vector2(0.0,
-					22.0 * HoopArt.RIM_SQUASH + 1.0 + bend_now * 4.5)
-				hang_theta = sin(hang_swing_t * 2.4) * 0.15 * ramp
+				hang_one = not bool(DunkStyle.sample(dunk_style, 1.0).get("both", false))
+				var hd: float = -1.0 if hand_left else 1.0
+				hang_pivot = _rim_screen() + Vector2(-22.0,
+					22.0 * HoopArt.RIM_SQUASH * 0.8 + bend_now * 5.0)
+				hang_theta = sin(hang_swing_t * 2.0) * 0.10 * ramp
 				hang_body = true
-				# lift solo per ombra/continuita' del drop: i piedi stanno
-				# h*1.536 sotto le mani (braccia+torso del disegno)
-				lift = _screen(rim_x).y - (hang_pivot.y + h * 1.536)
+				# con il braccio standard alzato le mani stanno 1.20h sopra
+				# la linea dei piedi: il corpo pende da lì, dritto
+				hang_feet_off = Vector2(0.0, h * 1.20)
+				if hang_one:
+					hang_feet_off.x = -hd * h * 0.06
+				lift = _screen(rim_x).y - (hang_pivot.y + h * 1.20)
 				hang_lift_now = lift
 				draw_base = rim_x
 				kind = Avatar.REACH
@@ -1468,6 +1478,7 @@ func _draw_player() -> void:
 		po["lean_back"] = clampf(fade_t / 0.75, 0.0, 1.0)
 	if dunk_phase == "hang":
 		po["hang"] = true
+		po["hang_one"] = hang_one
 	po["hand"] = -1.0 if hand_left else 1.0
 	# SPIN MOVE: la rotazione del corpo come in partita (passa di schiena
 	# alla telecamera mentre gira, come lo yaw dei giocatori del match).
@@ -1478,8 +1489,6 @@ func _draw_player() -> void:
 	if not slam.is_empty():
 		# The slam owns the pose, including the turn of a 360 or a reverse.
 		po["dunk"] = slam
-	elif dunk_phase == "hang" and player_pos.y < -20.0:
-		po["back"] = true
 	if joystick and joystick.output.y < -0.22 and dunk_phase == "":
 		po["back"] = true
 	if dunk_phase == "hang":
@@ -1489,10 +1498,10 @@ func _draw_player() -> void:
 		HoopArt.draw_net_front(self, _rim_screen(), 22.0, 22.0 * HoopArt.RIM_SQUASH,
 			net_wobble, net_t, clampf(court_art.rim_bend[1], 0.0, 1.0), -1.0)
 	if hang_body and dunk_phase == "hang":
-		# Il corpo rigido ruota attorno alle mani sul ferro: braccia alla
-		# lunghezza naturale che oscillano INSIEME al corpo (pendolo vero).
+		# Corpo DRETTO di fronte, braccia standard, oscillazione piccola
+		# attorno alle mani sul labbro del ferro (lato giocatore).
 		draw_set_transform_matrix(Transform2D(hang_theta, hang_pivot))
-		Avatar.draw_body(self, Vector2(0.0, h * 1.536), h, facing, po,
+		Avatar.draw_body(self, hang_feet_off, h, facing, po,
 			Avatar.colours(true), false, false, true, BALL_R)
 		draw_set_transform_matrix(Transform2D())
 	else:
