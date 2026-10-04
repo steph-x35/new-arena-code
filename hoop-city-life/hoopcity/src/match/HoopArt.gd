@@ -134,7 +134,7 @@ static func draw_hoop_front(c: CanvasItem, rim: Vector2, scale := 1.0,
 ## lies to the left, so the whole assembly mirrors correctly at each end.
 static func draw_hoop_unified(c: CanvasItem, rim: Vector2, rim_half: float,
 	floor_y: float, face: float, wobble := 0.0, phase := 0.0,
-	lean := 0.0, base_dx := 98.0) -> void:
+	lean := 0.0, base_dx := 98.0, rim_bend := 0.0) -> void:
 	## Real hoop: pole plants at the CENTRE of the short baseline, then an L
 	## gooseneck bolts to the BACK of the glass. The ring sits centred on that
 	## board. The orange shooter's square is painted ON the glass, parallel to
@@ -263,7 +263,7 @@ static func draw_hoop_unified(c: CanvasItem, rim: Vector2, rim_half: float,
 		hitch - along * rim_half * 0.12,
 		Vector2(rx, ry)]), orange_dk)
 	_draw_ring_3d(c, Vector2(rx, ry), rim_half, rim_half * RIM_SQUASH,
-		orange, orange_dk)
+		orange, orange_dk, rim_bend)
 
 ## A solid parallelepiped: a front face in `col`, a shaded side face and a lit
 ## top face, extruded toward the viewer by `d3`. `x` is the left edge of the
@@ -284,13 +284,20 @@ static func _box3d(c: CanvasItem, x: float, top: float, bottom: float,
 ## the opening) plus a solid front band whose inner wall is shadowed, so the
 ## hoop reads as a 3D torus rather than a flat line.
 static func _draw_ring_3d(c: CanvasItem, centre: Vector2, rx: float, ry: float,
-		orange: Color, dark: Color) -> void:
+		orange: Color, dark: Color, bend := 0.0) -> void:
 	var N := 40
+	## BEND: il peso di chi si appende piega il ferro — il LIP ANTERIORE
+	## (metà bassa dell'anello, verso chi guarda) scende e si allarga un
+	## filo, il fondo resta agganciato al supporto. Fisica del ferro vero.
+	var bend_amt: float = bend * ry * 1.35
+	var _bend(p: Vector2, a: float) -> Vector2:
+		var front: float = maxf(0.0, sin(a))     # 0 sul fondo, 1 sul lip davanti
+		return Vector2(p.x + front * bend_amt * 0.35, p.y + front * bend_amt)
 	# --- far (upper) arc: the back of the ring, visible through the hole
 	var far := PackedVector2Array()
 	for k in N + 1:
 		var a: float = PI + PI * float(k) / float(N)   # PI .. TAU (top half)
-		far.append(centre + Vector2(cos(a) * rx, sin(a) * ry))
+		far.append(_bend(centre + Vector2(cos(a) * rx, sin(a) * ry), a))
 	for k in N:
 		c.draw_line(far[k], far[k + 1], dark, maxf(rx * 0.12, 3.0))
 
@@ -299,8 +306,8 @@ static func _draw_ring_3d(c: CanvasItem, centre: Vector2, rx: float, ry: float,
 	var inner := PackedVector2Array()
 	for k in N + 1:
 		var a: float = PI * float(k) / float(N)        # 0 .. PI (bottom half)
-		outer.append(centre + Vector2(cos(a) * rx, sin(a) * ry))
-		inner.append(centre + Vector2(cos(a) * rx * 0.66, sin(a) * ry * 0.66))
+		outer.append(_bend(centre + Vector2(cos(a) * rx, sin(a) * ry), a))
+		inner.append(_bend(centre + Vector2(cos(a) * rx * 0.66, sin(a) * ry * 0.66), a))
 	var band := PackedVector2Array()
 	for p in outer:
 		band.append(p)

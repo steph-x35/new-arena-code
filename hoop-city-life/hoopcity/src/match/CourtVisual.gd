@@ -23,6 +23,11 @@ var fx_at := Vector2.ZERO
 var _idle := 0.0
 ## v1.9: link to the match so benches/table/crowd fill follow the game state.
 var court: Node = null
+# PIEGA DEL FERRO: chi si appende al canestro lo piega (molla smorzata).
+# rim_bend[0]/[1] = ferro sinistro/destro; solo_hang serve allo street court.
+var rim_bend := [0.0, 0.0]
+var rim_bend_v := [0.0, 0.0]
+var solo_hang := false
 # live jumbotron state: score screens + made-basket flash
 var jumbo_flash := 0.0
 var jumbo_pts := 2
@@ -155,6 +160,27 @@ func _process(delta: float) -> void:
 	t += delta
 	for i in net_wobble.size():
 		net_wobble[i] = HoopArt.decay(net_wobble[i], delta)
+	# PIEGA DEL FERRO: target 1 se qualcuno è appeso a quel canestro.
+	for i in 2:
+		var target := 0.0
+		if court != null:
+			var pls: Array = court.get("players")
+			for pl in pls:
+				if pl.get("hanging"):
+					var pos: Vector2 = pl.get("global_position")
+					var hoops_v: Array = court.get("hoops")
+					if hoops_v.size() == 2:
+						var i_near := 0 if pos.distance_to(hoops_v[0]) < pos.distance_to(hoops_v[1]) else 1
+						if i_near == i:
+							target = 1.0
+		elif solo_hang and i == 1:
+			target = 1.0     # street court: si schiaccia al ferro destro
+		# molla: carica con il peso, rimbalza quando molli
+		rim_bend_v[i] += (target - rim_bend[i]) * 26.0 * delta
+		rim_bend_v[i] *= maxf(0.0, 1.0 - 7.0 * delta)
+		rim_bend[i] = clampf(rim_bend[i] + rim_bend_v[i] * delta, -0.25, 1.0)
+		if absf(rim_bend[i]) > 0.003 or absf(rim_bend_v[i]) > 0.003:
+			live = true
 	crowd_hype = maxf(0.0, crowd_hype - delta * 0.8)
 	flash_t = maxf(0.0, flash_t - delta)
 	if live or flash_t > 0.0:
@@ -372,7 +398,8 @@ func _draw() -> void:
 		var idx: int = 0 if s < 0.0 else 1
 		var base_dx: float = absf(baseline.x - rim_floor.x)
 		HoopArt.draw_hoop_unified(self, Vector2(rim_floor.x, rim_floor.y - rim_height),
-			22.0, rim_floor.y + 6.0, -s, net_wobble[idx], t, lean, maxf(base_dx, 64.0))
+			22.0, rim_floor.y + 6.0, -s, net_wobble[idx], t, lean, maxf(base_dx, 64.0),
+			clampf(rim_bend[idx], 0.0, 1.0))
 	_draw_rim_fx()
 	_draw_jumbo()
 

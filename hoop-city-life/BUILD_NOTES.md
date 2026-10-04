@@ -1,3 +1,21 @@
+# HoopCity — v2.29.0 · Ferro che si piega + sfida con senso + throw-up vero
+
+**APK:** `HoopCity-v2.29.0.apk` — versionCode 123, arm64-v8a
+
+- 🏀 **FERRO CHE SI PIEGA**: quando ti appendi al canestro dopo una schiacciata,
+  il ferro si piega sotto il peso (il lip anteriore scende e si allarga) e quando
+  molli rimbalza con una molla smorzata. Vale in partita e nello Street Court.
+- 🏆 **SFIDA METÀ CAMPO RIFATTA**: niente più interruttore on/off. Il bottone
+  avvia la sfida (60s), il pannello finale la chiude: "Riprova", "🏁 Sfida gli
+  amici" o "Torno a tirare". Un inizio e una fine.
+- 🎨 **GRAFFITI THROW-UP**: stile writers vero (ricerca: throw-up = UN colore
+  di fill + UN colore di contorno, lettere che si sovrappongono, gloss): nube
+  chiara dietro il piece, contorno blu notte spesso, fill giallo candy unico,
+  lettere sovrapposte al 78%, riflesso glossy e colature a capsula che si
+  restringono con goccia finale.
+
+---
+
 # HoopCity — v2.28.3 · Scia di fuoco + bubble letters vere
 
 **APK:** `HoopCity-v2.28.3.apk` — versionCode 122, arm64-v8a

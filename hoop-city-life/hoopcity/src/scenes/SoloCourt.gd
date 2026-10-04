@@ -253,9 +253,10 @@ func _build_hud() -> void:
 	leave.pressed.connect(_leave)
 	root.add_child(leave)
 
-	# HALF-COURT GREEN CHALLENGE: acceso/spento da qui.
+	# HALF-COURT GREEN CHALLENGE: parte da qui (si chiude dal pannello finale,
+	# con "Riprova" o "Torno a tirare": un inizio e una fine, non un interruttore).
 	btn_hc = Button.new()
-	btn_hc.text = "🏆 HALF-COURT"
+	btn_hc.text = "🏆 SFIDA METÀ CAMPO"
 	btn_hc.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	btn_hc.position = Vector2(-190, 92)
 	btn_hc.custom_minimum_size = Vector2(180, 56)
@@ -365,6 +366,8 @@ func _process(delta: float) -> void:
 			if hc_mode and not session_over:
 				_hc_teleport()
 
+	# PIEGA DEL FERRO: lo Street Court appendi al ferro destro -> court_art
+	court_art.solo_hang = (dunk_phase == "hang")
 	pump_t = maxf(0.0, pump_t - delta)
 	#Solo parquet life: squeaks on hard cuts, dribble thuds while handling.
 	_sq_t -= delta
@@ -616,11 +619,16 @@ func can_dunk() -> bool:
 	return float(Game.profile.get("energy", 10)) > 1.0
 
 ## ── HALF-COURT GREEN CHALLENGE ──────────────────────────────────────
+## La sfida ha un INIZIO (bottone) e una FINE (tempo scaduto): dal pannello
+## risultati si riprova o si torna al tiro libero. Mai "spegnerla" a metà.
 func _toggle_hc() -> void:
+	if hc_mode:
+		Events.toast.emit("Sfida in corso! Finisci i 60 secondi ⏱")
+		return
 	if ball_live or charging or dunk_phase != "":
 		Events.toast.emit("Finisci prima il tiro!")
 		return
-	hc_mode = not hc_mode
+	hc_mode = true
 	hc_greens = 0
 	makes = 0
 	attempts = 0
@@ -635,15 +643,12 @@ func _toggle_hc() -> void:
 	ball_ghost_rim = false
 	through_rim = false
 	lbl_mid.text = ""
-	if hc_mode:
-		session_left = HC_SECONDS
-		Events.toast.emit("HALF-COURT CHALLENGE: 60s, contano solo i GREEN 🟢 (non consuma energia)")
-		_hc_teleport()
-	else:
-		session_left = SESSION_SECONDS
-		Events.toast.emit("Tiro libero")
+	session_left = HC_SECONDS
+	Events.toast.emit("SFIDA METÀ CAMPO: 60 secondi, contano solo i GREEN 🟢")
+	_hc_teleport()
 	if btn_hc:
-		btn_hc.text = "🏆 HALF-COURT: ON" if hc_mode else "🏆 HALF-COURT"
+		btn_hc.text = "⏱ SFIDA IN CORSO…"
+		btn_hc.disabled = true
 
 ## La sfida è una modalità skill pura: zero consumo di energia, altrimenti
 ## chi si allena sui green si ritrova senza gambe per il resto della carriera
@@ -1017,7 +1022,7 @@ func _end_session() -> void:
 			DisplayServer.clipboard_set("🟢 %d GREEN in 60 secondi nella SFIDA METÀ CAMPO di Hoop City Life 🏀\nRiesci a battermi? Gratis, solo Android 👉 https://github.com/steph-x35/new-arena-code/releases" % hc_greens)
 			Events.toast.emit("Copiato! Incollalo su WhatsApp o TikTok 📋")
 		p.add_button("🏁 SFIDA GLI AMICI (copia messaggio)", _share, true)
-	p.add_button("Try again (60 seconds)" if hc_mode else "Shoot again (2 more minutes)", func():
+	p.add_button("Riprova (60 secondi)" if hc_mode else "Shoot again (2 more minutes)", func():
 		if hc_mode:
 			session_left = HC_SECONDS
 			hc_greens = 0
@@ -1030,6 +1035,20 @@ func _end_session() -> void:
 		attempts = 0
 		streak = 0
 		p.close(), true)
+	if hc_mode:
+		p.add_button("Torno a tirare", func():
+			hc_mode = false
+			session_left = SESSION_SECONDS
+			session_over = false
+			session_score = 0
+			makes = 0
+			attempts = 0
+			streak = 0
+			hot = false
+			if btn_hc:
+				btn_hc.text = "🏆 SFIDA METÀ CAMPO"
+				btn_hc.disabled = false
+			p.close())
 	p.add_button("Leave", func(): _leave())
 
 # ------------------------------------------------------------------ drawing
@@ -1045,12 +1064,9 @@ func _draw() -> void:
 ## contorno 16 volte, il riempimento 8), ognuna leggermente ruotata, riflesso
 ## chiaro in alto e COLATURE di vernice a capsula con goccia in fondo.
 ## Deterministico sul nome: il tuo piece è sempre identico.
-const GRAF_COLORS := [
-	Color(0.98, 0.30, 0.45), Color(0.20, 0.75, 0.95), Color(1.0, 0.80, 0.15),
-	Color(0.45, 0.95, 0.35), Color(0.95, 0.45, 0.10),
-]
-const GRAF_INFLATE_OUT := 3.4   # quanto gonfiare il contorno
-const GRAF_INFLATE_FILL := 1.9  # quanto gonfiare il riempimento
+const GRAF_FILL := Color(1.0, 0.78, 0.10)     # UN colore di riempimento (candy)
+const GRAF_LINE := Color(0.09, 0.10, 0.28)    # UN colore di contorno (blu notte)
+const GRAF_OVERLAP := 0.78                    # le lettere si SOPRAPPPONGONO
 
 func _draw_graffiti() -> void:
 	if not outdoor:
@@ -1061,64 +1077,70 @@ func _draw_graffiti() -> void:
 	var base: Vector2 = _screen(Vector2(0.0, -Court.COURT_H * 0.5))
 	base.y -= 52.0
 	var f: Font = ThemeDB.fallback_font
-	var size := 48
+	var size := 52
 	var widths: Array = []
 	var total := _graf_measure(tag, f, size, widths)
-	if total > 560.0:
-		size = int(48.0 * 560.0 / total)
+	if total > 540.0:
+		size = int(52.0 * 540.0 / total)
 		widths = []
 		total = _graf_measure(tag, f, size, widths)
+	# 1) NUBE d'appoggio: blob chiaro dietro tutto il piece (come i writers
+	#    che riempiono lo sfondo prima delle lettere) — rompe l'effetto "stampa".
+	var nub := 0
+	for k in 7:
+		var hx := float(abs(hash(tag + "n" + str(k))))
+		draw_circle(Vector2(base.x + (hx * 0.0000001 - 0.5) * total * 0.95,
+			base.y - 18.0 + fmod(hx * 0.0000003, 26.0) - 13.0),
+			26.0 + fmod(hx * 0.000002, 16.0), Color(0.55, 0.75, 0.92, 0.5))
+		nub += 1
 	var x := -total * 0.5
 	for i in tag.length():
 		var ch := tag[i]
 		var h1 := float(abs(hash(ch + str(i))))    # pseudo-random STABILE
-		var rot := fmod(h1 * 0.00000013, 0.14) - 0.07
-		var dy := fmod(h1 * 0.0000007, 7.0) - 3.5
-		var col: Color = GRAF_COLORS[i % GRAF_COLORS.size()]
+		var rot := fmod(h1 * 0.00000013, 0.16) - 0.08
+		var dy := fmod(h1 * 0.0000007, 9.0) - 4.5
 		var cw: float = widths[i]
-		draw_set_transform(Vector2(base.x + x + cw * 0.5, base.y + dy), rot, Vector2.ONE)
+		draw_set_transform(Vector2(base.x + x + cw * 0.5, base.y + dy), rot, Vector2(1.0, 1.08))
 		var half := Vector2(-cw * 0.5, 0)
-		# 1) CONTORNO GROSSO scuro: la lettera ripassata 16 volte attorno
+		# 2) CONTORNO unico spesso (stesso colore per tutto il piece)
 		for k in 16:
 			var a := TAU * float(k) / 16.0
-			draw_string(f, half + Vector2(cos(a), sin(a)) * GRAF_INFLATE_OUT,
-				ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.05, 0.06, 0.05, 0.92))
-		# 2) RIEMPIMENTO gonfio: 8 passate + quella centrale piena
+			draw_string(f, half + Vector2(cos(a), sin(a)) * 3.4,
+				ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, GRAF_LINE)
+		# 3) RIEMPIMENTO gonfio (una sola tinta candy)
 		for k in 8:
 			var a := TAU * float(k) / 8.0
-			draw_string(f, half + Vector2(cos(a), sin(a)) * GRAF_INFLATE_FILL,
-				ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
-		draw_string(f, half, ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
-		# 3) RIFLESSO: passata chiara spostata in alto-sinistra (effetto bolla)
-		draw_string(f, half + Vector2(-1.5, -2.5), ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size,
-			Color(minf(col.r + 0.45, 1.0), minf(col.g + 0.45, 1.0), minf(col.b + 0.35, 1.0), 0.55))
-		# 4) COLATURE: capsule di vernice con goccia, sotto alcune lettere
+			draw_string(f, half + Vector2(cos(a), sin(a)) * 1.9,
+				ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, GRAF_FILL)
+		draw_string(f, half, ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, GRAF_FILL)
+		# 4) GLOSS: riflesso bianco in alto (la bolla che "pop")
+		draw_string(f, half + Vector2(-1.0, -2.0), ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size,
+			Color(1.0, 1.0, 0.95, 0.4))
+		# 5) COLATURE: capsule con goccia, spesse in alto e strette in fondo
 		var drips := 1
 		if fmod(h1 * 0.0000001, 2.4) < 1.0:
 			drips = 2
 		for d in drips:
 			var h2 := float(abs(hash(ch + str(i) + "d" + str(d))))
 			if fmod(h2 * 0.0000001, 3.2) >= 1.6 and d > 0:
-				continue          # la seconda colatura non c'è sempre
+				continue
 			var dx := fmod(h2 * 0.0000003, cw * 0.7) - cw * 0.35
-			var dl := 12.0 + fmod(h2 * 0.000002, 26.0)
-			var dw := 3.0 + fmod(h2 * 0.0000004, 2.0)
-			var y0 := 2.0         # parte da sotto la base della lettera
-			var dcol := Color(col, 0.92).darkened(0.12)
-			# capsula: linea + cerchi alle estremità
-			draw_line(Vector2(dx, y0), Vector2(dx, y0 + dl), dcol, dw)
-			draw_circle(Vector2(dx, y0), dw * 0.5, dcol)
-			draw_circle(Vector2(dx, y0 + dl), dw * 0.62 + 0.8, dcol)
-			# piccola scia di vernice appena sotto la lettera (attacco bagnato)
-			draw_circle(Vector2(dx, y0 + 1.0), dw * 0.75, Color(dcol, 0.7))
-		x += cw
+			var dl := 14.0 + fmod(h2 * 0.000002, 30.0)
+			var y0 := 2.0
+			# capsula che si restringe: tre segmenti sempre più sottili
+			draw_line(Vector2(dx, y0), Vector2(dx, y0 + dl * 0.45), Color(GRAF_FILL, 0.95), 4.2)
+			draw_line(Vector2(dx, y0 + dl * 0.45), Vector2(dx, y0 + dl * 0.8), Color(GRAF_FILL, 0.95), 2.9)
+			draw_line(Vector2(dx, y0 + dl * 0.8), Vector2(dx, y0 + dl), Color(GRAF_FILL, 0.9), 1.8)
+			draw_circle(Vector2(dx, y0 + dl + 1.4), 2.4, Color(GRAF_FILL, 0.95))
+			draw_circle(Vector2(dx, y0 + 1.0), 2.6, Color(GRAF_FILL, 0.8))
+		x += cw * GRAF_OVERLAP
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 ## Larghezze per lettera + totale (il graffiti avanza lettera per lettera).
 func _graf_measure(tag: String, f: Font, size: int, out: Array) -> float:
 	var total := 0.0
 	for i in tag.length():
-		var cw: float = f.get_string_size(tag[i], HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 7.0
+		var cw: float = f.get_string_size(tag[i], HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 6.0
 		out.append(cw)
 		total += cw
 	return total
