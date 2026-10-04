@@ -1,3 +1,20 @@
+# HoopCity — v2.28.2 · Fiamme grandi, graffiti writers, zampine animate
+
+**APK:** `HoopCity-v2.28.2.apk` — versionCode 121, arm64-v8a
+
+- 🔥 **PALLA DAVVERO IN FIAMME**: le fiamme da giocatore sparivano su un pallone;
+  nuovo `Avatar.draw_ball_flames` con alone caldo doppio, corona di 7 fiamme che
+  avvolge tutta la palla e scintille che salgono. Scala col raggio, visibile
+  anche da telefono.
+- 🎨 **GRAFFITI WRITERS**: il nome sul muro ora è un piece vero: ogni lettera
+  bubble colorata (palette ciclica), ruotata un po' per conto suo, riflesso
+  chiaro e GOCCE DI VERNICE che colano sotto una lettera su tre. Deterministico
+  sul nome: il tuo mural è sempre lo stesso.
+- 🐶 **ZAMPINE ANIMATE**: cane e gatto in città muovono le zampe in alternanza
+  quando camminano (trotto), da fermi restano composti.
+
+---
+
 # HoopCity — v2.28.1 · Graffiti spostato sul muro di fondo
 
 **APK:** `HoopCity-v2.28.1.apk` — versionCode 120, arm64-v8a

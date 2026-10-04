@@ -66,9 +66,16 @@ func _draw_dog(p: Vector2, f: float) -> void:
 	var wag: float = sin(t * (10.0 if bob > 0.05 else 4.0)) * 0.5
 	var tail_base := p + Vector2(-13.0 * f, -10.0)
 	draw_line(tail_base, tail_base + Vector2(-9.0 * f, -6.0 + wag * 8.0), dark, 3.0)
-	# zampe
-	for lx in [-7.0, 7.0]:
-		draw_line(p + Vector2(lx * f, 4.0), p + Vector2(lx * f, 11.0), dark, 2.6)
+	# ZAMPINE che camminano: quando si muove, le gambe oscillano avanti e
+	# indietro in alternanza (trotto); da fermo restano dritte
+	var moving := bob > 0.05
+	for j in 2:
+		var lx := -7.0 if j == 0 else 7.0
+		var swing := 0.0
+		if moving:
+			swing = sin(bob + PI * float(j)) * 4.5
+		draw_line(p + Vector2(lx * f, 4.0),
+			p + Vector2(lx * f + swing * f, 11.0 - absf(swing) * 0.2), dark, 2.6)
 	# corpo e testa
 	draw_circle(p + Vector2(1.0 * f, 0.0), 8.5, body)
 	draw_circle(p + Vector2(11.0 * f, -6.0), 5.5, body)
@@ -87,7 +94,9 @@ func _draw_cat(p: Vector2, f: float) -> void:
 	var tip: float = sin(t * 3.2) * 3.0
 	draw_line(p + Vector2(-12.0 * f, -4.0), p + Vector2(-18.0 * f, -14.0 + tip), dark, 2.6)
 	for lx in [-6.0, 6.0]:
-		draw_line(p + Vector2(lx * f, 4.0), p + Vector2(lx * f, 10.0), dark, 2.4)
+		var j2 := 0 if lx < 0.0 else 1
+		var swing2 := sin(bob + PI * float(j2)) * 4.0 if bob > 0.05 else 0.0
+		draw_line(p + Vector2(lx * f, 4.0), p + Vector2(lx * f + swing2 * f, 10.0 - absf(swing2) * 0.2), dark, 2.4)
 	draw_circle(p + Vector2(0.0, 0.0), 7.5, body)
 	draw_circle(p + Vector2(10.0 * f, -6.0), 5.0, body)
 	# orecchie a triangolo

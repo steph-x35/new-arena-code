@@ -1040,33 +1040,65 @@ func _draw() -> void:
 	if outdoor:
 		_draw_park()
 
-## GRAFFITI: il nome della carriera dipinto sul MURO in fondo al campo
-## (quello con i tag colorati), come i piece dei writers sui blacktop.
-## Sta nel backdrop, quindi SOTTO giocatori e palla.
+## GRAFFITI: il nome della carriera dipinto sul MURO in fondo al campo,
+## stile piece dei writers: lettere bubble colorate, ognuna ruotata un po'
+## per conto suo, contorno spesso e GOCCE DI VERNICE che colano sotto le
+## lettere. Tutto deterministico sul nome: il tuo mural è sempre uguale.
+const GRAF_COLORS := [
+	Color(0.98, 0.30, 0.45), Color(0.20, 0.75, 0.95), Color(1.0, 0.80, 0.15),
+	Color(0.45, 0.95, 0.35), Color(0.95, 0.45, 0.10),
+]
 func _draw_graffiti() -> void:
 	if not outdoor:
 		return
 	var tag: String = String(Game.profile.get("name", "")).to_upper().strip_edges()
 	if tag == "":
 		return
-	# base del muro = linea laterale lontana, stessa proiezione del backdrop
 	var base: Vector2 = _screen(Vector2(0.0, -Court.COURT_H * 0.5))
+	base.y -= 52.0
 	var f: Font = ThemeDB.fallback_font
-	var size: int = 46
-	var w: float = f.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
-	if w > 560.0:                       # nomi lunghi: si stringe per stare nel muro
-		size = int(46.0 * 560.0 / w)
-		w = f.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
-	# sul muro le lettere sono DRITTE (non schiacciate): solo una leggera
-	# inclinazione da piece, con l'alone scuro della bomboletta attorno
-	draw_set_transform(Vector2(base.x, base.y - 52.0), -0.04, Vector2.ONE)
-	for off in [Vector2(-3, 0), Vector2(3, 0), Vector2(0, -3), Vector2(0, 3),
-			Vector2(-3, -3), Vector2(3, 3), Vector2(-3, 3), Vector2(3, -3)]:
-		draw_string(f, Vector2(-w * 0.5, 0) + off, tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.07, 0.08, 0.07, 0.85))
-	# doppia passata: rosso-arancio pieno + riflesso ambrato
-	draw_string(f, Vector2(-w * 0.5, 0), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.90, 0.30, 0.10, 0.95))
-	draw_string(f, Vector2(-w * 0.5, -3), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(1.0, 0.62, 0.14, 0.9))
+	var size := 46
+	var widths: Array = []
+	var total := _graf_measure(tag, f, size, widths)
+	if total > 560.0:
+		size = int(46.0 * 560.0 / total)
+		widths = []
+		total = _graf_measure(tag, f, size, widths)
+	var x := -total * 0.5
+	for i in tag.length():
+		var ch := tag[i]
+		var h1 := float(abs(hash(ch + str(i))))    # pseudo-random STABILE
+		var rot := fmod(h1 * 0.00000013, 0.20) - 0.10
+		var dy := fmod(h1 * 0.0000007, 8.0) - 4.0
+		var col: Color = GRAF_COLORS[i % GRAF_COLORS.size()]
+		var cw: float = widths[i]
+		draw_set_transform(Vector2(base.x + x + cw * 0.5, base.y + dy), rot, Vector2.ONE)
+		# contorno spesso scuro (alone bomboletta)
+		for off in [Vector2(-3, 0), Vector2(3, 0), Vector2(0, -3), Vector2(0, 3),
+				Vector2(-3, -3), Vector2(3, 3), Vector2(-3, 3), Vector2(3, -3)]:
+			draw_string(f, Vector2(-cw * 0.5, 0) + off, ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.06, 0.07, 0.06, 0.9))
+		# lettera colorata + riflesso
+		draw_string(f, Vector2(-cw * 0.5, 0), ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
+		draw_string(f, Vector2(-cw * 0.5, -2), ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size,
+			Color(minf(col.r + 0.3, 1.0), minf(col.g + 0.3, 1.0), minf(col.b + 0.3, 1.0), 0.6))
+		# goccia di vernice che cola (circa una lettera su tre)
+		if fmod(h1 * 0.0000001, 3.0) < 1.0:
+			var dl := 10.0 + fmod(h1 * 0.000002, 24.0)
+			var dx := fmod(h1 * 0.0000003, cw) - cw * 0.5
+			var top := size * 0.18
+			draw_line(Vector2(dx, top), Vector2(dx, top + dl), Color(col, 0.9), 3.5)
+			draw_circle(Vector2(dx, top + dl + 2.0), 2.6, Color(col, 0.9))
+		x += cw
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+## Larghezze per lettera + totale (il graffiti avanza lettera per lettera).
+func _graf_measure(tag: String, f: Font, size: int, out: Array) -> float:
+	var total := 0.0
+	for i in tag.length():
+		var cw: float = f.get_string_size(tag[i], HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 4.0
+		out.append(cw)
+		total += cw
+	return total
 
 ## Primo piano del parco: panchine e cestini lungo il bordo in basso,
 ## disegnati come se fossero vicino alla telecamera.
@@ -1256,7 +1288,7 @@ func _draw_player() -> void:
 		var bpos := Vector2(bs.x, bs.y - ball_h)
 		# NBA JAM HEAT: palla in fiamme quando sei HOT (3 canestri di fila)
 		if hot and not bool(Settings.get_v("lowgfx", false)):
-			Avatar.draw_flames(self, bpos + Vector2(0.0, BALL_R * 0.35), Time.get_ticks_msec() / 1000.0)
+			Avatar.draw_ball_flames(self, bpos, BALL_R, Time.get_ticks_msec() / 1000.0)
 		_draw_ball_at(bpos, BALL_R)
 
 	# Dunk ball dropping through the net while the player hangs.
