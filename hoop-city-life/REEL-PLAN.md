@@ -259,3 +259,23 @@ sono tuoi fino a 5 anni indietro". È il video che vende la Busta Paga Decodific
 ### REEL HOOP CITY: il graffiti entra nel reel NBA Jam
 Beat finale aggiunto: "...e il tuo nome è DIPINTO sul muro del campo 🎨" (v2.28.1).
 Nessun reel separato: il piece col nome è l'ultima scena del reel NBA Jam già pianificato.
+
+---
+
+## 🎬 REEL NBA JAM — MATERIALE FINALE (aggiornato al 2026-10-04, v2.39.1)
+
+APK da installare per girare: **v2.39.1** (versionCode 135)
+https://github.com/steph-x35/new-arena-code/releases/download/v2.39.1/HoopCity-v2.39.1.apk
+
+Sequenze da catturare (in ordine di montaggio, nessuna voce, solo overlay):
+
+1. **🔥 ON FIRE**: 3 canestri di fila → palla in fiamme con scia in parabola (NBA Jam style)
+2. **🤸 EUROSTEP**: guida verso il ferro, tieni TRICK → due tempi + schiacciata (toast "EUROSTEP" a schermo)
+3. **🎩 FADEAWAY**: levetta indietro mentre carichi → schienata + verdetto "FADEAWAY" (mirare al GREEN)
+4. **✋ HANG**: schiacciata a DUE mani → appeso al ferro: il ferro SI PIEGA, rete che segue, corpo che affonda e oscilla (il pezzo forte — riprendere da fermo, campo intero)
+5. **🎨 GRAFFITI**: chiusura sul muro di fondo — piece bianco/nero col nome, graffi e usura
+6. *(opzionale)* erba che ondeggia + panchine come stacco ambient
+
+Testo on-screen: 2-3 frasi brevi max (stile già approvato), CTA "Gratis, solo Android, in bio".
+
+Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) — la piega a mensola si vede meglio.
