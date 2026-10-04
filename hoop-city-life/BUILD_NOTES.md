@@ -1,3 +1,17 @@
+# HoopCity — v2.39.0 · Due mani sul tubo + peso che si vede
+
+**APK:** `HoopCity-v2.39.0.apk` — versionCode 134, arm64-v8a
+
+- ✋ **DUE MANI SUL TUBO DEL FERRO**: con le braccia standard le due mani si
+  aprivano a ±15px — una finiva FUORI dall'anello, nel vuoto (il bug che si
+  vedeva). Ora le mani CONVERGONO sul tubo, una appena davanti all'altra,
+  come una vera presa a due mani sul ferro.
+- ⚖️ **PESO E GRAVITÀ**: il corpo AFFONDA un filo mentre il ferro cede sotto
+  il peso (l'affondo è legato alla piega reale del ferro) — l'hang ora
+  "pesa". Una mano: presa sul labbro del lato del giocatore (apice).
+
+---
+
 # HoopCity — v2.38.0 · Hang naturale: 1/2 mani, fronte, lato giusto
 
 **APK:** `HoopCity-v2.38.0.apk` — versionCode 133, arm64-v8a

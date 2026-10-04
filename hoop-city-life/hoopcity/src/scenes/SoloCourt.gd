@@ -1392,16 +1392,22 @@ func _draw_player() -> void:
 				var ramp: float = clampf(hang_swing_t / 0.6, 0.0, 1.0)
 				hang_one = not bool(DunkStyle.sample(dunk_style, 1.0).get("both", false))
 				var hd: float = -1.0 if hand_left else 1.0
-				hang_pivot = _rim_screen() + Vector2(-22.0,
-					22.0 * HoopArt.RIM_SQUASH * 0.8 + bend_now * 5.0)
+				# UNA mano: labbro apicale del suo lato. DUE mani: centro del
+				# tubo sul lato del giocatore, dove le mani convergono.
+				if hang_one:
+					hang_pivot = _rim_screen() + Vector2(-22.0,
+						22.0 * HoopArt.RIM_SQUASH + bend_now * 5.0)
+				else:
+					hang_pivot = _rim_screen() + Vector2(-17.0,
+						22.0 * HoopArt.RIM_SQUASH * 1.6 + bend_now * 5.0)
 				hang_theta = sin(hang_swing_t * 2.0) * 0.10 * ramp
 				hang_body = true
-				# con il braccio standard alzato le mani stanno 1.20h sopra
-				# la linea dei piedi: il corpo pende da lì, dritto
-				hang_feet_off = Vector2(0.0, h * 1.20)
+				# Le mani stanno 1.20h sopra la linea dei piedi; il corpo
+				# AFFONDA un filo mentre il ferro cede (peso + gravita').
+				hang_feet_off = Vector2(0.0, h * (1.20 + 0.05 * bend_now))
 				if hang_one:
 					hang_feet_off.x = -hd * h * 0.06
-				lift = _screen(rim_x).y - (hang_pivot.y + h * 1.20)
+				lift = _screen(rim_x).y - (hang_pivot.y + hang_feet_off.y)
 				hang_lift_now = lift
 				draw_base = rim_x
 				kind = Avatar.REACH

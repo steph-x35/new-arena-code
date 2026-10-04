@@ -483,6 +483,14 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			hand = Vector2(base.x + hd * h * 0.30, floor_y - bounce * h * 0.55 - br0)
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.42) + sx * h * 0.05,
 				lerpf(sh_p.y, hand.y, 0.40) + h * 0.03)
+		elif bool(p.get("hang", false)) and not bool(p.get("hang_one", false)):
+			# APPESO A DUE MANI: le mani CONVERGONO sul tubo del ferro,
+			# vicine (una appena davanti all'altra, come una vera presa a
+			# due mani sul ferro). Le braccia standard si aprirebbero a
+			# +/-15px: una mano resterebbe fuori dall'anello, nel vuoto.
+			var gwx: float = h * 0.030 if sx > 0.0 else -h * 0.020
+			hand = Vector2(base.x + gwx + lean * 0.3, sh_y - h * 0.42)
+			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.52), lerpf(sh_p.y, hand.y, 0.52))
 		elif up > 0.01:
 			elbow = Vector2(sh_p.x + sx * h * 0.10, sh_y - h * 0.10 * up + h * 0.10 * (1.0 - up))
 			hand = Vector2(sh_p.x + sx * h * 0.06, sh_y - h * 0.42 * up)
