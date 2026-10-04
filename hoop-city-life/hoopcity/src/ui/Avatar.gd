@@ -480,6 +480,12 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			hand = Vector2(base.x + hd * h * 0.30, floor_y - bounce * h * 0.55 - br0)
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.42) + sx * h * 0.05,
 				lerpf(sh_p.y, hand.y, 0.40) + h * 0.03)
+		elif bool(p.get("hang", false)):
+			# APPESO AL FERRO: braccia DRETTE, entrambe le mani sopra la
+			# testa che stringono il ferro (un solo blocco, come i veri hang)
+			var grip: float = h * 0.15
+			hand = Vector2(base.x + sx * grip * 0.5 + lean * 0.3, sh_y - h * 0.74)
+			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.55), lerpf(sh_p.y, hand.y, 0.52))
 		elif up > 0.01:
 			elbow = Vector2(sh_p.x + sx * h * 0.10, sh_y - h * 0.10 * up + h * 0.10 * (1.0 - up))
 			hand = Vector2(sh_p.x + sx * h * 0.06, sh_y - h * 0.42 * up)

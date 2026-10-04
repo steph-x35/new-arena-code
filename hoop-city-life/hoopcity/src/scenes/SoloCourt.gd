@@ -89,7 +89,7 @@ var hot := false               # HEAT CHECK: 3 canestri di fila
 # i rilasci GREEN (da quella distanza la finestra perfetta è una fessura).
 # Il record personale resta salvato nel profilo: è la sfida da battere.
 const HC_SECONDS := 60.0
-const HC_MIN_FT := 38.0          # più vicino di così il green non vale
+const HC_MIN_FT := 34.0          # più vicino di così il green non vale
 var hc_mode := false
 var hc_greens := 0
 var hc_best := 0
@@ -150,7 +150,7 @@ func _ready() -> void:
 	set_meta("cam", cam)
 	# Esterno = PARCO: erba, non piu' il fondo azzurro.
 	RenderingServer.set_default_clear_color(
-		Color(0.29, 0.50, 0.27) if outdoor else Color(0.10, 0.11, 0.14))
+		Color(0.30, 0.44, 0.23) if outdoor else Color(0.10, 0.11, 0.14))
 	_build_hud()
 	if outdoor:
 		_spawn_npcs()
@@ -708,7 +708,9 @@ func _drain_energy(v: float) -> void:
 func _hc_teleport() -> void:
 	## Spot casuale oltre la linea di metà campo: da lì la banda verde è
 	## una fessura, e la distanza è la difficoltà della sfida.
-	player_pos = Vector2(randf_range(-320.0, -60.0), randf_range(-300.0, 300.0))
+	# box SPAWN VISIBILE: sempre dentro lo schermo, sempre oltre metà campo
+	# e sempre oltre l'arco (36ft+): posizione leggibile e green sempre valido
+	player_pos = Vector2(randf_range(-380.0, -260.0), randf_range(-220.0, 220.0))
 	facing = 1.0
 	ball_live = false
 	ball_settled = 0.0
@@ -1176,23 +1178,6 @@ func _draw_graffiti() -> void:
 		# 4) GLOSS: riflesso bianco in alto (la bolla che "pop")
 		draw_string(f, half + Vector2(-1.0, -2.0), ch, HORIZONTAL_ALIGNMENT_LEFT, -1, size,
 			Color(1.0, 1.0, 0.95, 0.4))
-		# 5) COLATURE: capsule con goccia, spesse in alto e strette in fondo
-		var drips := 1
-		if fmod(h1 * 0.0000001, 2.4) < 1.0:
-			drips = 2
-		for d in drips:
-			var h2 := float(abs(hash(ch + str(i) + "d" + str(d))))
-			if fmod(h2 * 0.0000001, 3.2) >= 1.6 and d > 0:
-				continue
-			var dx := fmod(h2 * 0.0000003, cw * 0.7) - cw * 0.35
-			var dl := 14.0 + fmod(h2 * 0.000002, 30.0)
-			var y0 := 2.0
-			# capsula che si restringe: tre segmenti sempre più sottili
-			draw_line(Vector2(dx, y0), Vector2(dx, y0 + dl * 0.45), Color(GRAF_FILL, 0.95), 4.2)
-			draw_line(Vector2(dx, y0 + dl * 0.45), Vector2(dx, y0 + dl * 0.8), Color(GRAF_FILL, 0.95), 2.9)
-			draw_line(Vector2(dx, y0 + dl * 0.8), Vector2(dx, y0 + dl), Color(GRAF_FILL, 0.9), 1.8)
-			draw_circle(Vector2(dx, y0 + dl + 1.4), 2.4, Color(GRAF_FILL, 0.95))
-			draw_circle(Vector2(dx, y0 + 1.0), 2.6, Color(GRAF_FILL, 0.8))
 		x += cw * GRAF_OVERLAP
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
@@ -1209,9 +1194,32 @@ func _graf_measure(tag: String, f: Font, size: int, out: Array) -> float:
 ## disegnati come se fossero vicino alla telecamera.
 func _draw_park() -> void:
 	var ground_y := 700.0
-	# fascia d'erba piu' scura sul bordo, per profondita'
-	draw_rect(Rect2(0, ground_y - 26, 1280, 46), Color(0.22, 0.40, 0.20, 0.55))
-	for bx in [250.0, 700.0, 1120.0]:
+	# ERBA REALISTICA: fascia a chiazze (verdi disomogenei) + ciuffi di fili
+	# d'erba, alcuni che si muovono col vento e altri fermi.
+	var tt: float = Time.get_ticks_msec() / 1000.0
+	draw_rect(Rect2(0, ground_y - 26, 1280, 46), Color(0.24, 0.40, 0.19, 0.85))
+	for k in 26:
+		var hx := float(abs(hash("patch" + str(k))))
+		var px2: float = fmod(hx * 0.0000001, 1280.0)
+		var py2: float = ground_y - 24.0 + fmod(hx * 0.0000003, 42.0)
+		var tone: Color = Color(0.21 + fmod(hx, 5.0) * 0.012, 0.38 + fmod(hx, 7.0) * 0.014, 0.17, 0.55)
+		draw_circle(Vector2(px2, py2), 9.0 + fmod(hx * 0.000002, 14.0), tone)
+	for k in 84:
+		var hb := float(abs(hash("blade" + str(k))))
+		var bx2: float = fmod(hb * 0.0000001, 1280.0)
+		var by2: float = ground_y - 22.0 + fmod(hb * 0.0000004, 40.0)
+		var hgt: float = 5.0 + fmod(hb * 0.000003, 6.0)
+		var lean2: float = fmod(hb * 0.0000005, 3.0) - 1.5
+		var col2: Color = Color(0.28 + fmod(hb, 6.0) * 0.02, 0.44 + fmod(hb, 4.0) * 0.02, 0.20)
+		for b in 3:
+			var sway: float = 0.0
+			if fmod(hb * 0.0000001, 3.0) < 1.0:      # un ciuffo su tre ondeggia
+				sway = sin(tt * 1.7 + bx2 * 0.05 + float(b)) * 1.8
+			draw_line(Vector2(bx2 + float(b) * 2.4 - 2.4, by2),
+				Vector2(bx2 + float(b) * 2.4 - 2.4 + lean2 + sway, by2 - hgt + float(b)),
+				col2, 1.3)
+	# DUE panchine distanziate, sul lato davanti allo spettatore
+	for bx in [400.0, 880.0]:
 		# panchina: gambe, seduta e schienale in legno
 		draw_rect(Rect2(bx - 62, ground_y - 34, 10, 34), Color(0.30, 0.24, 0.18))
 		draw_rect(Rect2(bx + 52, ground_y - 34, 10, 34), Color(0.30, 0.24, 0.18))
@@ -1219,7 +1227,7 @@ func _draw_park() -> void:
 		draw_rect(Rect2(bx - 70, ground_y - 78, 140, 10), Color(0.55, 0.40, 0.24))
 		draw_rect(Rect2(bx - 66, ground_y - 68, 8, 24), Color(0.42, 0.31, 0.19))
 		draw_rect(Rect2(bx + 58, ground_y - 68, 8, 24), Color(0.42, 0.31, 0.19))
-	for tx in [120.0, 940.0]:
+	for tx in [140.0, 1100.0]:
 		# cestino: corpo verde scuro, cerchio, sacco che fuoriesce
 		draw_rect(Rect2(tx - 20, ground_y - 52, 40, 52), Color(0.16, 0.30, 0.22),
 			false, 0.0)
@@ -1359,6 +1367,8 @@ func _draw_player() -> void:
 	var po: Dictionary = Avatar.pose(kind, phase, amount, dunk_trick, walking)
 	if fade_t > 0.0:
 		po["lean_back"] = clampf(fade_t / 0.75, 0.0, 1.0)
+	if dunk_phase == "hang":
+		po["hang"] = true
 	po["hand"] = -1.0 if hand_left else 1.0
 	# SPIN MOVE: la rotazione del corpo come in partita (passa di schiena
 	# alla telecamera mentre gira, come lo yaw dei giocatori del match).

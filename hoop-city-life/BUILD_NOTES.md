@@ -1,3 +1,21 @@
+# HoopCity — v2.31.0 · Playtest fixes: ferro, mani, erba, sfida
+
+**APK:** `HoopCity-v2.31.0.apk` — versionCode 125, arm64-v8a
+
+- 🏀 **FERRO PIEGATO DAL LATO GIUSTO**: la piega ora avviene sul quarto
+  dell'anello DA CUI ATTACCA IL GIOCATORE (lato campo, opposto al tabellone),
+  non verso la telecamera. Il lato del supporto resta su, come un ferro vero.
+- ✋ **HANG A DUE MANI**: quando resti appeso al ferro, entrambe le braccia
+  dritte sopra la testa con le mani che stringono il ferro (street e match).
+- 🏆 **SFIDA METÀ CAMPO LEGGIBILE**: spawn sempre dentro lo schermo (box
+  visibile oltre metà campo), minimo green sceso a 34ft: ogni posizione conta.
+- 🌿 **ERBA REALISTICA**: chiazze disomogenee di verde, 84 ciuffi di fili
+  d'erba (un terzo ondeggia col vento, il resto fermo), tinta naturale,
+  DUE panchine distanziate sul lato davanti + cestini spostati.
+- 🎨 **GRAFFITI**: rimosse le colature, resta il piece pulito.
+
+---
+
 # HoopCity — v2.30.0 · Moves Pack: Eurostep + Fadeaway
 
 **APK:** `HoopCity-v2.30.0.apk` — versionCode 124, arm64-v8a

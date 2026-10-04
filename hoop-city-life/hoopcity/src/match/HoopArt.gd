@@ -263,7 +263,7 @@ static func draw_hoop_unified(c: CanvasItem, rim: Vector2, rim_half: float,
 		hitch - along * rim_half * 0.12,
 		Vector2(rx, ry)]), orange_dk)
 	_draw_ring_3d(c, Vector2(rx, ry), rim_half, rim_half * RIM_SQUASH,
-		orange, orange_dk, rim_bend)
+		orange, orange_dk, rim_bend, face)
 
 ## A solid parallelepiped: a front face in `col`, a shaded side face and a lit
 ## top face, extruded toward the viewer by `d3`. `x` is the left edge of the
@@ -284,19 +284,20 @@ static func _box3d(c: CanvasItem, x: float, top: float, bottom: float,
 ## the opening) plus a solid front band whose inner wall is shadowed, so the
 ## hoop reads as a 3D torus rather than a flat line.
 static func _draw_ring_3d(c: CanvasItem, centre: Vector2, rx: float, ry: float,
-		orange: Color, dark: Color, bend := 0.0) -> void:
+		orange: Color, dark: Color, bend := 0.0, pdir := -1.0) -> void:
 	var N := 40
-	## BEND: il peso di chi si appende piega il ferro — il LIP ANTERIORE
-	## (metà bassa dell'anello, verso chi guarda) scende e si allarga un
-	## filo, il fondo resta agganciato al supporto. Fisica del ferro vero.
-	var bend_amt: float = bend * ry * 1.35
+	## BEND: il peso di chi si appende piega il ferro DAL LATO DA CUI
+	## ATTACCA IL GIOCATORE (pdir, opposto al tabellone): quel quarto
+	## dell'anello scende, il lato del supporto resta su. Fisica del ferro.
+	var bend_amt: float = bend * ry * 1.15
 	# --- far (upper) arc: the back of the ring, visible through the hole
+	# (il lato del giocatore scende anche qui, ma a meta': il ferro e' un pezzo solo)
 	var far := PackedVector2Array()
 	for k in N + 1:
 		var a: float = PI + PI * float(k) / float(N)   # PI .. TAU (top half)
 		var pt: Vector2 = centre + Vector2(cos(a) * rx, sin(a) * ry)
-		var front: float = maxf(0.0, sin(a))
-		far.append(Vector2(pt.x + front * bend_amt * 0.35, pt.y + front * bend_amt))
+		var sd: float = pow(maxf(0.0, cos(a) * pdir), 1.2) * bend_amt * 0.45
+		far.append(Vector2(pt.x + pdir * sd * 0.12, pt.y + sd))
 	for k in N:
 		c.draw_line(far[k], far[k + 1], dark, maxf(rx * 0.12, 3.0))
 
@@ -305,11 +306,11 @@ static func _draw_ring_3d(c: CanvasItem, centre: Vector2, rx: float, ry: float,
 	var inner := PackedVector2Array()
 	for k in N + 1:
 		var a: float = PI * float(k) / float(N)        # 0 .. PI (bottom half)
-		var fr: float = maxf(0.0, sin(a))
+		var sd: float = pow(maxf(0.0, cos(a) * pdir), 1.2) * bend_amt
 		var po: Vector2 = centre + Vector2(cos(a) * rx, sin(a) * ry)
-		outer.append(Vector2(po.x + fr * bend_amt * 0.35, po.y + fr * bend_amt))
+		outer.append(Vector2(po.x + pdir * sd * 0.15, po.y + sd))
 		var pi2: Vector2 = centre + Vector2(cos(a) * rx * 0.66, sin(a) * ry * 0.66)
-		inner.append(Vector2(pi2.x + fr * bend_amt * 0.35, pi2.y + fr * bend_amt))
+		inner.append(Vector2(pi2.x + pdir * sd * 0.15, pi2.y + sd))
 	var band := PackedVector2Array()
 	for p in outer:
 		band.append(p)
