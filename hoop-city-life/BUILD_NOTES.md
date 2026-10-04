@@ -1,3 +1,23 @@
+# HoopCity — v2.32.0 · Ferro mensola + rete che segue + parco VERO
+
+**APK:** `HoopCity-v2.32.0.apk` — versionCode 126, arm64-v8a
+
+- 🏀 **FERRO A MENSOLA**: la piega ora PARTE DALL'ATTACCO COL TABELLONE
+  (peso zero lì, il supporto resta fisso) e cresce fino al fronte libero
+  dove tira chi si appende. Non più "a metà anello": fisica del cantilever.
+- 🥅 **LA RETE SEGUE IL FERRO**: tutta la maglia (dietro, e la mezza rete
+  che copre la palla) si sposta col ferro piegato — agganciata in cima,
+  smorzata verso l'orlo raccolto. Street E match.
+- 🌿 **ERBA VERA (finalmente visibile!)**: le vecchie panchine/erba stavano
+  a y=700 — FUORI SCHERMO, mai viste. Ora: fascia a due toni + 44 chiazze
+  disomogenee + 160 ciuffi (un terzo ondeggia col vento), DUE panchine in
+  legno davanti allo spettatore (x ±330) e due cestini ai bordi.
+- 🏆 **BOTTONE SFIDA LEGGIBILE**: "🏆 SFIDA METÀ CAMPO" aveva 180px per
+  ~280px di testo → nome tagliato. Ora 302px. All'avvio della sfida la
+  camera SALTA subito sul giocatore (niente nome fuori schermo).
+
+---
+
 # HoopCity — v2.31.0 · Playtest fixes: ferro, mani, erba, sfida
 
 **APK:** `HoopCity-v2.31.0.apk` — versionCode 125, arm64-v8a

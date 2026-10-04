@@ -33,4 +33,5 @@ func _draw() -> void:
 			continue
 		var foot: Vector2 = CourtStage.m_project(hoop, hh)
 		HoopArt.draw_net_front(self, Vector2(foot.x, foot.y - vis.rim_height),
-			22.0, 22.0 * HoopArt.RIM_SQUASH, vis.net_wobble[idx], vis.t)
+			22.0, 22.0 * HoopArt.RIM_SQUASH, vis.net_wobble[idx], vis.t,
+			clampf(vis.rim_bend[idx], 0.0, 1.0), -s)

@@ -264,8 +264,9 @@ func _build_hud() -> void:
 	btn_hc = Button.new()
 	btn_hc.text = "🏆 SFIDA METÀ CAMPO"
 	btn_hc.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	btn_hc.position = Vector2(-190, 92)
-	btn_hc.custom_minimum_size = Vector2(180, 56)
+	btn_hc.position = Vector2(-312, 92)
+	btn_hc.size = Vector2(302, 56)
+	btn_hc.custom_minimum_size = Vector2(302, 56)
 	btn_hc.add_theme_font_size_override("font_size", 19)
 	btn_hc.pressed.connect(_toggle_hc)
 	root.add_child(btn_hc)
@@ -712,6 +713,10 @@ func _hc_teleport() -> void:
 	# e sempre oltre l'arco (36ft+): posizione leggibile e green sempre valido
 	player_pos = Vector2(randf_range(-380.0, -260.0), randf_range(-220.0, 220.0))
 	facing = 1.0
+	# la camera SALTA subito sul giocatore: zero secondi col nome tagliato
+	if has_meta("cam"):
+		var cam: Camera2D = get_meta("cam")
+		cam.position.x = CourtStage.m_project(player_pos, Court.COURT_H).x
 	ball_live = false
 	ball_settled = 0.0
 	ball_ghost_rim = false
@@ -1193,52 +1198,73 @@ func _graf_measure(tag: String, f: Font, size: int, out: Array) -> float:
 ## Primo piano del parco: panchine e cestini lungo il bordo in basso,
 ## disegnati come se fossero vicino alla telecamera.
 func _draw_park() -> void:
-	var ground_y := 700.0
-	# ERBA REALISTICA: fascia a chiazze (verdi disomogenei) + ciuffi di fili
-	# d'erba, alcuni che si muovono col vento e altri fermi.
+	## La fascia d'erba VERA sta qui: sotto il bordo vicino del campo
+	## (schermo y ~192, il bordocampo finisce ~187) fino al fondo schermo
+	## (~306). Le vecchie panchine stavano a y=700: mai state sullo schermo!
+	## Copriamo tutto il pan orizzontale della camera (x -1060..1060).
+	var g_top := 192.0
+	var g_bot := 334.0
 	var tt: float = Time.get_ticks_msec() / 1000.0
-	draw_rect(Rect2(0, ground_y - 26, 1280, 46), Color(0.24, 0.40, 0.19, 0.85))
-	for k in 26:
+	# base a due tonalita' sovrapposte: niente piu' tinta unica
+	draw_rect(Rect2(-1060.0, g_top, 2120.0, g_bot - g_top), Color(0.27, 0.42, 0.21))
+	draw_rect(Rect2(-1060.0, g_top + 34.0, 2120.0, g_bot - g_top - 34.0),
+		Color(0.24, 0.40, 0.20))
+	# bordo scuro di transizione col campo
+	draw_rect(Rect2(-1060.0, g_top, 2120.0, 5.0), Color(0.17, 0.29, 0.15))
+	# chiazze disomogenee di verde: il prato vero non e' piatto
+	for k in 44:
 		var hx := float(abs(hash("patch" + str(k))))
-		var px2: float = fmod(hx * 0.0000001, 1280.0)
-		var py2: float = ground_y - 24.0 + fmod(hx * 0.0000003, 42.0)
-		var tone: Color = Color(0.21 + fmod(hx, 5.0) * 0.012, 0.38 + fmod(hx, 7.0) * 0.014, 0.17, 0.55)
-		draw_circle(Vector2(px2, py2), 9.0 + fmod(hx * 0.000002, 14.0), tone)
-	for k in 84:
+		var px2: float = -1050.0 + fmod(hx * 0.0000001, 2100.0)
+		var py2: float = g_top + 8.0 + fmod(hx * 0.0000003, g_bot - g_top - 12.0)
+		var tone: Color = Color(0.20 + fmod(hx, 5.0) * 0.018,
+			0.36 + fmod(hx, 7.0) * 0.02, 0.16 + fmod(hx, 3.0) * 0.012, 0.60)
+		draw_circle(Vector2(px2, py2), 8.0 + fmod(hx * 0.000002, 16.0), tone)
+	# CIUFFI: 160 tufts da 3 fili, un terzo ONDEGGIA col vento, il resto fermo
+	for k in 160:
 		var hb := float(abs(hash("blade" + str(k))))
-		var bx2: float = fmod(hb * 0.0000001, 1280.0)
-		var by2: float = ground_y - 22.0 + fmod(hb * 0.0000004, 40.0)
-		var hgt: float = 5.0 + fmod(hb * 0.000003, 6.0)
+		var bx2: float = -1050.0 + fmod(hb * 0.0000001, 2100.0)
+		var by2: float = g_top + 14.0 + fmod(hb * 0.0000004, g_bot - g_top - 16.0)
+		var hgt: float = 6.0 + fmod(hb * 0.000003, 7.0)
 		var lean2: float = fmod(hb * 0.0000005, 3.0) - 1.5
-		var col2: Color = Color(0.28 + fmod(hb, 6.0) * 0.02, 0.44 + fmod(hb, 4.0) * 0.02, 0.20)
+		var col2: Color = Color(0.29 + fmod(hb, 6.0) * 0.022,
+			0.45 + fmod(hb, 4.0) * 0.022, 0.20 + fmod(hb, 3.0) * 0.014)
 		for b in 3:
 			var sway: float = 0.0
 			if fmod(hb * 0.0000001, 3.0) < 1.0:      # un ciuffo su tre ondeggia
-				sway = sin(tt * 1.7 + bx2 * 0.05 + float(b)) * 1.8
-			draw_line(Vector2(bx2 + float(b) * 2.4 - 2.4, by2),
-				Vector2(bx2 + float(b) * 2.4 - 2.4 + lean2 + sway, by2 - hgt + float(b)),
-				col2, 1.3)
-	# DUE panchine distanziate, sul lato davanti allo spettatore
-	for bx in [400.0, 880.0]:
-		# panchina: gambe, seduta e schienale in legno
-		draw_rect(Rect2(bx - 62, ground_y - 34, 10, 34), Color(0.30, 0.24, 0.18))
-		draw_rect(Rect2(bx + 52, ground_y - 34, 10, 34), Color(0.30, 0.24, 0.18))
-		draw_rect(Rect2(bx - 70, ground_y - 44, 140, 12), Color(0.55, 0.40, 0.24))
-		draw_rect(Rect2(bx - 70, ground_y - 78, 140, 10), Color(0.55, 0.40, 0.24))
-		draw_rect(Rect2(bx - 66, ground_y - 68, 8, 24), Color(0.42, 0.31, 0.19))
-		draw_rect(Rect2(bx + 58, ground_y - 68, 8, 24), Color(0.42, 0.31, 0.19))
-	for tx in [140.0, 1100.0]:
-		# cestino: corpo verde scuro, cerchio, sacco che fuoriesce
-		draw_rect(Rect2(tx - 20, ground_y - 52, 40, 52), Color(0.16, 0.30, 0.22),
+				sway = sin(tt * 1.7 + bx2 * 0.05 + float(b)) * 2.0
+			draw_line(Vector2(bx2 + float(b) * 2.6 - 2.6, by2),
+				Vector2(bx2 + float(b) * 2.6 - 2.6 + lean2 + sway, by2 - hgt + float(b)),
+				col2, 1.4)
+	# DUE panchine distanziate, DAVANTI a chi guarda (sempre in campo visivo
+	# quando la camera e' ferma: x -330 / +330, vista +/-615)
+	for bx in [-330.0, 330.0]:
+		var by := 302.0
+		# ombra a terra
+		draw_rect(Rect2(bx - 70.0, by - 3.0, 140.0, 6.0), Color(0.13, 0.22, 0.11, 0.5))
+		# gambe metalliche
+		draw_rect(Rect2(bx - 56.0, by - 26.0, 8.0, 26.0), Color(0.30, 0.30, 0.34))
+		draw_rect(Rect2(bx + 48.0, by - 26.0, 8.0, 26.0), Color(0.30, 0.30, 0.34))
+		# seduta: due listelli di legno
+		draw_rect(Rect2(bx - 66.0, by - 34.0, 132.0, 8.0), Color(0.58, 0.42, 0.26))
+		draw_rect(Rect2(bx - 66.0, by - 25.0, 132.0, 7.0), Color(0.52, 0.37, 0.22))
+		# schienale: due listelli + montanti
+		draw_rect(Rect2(bx - 66.0, by - 62.0, 132.0, 8.0), Color(0.58, 0.42, 0.26))
+		draw_rect(Rect2(bx - 66.0, by - 52.0, 132.0, 7.0), Color(0.52, 0.37, 0.22))
+		draw_rect(Rect2(bx - 58.0, by - 62.0, 7.0, 30.0), Color(0.42, 0.30, 0.18))
+		draw_rect(Rect2(bx + 51.0, by - 62.0, 7.0, 30.0), Color(0.42, 0.30, 0.18))
+	# due cestini ai bordi (visibili quando la camera scorre)
+	for tx in [-720.0, 720.0]:
+		var ty := 306.0
+		draw_rect(Rect2(tx - 20.0, ty - 50.0, 40.0, 50.0), Color(0.16, 0.30, 0.22),
 			false, 0.0)
 		draw_polygon(PackedVector2Array([
-			Vector2(tx - 20, ground_y - 52), Vector2(tx + 20, ground_y - 52),
-			Vector2(tx + 15, ground_y), Vector2(tx - 15, ground_y)]),
+			Vector2(tx - 20.0, ty - 50.0), Vector2(tx + 20.0, ty - 50.0),
+			Vector2(tx + 15.0, ty), Vector2(tx - 15.0, ty)]),
 			PackedColorArray([Color(0.16, 0.30, 0.22), Color(0.16, 0.30, 0.22),
 				Color(0.11, 0.22, 0.16), Color(0.11, 0.22, 0.16)]))
-		draw_rect(Rect2(tx - 24, ground_y - 60, 48, 10), Color(0.13, 0.26, 0.19))
-		draw_circle(Vector2(tx + 6, ground_y - 62), 7.0, Color(0.65, 0.62, 0.55))
-		draw_circle(Vector2(tx - 8, ground_y - 64), 5.0, Color(0.72, 0.70, 0.62))
+		draw_rect(Rect2(tx - 24.0, ty - 58.0, 48.0, 10.0), Color(0.13, 0.26, 0.19))
+		draw_circle(Vector2(tx + 6.0, ty - 60.0), 7.0, Color(0.65, 0.62, 0.55))
+		draw_circle(Vector2(tx - 8.0, ty - 62.0), 5.0, Color(0.72, 0.70, 0.62))
 
 func _draw_npcs() -> void:
 	for n in npcs:
@@ -1425,7 +1451,8 @@ func _draw_player() -> void:
 	elif dunk_phase == "hang" or dunk_phase == "drop":
 		near_net = true
 	if near_net:
-		HoopArt.draw_net_front(self, _rim_screen(), 22.0, 22.0 * HoopArt.RIM_SQUASH, net_wobble, net_t)
+		HoopArt.draw_net_front(self, _rim_screen(), 22.0, 22.0 * HoopArt.RIM_SQUASH,
+			net_wobble, net_t, clampf(court_art.rim_bend[1], 0.0, 1.0), -1.0)
 
 func _draw_ball_at(p: Vector2, r: float) -> void:
 	draw_circle(p, r, Color(0.95, 0.55, 0.15))
