@@ -228,3 +228,34 @@ Tre feature in un solo reel: fuoco + cane + sfida. Struttura a escalation.
 
 ### Commento fissato
 > Il fuoco si accende con 3 canestri di fila 🔥 Voi quanto resistete accesi? E quanti GREEN fate nella sfida? (il bottone per sfidare gli amici è DENTRO il gioco 🏁) App in bio 🔗
+
+
+---
+
+## 🎬 REEL LAVOROFACILE — "28 anni di lavoro = questo assegno" (video-risposta a Lorenzo)
+
+Formula VINCENTE confermata (Vincenzo: 8.3k views): domanda vera + rispondi con video
++ calcolatore + cifra che appare. Stavolta il numero è GROSSO: 28 anni in sanità.
+
+### Registrazione (3 min)
+1. Tieni premuto sul commento di @Lorenzofafone ("dopo 28 anni sanitario 1700 EUR")
+   → Rispondi con video → registra lo schermo (o carica dalla galleria)
+2. Calcolatore TFR in bio → mensile lordo **2.250 €** (il lordo di 1.700 netti) → anni **28**
+3. Lascia fermo il risultato 2-3 secondi (il climax è il numero)
+
+### Scritta (UNA sola, all'inizio)
+**28 anni di lavoro. Quanto TFR? 👀**
+
+### Caption
+> 28 anni in sanità a 1.700€: questo ti aspetta alla fine 👀 (e con le rivalutazioni anche di più). Quanto verrebbe a TE? Scrivi anni + stipendio e lo calcolo 👇 Calcolatore gratis in bio 🔗 #tfr #liquidazione #lavoro #sanità #stipendio
+
+### Commento fissato
+> Lorenzo, questo è il tuo conto 🤝 47mila netti solo di TFR, e con le rivalutazioni degli anni si va verso i 50. Gli altri: scrivete qui anni + stipendio e vi faccio il vostro 👇
+
+### NEXT (da preparare dopo): Pietro — part-time 6 ore ma giornate da 8
+Formato rabbia+giustizia: "se nel part-time facevi 8 ore ma te ne pagavano 6, quei soldi
+sono tuoi fino a 5 anni indietro". È il video che vende la Busta Paga Decodificata (2,90€).
+
+### REEL HOOP CITY: il graffiti entra nel reel NBA Jam
+Beat finale aggiunto: "...e il tuo nome è DIPINTO sul muro del campo 🎨" (v2.28.1).
+Nessun reel separato: il piece col nome è l'ultima scena del reel NBA Jam già pianificato.
