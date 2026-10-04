@@ -290,14 +290,13 @@ static func _draw_ring_3d(c: CanvasItem, centre: Vector2, rx: float, ry: float,
 	## (metà bassa dell'anello, verso chi guarda) scende e si allarga un
 	## filo, il fondo resta agganciato al supporto. Fisica del ferro vero.
 	var bend_amt: float = bend * ry * 1.35
-	var _bend(p: Vector2, a: float) -> Vector2:
-		var front: float = maxf(0.0, sin(a))     # 0 sul fondo, 1 sul lip davanti
-		return Vector2(p.x + front * bend_amt * 0.35, p.y + front * bend_amt)
 	# --- far (upper) arc: the back of the ring, visible through the hole
 	var far := PackedVector2Array()
 	for k in N + 1:
 		var a: float = PI + PI * float(k) / float(N)   # PI .. TAU (top half)
-		far.append(_bend(centre + Vector2(cos(a) * rx, sin(a) * ry), a))
+		var pt: Vector2 = centre + Vector2(cos(a) * rx, sin(a) * ry)
+		var front: float = maxf(0.0, sin(a))
+		far.append(Vector2(pt.x + front * bend_amt * 0.35, pt.y + front * bend_amt))
 	for k in N:
 		c.draw_line(far[k], far[k + 1], dark, maxf(rx * 0.12, 3.0))
 
@@ -306,8 +305,11 @@ static func _draw_ring_3d(c: CanvasItem, centre: Vector2, rx: float, ry: float,
 	var inner := PackedVector2Array()
 	for k in N + 1:
 		var a: float = PI * float(k) / float(N)        # 0 .. PI (bottom half)
-		outer.append(_bend(centre + Vector2(cos(a) * rx, sin(a) * ry), a))
-		inner.append(_bend(centre + Vector2(cos(a) * rx * 0.66, sin(a) * ry * 0.66), a))
+		var fr: float = maxf(0.0, sin(a))
+		var po: Vector2 = centre + Vector2(cos(a) * rx, sin(a) * ry)
+		outer.append(Vector2(po.x + fr * bend_amt * 0.35, po.y + fr * bend_amt))
+		var pi2: Vector2 = centre + Vector2(cos(a) * rx * 0.66, sin(a) * ry * 0.66)
+		inner.append(Vector2(pi2.x + fr * bend_amt * 0.35, pi2.y + fr * bend_amt))
 	var band := PackedVector2Array()
 	for p in outer:
 		band.append(p)
