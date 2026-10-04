@@ -109,8 +109,8 @@ jobs:
           echo "Importing project assets in headless mode..."
           godot -v --headless --import 2>&1 | tee /tmp/import.log || true
           echo "Exporting Android APK..."
-          godot -v --headless --export-release "Android" build/HoopCity-v2.36.0.apk 2>&1 | tee /tmp/export.log || true
-          if [ ! -f "build/HoopCity-v2.36.0.apk" ]; then
+          godot -v --headless --export-release "Android" build/HoopCity-v2.37.0.apk 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/HoopCity-v2.37.0.apk" ]; then
             echo "=== EXPORT FAILED! Printing log: ==="
             cat /tmp/export.log | tail -n 80
             cp /tmp/export.log $GITHUB_WORKSPACE/build_error.log
@@ -127,21 +127,21 @@ jobs:
             --ks-pass pass:android \
             --ks-key-alias androiddebugkey \
             --key-pass pass:android \
-            build/HoopCity-v2.36.0.apk
+            build/HoopCity-v2.37.0.apk
           echo "Verifying APK signature..."
-          apksigner verify --verbose build/HoopCity-v2.36.0.apk
+          apksigner verify --verbose build/HoopCity-v2.37.0.apk
           echo "Checking APK launcher icons..."
-          unzip -l build/HoopCity-v2.36.0.apk | grep -i "mipmap" | head -n 20
-          ls -lh build/HoopCity-v2.36.0.apk
+          unzip -l build/HoopCity-v2.37.0.apk | grep -i "mipmap" | head -n 20
+          ls -lh build/HoopCity-v2.37.0.apk
 
       - name: Create or Update GitHub Release with APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp hoop-city-life/hoopcity/build/HoopCity-v2.36.0.apk /tmp/HoopCity-v2.36.0.apk
-          gh release delete v2.36.0 -y || true
-          gh release create v2.36.0 /tmp/HoopCity-v2.36.0.apk \
-            --title "Hoop City Life v2.36.0" \
-            --notes "Aggiornamento v2.36.0 🏀 MANI SUL FERRO (davvero, a destra dove sta il canestro — non più al centro campo): le braccia arrivano naturali al bordo piegato e l'oscillazione resta. 🏆 Bottone sfida RIFATTO: quadratino 🏆 e bottone aperto sono DUE controlli che si scambiano la visibilità — più niente che sparisce o riappare strano. Un tap apre, due tap e parte." \
+          cp hoop-city-life/hoopcity/build/HoopCity-v2.37.0.apk /tmp/HoopCity-v2.37.0.apk
+          gh release delete v2.37.0 -y || true
+          gh release create v2.37.0 /tmp/HoopCity-v2.37.0.apk \
+            --title "Hoop City Life v2.37.0" \
+            --notes "Aggiornamento v2.37.0 🏀 PENDOLO RIGIDO: appeso al ferro, corpo e braccia oscillano INSIEME come un pezzo unico — braccia sempre alla lunghezza naturale, mai più elastico. Le mani stanno sul BORDO DEL FERRO DAVANTI, in primo piano (non più dentro la retina)." \
             --target arena/01a0cac8-new-arena-code
           echo "Release created successfully."

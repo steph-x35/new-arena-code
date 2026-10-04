@@ -1360,7 +1360,9 @@ func _draw_player() -> void:
 	# Dunk pose from the shared catalogue, so the street court plays the same
 	# slams as the arena. Empty for every other animation.
 	var slam: Dictionary = {}
-	var grip_at := Vector2(1e9, 1e9)
+	var hang_pivot := Vector2.ZERO   # bordo del ferro DAVANTI: dove stanno le mani
+	var hang_theta := 0.0            # angolo del pendolo (corpo rigido che oscilla)
+	var hang_body := false           # true = il corpo si disegna nel pendolo
 
 	if dunk_phase != "":
 		var rim_x: Vector2 = RIM - Vector2(20.0, 0.0)
@@ -1377,22 +1379,21 @@ func _draw_player() -> void:
 				carry = true
 				slam = DunkStyle.sample(dunk_style, f)
 			"hang":
-				# APPESO AL BORDO DEL FERRO PIEGATO: le mani sono inchiodate al
-				# punto esatto del bordo (che scende quando il ferro cede), il
-				# corpo pende ABBASSATO sotto e OSCILLA dx/sx come un pendolo
-				# — le mani restano ferme, sono le braccia ad angolarsi.
+				# PENDOLO RIGIDO: le mani stanno sul BORDO DEL FERRO DAVANTI
+				# (in primo piano, non dentro la retina) e TUTTO il corpo —
+				# braccia comprese, alla loro lunghezza naturale — oscilla
+				# dx/sx attorno a quel punto. Nessuna parte si allunga.
 				var bend_now: float = clampf(court_art.rim_bend[1], 0.0, 1.0)
-				var lip_drop: float = bend_now * 14.0
 				var ramp: float = clampf(hang_swing_t / 0.6, 0.0, 1.0)
-				var swing: float = sin(hang_swing_t * 3.0) * 15.0 * ramp
-				grip_at = _rim_screen() + Vector2(0.0, 15.0 + lip_drop)
-				# piedi h*1.42 sotto il grippato: braccia tese naturali, la
-				# testa sta BEN SOTTO il ferro, fuori dal canestro
-				var want_lift: float = _screen(rim_x).y - grip_at.y - h * 1.42
-				var settle: float = clampf(hang_swing_t / 0.3, 0.0, 1.0)
-				lift = lerpf(hang_lift, want_lift, settle)
+				hang_pivot = _rim_screen() + Vector2(0.0,
+					22.0 * HoopArt.RIM_SQUASH + 1.0 + bend_now * 4.5)
+				hang_theta = sin(hang_swing_t * 2.4) * 0.15 * ramp
+				hang_body = true
+				# lift solo per ombra/continuita' del drop: i piedi stanno
+				# h*1.536 sotto le mani (braccia+torso del disegno)
+				lift = _screen(rim_x).y - (hang_pivot.y + h * 1.536)
 				hang_lift_now = lift
-				draw_base = rim_x + Vector2(swing, 0.0)
+				draw_base = rim_x
 				kind = Avatar.REACH
 				amount = 1.0
 				carry = false
@@ -1467,11 +1468,6 @@ func _draw_player() -> void:
 		po["lean_back"] = clampf(fade_t / 0.75, 0.0, 1.0)
 	if dunk_phase == "hang":
 		po["hang"] = true
-		if grip_at.x < 1e8:
-			# ASSOLUTO nello spazio del canvas (lo stesso delle spalle
-			# dentro Avatar): le mani finiscono ESATTAMENTE sul bordo del
-			# ferro. Il "- screen" le spedisce al centro campo!
-			po["grip_at"] = grip_at
 	po["hand"] = -1.0 if hand_left else 1.0
 	# SPIN MOVE: la rotazione del corpo come in partita (passa di schiena
 	# alla telecamera mentre gira, come lo yaw dei giocatori del match).
@@ -1486,8 +1482,16 @@ func _draw_player() -> void:
 		po["back"] = true
 	if joystick and joystick.output.y < -0.22 and dunk_phase == "":
 		po["back"] = true
-	Avatar.draw_body(self, screen, h, facing, po, Avatar.colours(true), hold_ball,
-		dunk_phase == "", true, BALL_R)
+	if hang_body and dunk_phase == "hang":
+		# Il corpo rigido ruota attorno alle mani sul ferro: braccia alla
+		# lunghezza naturale che oscillano INSIEME al corpo (pendolo vero).
+		draw_set_transform_matrix(Transform2D(hang_theta, hang_pivot))
+		Avatar.draw_body(self, Vector2(0.0, h * 1.536), h, facing, po,
+			Avatar.colours(true), false, false, true, BALL_R)
+		draw_set_transform_matrix(Transform2D())
+	else:
+		Avatar.draw_body(self, screen, h, facing, po, Avatar.colours(true), hold_ball,
+			dunk_phase == "", true, BALL_R)
 	# HEAT CHECK: stesse lingue di fuoco del match (helper condiviso).
 	if hot and not bool(Settings.get_v("lowgfx", false)):
 		Avatar.draw_flames(self, screen + Vector2(0.0, -h * 1.16), Time.get_ticks_msec() / 1000.0)

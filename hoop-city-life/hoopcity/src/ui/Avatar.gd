@@ -482,16 +482,13 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.42) + sx * h * 0.05,
 				lerpf(sh_p.y, hand.y, 0.40) + h * 0.03)
 		elif bool(p.get("hang", false)):
-			# APPESO AL FERRO PIEGATO: se la scena passa grip_at (il punto
-			# ESATTO del ferro sullo schermo, che scende quando si piega) le
-			# mani si incollano lì e le braccia si tendono fin lì, angolate
-			# dal corpo che pende sotto — non piu' braccia dritte a muro.
-			var tgt := Vector2(sh_p.x + sx * h * 0.07 + lean * 0.3, sh_y - h * 0.76)
-			if p.has("grip_at"):
-				tgt = Vector2(p["grip_at"])
-			hand = tgt + Vector2(sx * 5.0, 0.0)
-			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.5) + sx * h * 0.06,
-				lerpf(sh_p.y, hand.y, 0.52))
+			# APPESO AL FERRO: braccia DRETTE e FISSE alla lunghezza naturale
+			# del disegno, le due mani vicine sopra la testa. Il dondolio lo
+			# fa la scena ruotando TUTTO il corpo rigido attorno alle mani
+			# (pendolo): le braccia non si allungano MAI.
+			var grip: float = h * 0.15
+			hand = Vector2(base.x + sx * grip * 0.5 + lean * 0.3, sh_y - h * 0.76)
+			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.55), lerpf(sh_p.y, hand.y, 0.52))
 		elif up > 0.01:
 			elbow = Vector2(sh_p.x + sx * h * 0.10, sh_y - h * 0.10 * up + h * 0.10 * (1.0 - up))
 			hand = Vector2(sh_p.x + sx * h * 0.06, sh_y - h * 0.42 * up)

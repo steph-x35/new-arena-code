@@ -1,3 +1,18 @@
+# HoopCity — v2.37.0 · Pendolo rigido + mani sul ferro davanti
+
+**APK:** `HoopCity-v2.37.0.apk` — versionCode 131, arm64-v8a
+
+- 🕰️ **PENDOLO RIGIDO**: tolto il sistema "mani inchiodate + braccia che si
+  allungano per raggiungerle" (le braccia diventavano elastiche = irrealistico).
+  Ora il corpo intero — braccia comprese, alla lunghezza NATURALE del disegno —
+  ruota attorno al punto delle mani come un corpo appeso vero: Oscillazione
+  dx/sx di corpo E braccia insieme, nessuna deformazione.
+- ✋ **MANI SUL FERRO DAVANTI**: il punto di presa è il BORDO ANTERIORE
+  dell'anello (in primo piano, sopra la retina), non più il centro dove
+  c'è la maglia. Le mani si vedono stringere il ferro.
+
+---
+
 # HoopCity — v2.36.0 · Mani sul ferro + bottone sfida a due controlli
 
 **APK:** `HoopCity-v2.36.0.apk` — versionCode 130, arm64-v8a
