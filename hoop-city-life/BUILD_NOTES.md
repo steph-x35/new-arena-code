@@ -1,3 +1,23 @@
+# HoopCity — v2.35.0 · L'hang ora si muove DAVVERO + bottone sfida affidabile
+
+**APK:** `HoopCity-v2.35.0.apk` — versionCode 129, arm64-v8a
+
+- 🐛 **ROOT CAUSE TROVATO**: il blocco di codice dell'hang nel disegno non era
+  mai stato applicato (sostituzione fallita in silenzio nelle build scorse —
+  per quello "tutto fermo"). Ora verificato dentro il sorgente con grep
+  prima del build.
+- ✋ **HANG COME PROMESSO**: corpo ABBASSATO sotto il ferro (testa ben fuori
+  dal canestro), DUE mani inchiodate al BORDO del ferro piegato (scende con
+  lui mentre cede), braccia tese naturali che si ANGOLANO col movimento.
+- 🕰️ **OSCILLAZIONE**: pendolo destra/sinistra ampio 15px, visibile dopo
+  mezzo secondo dal grab; il corpo si assesta scendendo mentre il ferro
+  si piega.
+- 🏆 **BOTTONE SFIDA**: primo tap → il quadratino si APRE sempre (anche col
+  pallone in giro); secondo tap → la sfida PARTE sempre, resettando tutto
+  (tiro in corso incluso). Auto-chiusura dopo 8 secondi.
+
+---
+
 # HoopCity — v2.34.0 · Hang rifatto + bottone sfida quadratino
 
 **APK:** `HoopCity-v2.34.0.apk` — versionCode 128, arm64-v8a

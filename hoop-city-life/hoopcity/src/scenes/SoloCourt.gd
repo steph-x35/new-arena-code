@@ -284,7 +284,7 @@ func _hc_expand() -> void:
 		btn_hc.size = Vector2(302, 56)
 		btn_hc.custom_minimum_size = Vector2(302, 56)
 		btn_hc.add_theme_font_size_override("font_size", 19)
-	get_tree().create_timer(6.0).timeout.connect(_hc_auto_collapse)
+	get_tree().create_timer(8.0).timeout.connect(_hc_auto_collapse)
 
 func _hc_auto_collapse() -> void:
 	if hc_expanded and not hc_mode:
@@ -710,12 +710,11 @@ func _toggle_hc() -> void:
 	if hc_mode:
 		Events.toast.emit("Sfida in corso! Finisci i 60 secondi ⏱")
 		return
-	if ball_live or charging or dunk_phase != "":
-		Events.toast.emit("Finisci prima il tiro!")
-		return
+	# PRIMO tap: il quadratino si APRE sempre, anche col pallone in giro.
 	if not hc_expanded:
 		_hc_expand()
 		return
+	# SECONDO tap: la sfida parte e resetta TUTTO (anche il tiro in corso).
 	hc_mode = true
 	hc_greens = 0
 	makes = 0
@@ -725,6 +724,11 @@ func _toggle_hc() -> void:
 	session_score = 0
 	session_over = false
 	shot_anim = 0.0
+	charging = false
+	charge = 0.0
+	trick_t = 0.0
+	pump_t = 0.0
+	fade_t = 0.0
 	dunk_phase = ""
 	ball_live = false
 	ball_settled = 0.0
@@ -1372,12 +1376,25 @@ func _draw_player() -> void:
 				carry = true
 				slam = DunkStyle.sample(dunk_style, f)
 			"hang":
-				draw_base = rim_x
-				lift = hang_lift
-				kind = Avatar.DUNK
+				# APPESO AL BORDO DEL FERRO PIEGATO: le mani sono inchiodate al
+				# punto esatto del bordo (che scende quando il ferro cede), il
+				# corpo pende ABBASSATO sotto e OSCILLA dx/sx come un pendolo
+				# — le mani restano ferme, sono le braccia ad angolarsi.
+				var bend_now: float = clampf(court_art.rim_bend[1], 0.0, 1.0)
+				var lip_drop: float = bend_now * 14.0
+				var ramp: float = clampf(hang_swing_t / 0.6, 0.0, 1.0)
+				var swing: float = sin(hang_swing_t * 3.0) * 15.0 * ramp
+				grip_at = _rim_screen() + Vector2(0.0, 15.0 + lip_drop)
+				# piedi h*1.42 sotto il grippato: braccia tese naturali, la
+				# testa sta BEN SOTTO il ferro, fuori dal canestro
+				var want_lift: float = _screen(rim_x).y - grip_at.y - h * 1.42
+				var settle: float = clampf(hang_swing_t / 0.3, 0.0, 1.0)
+				lift = lerpf(hang_lift, want_lift, settle)
+				hang_lift_now = lift
+				draw_base = rim_x + Vector2(swing, 0.0)
+				kind = Avatar.REACH
 				amount = 1.0
 				carry = false
-				slam = DunkStyle.sample(dunk_style, 1.0)
 			"drop":
 				var f: float = clampf(dunk_anim / 0.5, 0.0, 1.0)
 				draw_base = rim_x.lerp(player_pos, f)
