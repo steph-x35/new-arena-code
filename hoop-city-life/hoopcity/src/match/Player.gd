@@ -67,6 +67,8 @@ var hang_saw_hold := false     # saw the button held AFTER we grabbed the rim
 var dunk_charge := 0.0
 var shot_anim := 0.0           # follow-through timer after a released shot
 var fade_t := 0.0              # animazione FADEAWAY: schienata indietro
+var euro_t := 0.0              # EUROSTEP a due tempi: 1 laterale, 2 verso il ferro
+var euro_finish := false       # al secondo tempo: chiude a schiacciata o layup
 var combo_pullup := false      # combo TRICK->TIRA entro mezzo secondo
 var stepback_t := 0.0          # finestra STEPBACK 3 dopo lo stepback
 var dribble_phase := 0.0       # orologio palleggio: 4.2 costante COME IL SOLO
@@ -285,6 +287,24 @@ func _physics_process(delta: float) -> void:
 	shot_anim = maxf(0.0, shot_anim - delta)
 	fade_t = maxf(0.0, fade_t - delta)
 	stepback_t = maxf(0.0, stepback_t - delta)
+	# EUROSTEP: il SECONDO TEMPO parte a metà mossa (0.30s) e il finish
+	# scatta a fine sequenza SE hai ancora la palla.
+	if euro_t > 0.0:
+		var was_second: bool = euro_t > 0.30
+		euro_t = maxf(0.0, euro_t - delta)
+		if was_second and euro_t <= 0.30 and court != null:
+			var hd: Vector2 = (court.hoop_for(team) - global_position).normalized()
+			velocity += hd * 250.0
+			Sfx.squeak()
+		if euro_t <= 0.0 and euro_finish:
+			euro_finish = false
+			if has_ball and court != null and not shot_charge_active():
+				var dft2: float = court.px_to_ft(global_position.distance_to(court.hoop_for(team)))
+				if dft2 < 9.0 and can_dunk():
+					do_dunk()
+				elif has_ball:
+					court.attempt_shot(self, randf_range(0.0, 0.55))
+					shot_anim = 0.26
 	queue_redraw()
 
 func _update_ai_windup(delta: float) -> void:
@@ -563,6 +583,9 @@ func _check_pressure(delta: float) -> void:
 				lose_ball(d)
 				return
 
+func shot_charge_active() -> bool:
+	return shot_charge >= 0.0
+
 func lose_ball(to: BallPlayer) -> void:
 	has_ball = false
 	stun = 0.35
@@ -590,7 +613,8 @@ func do_shot_release() -> void:
 	# indietro): l'animazione della schienata parte col follow-through.
 	if court != null:
 		var fade_hd: Vector2 = court.hoop_for(team) - global_position
-		if fade_hd.length() > 40.0 and velocity.dot(fade_hd.normalized()) < -60.0:
+		if fade_hd.length() > 40.0 and (velocity.dot(fade_hd.normalized()) < -60.0 \
+				or (is_user and move_input.dot(fade_hd.normalized()) < -0.45)):
 			fade_t = 0.75
 	Sfx.play("shot_release", -7.0, randf_range(0.96, 1.05))
 	posting = false   # il tiro (fade compreso) chiude sempre la post
@@ -663,16 +687,19 @@ func do_move(kind: String) -> bool:
 		"hesi":
 			velocity *= 0.25
 		"euro":
-			# EUROSTEP: stai guidando verso il canestro, scatto laterale
-			# attorno al difensore e cambio mano: l'angolo di attacco cambia.
+			# EUROSTEP A DUE TEMPI CON FINISH: primo tempo scatto laterale
+			# attorno al difensore, secondo tempo (a 0.30s) esplosione verso
+			# il ferro, poi chiusura automatica a schiacciata o layup.
 			var hoop_dir: Vector2 = Vector2.ZERO
 			if court != null:
 				hoop_dir = (court.hoop_for(team) - global_position).normalized()
 			var side_dir: Vector2 = Vector2(-hoop_dir.y, hoop_dir.x)
 			if side_dir.dot(Vector2(facing, 0)) < 0.0:
 				side_dir = -side_dir
-			velocity += side_dir * 260.0 + hoop_dir * 90.0
+			velocity += side_dir * 300.0 + hoop_dir * 70.0
 			hand_side = -hand_side
+			euro_t = 0.52
+			euro_finish = true
 		"dropstep":
 			# POST MOVE (spalle al canestro): scatto attorno al difensore
 			# verso il ferro, cambio mano e via in layup.

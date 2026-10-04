@@ -1,3 +1,21 @@
+# HoopCity — v2.30.0 · Moves Pack: Eurostep + Fadeaway
+
+**APK:** `HoopCity-v2.30.0.apk` — versionCode 124, arm64-v8a
+
+- 🤸 **EUROSTEP A DUE TEMPI** (ovunque: street, 1v1, 5v5): mentre guidi verso
+  il canestro (entro 14 ft) premi TRICK: primo tempo scatto laterale attorno al
+  difensore, secondo tempo esplosione verso il ferro, chiusura AUTOMATICA a
+  schiacciata (se vicino e con gambe) o layup. Animazione leggibile, cambio mano.
+- 🎩 **FADEAWAY AUTOMATICO** (ovunque): tieni la levetta INDIETRO mentre carichi
+  il tiro e al rilascio parte la schienata — scivoli all'indietro, corpo inclinato
+  (lean_back), famiglia "FADEAWAY" nel verdetto. Finestra verde più stretta
+  (x0.72): più difficile, come nella realtà. In partita scatta anche con la
+  levetta tenuta indietro da fermo, non solo con la velocità.
+- (in v2.29.0: ferro che si piega sotto il peso, sfida metà campo con inizio/fine,
+  graffiti throw-up due colori)
+
+---
+
 # HoopCity — v2.29.0 · Ferro che si piega + sfida con senso + throw-up vero
 
 **APK:** `HoopCity-v2.29.0.apk` — versionCode 123, arm64-v8a

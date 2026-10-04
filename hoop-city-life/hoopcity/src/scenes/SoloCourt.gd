@@ -22,6 +22,12 @@ var joystick: VirtualJoystick
 var player_pos := Vector2(280.0, 0.0)      # court space, ~26 ft out
 var facing := 1.0
 var posting := false          # POST UP: spalle al canestro, come in partita
+var euro_t := 0.0             # EUROSTEP: 1 tempo laterale, 2 verso il ferro, poi finish
+var euro_side := Vector2.ZERO
+var euro_finish := false
+var fade_pending := false     # FADEAWAY: levetta indietro mentre carichi il tiro
+var fade_t := 0.0
+var fade_dir := Vector2.ZERO
 var _family_tag := ""        # FADEAWAY / HOOK: etichetta della famiglia sul risultato
 var dribble_t := 0.0
 
@@ -368,6 +374,30 @@ func _process(delta: float) -> void:
 
 	# PIEGA DEL FERRO: lo Street Court appendi al ferro destro -> court_art
 	court_art.solo_hang = (dunk_phase == "hang")
+	# EUROSTEP: due tempi — laterale, poi esplosione verso il ferro — e
+	# chiusura automatica (schiacciata se sei abbastanza vicino, layup se no).
+	if euro_t > 0.0:
+		euro_t = maxf(0.0, euro_t - delta)
+		if euro_t > 0.30:
+			player_pos += euro_side * 430.0 * delta
+		else:
+			player_pos += (RIM - player_pos).normalized() * 470.0 * delta
+		if euro_t <= 0.0 and euro_finish:
+			euro_finish = false
+			if not session_over:
+				if can_dunk():
+					_start_dunk()
+				else:
+					charging = true
+					ideal = clampf(0.42 + _distance_ft() * 0.012, 0.42, 0.78)
+					charge = ideal + randf_range(-0.006, 0.006)
+					_family_tag = "EUROSTEP"
+					_shoot_up()
+	# FADEAWAY: dopo il rilascio scivoli all'indietro con la schienata
+	if fade_t > 0.0:
+		fade_t = maxf(0.0, fade_t - delta)
+		if shot_anim > 0.0:
+			player_pos += fade_dir * 55.0 * delta
 	pump_t = maxf(0.0, pump_t - delta)
 	#Solo parquet life: squeaks on hard cuts, dribble thuds while handling.
 	_sq_t -= delta
@@ -516,7 +546,24 @@ func _post_tap() -> void:
 			Events.toast.emit("POST: TIRA = fade · TRICK = drop step")
 
 func _do_trick() -> void:
-	if session_over or charging or dunk_phase != "" or ball_live:
+	if session_over or charging or dunk_phase != "" or ball_live or euro_t > 0.0:
+		return
+	# EUROSTEP: corri verso il ferro entro 14 ft e TRICK diventa il passo
+	# laterale a due tempi (con chiusura a schiacciata/layup automatica).
+	var to_rim: Vector2 = RIM - player_pos
+	var mv_e: Vector2 = joystick.output if joystick != null else Vector2.ZERO
+	if to_rim.length() / Court.PX_PER_FT < 14.0 and mv_e.dot(to_rim.normalized()) > 0.50:
+		euro_t = 0.52
+		euro_finish = true
+		var rn: Vector2 = to_rim.normalized()
+		euro_side = Vector2(-rn.y, rn.x)
+		if mv_e.dot(euro_side) < 0.0:
+			euro_side = -euro_side
+		hand_left = not hand_left
+		facing = 1.0
+		Sfx.squeak()
+		lbl_mid.text = "EUROSTEP"
+		lbl_mid.modulate = Color(0.6, 0.86, 1.0)
 		return
 	# POST: TRICK = DROP STEP, identico al match: scatto attorno al
 	# difensore (qui fantasma) verso il ferro, cambio mano, si esce dal post.
@@ -681,6 +728,14 @@ func _shoot_down() -> void:
 	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
 	meter.perfect_window = float(w["perfect"])
 	meter.good_window = float(w["good"])
+	# FADEAWAY: levetta INDIETRO mentre carichi -> schienata (stile Kobe):
+	# il tiro è più difficile (finestra stretta) ma la mossa è tua.
+	fade_pending = false
+	var mv_f: Vector2 = joystick.output if joystick != null else Vector2.ZERO
+	if mv_f.dot((player_pos - RIM).normalized()) > 0.40 and _distance_ft() > 8.0:
+		fade_pending = true
+		meter.perfect_window = float(w["perfect"]) * 0.72
+		meter.good_window = float(w["good"]) * 0.85
 
 ## Dunk: drive at the rim, rise to the iron, throw it down -- then HANG there
 ## until the dunk button is released.
@@ -728,6 +783,11 @@ func _shoot_up() -> void:
 		return
 	if not charging:
 		return
+	if fade_pending:
+		_family_tag = "FADEAWAY"
+		fade_t = 0.75
+		fade_dir = (player_pos - RIM).normalized()
+		fade_pending = false
 	if session_over:
 		charging = false
 		return
@@ -1297,6 +1357,8 @@ func _draw_player() -> void:
 	var walking: bool = joystick.output.length() > 0.12 and dunk_phase == "" and shot_anim <= 0.0 and not charging
 	var dunk_trick := dunk_style if dunk_phase != "" else (trick_kind if trick_t > 0.0 else "")
 	var po: Dictionary = Avatar.pose(kind, phase, amount, dunk_trick, walking)
+	if fade_t > 0.0:
+		po["lean_back"] = clampf(fade_t / 0.75, 0.0, 1.0)
 	po["hand"] = -1.0 if hand_left else 1.0
 	# SPIN MOVE: la rotazione del corpo come in partita (passa di schiena
 	# alla telecamera mentre gira, come lo yaw dei giocatori del match).
