@@ -922,10 +922,12 @@ func _draw() -> void:
 		# DunkStyle.REACH the pose and the ball carry are built from.
 		air_draw = maxf(court.RIM_HEIGHT - h * DunkStyle.REACH, 0.0)
 		slam = DunkStyle.sample(dunk_style, 1.0)
-		# Il ferro si piega sotto il peso: la mano segue il labbro sceso e
-		# il corpo affonda un filo — lo stesso linguaggio dello street court.
-		rim_drop_v = 22.0 * HoopArt.RIM_SQUASH * 1.15 * 0.9
-		air_draw = maxf(air_draw - rim_drop_v * 0.8, 0.0)
+		# GIOCATORE ABBASSATO (come street): le spalle SOTTO il bordo del
+		# ferro, la testa fuori dal canestro, la mano dello slam risale al
+		# labbro piegato (rim_drop = labbro sceso - abbassamento corpo).
+		var bend_now: float = clampf(hang_t * 4.0, 0.0, 1.0)
+		rim_drop_v = 12.0 * bend_now - 34.0
+		air_draw = maxf(air_draw - 34.0, 40.0)
 	elif dunking:
 		kind = Avatar.DUNK
 		amount = clampf(dunk_t, 0.0, 1.0)
@@ -1028,8 +1030,8 @@ func _draw() -> void:
 	# as dangling in front of the glass, not standing on it.
 	var feet := Vector2(0, -air_draw)
 	if hanging:
-		# appeso: piccola oscillazione dx/sx (pendolo attorno al ferro)
-		feet.x = sin(Time.get_ticks_msec() * 0.003) * 10.0
+		# appeso: oscillazione dx/sx (pendolo attorno al ferro)
+		feet.x = sin(Time.get_ticks_msec() * 0.003) * 12.0
 	# OMBRA REALE (richiesta utente): durante la schiacciata sta A TERRA,
 	# scorre al centro della semicirconferenza sotto il ferro e DIVENTA
 	# PIU' GRANDE mentre sali. Mai in aria con il corpo.

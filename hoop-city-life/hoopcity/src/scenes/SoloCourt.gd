@@ -52,6 +52,7 @@ var dust_t := 0.0           # nuvolette all'atterraggio
 var dust_big := false       # atterraggio da slam
 var dunk_phase := ""        # "" | "rise" | "hang" | "drop"
 var hang_swing_t := 0.0    # tempo appeso: oscilla dx/sx come un pendolo
+var hang_lift_now := 0.0   # lift reale dell'hang (il corpo e' piu' basso del rise)
 var dunk_style := ""        # DunkStyle: windmill / spin360 / tomahawk ...
 var dunk_rise_t := 0.70     # seconds of the rise, from DunkStyle (per style)
 var dunk_ball_t := 0.0      # time since the throw-down, drives the ball drop
@@ -95,6 +96,7 @@ var hc_mode := false
 var hc_greens := 0
 var hc_best := 0
 var btn_hc: Button
+var hc_expanded := false   # quadratino -> tap -> bottone pieno -> tap -> parte
 
 # street-court bystanders who shoot at the left hoop, so the park feels alive
 var npcs: Array = []
@@ -260,17 +262,47 @@ func _build_hud() -> void:
 	leave.pressed.connect(_leave)
 	root.add_child(leave)
 
-	# HALF-COURT GREEN CHALLENGE: parte da qui (si chiude dal pannello finale,
-	# con "Riprova" o "Torno a tirare": un inizio e una fine, non un interruttore).
+	# HALF-COURT GREEN CHALLENGE: di base e' solo un QUADRATINO 🏆 sotto
+	# Leave (piu' visuale); un tap lo APRE col nome intero, il tap seguente
+	# FA PARTIRE la sfida. Si richiude da solo dopo 6 secondi o a sfida finita.
 	btn_hc = Button.new()
-	btn_hc.text = "🏆 SFIDA METÀ CAMPO"
+	btn_hc.text = "🏆"
 	btn_hc.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	btn_hc.position = Vector2(-312, 92)
-	btn_hc.size = Vector2(302, 56)
-	btn_hc.custom_minimum_size = Vector2(302, 56)
-	btn_hc.add_theme_font_size_override("font_size", 19)
+	btn_hc.position = Vector2(-66, 92)
+	btn_hc.size = Vector2(56, 56)
+	btn_hc.custom_minimum_size = Vector2(56, 56)
+	btn_hc.add_theme_font_size_override("font_size", 24)
 	btn_hc.pressed.connect(_toggle_hc)
 	root.add_child(btn_hc)
+
+func _hc_expand() -> void:
+	## quadratino -> bottone pieno col nome; si richiude da solo in 6 secondi
+	hc_expanded = true
+	if btn_hc:
+		btn_hc.text = "🏆 SFIDA METÀ CAMPO"
+		btn_hc.position = Vector2(-312, 92)
+		btn_hc.size = Vector2(302, 56)
+		btn_hc.custom_minimum_size = Vector2(302, 56)
+		btn_hc.add_theme_font_size_override("font_size", 19)
+	get_tree().create_timer(6.0).timeout.connect(_hc_auto_collapse)
+
+func _hc_auto_collapse() -> void:
+	if hc_expanded and not hc_mode:
+		_hc_collapse()
+
+func _hc_collapse() -> void:
+	hc_expanded = false
+	if btn_hc:
+		btn_hc.disabled = false
+		btn_hc.text = "🏆"
+		_hc_shrink()
+
+func _hc_shrink() -> void:
+	if btn_hc:
+		btn_hc.position = Vector2(-66, 92)
+		btn_hc.size = Vector2(56, 56)
+		btn_hc.custom_minimum_size = Vector2(56, 56)
+		btn_hc.add_theme_font_size_override("font_size", 24)
 
 func _leave() -> void:
 	SaveSystem.save_game()
@@ -681,6 +713,9 @@ func _toggle_hc() -> void:
 	if ball_live or charging or dunk_phase != "":
 		Events.toast.emit("Finisci prima il tiro!")
 		return
+	if not hc_expanded:
+		_hc_expand()
+		return
 	hc_mode = true
 	hc_greens = 0
 	makes = 0
@@ -699,9 +734,11 @@ func _toggle_hc() -> void:
 	session_left = HC_SECONDS
 	Events.toast.emit("SFIDA METÀ CAMPO: 60 secondi, contano solo i GREEN 🟢")
 	_hc_teleport()
+	hc_expanded = false
 	if btn_hc:
-		btn_hc.text = "⏱ SFIDA IN CORSO…"
+		btn_hc.text = "⏱"
 		btn_hc.disabled = true
+		_hc_shrink()
 
 ## La sfida è una modalità skill pura: zero consumo di energia, altrimenti
 ## chi si allena sui green si ritrova senza gambe per il resto della carriera
@@ -1344,7 +1381,7 @@ func _draw_player() -> void:
 			"drop":
 				var f: float = clampf(dunk_anim / 0.5, 0.0, 1.0)
 				draw_base = rim_x.lerp(player_pos, f)
-				lift = (1.0 - f) * hang_lift
+				lift = (1.0 - f) * maxf(hang_lift_now, 60.0)
 				kind = Avatar.DUNK
 				amount = 1.0 - f
 				carry = false
@@ -1413,7 +1450,10 @@ func _draw_player() -> void:
 	if dunk_phase == "hang":
 		po["hang"] = true
 		if grip_at.x < 1e8:
-			po["grip_at"] = grip_at
+			# RELATIVO ai piedi del disegno: le mani vanno al punto esatto
+			# del ferro qualunque sia la posa del corpo (era il bug delle
+			# braccia lunghissime: coordinate assolute prese come offset).
+			po["grip_at"] = grip_at - screen
 	po["hand"] = -1.0 if hand_left else 1.0
 	# SPIN MOVE: la rotazione del corpo come in partita (passa di schiena
 	# alla telecamera mentre gira, come lo yaw dei giocatori del match).

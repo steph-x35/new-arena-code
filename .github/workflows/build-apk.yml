@@ -109,8 +109,8 @@ jobs:
           echo "Importing project assets in headless mode..."
           godot -v --headless --import 2>&1 | tee /tmp/import.log || true
           echo "Exporting Android APK..."
-          godot -v --headless --export-release "Android" build/HoopCity-v2.33.0.apk 2>&1 | tee /tmp/export.log || true
-          if [ ! -f "build/HoopCity-v2.33.0.apk" ]; then
+          godot -v --headless --export-release "Android" build/HoopCity-v2.34.0.apk 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/HoopCity-v2.34.0.apk" ]; then
             echo "=== EXPORT FAILED! Printing log: ==="
             cat /tmp/export.log | tail -n 80
             cp /tmp/export.log $GITHUB_WORKSPACE/build_error.log
@@ -127,21 +127,21 @@ jobs:
             --ks-pass pass:android \
             --ks-key-alias androiddebugkey \
             --key-pass pass:android \
-            build/HoopCity-v2.33.0.apk
+            build/HoopCity-v2.34.0.apk
           echo "Verifying APK signature..."
-          apksigner verify --verbose build/HoopCity-v2.33.0.apk
+          apksigner verify --verbose build/HoopCity-v2.34.0.apk
           echo "Checking APK launcher icons..."
-          unzip -l build/HoopCity-v2.33.0.apk | grep -i "mipmap" | head -n 20
-          ls -lh build/HoopCity-v2.33.0.apk
+          unzip -l build/HoopCity-v2.34.0.apk | grep -i "mipmap" | head -n 20
+          ls -lh build/HoopCity-v2.34.0.apk
 
       - name: Create or Update GitHub Release with APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp hoop-city-life/hoopcity/build/HoopCity-v2.33.0.apk /tmp/HoopCity-v2.33.0.apk
-          gh release delete v2.33.0 -y || true
-          gh release create v2.33.0 /tmp/HoopCity-v2.33.0.apk \
-            --title "Hoop City Life v2.33.0" \
-            --notes "Aggiornamento v2.33.0 🏀 HANG REALISTICO: le mani si attaccano al FERRO PIEGATO (le braccia lo seguono, il corpo pende sotto — niente più testa nel canestro) e una volta appeso OSCILLI a destra e sinistra come un pendolo. 🎨 Graffiti più piccolo, BIANCO E NERO, lettere rovinate e trasandate con graffi e vernice consumata." \
+          cp hoop-city-life/hoopcity/build/HoopCity-v2.34.0.apk /tmp/HoopCity-v2.34.0.apk
+          gh release delete v2.34.0 -y || true
+          gh release create v2.34.0 /tmp/HoopCity-v2.34.0.apk \
+            --title "Hoop City Life v2.34.0" \
+            --notes "Aggiornamento v2.34.0 🏀 HANG SISTEMATO: giocatore ABBASSATO con le DUE mani attaccate al bordo del ferro piegato, braccia tese normali (niente più braccia infinite o testa nel canestro) e OSCILLAZIONE pendolare destra/sinistra ben visibile. 🏆 Bottone sfida: ora è un quadratino 🏆 sotto Leave — un tap si apre, due tap parte la sfida." \
             --target arena/01a0cac8-new-arena-code
           echo "Release created successfully."

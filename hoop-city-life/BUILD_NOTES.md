@@ -1,3 +1,21 @@
+# HoopCity — v2.34.0 · Hang rifatto + bottone sfida quadratino
+
+**APK:** `HoopCity-v2.34.0.apk` — versionCode 128, arm64-v8a
+
+- ✋ **HANG RIFATTO**: trovato il bug — le coordinate del ferro erano prese
+  come offset RELATIVO (mani speditie chissà dove = braccia lunghissime).
+  Ora: corpo ABBASSATO (spalle 28px sotto il bordo, testa FUORI dal
+  canestro), DUE mani inchiodate al BORDO del ferro piegato, braccia tese
+  normali. Il corpo si assesta mentre il ferro si piega.
+- 🕰️ **PENDOLO VERO**: oscillazione dx/sx più ampia (16px) e più lenta —
+  le mani restano inchiodate al ferro, le braccia si angolano col swing.
+  Stesso trattamento in partita (5v5/1v1).
+- 🏆 **SFIDA IN UN QUADRATINO**: il bottone ora è un piccolo 🏆 sotto Leave
+  (più visuale). Un tap: si APRE col nome intero; secondo tap: la sfida
+  parte. Si richiude da solo dopo 6 secondi o a sfida finita.
+
+---
+
 # HoopCity — v2.33.0 · Hang realistico + graffiti bianco/nero
 
 **APK:** `HoopCity-v2.33.0.apk` — versionCode 127, arm64-v8a
