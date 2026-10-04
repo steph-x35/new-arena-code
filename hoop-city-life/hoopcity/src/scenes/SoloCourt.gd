@@ -1040,32 +1040,32 @@ func _draw() -> void:
 	if outdoor:
 		_draw_park()
 
-## GRAFFITI: il nome della carriera dipinto sull'asfalto a metà campo,
-## come i tag sui blacktop veri. Sotto NPC e giocatori: ci si cammina sopra.
-## (Personalizzazione inclusa gratis con la carriera.)
+## GRAFFITI: il nome della carriera dipinto sul MURO in fondo al campo
+## (quello con i tag colorati), come i piece dei writers sui blacktop.
+## Sta nel backdrop, quindi SOTTO giocatori e palla.
 func _draw_graffiti() -> void:
 	if not outdoor:
 		return
 	var tag: String = String(Game.profile.get("name", "")).to_upper().strip_edges()
 	if tag == "":
 		return
-	var center: Vector2 = _screen(Vector2(0.0, 60.0))
+	# base del muro = linea laterale lontana, stessa proiezione del backdrop
+	var base: Vector2 = _screen(Vector2(0.0, -Court.COURT_H * 0.5))
 	var f: Font = ThemeDB.fallback_font
-	var size: int = 64
+	var size: int = 46
 	var w: float = f.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
-	if w > 900.0:                       # nomi lunghi: si stringe per stare nel campo
-		size = int(64.0 * 900.0 / w)
+	if w > 560.0:                       # nomi lunghi: si stringe per stare nel muro
+		size = int(46.0 * 560.0 / w)
 		w = f.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
-	# schiacciato e leggermente inclinato: effetto "dipinto per terra"
-	draw_set_transform(center, -0.06, Vector2(1.0, 0.52))
-	# ombra spray
-	draw_string(f, Vector2(-w * 0.5 + 4, 4), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.04, 0.06, 0.05, 0.35))
-	# contorno scuro
-	for off in [Vector2(-2, 0), Vector2(2, 0), Vector2(0, -2), Vector2(0, 2), Vector2(-2, -2), Vector2(2, 2)]:
-		draw_string(f, Vector2(-w * 0.5, 0) + off, tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.10, 0.12, 0.10, 0.55))
-	# riempimento: due passate arancio/ambra
-	draw_string(f, Vector2(-w * 0.5, 0), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.93, 0.45, 0.08, 0.85))
-	draw_string(f, Vector2(-w * 0.5, -3), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(1.0, 0.70, 0.16, 0.85))
+	# sul muro le lettere sono DRITTE (non schiacciate): solo una leggera
+	# inclinazione da piece, con l'alone scuro della bomboletta attorno
+	draw_set_transform(Vector2(base.x, base.y - 52.0), -0.04, Vector2.ONE)
+	for off in [Vector2(-3, 0), Vector2(3, 0), Vector2(0, -3), Vector2(0, 3),
+			Vector2(-3, -3), Vector2(3, 3), Vector2(-3, 3), Vector2(3, -3)]:
+		draw_string(f, Vector2(-w * 0.5, 0) + off, tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.07, 0.08, 0.07, 0.85))
+	# doppia passata: rosso-arancio pieno + riflesso ambrato
+	draw_string(f, Vector2(-w * 0.5, 0), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.90, 0.30, 0.10, 0.95))
+	draw_string(f, Vector2(-w * 0.5, -3), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(1.0, 0.62, 0.14, 0.9))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 ## Primo piano del parco: panchine e cestini lungo il bordo in basso,

@@ -1,3 +1,15 @@
+# HoopCity — v2.28.1 · Graffiti spostato sul muro di fondo
+
+**APK:** `HoopCity-v2.28.1.apk` — versionCode 120, arm64-v8a
+
+- 🎨 **FIX POSIZIONE GRAFFITI**: il nome della carriera non è più dipinto
+  sull'asfalto ma sul **muro in fondo al campo** (quello con i tag colorati),
+  centrato sopra la recinzione: lettere dritte da piece di writers, alone
+  spray, doppia passata rosso-arancio/ambra. I tag casuali del backdrop
+  lasciano libero il centro del muro per farci stare il nome. Solo outdoor.
+
+---
+
 # HoopCity — v2.28.0 · Graffiti col nome sullo Street Court
 
 **APK:** `HoopCity-v2.28.0.apk` — versionCode 119, arm64-v8a

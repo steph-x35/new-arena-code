@@ -340,6 +340,12 @@ static func _full_street_backdrop(c: CanvasItem, w: float, h: float,
 	var gx: float = -w + 90.0
 	var gi := 0
 	while gx < w:
+		# al centro del muro no tag casuali: lì vive il piece col nome della
+		# carriera (disegnato da SoloCourt sopra il backdrop)
+		if absf(gx) < 230.0:
+			gx += 300.0
+			gi += 1
+			continue
 		var col: Color = tags[gi % tags.size()]
 		c.draw_circle(Vector2(gx, far_y - 66.0), 26.0, Color(col, 0.7))
 		c.draw_line(Vector2(gx - 32.0, far_y - 30.0), Vector2(gx + 36.0, far_y - 96.0),
