@@ -1,3 +1,14 @@
+# HoopCity — v2.37.1 · Retina sotto il giocatore appeso
+
+**APK:** `HoopCity-v2.37.1.apk` — versionCode 132, arm64-v8a
+
+- 🥅 **FIX LIVELLI NELL'HANG**: la mezza retina davanti veniva disegnata
+  SOPRA il giocatore appeso → sembrava dentro/dietro la rete. Ora durante
+  l'hang la retina passa SOTTO il corpo (lui è aggrappato al bordo in primo
+  piano, la copre). Pendolo rigido e mani sul bordo davanti invariati.
+
+---
+
 # HoopCity — v2.37.0 · Pendolo rigido + mani sul ferro davanti
 
 **APK:** `HoopCity-v2.37.0.apk` — versionCode 131, arm64-v8a

@@ -1482,6 +1482,12 @@ func _draw_player() -> void:
 		po["back"] = true
 	if joystick and joystick.output.y < -0.22 and dunk_phase == "":
 		po["back"] = true
+	if dunk_phase == "hang":
+		# HANG: il giocatore e' appeso al bordo IN PRIMO PIANO, quindi la
+		# mezza retina davanti va SOTTO di lui (la copre lui), non sopra —
+		# disegnata prima del corpo.
+		HoopArt.draw_net_front(self, _rim_screen(), 22.0, 22.0 * HoopArt.RIM_SQUASH,
+			net_wobble, net_t, clampf(court_art.rim_bend[1], 0.0, 1.0), -1.0)
 	if hang_body and dunk_phase == "hang":
 		# Il corpo rigido ruota attorno alle mani sul ferro: braccia alla
 		# lunghezza naturale che oscillano INSIEME al corpo (pendolo vero).
@@ -1531,7 +1537,7 @@ func _draw_player() -> void:
 		near_net = true
 	elif dunk_phase == "hang" or dunk_phase == "drop":
 		near_net = true
-	if near_net:
+	if near_net and dunk_phase != "hang":
 		HoopArt.draw_net_front(self, _rim_screen(), 22.0, 22.0 * HoopArt.RIM_SQUASH,
 			net_wobble, net_t, clampf(court_art.rim_bend[1], 0.0, 1.0), -1.0)
 
