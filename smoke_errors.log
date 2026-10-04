@@ -1,0 +1,679 @@
+=== SMOKE: src/scenes/IntroScene.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1448)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1448)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2284)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:604)
+OK: src/scenes/IntroScene.tscn
+=== SMOKE: src/scenes/MainMenu.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2284)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:604)
+OK: src/scenes/MainMenu.tscn
+=== SMOKE: src/scenes/CityScene.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+          at: GDScript::reload (res://src/city/CityVisual.gd:451)
+SCRIPT ERROR: Compile Error: 
+          at: GDScript::reload (res://src/city/CityScene.gd:-1)
+ERROR: Failed to load script "res://src/city/CityScene.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript.cpp:2936)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+SCRIPT ERROR: Invalid assignment of property or key 'buildings' with value of type 'Array' on a base object of type 'Node2D'.
+          at: _build_world (res://src/city/CityScene.gd:62)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+          at: _process (res://src/city/CityScene.gd:211)
+WARNING: 1 RID of type "CanvasItem" was leaked.
+     at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2483)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2284)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:604)
+!!! SCRIPT ERRORS in src/scenes/CityScene.tscn:
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+SCRIPT ERROR: Compile Error: 
+SCRIPT ERROR: Invalid assignment of property or key 'buildings' with value of type 'Array' on a base object of type 'Node2D'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+=== SMOKE: src/scenes/SoloCourt.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+          at: GDScript::reload (res://src/scenes/SoloCourt.gd:326)
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+          at: GDScript::reload (res://src/scenes/SoloCourt.gd:1356)
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+          at: GDScript::reload (res://src/scenes/SoloCourt.gd:1356)
+ERROR: Failed to load script "res://src/scenes/SoloCourt.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2936)
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+          at: GDScript::reload (res://src/match/CourtVisual.gd:162)
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+          at: GDScript::reload (res://src/match/CourtVisual.gd:400)
+ERROR: Failed to load script "res://src/match/CourtVisual.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2936)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+!!! SCRIPT ERRORS in src/scenes/SoloCourt.tscn:
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+=== SMOKE: src/scenes/ArenaLobby.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+OK: src/scenes/ArenaLobby.tscn
+=== SMOKE: src/scenes/TeamCourt.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+OK: src/scenes/TeamCourt.tscn
+=== SMOKE: src/scenes/GymScene.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+OK: src/scenes/GymScene.tscn
+=== SMOKE: src/scenes/DrillScene.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+          at: GDScript::reload (res://src/match/CourtVisual.gd:162)
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+          at: GDScript::reload (res://src/match/CourtVisual.gd:400)
+ERROR: Failed to load script "res://src/match/CourtVisual.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2936)
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+          at: GDScript::reload (res://src/scenes/DrillScene.gd:427)
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+          at: GDScript::reload (res://src/scenes/DrillScene.gd:878)
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+          at: GDScript::reload (res://src/scenes/DrillScene.gd:878)
+ERROR: Failed to load script "res://src/scenes/DrillScene.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2936)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_volume_db (servers/audio_server.cpp:958)
+ERROR: Index p_bus = -1 is out of bounds (buses.size() = 1).
+   at: set_bus_mute (servers/audio_server.cpp:1009)
+!!! SCRIPT ERRORS in src/scenes/DrillScene.tscn:
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
+SCRIPT ERROR: Parse Error: Could not resolve class "HoopArt", because of a parser error.
