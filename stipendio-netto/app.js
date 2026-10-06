@@ -6,7 +6,8 @@
 
   // Parametri 2026 (indicativi, editabili dall'utente)
   const IRPEF_BRACKETS = [
-    { upTo: 28000, rate: 0.23 },
+    { upTo: 15000, rate: 0.23 },
+    { upTo: 28000, rate: 0.25 },  // scaglione 25% dal 2024
     { upTo: 50000, rate: 0.35 },
     { upTo: Infinity, rate: 0.43 },
   ];
@@ -204,6 +205,21 @@
         el.addEventListener('input', render);
         el.addEventListener('change', render);
       });
+
+    // sync lordo annuo <-> mensile: scrivi uno, l'altro si compila da solo
+    const mensEl = $('#mensilita');
+    $('#mensile').addEventListener('input', (e) => {
+      const v = parseNum(e.target.value);
+      const m = parseInt(mensEl.value, 10) || 13;
+      $('#lordo').value = v > 0 ? Math.round(v * m).toLocaleString('it-IT') : '';
+      render();
+    });
+    $('#lordo').addEventListener('input', (e) => {
+      const v = parseNum(e.target.value);
+      const m = parseInt(mensEl.value, 10) || 13;
+      $('#mensile').value = v > 0 ? Math.round(v / m).toLocaleString('it-IT') : '';
+      render();
+    });
 
     render();
   }
