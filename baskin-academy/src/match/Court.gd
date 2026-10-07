@@ -41,8 +41,10 @@ const RIM_HEIGHT := 188.0          # px above the floor — the pole must read a
 # pole, the board and the open ring visibly hang ABOVE the floor, and the
 # player must JUMP to get his hand on the iron.
 const PX_PER_FT := 19.0
-## One basketball, one size: ~13% of a 54 px player (real 24 cm / 1.9 m).
-const BALL_R := 5.5
+## One basketball, one size: 7 px like Hoop City (a 54 px player reads ~1.9 m,
+## so the ball is ~24 cm across -- regulation). It was 5.5 and looked like a
+## marble in the player's hand.
+const BALL_R := 7.0
 const QUARTER_SECONDS := 120.0
 const QUARTERS := 4
 
@@ -81,6 +83,11 @@ var last_pass_time := 0.0
 var finished := false
 var total_attempts := 0
 var total_makes := 0
+# NBA-JAM heat check (da Hoop City): 3 canestri consecutivi dell'UTENTE =
+# ON FIRE: finestra del metro piu' larga e palla in fiamme. Solo l'utente:
+# l'IA non prende bonus nascosti (GAMEPLAY-IA).
+var user_heat := false
+var user_streak := 0
 var countdown_hold := 0.0          # bounded presentation pause; never disables recovery forever
 var _dead_time := 0.0               # watchdog accumulator, see _deadball_watchdog
 var _ghost_t := 0.0                 # ghost-holder accumulator (ball in nobody's hands)
@@ -1114,6 +1121,17 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 	if shooter.is_user:
 		box["fga"] += 1
 		if bpts == 3: box["tpa"] += 1
+		# HEAT CHECK (da Hoop City): terzo canestro di fila = ON FIRE,
+		# uno sbagliato = COLD e la serie riparte da zero.
+		if bool(res["made"]):
+			user_streak += 1
+			if user_streak >= 3 and not user_heat:
+				user_heat = true
+				Events.popup.emit("ON FIRE!", shooter.global_position,
+					Color(1.0, 0.55, 0.15), true)
+				Sfx.cheer(true)
+		else:
+			_user_break_heat()
 	Events.shot_taken.emit(ShotSystem.timing_name(res["timing"]) + " / " + res["quality"], res["made"], bpts)
 	if bool(res["made"]):
 		if randf() < 0.55:
@@ -2059,6 +2077,12 @@ func _turnover_to(team: int) -> void:
 	possession = team
 	_reset_possession(false)
 
+func _user_break_heat() -> void:
+	if user_heat:
+		Events.popup.emit("COLD", user.global_position, Color(0.7, 0.75, 0.85), false)
+	user_streak = 0
+	user_heat = false
+
 func call_foul(defender: BallPlayer, victim: BallPlayer, pts_attempt := 0) -> void:
 	team_fouls[defender.team] += 1
 	Sfx.play("whistle_short")
@@ -2153,6 +2177,10 @@ func _ft_shoot(err: float) -> void:
 ## while the fouled player is human.
 func _process(delta: float) -> void:
 	_process_bench_and_timeouts(delta)
+	# Palla in fiamme mentre l'utente in fuoco la tiene o l'ha appena tirata.
+	if ball != null and user != null:
+		ball.flame = user_heat and (ball.holder == user \
+			or (ball.live and ball.shooter == user))
 	if not ft_active or finished:
 		return
 	if ft_shooter == null or not is_instance_valid(ft_shooter):
@@ -3205,6 +3233,10 @@ func _reserved_for_inbound(p: BallPlayer) -> bool:
 	return restarting and not play_live and not ft_active and (p == _inbounder or p == _inbound_receiver)
 
 func available_sub_seats() -> Array:
+	# Senza panchina (scrimmage/sonda) non esistono posti: restituire [] qui
+	# evita che la UI indicizzi bench_roster vuoto (crash al tasto CAMBIO).
+	if not is_fixture:
+		return []
 	var out := []
 	var busy := {}
 	for w in _sub_walk:

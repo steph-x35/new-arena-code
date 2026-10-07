@@ -42,13 +42,19 @@ static func timing_mod(t: int) -> float:
 ## PERFECT/GOOD bands; from deep out (past ~24 ft, i.e. once you are standing
 ## around half court) the green band visibly shrinks and the shot genuinely
 ## gets harder to time. Returns {"perfect": s, "good": s} in seconds.
-static func shot_windows(dist_ft: float) -> Dictionary:
+static func shot_windows(dist_ft: float, heat := false) -> Dictionary:
 	var pw := PERFECT_WINDOW
 	var gw := GOOD_WINDOW
 	if dist_ft > 24.0:
 		var over: float = dist_ft - 24.0
 		pw = maxf(0.016, pw - over * 0.0042)
 		gw = maxf(0.05, gw - over * 0.0082)
+	if heat:
+		# HEAT CHECK (da Hoop City): 3 canestri di fila allargano la finestra.
+		# Il contratto resta: rosso=mai, giallo=50/50, verde=100% — il verde
+		# e' piu' largo.
+		pw *= 1.18
+		gw *= 1.15
 	return {"perfect": pw, "good": gw}
 
 ## Base shooting rating for a distance, in feet-equivalent.

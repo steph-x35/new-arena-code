@@ -15,6 +15,7 @@ var h := 0.0               # height
 var vh := 0.0              # vertical velocity
 var live := false          # in flight (nobody holding it)
 var holder: Node = null
+var flame := false                 # heat check: la palla dell'utente in fuoco brucia
 var held_still := false       # inbound: the ball waits in the hands, no dribble
 var shooter: Node = null
 var pass_target: Node = null      # the man this pass is meant for (caught in his hands)
@@ -381,10 +382,17 @@ func _draw() -> void:
 	draw_ellipse_filled(Vector2(0, 0), Vector2(r * 0.92 * shadow_scale, r * 0.35 * shadow_scale), Color(0, 0, 0, 0.28 * shadow_scale))
 	# No landing marker: the prediction remains available to AI only.
 	var c := Vector2(0, -h)
-	draw_circle(c, r, Color(0.85, 0.42, 0.12))
-	draw_arc(c, r, 0, TAU, 20, Color(0.15, 0.09, 0.05), 1.6)
-	draw_line(c + Vector2(-r, 0), c + Vector2(r, 0), Color(0.15, 0.09, 0.05), 1.2)
+	# STESSA PALLA di Hoop City: tinta piu' calda e cuciture spesse che si
+	# legano da lontano (prima era un'arancia spenta con fili sottili).
+	draw_circle(c, r, Color(0.95, 0.55, 0.15))
+	draw_arc(c, r, 0, TAU, 16, Color(0.35, 0.18, 0.07), maxf(r * 0.14, 1.0))
+	draw_line(c + Vector2(-r, 0), c + Vector2(r, 0),
+		Color(0.35, 0.18, 0.07), maxf(r * 0.11, 1.0))
 	draw_line(c + Vector2(0, -r), c + Vector2(0, r), Color(0.15, 0.09, 0.05), 1.2)
+	# HEAT CHECK: palla in fiamme mentre il giocatore HOT la tiene o l'ha tirata
+	if flame and not bool(Settings.get_v("lowgfx", false)):
+		Avatar.draw_ball_flames(self, c, r, Time.get_ticks_msec() / 1000.0,
+			Vector2(vel.x, vel.y * 0.5 - vh))
 
 func draw_ellipse_filled(pos: Vector2, radii: Vector2, col: Color) -> void:
 	var pts := PackedVector2Array()

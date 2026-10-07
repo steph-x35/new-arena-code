@@ -643,22 +643,20 @@ func _draw_lines() -> void:
 		for i in 14:
 			_parc(hc, Court.SIDE_DASH_R, a0 + i * (PI / 14.0) + 0.05,
 				a0 + (i + 1) * (PI / 14.0) - 0.05, 4, Color(0.97, 0.97, 0.95, 0.82), 2.5)
-		# FIVE sectors: radial lines at 200, 350, 420 and 570 cm of the 770 cm
-		# semicircle (Rev.19 fig. 2). The 70 cm wedge in the middle is the
-		# two-point sector; every other wedge is worth three.
+		# FIVE sectors (Rev.19 fig. 2): sui campi veri i settori sono segnalati
+		# da TRATTI di nastro che attraversano la linea, non da raggi che
+		# partono da meta' campo. Quattro tacche radiali ai confini
+		# (200/350/420/570 cm dei 770 cm di semicerchio).
 		for cm in [200.0, 350.0, 420.0, 570.0]:
 			var sa: float = a0 + (cm / 770.0) * PI
-			_pline(hc + Vector2(cos(sa), sin(sa)) * 22.0,
-				hc + Vector2(cos(sa), sin(sa)) * Court.SIDE_AREA_R,
-				Color(0.97, 0.97, 0.95, 0.8), 2.5)
-		# Painted spot values, stencil-style: 2 dead in front, 3 on the sides.
+			var dir := Vector2(cos(sa), sin(sa))
+			_pline(hc + dir * (Court.SIDE_AREA_R - 16.0),
+				hc + dir * (Court.SIDE_AREA_R + 12.0),
+				Color(0.97, 0.97, 0.95, 0.85), 3.0)
+		# Solo il "2" del settore centrale dipinto a pavimento: i 3 laterali
+		# affollavano l'area (feedback playtest); il valore lo dice il chip.
 		var in_dir := Vector2(0.0, -shy)
-		for sd in [[0.0, "2", 92.0], [Court.SIDE_SEC_LAT_MID, "3", 100.0],
-				[-Court.SIDE_SEC_LAT_MID, "3", 100.0],
-				[Court.SIDE_SEC_LAT_MID * 2.59, "3", 86.0],
-				[-Court.SIDE_SEC_LAT_MID * 2.59, "3", 86.0]]:
-			_pchar(str(sd[1]), hc + in_dir.rotated(sd[0]) * sd[2],
-				Color(0.97, 0.97, 0.95, 0.5), 17)
+		_pchar("2", hc + in_dir * 92.0, Color(0.97, 0.97, 0.95, 0.5), 17)
 
 ## Everything that never moves, drawn a single time.
 class CourtStatic extends Node2D:

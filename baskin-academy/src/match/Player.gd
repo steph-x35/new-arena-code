@@ -713,7 +713,8 @@ func do_shot_release() -> void:
 	# actually scores.
 	if court != null:
 		var ft: float = court.px_to_ft(global_position.distance_to(court.attack_hoop_for(self)))
-		var w: Dictionary = ShotSystem.shot_windows(ft)
+		var w: Dictionary = ShotSystem.shot_windows(ft,
+			court != null and court.user_heat)
 		err *= ShotSystem.PERFECT_WINDOW / maxf(float(w["perfect"]), 0.001)
 	Sfx.play("shot_release", -7.0, randf_range(0.96, 1.05))
 	court.attempt_shot(self, err)

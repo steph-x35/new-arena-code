@@ -300,8 +300,9 @@ func _process(delta: float) -> void:
 	elif joystick != null and not joystick.visible:
 		joystick.visible = true
 	if btn_sub:
-		btn_sub.visible = not court.one_on_one and not court.finished \
-			and not court.ft_active and sub_panel != null and not sub_panel.visible
+		btn_sub.visible = court.is_fixture and not court.one_on_one \
+			and not court.finished and not court.ft_active \
+			and sub_panel != null and not sub_panel.visible
 	if btn_timeout:
 		btn_timeout.visible = not court.one_on_one and not court.finished
 		var tl: String = Loc.t("match.timeout") + " (%d)" % court.timeouts_left[0]
@@ -358,7 +359,7 @@ func _process(delta: float) -> void:
 	# The green band tightens with distance (from half court it is a sliver),
 	# and it always matches what the sim scores.
 	var mft: float = court.px_to_ft(u.global_position.distance_to(court.attack_hoop_for(u)))
-	var mw: Dictionary = ShotSystem.shot_windows(mft)
+	var mw: Dictionary = ShotSystem.shot_windows(mft, court.user_heat)
 	meter.perfect_window = float(mw["perfect"])
 	meter.good_window = float(mw["good"])
 	_place_meter()
@@ -1612,18 +1613,23 @@ func _build_rules_ref() -> void:
 	## running: it is a quick reference, not a pause menu.
 	rules_btn = Button.new()
 	rules_btn.text = Loc.t("rules.btn")
-	rules_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	rules_btn.position = Vector2(-206, 124)
-	rules_btn.custom_minimum_size = Vector2(188, 46)
-	rules_btn.add_theme_font_size_override("font_size", 17)
+	# A SINISTRA (playtest: a destra si confondeva con TIMEOUT e CAMBIO),
+	# sotto ESCI.
+	rules_btn.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	rules_btn.position = Vector2(18, 72)
+	rules_btn.custom_minimum_size = Vector2(96, 50)
+	rules_btn.add_theme_font_size_override("font_size", 18)
 	rules_btn.pressed.connect(_toggle_rules)
 	hud.add_child(rules_btn)
 	rules_panel = PanelContainer.new()
-	rules_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	rules_panel.offset_left = -442.0
-	rules_panel.offset_top = 178.0
-	rules_panel.offset_right = -14.0
-	rules_panel.offset_bottom = 692.0
+	# Il pannello sta SOPRA ogni altro controllo dell'HUD (z_index alto):
+	# prima i bottoni aggiunti dopo lo disegnavano attraversato.
+	rules_panel.z_index = 60
+	rules_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	rules_panel.offset_left = 12.0
+	rules_panel.offset_top = 130.0
+	rules_panel.offset_right = 430.0
+	rules_panel.offset_bottom = 640.0
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.05, 0.07, 0.12, 0.93)
 	sb.set_corner_radius_all(14)

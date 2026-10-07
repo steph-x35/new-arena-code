@@ -149,19 +149,19 @@ func _draw_court(d: Control) -> void:
 		for i in 12:
 			d.draw_arc(hc, 66.0, a0 + i * (PI / 12.0) + 0.05,
 				a0 + (i + 1) * (PI / 12.0) - 0.05, 3, Color(0.97, 0.97, 0.95, 0.7), 1.6)
-		# five sectors: 200/150/70/150/200 cm of the 770 cm semicircle
+		# five sectors: short TAPE TICKS crossing the arc at the boundaries
+		# (200/350/420/570 cm of the 770 cm semicircle), like real courts —
+		# not lines radiating from the pole
 		for cm in [200.0, 350.0, 420.0, 570.0]:
 			var sa: float = a0 + (cm / 770.0) * PI
-			d.draw_line(hc + Vector2(cos(sa), sin(sa)) * 8.0,
-				hc + Vector2(cos(sa), sin(sa)) * r, line, 1.4)
-		# spot values: 2 straight ahead, 3 on the sides
+			var dir := Vector2(cos(sa), sin(sa))
+			d.draw_line(hc + dir * (r - 10.0), hc + dir * (r + 8.0), line, 2.2)
+		# only the central sector value is painted (2): the laterals pay 3
 		var in_dir := Vector2(0.0, -sy)
 		var f := ThemeDB.fallback_font
-		for sd in [[0.0, "2", 33.0], [0.45, "3", 37.0], [-0.45, "3", 37.0],
-				[1.16, "3", 30.0], [-1.16, "3", 30.0]]:
-			var sp: Vector2 = hc + in_dir.rotated(sd[0]) * sd[2]
-			d.draw_string(f, sp + Vector2(-14, -6), str(sd[1]),
-				HORIZONTAL_ALIGNMENT_CENTER, 28, 24, Color(0.25, 0.15, 0.05, 0.85))
+		var sp: Vector2 = hc + in_dir * 33.0
+		d.draw_string(f, sp + Vector2(-14, -6), "2",
+			HORIZONTAL_ALIGNMENT_CENTER, 28, 24, Color(0.25, 0.15, 0.05, 0.85))
 		# the double hoop on the pole: HIGH rim + LOW rim, facing the court
 		d.draw_rect(Rect2(hc - Vector2(3, 3), Vector2(6, 6)), Color(0.2, 0.2, 0.24))
 		d.draw_arc(hc + in_dir * 14.0, 9.0, 0, TAU, 20, Color(1.0, 0.45, 0.15), 2.6)

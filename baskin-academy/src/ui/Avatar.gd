@@ -832,3 +832,40 @@ static func _gear_col(g: Dictionary, fallback: Color) -> Color:
 	if hs.is_valid_html_color():
 		return Color(hs)
 	return fallback
+
+
+## HEAT CHECK (da Hoop City): fiamme NBA-JAM sulla palla dell'utente in fuoco.
+static func draw_ball_flames(c: CanvasItem, center: Vector2, r: float, t: float,
+		sv := Vector2.ZERO) -> void:
+	# alone caldo discreto attorno alla palla
+	c.draw_circle(center, r * 1.30, Color(1.0, 0.50, 0.12, 0.16))
+	var sp: float = sv.length()
+	if sp < 40.0:
+		# palla tenuta in mano: tre fiammelle dolci sopra il pallone
+		for i in 3:
+			var ph: float = t * 8.0 + float(i) * 2.1
+			var fx: float = center.x + (float(i) - 1.0) * r * 0.42 + sin(ph) * 1.5
+			var fh: float = r * (0.55 + (sin(ph * 1.7) * 0.5 + 0.5) * 0.5)
+			c.draw_circle(Vector2(fx, center.y - r - fh * 0.4), r * 0.16, Color(1.0, 0.42, 0.06, 0.8))
+			c.draw_circle(Vector2(fx, center.y - r - fh * 0.75), r * 0.09, Color(1.0, 0.75, 0.18, 0.85))
+		return
+	# SCIA: il fuoco scivola ALL'INDIETRO rispetto al moto (parabola vera)
+	var ang: float = (-sv / sp).angle()
+	c.draw_set_transform(center, ang, Vector2.ONE)
+	for i in 4:
+		var ph: float = t * 10.0 + float(i) * 1.3
+		var d: float = r * (0.55 + float(i) * 0.42)      # quanto dietro
+		var sway: float = sin(ph + float(i)) * r * 0.12   # serpentello della scia
+		var fw: float = r * maxf(0.46 - float(i) * 0.085, 0.14)
+		var ln: float = r * (0.55 + (sin(ph * 1.6) * 0.5 + 0.5) * 0.35)
+		var base := Vector2(d, sway)
+		# lingua di fuoco: goccia allungata che si restringe all'indietro
+		c.draw_circle(base, fw, Color(1.0, 0.34, 0.05, 0.72))
+		c.draw_circle(base + Vector2(ln * 0.45, sway * 0.4), fw * 0.62, Color(1.0, 0.60, 0.10, 0.8))
+		c.draw_circle(base + Vector2(ln * 0.85, sway * 0.7), fw * 0.32, Color(1.0, 0.88, 0.30, 0.85))
+	# scintille che si staccano lungo la scia
+	for k in 3:
+		var ph2: float = t * 6.0 + float(k) * 2.0
+		c.draw_circle(Vector2(r * (0.7 + float(k) * 0.55), sin(ph2) * r * 0.28),
+			1.4 + 1.2 * absf(sin(ph2)), Color(1.0, 0.85, 0.30, 0.75))
+	c.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

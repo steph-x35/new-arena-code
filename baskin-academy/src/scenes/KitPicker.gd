@@ -34,7 +34,10 @@ func _ready() -> void:
 	if not Game.profile.has("quarter_seconds"):
 		Game.profile["quarter_seconds"] = 120.0
 	if not Game.profile.has("match_is_fixture"):
-		Game.profile["match_is_fixture"] = false
+		# La partita e' sempre il 5v5 completo: panchina, rotazioni e tasto
+		# CAMBIO attivi (era false: il CAMBIO apriva una panchina inesistente
+		# e crashava, perche' il selettore amichevole/ufficiale non esiste piu').
+		Game.profile["match_is_fixture"] = true
 	_build()
 
 func _opponents() -> Array:
