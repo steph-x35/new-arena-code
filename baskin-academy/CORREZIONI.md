@@ -75,7 +75,13 @@ liberi del ruolo 3 sul laterale erano già dietro la tratteggiata (194 px).
 ## Verifica
 
 CI smoke (Godot 4.3 headless: SceneSmoke, MatchTest 5v5 con IA, tutte le
-scene dei menu più la nuova RulesScene) verde, nessuno SCRIPT ERROR.
+scene dei menu più la nuova RulesScene) verde, nessuno SCRIPT ERROR. La CI
+ha fermato due regressioni prima della consegna — inferenza `:=` da Variant
+nei loop su array non tipizzati (MainMenu, RulesScene) e `draw_ellipse`
+(inesistente in Godot 4.3) — entrambe corrette nel giro di due commit. Nel
+MatchTest si vedono già i nuovi hint («Consegna dentro, 2 palleggi, esci:
+dal SETTORE LATERALE vale 3!», «Prima volta? REGOLE (in alto a destra)
+spiega tutto.») e i pivot 2T/2R in campo.
 
 ---
 
