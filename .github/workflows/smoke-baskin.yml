@@ -1,0 +1,61 @@
+name: Baskin Smoke Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'baskin-academy/**'
+      - '.github/workflows/smoke-baskin.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Godot 4.3
+        run: |
+          mkdir -p /tmp/godot
+          curl -sL https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip -o /tmp/godot/godot.zip
+          unzip -q /tmp/godot/godot.zip -d /tmp/godot/bin
+          chmod +x /tmp/godot/bin/Godot_*
+          sudo ln -s /tmp/godot/bin/Godot_* /usr/local/bin/godot
+          godot --version
+
+      - name: Script Health Check (headless smoke)
+        run: |
+          cd baskin-academy
+          godot --headless --import > /tmp/import.log 2>&1 || true
+          cat /tmp/import.log | grep -E "SCRIPT ERROR|Parse Error" && echo "!!! ERRORI DI PARSE NELL'IMPORT" || echo "Import pulito"
+          ERR=0
+          rm -f /tmp/smoke_all.log
+          # I tool di test del progetto stesso: SceneSmoke carica la MatchScene
+          # completa headless, MatchTest simula un 5v5 con IA in entrambe le
+          # squadre. Poi le scene dei menu.
+          for SC in tools/SceneSmoke.tscn tools/MatchTest.tscn src/scenes/MainMenu.tscn src/scenes/RolePicker.tscn src/scenes/KitPicker.tscn src/scenes/SettingsScene.tscn; do
+            echo "=== SMOKE: $SC ===" | tee -a /tmp/smoke_all.log
+            timeout 120 godot --headless "res://$SC" --quit-after 400 > /tmp/smoke.log 2>&1 || true
+            cat /tmp/smoke.log >> /tmp/smoke_all.log
+            if grep -E "SCRIPT ERROR|Parse Error" /tmp/smoke.log > /tmp/smoke_err.txt; then
+              echo "!!! SCRIPT ERRORS in $SC:" | tee -a /tmp/smoke_all.log
+              cat /tmp/smoke_err.txt | tee -a /tmp/smoke_all.log
+              ERR=1
+            else
+              echo "OK: $SC" | tee -a /tmp/smoke_all.log
+            fi
+          done
+          if [ "$ERR" = "1" ]; then
+            cp /tmp/smoke_all.log $GITHUB_WORKSPACE/baskin_smoke_errors.log
+            cd $GITHUB_WORKSPACE
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add baskin_smoke_errors.log
+            git commit -m "ci: baskin smoke test errors log" || true
+            git pull --rebase origin arena/01a0cac8-new-arena-code || true
+            git push origin arena/01a0cac8-new-arena-code || true
+          fi
+          exit $ERR

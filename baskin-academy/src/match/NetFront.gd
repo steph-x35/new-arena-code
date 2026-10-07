@@ -78,16 +78,19 @@ static func side_hoop_faces_away(pos: Vector2) -> bool:
 func _draw_side_basket(pos: Vector2, si: int, alpha: float) -> void:
 	var wob: float = vis.net_wobble[2 + si] if (vis != null and 2 + si < vis.net_wobble.size()) else 0.0
 	draw_side_basket(self, pos, alpha, wob, vis.t if vis != null else 0.0,
-		vis.quake_off(2 + si) if vis != null else Vector2.ZERO)
+		vis.quake_off(2 + si) if vis != null else Vector2.ZERO,
+		(vis.board_quake_off(2 + si) - vis.quake_off(2 + si)) if vis != null else Vector2.ZERO)
 
 ## UNA SOLA FONTE del canestro laterale (usata da NetFront sopra i giocatori e
 ## da CourtVisual per il disegno di base): statica su CanvasItem, cosi' le due
 ## copie non possono piu' divergere (la vecchia copia in CourtVisual disegnava
 ## la vista frontale anche sul canestro rigirato).
 static func draw_side_basket(ci: CanvasItem, pos: Vector2, alpha: float,
-		wob: float, tt: float, quake := Vector2.ZERO) -> void:
+		wob: float, tt: float, quake := Vector2.ZERO, board_off := Vector2.ZERO) -> void:
 	var f: Vector2 = CourtStage.m_project(pos, Court.COURT_H) + quake
 	var rim := Vector2(f.x, f.y - Court.SIDE_RIM_HEIGHT)
+	# bf = ancora del TABELLONE (palo + pannello): insegue il ferro in ritardo
+	var bf := f + board_off
 	var sway: float = sin(tt * 9.0) * 8.0 * wob
 	var steel := Color(0.36, 0.38, 0.42, alpha)
 	var orange := Color(0.92, 0.36, 0.10, alpha)
@@ -99,19 +102,23 @@ static func draw_side_basket(ci: CanvasItem, pos: Vector2, alpha: float,
 		# il ferro resta dietro e spunta appena sotto il bordo basso.
 		var back := Color(0.60, 0.67, 0.76, 0.80 * alpha)
 		var back2 := Color(0.45, 0.52, 0.60, 0.85 * alpha)
-		var board := Rect2(f.x - 34.0, rim.y - 40.0, 68.0, 32.0)
+		var board := Rect2(bf.x - 34.0, rim.y - 40.0, 68.0, 32.0)
+		# pannello scuro DI STACCO: il tabellone si legge anche contro il
+		# maxi-schermo luminoso dell'arena (migliora la vecchia ombra)
+		ci.draw_rect(Rect2(bf.x - 40.0, rim.y - 46.0, 80.0, 44.0),
+			Color(0.04, 0.05, 0.09, 0.40 * alpha))
 		# palo portante, dal parquet al centro del tabellone (davanti a tutto)
-		ci.draw_line(f + Vector2(0, 10), Vector2(f.x, rim.y - 24.0), steel, 9.0)
-		ci.draw_line(f + Vector2(0, 10), Vector2(f.x, rim.y - 24.0),
+		ci.draw_line(bf + Vector2(0, 10), Vector2(bf.x, rim.y - 24.0), steel, 9.0)
+		ci.draw_line(bf + Vector2(0, 10), Vector2(bf.x, rim.y - 24.0),
 			Color(0.52, 0.55, 0.60, alpha), 4.0)
 		# staffa di sostegno del ferro
-		ci.draw_line(Vector2(f.x, rim.y - 24.0), Vector2(f.x, rim.y - 6.0), steel, 6.0)
+		ci.draw_line(Vector2(bf.x, rim.y - 24.0), Vector2(bf.x, rim.y - 6.0), steel, 6.0)
 		# il RETRO del tabellone: pannello pieno, con il bordo e le viti
 		ci.draw_rect(board, back)
 		ci.draw_rect(board, back2, false, 3.0)
 		for vx in [-26.0, 26.0]:
-			ci.draw_circle(Vector2(f.x + vx, rim.y - 34.0), 2.6, back2)
-			ci.draw_circle(Vector2(f.x + vx, rim.y - 12.0), 2.6, back2)
+			ci.draw_circle(Vector2(bf.x + vx, rim.y - 34.0), 2.6, back2)
+			ci.draw_circle(Vector2(bf.x + vx, rim.y - 12.0), 2.6, back2)
 		# la retina si vede sotto il ferro, un po' accorciata (prospettiva)
 		var netb := Color(0.93, 0.94, 0.96, 0.85 * alpha)
 		for k in 6:
@@ -126,15 +133,17 @@ static func draw_side_basket(ci: CanvasItem, pos: Vector2, alpha: float,
 			Color(1.0, 0.55, 0.20, alpha), 2.0)
 		return
 	# ---- VISTA FRONTALE (il canestro dall'altra parte del campo)
-	# Il maxi-schermo dell'arena e' chiaro e sta dietro questo canestro: una
-	# ombra appena accennata dietro tabellone e retina lo fa leggere subito.
-	ci.draw_rect(Rect2(f.x - 40.0, rim.y - 46.0, 80.0, 78.0),
-		Color(0.05, 0.07, 0.12, 0.20 * alpha))
-	ci.draw_line(f + Vector2(0, 10), Vector2(f.x + lean, rim.y - 30.0), steel, 7.0)
-	ci.draw_line(Vector2(f.x + lean, rim.y - 30.0), Vector2(f.x, rim.y - 8.0), steel, 5.0)
-	ci.draw_rect(Rect2(f.x - 30.0, rim.y - 38.0, 60.0, 30.0), glass)
-	ci.draw_rect(Rect2(f.x - 30.0, rim.y - 38.0, 60.0, 30.0), Color(0.94, 0.97, 1.0, 0.9 * alpha), false, 2.0)
-	ci.draw_rect(Rect2(f.x - 11.0, rim.y - 26.0, 22.0, 14.0), orange, false, 2.5)
+	# Il maxi-schermo dell'arena e' chiaro e sta dietro questo canestro:
+	# ombra PIU' DECISA (era troppo accennata) + cornice scura attorno al
+	# vetro: il canestro laterale lontano si legge subito.
+	ci.draw_rect(Rect2(bf.x - 44.0, rim.y - 50.0, 88.0, 86.0),
+		Color(0.04, 0.05, 0.09, 0.42 * alpha))
+	ci.draw_line(bf + Vector2(0, 10), Vector2(bf.x + lean, rim.y - 30.0), steel, 7.0)
+	ci.draw_line(Vector2(bf.x + lean, rim.y - 30.0), Vector2(bf.x, rim.y - 8.0), steel, 5.0)
+	ci.draw_rect(Rect2(bf.x - 33.0, rim.y - 41.0, 66.0, 36.0), Color(0.05, 0.06, 0.10, 0.85 * alpha), false, 3.0)
+	ci.draw_rect(Rect2(bf.x - 30.0, rim.y - 38.0, 60.0, 30.0), glass)
+	ci.draw_rect(Rect2(bf.x - 30.0, rim.y - 38.0, 60.0, 30.0), Color(0.94, 0.97, 1.0, 0.9 * alpha), false, 2.0)
+	ci.draw_rect(Rect2(bf.x - 11.0, rim.y - 26.0, 22.0, 14.0), orange, false, 2.5)
 	var ring := PackedVector2Array()
 	for i in 25:
 		var a := TAU * float(i) / 24.0

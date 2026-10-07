@@ -20,6 +20,7 @@ var floor_style := "maple"
 ## Net reaction per hoop (0 = left, 1 = right), driven by Events.shot_taken.
 var net_wobble := [0.0, 0.0, 0.0, 0.0]
 var rim_shake := [0.0, 0.0, 0.0, 0.0]    # canestro che vibra (schiacciata/ferro)
+var board_shake := [0.0, 0.0, 0.0, 0.0]  # il TABELLONE insegue il ferro in ritardo
 var crowd_hype := 0.0
 var fx_kind := ""
 var fx_t := 0.0
@@ -156,11 +157,21 @@ func quake_off(idx: int) -> Vector2:
 		return Vector2.ZERO
 	return Vector2(sin(t * 37.0) * 5.0 * a, cos(t * 29.0) * 3.2 * a)
 
+## IL TABELLONE ARRIVA DOPO. La scossa parte dal ferro e attraversa la
+## struttura: il pannello insegue rim_shake con un filo di ritardo (molla
+## lenta), cosi' all'impatto si vede prima il ferro e poi il tabellone.
+func board_quake_off(idx: int) -> Vector2:
+	var i := clampi(idx, 0, 3)
+	var a: float = board_shake[i]
+	if a <= 0.0:
+		return Vector2.ZERO
+	return Vector2(sin(t * 31.0) * 5.0 * a, cos(t * 25.0) * 3.2 * a)
+
 func _process(delta: float) -> void:
 	## Only re-rasterise when something is actually animating. Redrawing 350
 	## spectators every frame tanked the sim and would burn phone battery.
 	fx_t = maxf(0.0, fx_t - delta * 1.6)
-	var live: bool = net_wobble[0] > 0.0 or net_wobble[1] > 0.0 or net_wobble[2] > 0.0 or net_wobble[3] > 0.0 or rim_shake[0] > 0.0 or rim_shake[1] > 0.0 or rim_shake[2] > 0.0 or rim_shake[3] > 0.0 or crowd_hype > 0.0 or fx_t > 0.0
+	var live: bool = net_wobble[0] > 0.0 or net_wobble[1] > 0.0 or net_wobble[2] > 0.0 or net_wobble[3] > 0.0 or rim_shake[0] > 0.0 or rim_shake[1] > 0.0 or rim_shake[2] > 0.0 or rim_shake[3] > 0.0 or board_shake[0] > 0.01 or board_shake[1] > 0.01 or board_shake[2] > 0.01 or board_shake[3] > 0.01 or crowd_hype > 0.0 or fx_t > 0.0
 	# Marquee housekeeping: live messages age out, ads rotate slowly. A change
 	# on the strip schedules one redraw through the idle path below.
 	if marquee_t > 0.0:
@@ -176,6 +187,7 @@ func _process(delta: float) -> void:
 	for i in net_wobble.size():
 		net_wobble[i] = HoopArt.decay(net_wobble[i], delta)
 		rim_shake[i] = maxf(0.0, rim_shake[i] - delta * 1.15)
+		board_shake[i] = lerpf(board_shake[i], rim_shake[i], clampf(delta * 14.0, 0.0, 1.0))
 	crowd_hype = maxf(0.0, crowd_hype - delta * 0.8)
 	flash_t = maxf(0.0, flash_t - delta)
 	if live or flash_t > 0.0:
@@ -400,8 +412,11 @@ func _draw() -> void:
 		var idx: int = 0 if s < 0.0 else 1
 		var base_dx: float = absf(baseline.x - rim_floor.x)
 		var q: Vector2 = quake_off(idx)
+		# il tabellone riceve la sua scossa in RITARDO rispetto al ferro
+		var qb: Vector2 = board_quake_off(idx)
 		HoopArt.draw_hoop_unified(self, Vector2(rim_floor.x + q.x, rim_floor.y - rim_height + q.y),
-			22.0, rim_floor.y + 6.0, -s, net_wobble[idx], t, lean, maxf(base_dx, 64.0))
+			22.0, rim_floor.y + 6.0, -s, net_wobble[idx], t, lean, maxf(base_dx, 64.0),
+			qb - q)
 	# BASKIN side baskets are drawn by NetFront, ON TOP of the players: the
 	# rim must read as being in front of the pivot standing behind it (and it
 	# fades while a body passes it).
@@ -1113,5 +1128,6 @@ func _draw_side_hoop(pos: Vector2, widx: int) -> void:
 	# disegno di base resta come delega: cosi' non puo' piu' disegnare una
 	# vista frontale su un canestro che va visto da dietro.
 	var wob: float = net_wobble[widx] if widx < net_wobble.size() else 0.0
-	NetFront.draw_side_basket(self, pos, 1.0, wob, t, quake_off(widx))
+	NetFront.draw_side_basket(self, pos, 1.0, wob, t, quake_off(widx),
+		board_quake_off(widx) - quake_off(widx))
 

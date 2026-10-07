@@ -1977,6 +1977,11 @@ func _side_near_ball() -> Vector2:
 ## l'attaccante lanciato e il difensore fermo in posizione di difesa: cosi' non
 ## fischia mai su un semplice avvicinamento. Fuori dall'arco sotto il canestro
 ## (non-sfondamento) e fuori dalle aree laterali del pivot.
+## Calibrazione 1.19: prima servivano 34px di distanza (meno del contatto
+## fisico dei corpi) e uno scatto a 195: per questo uscivano 0-2 a partita.
+## Ora il contatto e' a braccio disteso (52px), lo scatto a 170 e la
+## traiettoria leggermente piu' tollerante (0.45): restano falli rari,
+## ma nella partita IA si vedono.
 var _charge_cd := 0.0
 var charges := [0, 0]              # falli in attacco fischiati, per squadra
 
@@ -1991,7 +1996,7 @@ func _charge_check(delta: float) -> void:
 	if h.shot_charge >= 0.0 or h.ai_windup_t >= 0.0 or h.move_t > 0.0 or h.stun > 0.0:
 		return
 	var spd: float = h.velocity.length()
-	if spd < 195.0:
+	if spd < 170.0:
 		return
 	if in_side_area(h.global_position):
 		return                              # aree del pivot: contatto normale
@@ -2001,11 +2006,11 @@ func _charge_check(delta: float) -> void:
 		var dv: BallPlayer = d
 		var to: Vector2 = dv.global_position - h.global_position
 		var dist: float = to.length()
-		if dist > 34.0 or dist < 1.0:
-			continue
-		if to.normalized().dot(run) < 0.55:
+		if dist > 52.0 or dist < 1.0:
+			continue                      # contatto a braccio disteso
+		if to.normalized().dot(run) < 0.45:
 			continue                      # non e' sulla traiettoria
-		if dv.velocity.length() > 85.0:
+		if dv.velocity.length() > 95.0:
 			continue                      # si sta muovendo: non ha posizione
 		if not dv.stance:
 			continue                      # non sta difendendo: niente carica

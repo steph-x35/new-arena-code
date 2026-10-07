@@ -134,7 +134,7 @@ static func draw_hoop_front(c: CanvasItem, rim: Vector2, scale := 1.0,
 ## lies to the left, so the whole assembly mirrors correctly at each end.
 static func draw_hoop_unified(c: CanvasItem, rim: Vector2, rim_half: float,
 	floor_y: float, face: float, wobble := 0.0, phase := 0.0,
-	lean := 0.0, base_dx := 98.0) -> void:
+	lean := 0.0, base_dx := 98.0, board_off := Vector2.ZERO) -> void:
 	## Real hoop: pole plants at the CENTRE of the short baseline, then an L
 	## gooseneck bolts to the BACK of the glass. The ring sits centred on that
 	## board. The orange shooter's square is painted ON the glass, parallel to
@@ -154,13 +154,15 @@ static func draw_hoop_unified(c: CanvasItem, rim: Vector2, rim_half: float,
 	var ry: float = rim.y - bounce
 
 	# Board sits a hair behind the ring (away from court). Rim is centred on it.
-	var board_x: float = rx - face * rim_half * 0.55
+	# board_off: lo scostamento DEL SOLO TABELLONE (palo e vetro) quando
+	# insegue la scossa del ferro in ritardo — il ferro resta dove sta.
+	var board_x: float = rx - face * rim_half * 0.55 + board_off.x
 	var bh: float = rim_half * 2.55
-	var b_bottom: float = ry - rim_half * 0.18
+	var b_bottom: float = ry - rim_half * 0.18 + board_off.y
 	var b_top: float = b_bottom - bh
 
 	# Pole FOOT = centre of the short baseline (caller passes that offset).
-	var pole_x: float = rx - face * maxf(base_dx, rim_half * 2.15)
+	var pole_x: float = rx - face * maxf(base_dx, rim_half * 2.15) + board_off.x
 	var pw: float = rim_half * 0.50   # FIBA stanchion: a thick padded column
 	var elbow_y: float = b_top + bh * 0.42
 	var p_bot_x: float = pole_x + lean * (floor_y - b_bottom)

@@ -1,3 +1,41 @@
+# Baskin Academy — revisione dei sorgenti (post 1.18.0)
+
+Data: 7 ottobre 2026 • Motore: Godot 4.3 stable • Basato sui sorgenti 1.18.0
+
+## Stato della consegna
+
+Sorgenti corretti, non una nuova release Android. Il progetto ora vive in
+`baskin-academy/` nel repository di lavoro, con smoke test automatico in CI
+(workflow `smoke-baskin.yml`: import + SceneSmoke/MatchTest headless ad ogni
+push sui sorgenti).
+
+## Correzioni e migliorie
+
+1. **Falli in attacco più presenti** (`Court.gd`, `_charge_check`). La
+   soglia richiedeva 34px di distanza (meno del contatto fisico dei corpi)
+   e uno scatto a 195: per questo uscivano 0-2 fischi in 180 secondi.
+   Calibrato a contatto a braccio disteso (52px), scatto 170, traiettoria
+   0.45 e difensore tollerato fino a 95 di velocità. Restano falli rari,
+   ma nella partita IA si vedono. Cooldown invariato (2 s): niente sfilate.
+2. **Il tabellone arriva dopo il ferro** (`CourtVisual.gd`, `HoopArt.gd`,
+   `NetFront.gd`). Nuovo `board_shake` che insegue `rim_shake` come una
+   molla lenta: la scossa parte dal ferro e il pannello la riceve con un
+   filo di ritardo, come nella struttura reale. Vale per i canestri da
+   fondo e per i laterali (entrambe le viste). A riposo nessuna differenza.
+3. **Canestro laterale lontano più leggibile** (`NetFront.gd`). L'ombra di
+   stacco era troppo accennata: ora pannello scuro più esteso (alpha 0.42)
+   e cornice scura attorno al vetro, in entrambe le viste. Contro il
+   maxi-schermo dell'arena il tabellone si legge subito.
+
+## Note
+
+- Il limite dei cambi per periodo (punto aperto del LEGGIMI) resta una
+  decisione di gioco: non implementato in attesa di scelta (proposta: 3
+  cambi a quarto, come da nota).
+- Verifica: workflow CI `smoke-baskin.yml` su ogni push dei sorgenti.
+
+---
+
 # Baskin Academy — revisione dei sorgenti 1.15.0
 
 Data: 26 settembre 2026 • Motore usato: Godot 4.3 stable
