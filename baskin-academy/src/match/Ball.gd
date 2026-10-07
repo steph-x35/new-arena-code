@@ -44,6 +44,7 @@ var last_touch_team := 0
 var is_free_throw := false   # this shot counts one and skips normal possession
 var shot_hoop := Vector2.ZERO   # exact basket this shot is going at (baskin: 4 hoops)
 var shot_is_side := false
+var shot_rim_h := -1.0          # altezza del ferro di QUESTO tiro (ruolo 1 basso / 2 alto)
 var shot_value := 2             # baskin point value, set by Court.attempt_shot
 var prev_h := 0.0
 var prev_pos := Vector2.ZERO
@@ -87,6 +88,7 @@ func attach(p: Node) -> void:
 	last_touch_team = p.team
 	shot_hoop = Vector2.ZERO
 	shot_is_side = false
+	shot_rim_h = -1.0
 	shot_value = 2
 
 func detach() -> void:
@@ -114,6 +116,7 @@ func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made
 	var fT := (1.0 - exp(-k * flight_time)) / k
 	_ana_v0 = (target - from) / fT
 	var want_h: float = rim_h if rim_h > 0.0 else court.RIM_HEIGHT
+	shot_rim_h = want_h
 	_ana_vh0 = (want_h - h + (G / k) * flight_time) / fT - G / k
 	vel = _ana_v0
 	vh = _ana_vh0

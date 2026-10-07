@@ -33,7 +33,8 @@ func _draw() -> void:
 		if court != null and ball != null and _ball_dropping_through(ball, sp):
 			var hh2: float = Court.COURT_H
 			var fp: Vector2 = CourtStage.m_project(sp, hh2)
-			var rr := Vector2(fp.x, fp.y - Court.SIDE_RIM_HEIGHT)
+			var drop_rh: float = float(ball.get("shot_rim_h")) if float(ball.get("shot_rim_h")) > 0.0 else Court.SIDE_RIM_HIGH
+			var rr := Vector2(fp.x, fp.y - drop_rh)
 			HoopArt.draw_net_front(self, rr, 20.0, 7.0,
 				vis.net_wobble[2 + si] if (vis != null and 2 + si < vis.net_wobble.size()) else 0.0,
 				vis.t if vis != null else 0.0)
@@ -65,7 +66,8 @@ func _ball_dropping_through(b: Node, hoop: Vector2) -> bool:
 		return false
 	var h: float = float(b.get("h"))
 	var vh: float = float(b.get("vh"))
-	if h > Court.SIDE_RIM_HEIGHT + 40.0 or h < 0.0 or vh > 20.0:
+	var rh: float = float(b.get("shot_rim_h")) if float(b.get("shot_rim_h")) > 0.0 else Court.SIDE_RIM_HIGH
+	if h > rh + 40.0 or h < 0.0 or vh > 20.0:
 		return false
 	return b.global_position.distance_to(hoop) < 84.0
 
@@ -89,7 +91,10 @@ func _draw_side_basket(pos: Vector2, si: int, alpha: float) -> void:
 static func draw_side_basket(ci: CanvasItem, pos: Vector2, alpha: float,
 		wob: float, tt: float, quake := Vector2.ZERO, board_off := Vector2.ZERO) -> void:
 	var f: Vector2 = CourtStage.m_project(pos, Court.COURT_H) + quake
-	var rim := Vector2(f.x, f.y - Court.SIDE_RIM_HEIGHT)
+	# DOPPIO CANESTRO LATERALE (regolamento): ALTO a 2,20 m per il ruolo 2,
+	# BASSO a 1,20 m per il ruolo 1, sullo stesso palo.
+	var rim := Vector2(f.x, f.y - Court.SIDE_RIM_HIGH)
+	var rim_lo := Vector2(f.x, f.y - Court.SIDE_RIM_LOW)
 	# bf = ancora del TABELLONE (palo + pannello): insegue il ferro in ritardo
 	var bf := f + board_off
 	var sway: float = sin(tt * 9.0) * 8.0 * wob
@@ -132,6 +137,13 @@ static func draw_side_basket(ci: CanvasItem, pos: Vector2, alpha: float,
 		ci.draw_arc(Vector2(rim.x, rim.y + 1.0), 20.0, 0.0, PI, 22, orange, 5.0)
 		ci.draw_arc(Vector2(rim.x, rim.y + 1.0), 20.0, 0.12 * PI, 0.88 * PI, 20,
 			Color(1.0, 0.55, 0.20, alpha), 2.0)
+		# il canestro BASSO visto da dietro: pannello e bordo del ferro
+		var lo_b := Rect2(bf.x - 22.0, rim_lo.y - 30.0, 44.0, 24.0)
+		ci.draw_rect(Rect2(bf.x - 27.0, rim_lo.y - 35.0, 54.0, 34.0),
+			Color(0.04, 0.05, 0.09, 0.35 * alpha))
+		ci.draw_rect(lo_b, back)
+		ci.draw_rect(lo_b, back2, false, 2.5)
+		ci.draw_arc(Vector2(rim_lo.x, rim_lo.y + 1.0), 14.0, 0.0, PI, 18, orange, 4.0)
 		return
 	# ---- VISTA FRONTALE (il canestro dall'altra parte del campo)
 	# Il maxi-schermo dell'arena e' chiaro e sta dietro questo canestro:
@@ -156,3 +168,22 @@ static func draw_side_basket(ci: CanvasItem, pos: Vector2, alpha: float,
 		ci.draw_line(rim + Vector2(cos(a2) * 20.0, sin(a2) * 7.0),
 			Vector2(rim.x + sway + cos(a2) * 7.0, rim.y + 24.0), netc, 1.6)
 	ci.draw_arc(Vector2(rim.x + sway, rim.y + 24.0), 7.0, 0, TAU, 12, netc, 1.6)
+	# ---- CANESTRO LATERALE BASSO (1,20 m, ruolo 1): stesso palo, pannello
+	# piccolo piu' in basso, ferro e rete corta.
+	ci.draw_line(Vector2(bf.x, rim_lo.y - 26.0), Vector2(bf.x, rim_lo.y + 4.0), steel, 5.0)
+	ci.draw_rect(Rect2(bf.x - 27.0, rim_lo.y - 35.0, 54.0, 34.0),
+		Color(0.04, 0.05, 0.09, 0.42 * alpha))
+	ci.draw_rect(Rect2(bf.x - 22.0, rim_lo.y - 30.0, 44.0, 24.0), Color(0.05, 0.06, 0.10, 0.85 * alpha), false, 3.0)
+	ci.draw_rect(Rect2(bf.x - 20.0, rim_lo.y - 28.0, 40.0, 20.0), glass)
+	ci.draw_rect(Rect2(bf.x - 20.0, rim_lo.y - 28.0, 40.0, 20.0), Color(0.94, 0.97, 1.0, 0.9 * alpha), false, 1.8)
+	ci.draw_rect(Rect2(bf.x - 8.0, rim_lo.y - 20.0, 16.0, 10.0), orange, false, 2.0)
+	var lo_ring := PackedVector2Array()
+	for i in 18:
+		var a4 := TAU * float(i) / 17.0
+		lo_ring.append(rim_lo + Vector2(cos(a4) * 14.0, sin(a4) * 5.0))
+	ci.draw_polyline(lo_ring, orange, 3.4)
+	var net_lo := Color(0.93, 0.94, 0.96, 0.9 * alpha)
+	for k in 5:
+		var a5 := PI * float(k) / 4.0
+		ci.draw_line(rim_lo + Vector2(cos(a5) * 14.0, sin(a5) * 5.0),
+			Vector2(rim_lo.x + sway * 0.5 + cos(a5) * 5.0, rim_lo.y + 16.0), net_lo, 1.4)

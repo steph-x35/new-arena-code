@@ -487,38 +487,80 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 		c.draw_colored_polygon(_ellipse(Vector2(base.x, base.y + h * 0.04),
 			Vector2(h * 0.26 * s, h * 0.075 * s)), Color(0, 0, 0, 0.28 * s))
 
+	# RUOLO 1 IN CARROZZINA: seduto, tutto il busto scende sull'altezza
+	# del sedile (0,55 m circa) — proporzioni da sedia da baskin vera.
+	var chair: bool = bool(p.get("chair", false))
+	if chair:
+		var seat_drop: float = h * 0.16
+		hip_y += seat_drop
+		sh_y += seat_drop
+		head_y += seat_drop
+
 	# --- legs: opposite stride ONLY while walking. Standing still = planted.
 	var tuck: float = (lift / maxf(h, 1.0)) * h * 0.16 + leg_tuck
-	var stepping: bool = walking and (kind == RUN or kind == DRIBBLE)
-	for sx in [-1.0, 1.0]:
-		var gait: float = 0.0
-		if stepping:
-			gait = sin(ph) if sx < 0.0 else sin(ph + PI)
-		var hipp := Vector2(base.x + sx * hip_w * (0.55 + 0.55 * wide) + lean, hip_y)
-		var lift_leg: float = maxf(gait, 0.0) * h * 0.10
-		var knee := Vector2(hipp.x + sx * hip_w * (0.22 + 0.42 * wide) + gait * h * 0.10 * facing,
-			lerpf(hip_y, floor_y, 0.52) - tuck - lift_leg)
-		var foot := Vector2(knee.x + gait * h * 0.14 * facing,
-			floor_y - h * 0.02 - tuck * 1.2 - lift_leg * 0.55)
-		var leg_col: Color = skin
-		var gt: Dictionary = gear.get("compression", {})
-		if bool(gt.get("on", false)):
-			leg_col = _gear_col(gt, Color(0.16, 0.18, 0.26))
-		c.draw_line(hipp, knee, leg_col, lw)
-		c.draw_line(knee, foot, leg_col, lw * 0.92)
-		var gk: Dictionary = gear.get("knee_sleeve", {})
-		if bool(gk.get("on", false)) and sx == float(gk.get("side", 1)):
-			c.draw_line(hipp.lerp(knee, 0.70), knee.lerp(foot, 0.20),
-				_gear_col(gk, Color(0.35, 0.35, 0.38)), lw * 1.35)
-		var ga: Dictionary = gear.get("ankle_brace", {})
-		if bool(ga.get("on", false)) and sx == float(ga.get("side", 1)):
-			c.draw_line(knee.lerp(foot, 0.78), foot,
-				_gear_col(ga, Color(0.90, 0.90, 0.92)), lw * 1.25)
-		c.draw_rect(Rect2(foot.x - h * 0.08, foot.y - h * 0.02,
-			h * 0.16, h * 0.06), shoes)
-		# sole / toe so shoes read as sneakers, not a colour blob
-		c.draw_rect(Rect2(foot.x - h * 0.08, foot.y + h * 0.03,
-			h * 0.16, h * 0.018), shoes.lightened(0.35))
+	var stepping: bool = walking and (kind == RUN or kind == DRIBBLE) and not chair
+	if chair:
+		# CARROZZINA DA BASKIN: due ruote grandi (Ø ~0,60 m come le vere),
+		# cerchione con raggi, telaio, schienale, poggiapiedi e gambe raccolte.
+		var wcx: float = base.x + lean
+		var wr: float = h * 0.30
+		var wcy: float = floor_y - wr
+		var wheel_col := Color(0.14, 0.15, 0.19)
+		var hub_col := Color(0.32, 0.34, 0.40)
+		for sx in [-1.0, 1.0]:
+			var wc := Vector2(wcx + sx * hip_w * 0.95, wcy)
+			c.draw_arc(wc, wr, 0.0, TAU, 26, wheel_col, maxf(lw * 0.9, 3.0))
+			c.draw_arc(wc, wr * 0.62, 0.0, TAU, 20, hub_col, 2.0)
+			c.draw_line(wc + Vector2(-wr * 0.62, 0.0), wc + Vector2(wr * 0.62, 0.0), hub_col, 1.5)
+			c.draw_line(wc + Vector2(0.0, -wr * 0.62), wc + Vector2(0.0, wr * 0.62), hub_col, 1.5)
+		var seat_y: float = floor_y - h * 0.34
+		var frame_col := Color(0.38, 0.40, 0.46)
+		c.draw_line(Vector2(wcx - hip_w * 1.05, seat_y), Vector2(wcx + hip_w * 1.05, seat_y), frame_col, 3.5)
+		c.draw_line(Vector2(wcx - hip_w * 1.0, seat_y), Vector2(wcx - hip_w * 1.0, seat_y - h * 0.30), frame_col, 3.5)
+		c.draw_line(Vector2(wcx - hip_w * 1.15, seat_y - h * 0.32),
+			Vector2(wcx + hip_w * 0.55, seat_y - h * 0.32), Color(0.20, 0.22, 0.27), maxf(lw, 3.0))
+		c.draw_line(Vector2(wcx - hip_w * 0.2, seat_y), Vector2(wcx - hip_w * 0.2, floor_y - h * 0.06), frame_col, 2.5)
+		c.draw_line(Vector2(wcx - hip_w * 0.75, floor_y - h * 0.05),
+			Vector2(wcx + hip_w * 0.45, floor_y - h * 0.05), frame_col, 2.5)
+		# gambe raccolte: cosce in avanti, piedi sul poggiapiedi
+		for sx in [-1.0, 1.0]:
+			var hp2 := Vector2(base.x + sx * hip_w * 0.5 + lean, hip_y)
+			var kn2 := Vector2(hp2.x + sx * h * 0.05, hp2.y + h * 0.14)
+			var ft2 := Vector2(hp2.x + sx * h * 0.10, floor_y - h * 0.10)
+			c.draw_line(hp2, kn2, skin, lw * 0.95)
+			c.draw_line(kn2, ft2, skin, lw * 0.85)
+			c.draw_rect(Rect2(ft2.x - h * 0.07, ft2.y - h * 0.02, h * 0.14, h * 0.055), shoes)
+	else:
+		var stepping: bool = walking and (kind == RUN or kind == DRIBBLE)
+		for sx in [-1.0, 1.0]:
+			var gait: float = 0.0
+			if stepping:
+				gait = sin(ph) if sx < 0.0 else sin(ph + PI)
+			var hipp := Vector2(base.x + sx * hip_w * (0.55 + 0.55 * wide) + lean, hip_y)
+			var lift_leg: float = maxf(gait, 0.0) * h * 0.10
+			var knee := Vector2(hipp.x + sx * hip_w * (0.22 + 0.42 * wide) + gait * h * 0.10 * facing,
+				lerpf(hip_y, floor_y, 0.52) - tuck - lift_leg)
+			var foot := Vector2(knee.x + gait * h * 0.14 * facing,
+				floor_y - h * 0.02 - tuck * 1.2 - lift_leg * 0.55)
+			var leg_col: Color = skin
+			var gt: Dictionary = gear.get("compression", {})
+			if bool(gt.get("on", false)):
+				leg_col = _gear_col(gt, Color(0.16, 0.18, 0.26))
+			c.draw_line(hipp, knee, leg_col, lw)
+			c.draw_line(knee, foot, leg_col, lw * 0.92)
+			var gk: Dictionary = gear.get("knee_sleeve", {})
+			if bool(gk.get("on", false)) and sx == float(gk.get("side", 1)):
+				c.draw_line(hipp.lerp(knee, 0.70), knee.lerp(foot, 0.20),
+					_gear_col(gk, Color(0.35, 0.35, 0.38)), lw * 1.35)
+			var ga: Dictionary = gear.get("ankle_brace", {})
+			if bool(ga.get("on", false)) and sx == float(ga.get("side", 1)):
+				c.draw_line(knee.lerp(foot, 0.78), foot,
+					_gear_col(ga, Color(0.90, 0.90, 0.92)), lw * 1.25)
+			c.draw_rect(Rect2(foot.x - h * 0.08, foot.y - h * 0.02,
+				h * 0.16, h * 0.06), shoes)
+			# sole / toe so shoes read as sneakers, not a colour blob
+			c.draw_rect(Rect2(foot.x - h * 0.08, foot.y + h * 0.03,
+				h * 0.16, h * 0.018), shoes.lightened(0.35))
 	# shorts over the hips
 	c.draw_colored_polygon(PackedVector2Array([
 		Vector2(base.x - hip_w * 1.05 + lean, hip_y - h * 0.03),

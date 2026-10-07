@@ -1219,6 +1219,10 @@ func _draw() -> void:
 		# The slam drives the pose, including the turn: a spin360/reverse flips
 		# the body from the sample's `spin`, not from a flag.
 		po["dunk"] = slam
+	# RUOLO 1 = PIVOT IN CARROZZINA (regolamento baskin): la figura si
+	# disegna sulla sedia a rotelle, non in piedi.
+	if role == 1:
+		po["chair"] = true
 	if hanging:
 		po["rim_drop"] = rim_drop_v
 	if hanging and slam.is_empty():

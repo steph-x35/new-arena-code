@@ -1,3 +1,44 @@
+# Baskin Academy — upgrade EISI (post 1.18.0, terza passata)
+
+Data: 7 ottobre 2026 • Motore: Godot 4.3 stable
+
+## Doppio canestro laterale (regolamento Rev.12)
+
+Ogni lato campo ha ora DUE canestri sullo stesso palo, alle altezze
+regolamentari: **ALTO a 2,20 m** (reg. 2,00-2,20) per il tiro del **ruolo 2**,
+**BASSO a 1,20 m** (reg. 1,00-1,20) per il **ruolo 1**. Canestri tradizionali
+a 3,05 m. (`Court.SIDE_RIM_HIGH` / `SIDE_RIM_LOW`, scala 61,6 px/m.)
+
+- La palla ricorda l'altezza del ferro del PROPRIO tiro (`Ball.shot_rim_h`):
+  collisioni, canestro, rimbalzi ed effetti usano quella, non più una sola
+  altezza unica — il tiro del ruolo 1 entra nel basso, quello del ruolo 2
+  nell'alto, stessa posizione x/y.
+- `rim_height_of(hoop, role)` decide per ruolo: lancio, tiri liberi, dunk.
+- Disegno: palo unico con pannello alto (vetro + quadrato arancio + rete) e
+  pannello basso più piccolo (rete corta), in entrambe le viste (frontale e
+  da dietro), con ombra di stacco.
+
+## Punteggio del ruolo 2 corretto
+
+Prima era invertito: laterale 3 / frontale 2. Ora come da regolamento:
+**canestro laterale alto = 2 punti** (settore centrale, semplificazione
+documentata dei 5 settori), **canestro tradizionale = 3 punti**.
+
+## Ruolo 1 in carrozzina
+
+Il pivot di ruolo 1 (giocatore senza cammino) si disegna sulla **sedia a
+rotelle da baskin**: ruote grandi da ~0,60 m di diametro con cerchione e
+raggi, telaio, schienale, poggiapiedi, gambe raccolte con i piedi sul
+poggiapiedi. Tutto il busto scende all'altezza del sedile (~0,55 m), così le
+proporzioni restano coerenti con la figura in piedi. Vale per il giocatore
+utente e per l'IA.
+
+## Verifica
+
+- CI `smoke-baskin.yml`: SceneSmoke + MatchTest + scene menu, verde.
+
+---
+
 # Baskin Academy — revisione dei sorgenti (post 1.18.0, seconda passata)
 
 Data: 7 ottobre 2026 • Motore: Godot 4.3 stable • Basato sui sorgenti 1.18.0

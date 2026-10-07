@@ -27,6 +27,7 @@ var crowd_hype := 0.0
 var fx_kind := ""
 var fx_t := 0.0
 var fx_at := Vector2.ZERO
+var fx_rh := -1.0     # altezza del ferro per l'fx (canestro basso del ruolo 1)
 var _idle := 0.0
 ## v1.9: link to the match so benches/table/crowd fill follow the game state.
 var court: Node = null
@@ -131,10 +132,11 @@ func _on_shot(_quality: String, made: bool, _pts: int) -> void:
 
 ## A rim clang or a board rattle from a MISSED shot, so the basket reacts to
 ## iron the same way it reacts to a swish. `idx` is 0 (left hoop) or 1 (right).
-func rim_fx(kind: String, at: Vector2) -> void:
+func rim_fx(kind: String, at: Vector2, rh := -1.0) -> void:
 	fx_kind = kind
 	fx_t = 1.35
 	fx_at = at
+	fx_rh = rh
 	queue_redraw()
 
 func net_bump(idx: int, amt: float) -> void:
@@ -446,7 +448,7 @@ func _draw() -> void:
 func _draw_rim_fx() -> void:
 	if fx_t <= 0.0 or fx_kind == "":
 		return
-	var _fh: float = court.rim_height_of(fx_at) if (court != null and court.has_method("rim_height_of")) else rim_height
+	var _fh: float = fx_rh if fx_rh > 0.0 else (court.rim_height_of(fx_at) if (court != null and court.has_method("rim_height_of")) else rim_height)
 	var p: Vector2 = _p(fx_at) + Vector2(0.0, -_fh)
 	var a: float = fx_t
 	match fx_kind:
@@ -1140,7 +1142,7 @@ func side_hoop_layout(pos: Vector2, widx: int) -> Dictionary:
 	# Geometry of a baskin side basket, shared with NetFront (which paints it
 	# in front of the players). Returns the projected foot + rim centres.
 	var f: Vector2 = _p(pos)
-	var rim := Vector2(f.x, f.y - Court.SIDE_RIM_HEIGHT)
+	var rim := Vector2(f.x, f.y - Court.SIDE_RIM_HIGH)
 	return {"foot": f, "rim": rim, "wob": net_wobble[widx] if widx < net_wobble.size() else 0.0, "t": t}
 
 func _draw_side_hoop(pos: Vector2, widx: int) -> void:

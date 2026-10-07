@@ -22,7 +22,8 @@ const FIBA_CENTRE_R := 112.0     # 1.8 m centre circle
 ## FIBA three-point distance in feet (NBA is 23.75). Defined in ShotSystem,
 ## which is node-free and unit-testable; re-exported here for convenience.
 const THREE_FT := ShotSystem.THREE_FT
-const SIDE_RIM_HEIGHT := 94.0   # baskin side baskets hang lower
+const SIDE_RIM_HIGH := 136.0    # canestro laterale ALTO: 2,20 m (reg. 2,00-2,20) — ruolo 2
+const SIDE_RIM_LOW := 74.0     # canestro laterale BASSO: 1,20 m (reg. 1,00-1,20) — ruolo 1
 const SIDE_AREA_R := 150.0        # side-area radius on the sideline
 const SIDE_AREA_BAND := 46.0      # 2R variant: shoots from a smaller area
 const SIDE_INBOUND_MARKS := 100.0  # restart 2 m beyond the small side area (fig. 2)
@@ -510,7 +511,8 @@ func try_grab(p: BallPlayer) -> bool:
 	# descending shot at the rim used to eat made baskets outright.
 	if ball.shot_result_pending:
 		var near_hoop: Vector2 = nearest_hoop(ball.global_position)
-		if ball.h > rim_height_of(near_hoop) - 45.0:
+		var pick_rh: float = ball.shot_rim_h if ball.shot_rim_h > 0.0 else rim_height_of(near_hoop)
+		if ball.h > pick_rh - 45.0:
 			return false
 		if ball.global_position.distance_to(near_hoop) < 58.0:
 			return false
@@ -1094,7 +1096,7 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 	ball.shot_hoop = hoop
 	ball.shot_is_side = is_side_hoop(hoop)
 	ball.shot_value = bpts
-	ball.shoot(shooter.global_position + Vector2(0, -50), aim, 480.0, flight, res["made"], shooter, rim_height_of(hoop))
+	ball.shoot(shooter.global_position + Vector2(0, -50), aim, 480.0, flight, res["made"], shooter, rim_height_of(hoop, shooter.role))
 	ball.last_touch_team = shooter.team
 
 	if shooter.is_user:
@@ -1208,7 +1210,7 @@ func _try_inflight_block() -> void:
 		_net_bump(hoop_index_of(nearest_hoop(bp)), 0.4)
 		return
 
-func _rim_fx(kind: String, at: Vector2) -> void:
+func _rim_fx(kind: String, at: Vector2, rh := -1.0) -> void:
 	var parent := get_parent()
 	if parent == null:
 		return
@@ -1248,7 +1250,7 @@ func check_ball_collisions(b: Ball) -> void:
 		if _dd < _bd:
 			_bd = _dd
 			hoop = _h
-	var _rim_h: float = rim_height_of(hoop)
+	var _rim_h: float = b.shot_rim_h if b.shot_rim_h > 0.0 else rim_height_of(hoop)
 	var _hidx: int = hoop_index_of(hoop)
 	# backboard: vertical plane just behind the rim
 	var board_x: float = hoop.x + (-42.0 if hoop.x < 0 else 42.0)
@@ -1292,7 +1294,7 @@ func check_ball_collisions(b: Ball) -> void:
 				b.vel = rn * randf_range(30.0, 60.0) + Vector2(randf_range(-35, 35), randf_range(-35, 35))
 				Sfx.play("rim", -0.5, randf_range(0.95, 1.08))
 				Events.shake.emit(0.60)
-				_rim_fx("rattle", hoop)
+				_rim_fx("rattle", hoop, _rim_h)
 				_net_bump(_hidx, 0.9)
 				_rim_quake(_hidx, 0.75)
 				return
@@ -1310,7 +1312,7 @@ func check_ball_collisions(b: Ball) -> void:
 			Events.shake.emit(0.32)
 			_net_bump(_hidx, 0.85)
 			_rim_quake(_hidx, 0.45)
-			_rim_fx("iron", hoop)
+			_rim_fx("iron", hoop, _rim_h)
 			Sfx.ooh()
 			return
 	# Brushing the net below the ring still moves it.
@@ -1443,7 +1445,7 @@ func _score_basket(b: Ball) -> void:
 		Sfx.cheer(false)
 		Events.popup.emit("+1", hoop, Color(0.7, 1.0, 0.75), false)
 		_net_bump(hoop_index_of(hoop), 1.0)
-		_rim_fx("swish", hoop)
+		_rim_fx("swish", hoop, b.shot_rim_h if b.shot_rim_h > 0.0 else -1.0)
 		_rim_quake(hoop_index_of(hoop), 0.55)
 		b.is_free_throw = false
 		_on_ft_result(true)
@@ -1482,9 +1484,9 @@ func _score_basket(b: Ball) -> void:
 	# Drop THROUGH the net like the street court, then inbound.
 	b.dunk_drop = 1.0
 	b.global_position = hoop
-	b.h = rim_height_of(hoop) + 8.0
+	b.h = rim_height_of(hoop, p.role) + 8.0
 	_net_bump(hoop_index_of(hoop), 1.0)
-	_rim_fx("swish", hoop)
+	_rim_fx("swish", hoop, rim_height_of(hoop, p.role))
 	_rim_quake(hoop_index_of(hoop), 0.55)
 	await get_tree().create_timer(0.55).timeout
 	if not is_instance_valid(self) or finished:
@@ -2120,7 +2122,7 @@ func _ft_shoot(err: float) -> void:
 	var hoop: Vector2 = side_hoops[ft_shooter.team] if ft_side else hoop_for(ft_shooter.team)
 	Sfx.play("shot_release", -8.0)
 	ball.shoot(ft_shooter.global_position + Vector2(0, -50), hoop, 400.0, 0.75, made, ft_shooter,
-		rim_height_of(hoop))
+		rim_height_of(hoop, ft_shooter.role))
 	# Flag AFTER shoot(): shoot() resets the flag to false for every launch.
 	ball.is_free_throw = true
 	ball.shot_hoop = hoop
@@ -2283,8 +2285,12 @@ func hoop_for(team: int) -> Vector2:
 func is_side_hoop(h: Vector2) -> bool:
 	return absf(h.y) > COURT_H * 0.25
 
-func rim_height_of(h: Vector2) -> float:
-	return SIDE_RIM_HEIGHT if is_side_hoop(h) else RIM_HEIGHT
+func rim_height_of(h: Vector2, role := 0) -> float:
+	# DOPPIO CANESTRO LATERALE (regolamento): il ruolo 1 tira in quello BASSO
+	# (1,20 m), il ruolo 2 in quello ALTO (2,20 m). Gli altri: 3,05 m.
+	if is_side_hoop(h):
+		return SIDE_RIM_LOW if role == 1 else SIDE_RIM_HIGH
+	return RIM_HEIGHT
 
 func hoop_index_of(h: Vector2) -> int:
 	if is_side_hoop(h):
@@ -2402,7 +2408,9 @@ func _baskin_points(s: BallPlayer, hoop: Vector2) -> int:
 		1:
 			return 3 if s.pivot_attempts <= 1 else 2
 		2:
-			return 3 if side else 2
+			# Regolamento: canestro laterale alto = 2 (settore centrale),
+			# canestro tradizionale = 3. Prima era invertito.
+			return 2 if side else 3
 		3:
 			if side:
 				return 2
