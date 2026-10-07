@@ -185,7 +185,7 @@ jobs:
           unzip -l "$APK" | grep -i mipmap | head -n 6
           ls -lh "$APK"
 
-      - name: Debug: pubblica i log sul branch
+      - name: Debug - pubblica i log sul branch
         if: failure()
         run: |
           cd "$GITHUB_WORKSPACE"
