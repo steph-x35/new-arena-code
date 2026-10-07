@@ -1484,9 +1484,9 @@ func _score_basket(b: Ball) -> void:
 	# Drop THROUGH the net like the street court, then inbound.
 	b.dunk_drop = 1.0
 	b.global_position = hoop
-	b.h = rim_height_of(hoop, p.role) + 8.0
+	b.h = rim_height_of(hoop, shooter.role) + 8.0
 	_net_bump(hoop_index_of(hoop), 1.0)
-	_rim_fx("swish", hoop, rim_height_of(hoop, p.role))
+	_rim_fx("swish", hoop, rim_height_of(hoop, shooter.role))
 	_rim_quake(hoop_index_of(hoop), 0.55)
 	await get_tree().create_timer(0.55).timeout
 	if not is_instance_valid(self) or finished:
