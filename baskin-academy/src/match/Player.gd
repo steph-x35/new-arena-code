@@ -88,6 +88,13 @@ var dunk_held := false         # true while the dunk button is held
 var hang_saw_hold := false     # saw the button held AFTER we grabbed the rim
 var dunk_charge := 0.0
 var shot_anim := 0.0           # follow-through timer after a released shot
+# --- la casistica di Hoop City (v1.19.2): post up, fadeaway, eurostep, stepback 3
+var posting := false              # POST UP: spalle al canestro, gioca col dorso
+var fade_t := 0.0                 # animazione FADEAWAY: schienata indietro
+var euro_t := 0.0                 # EUROSTEP a due tempi: 1 laterale, 2 verso il ferro
+var euro_finish := false          # al secondo tempo: chiude a schiacciata o layup
+var stepback_t := 0.0             # finestra STEPBACK (tiro creando spazio)
+var combo_pullup := false         # combo TRICK->TIRA entro mezzo secondo
 var fake_t := 0.0              # pump-fake timer
 var fake_locked := false       # finta in partita = palla raccolta al petto
 var travel_warn := 0.0         # input di corsa sostenuto mentre fake_locked
@@ -293,6 +300,8 @@ func _physics_process(delta: float) -> void:
 	if wish.length() > 1.0: wish = wish.normalized()
 
 	var target := wish * max_speed()
+	if posting:
+		target *= 0.6   # back-down: spingi il difensore col peso, si va piano
 	var a := accel_rate()
 	# hard direction changes cost more: this is what creates real momentum/inertia
 	if wish.length() > 0.1 and velocity.length() > 30.0:
@@ -364,6 +373,41 @@ func _physics_process(delta: float) -> void:
 			do_shot_release()
 	_update_ai_windup(delta)
 	shot_anim = maxf(0.0, shot_anim - delta)
+	fade_t = maxf(0.0, fade_t - delta)
+	stepback_t = maxf(0.0, stepback_t - delta)
+	# EUROSTEP: il SECONDO TEMPO parte a meta' mossa (0.30s) e il finish
+	# scatta a fine sequenza SE hai ancora la palla (portato da Hoop City).
+	if euro_t > 0.0:
+		var was_second: bool = euro_t > 0.30
+		euro_t = maxf(0.0, euro_t - delta)
+		if was_second and euro_t <= 0.30 and court != null:
+			var hd: Vector2 = (court.attack_hoop_for(self) - global_position).normalized()
+			velocity += hd * 250.0
+			Sfx.squeak()
+		if euro_t <= 0.0 and euro_finish:
+			euro_finish = false
+			# BASKIN: la chiusura automatica vale solo per chi puo' tirare in
+			# movimento (ruolo 5): per gli altri la regola fischierebbe.
+			if has_ball and court != null and shot_charge < 0.0 \
+			and (role >= 5 or court.one_on_one):
+				var dft2: float = court.px_to_ft(global_position.distance_to(court.attack_hoop_for(self)))
+				if dft2 < 9.0 and can_dunk():
+					do_dunk()
+				elif has_ball:
+					court.attempt_shot(self, randf_range(0.0, 0.55))
+					shot_anim = FOLLOW_U
+	# POST UP: mentre sei di spalle al canestro il facing resta SUL FERRO
+	# (spalle), qualunque direzione di stick; senza palla o troppo lontano
+	# la post svanisce da sola.
+	if posting and has_ball and court != null and stun <= 0.0:
+		var post_h: Vector2 = court.attack_hoop_for(self)
+		var post_hx: float = post_h.x - global_position.x
+		if absf(post_hx) > 1.0:
+			facing = -signf(post_hx)
+		if court.px_to_ft(global_position.distance_to(post_h)) > 16.0:
+			posting = false
+	elif posting and not has_ball:
+		posting = false   # senza palla non esiste post up
 	queue_redraw()
 
 func _update_ai_windup(delta: float) -> void:
@@ -716,7 +760,15 @@ func do_shot_release() -> void:
 		var w: Dictionary = ShotSystem.shot_windows(ft,
 			court != null and court.user_heat)
 		err *= ShotSystem.PERFECT_WINDOW / maxf(float(w["perfect"]), 0.001)
+	# FADEAWAY (da Hoop City): rilascio andando VIA dal ferro (post hop o
+	# stick indietro): l'animazione della schienata parte col follow-through.
+	if court != null:
+		var fade_hd: Vector2 = court.attack_hoop_for(self) - global_position
+		if fade_hd.length() > 40.0 and (velocity.dot(fade_hd.normalized()) < -60.0 \
+				or (is_user and move_input.dot(fade_hd.normalized()) < -0.45)):
+			fade_t = 0.75
 	Sfx.play("shot_release", -7.0, randf_range(0.96, 1.05))
+	posting = false   # il tiro (fade compreso) chiude sempre la post
 	court.attempt_shot(self, err)
 	shot_charge = -1.0
 	# Play the same follow-through as the solo court: a short rise, the arm
@@ -793,6 +845,7 @@ func do_move(kind: String) -> bool:
 			velocity *= 0.70
 			hand_side = -hand_side
 		"stepback":
+			stepback_t = 0.9   # apri la finestra dello STEPBACK (tiro nello spazio creato)
 			# Same hop as the street court: plant and jump BACK from the rim.
 			var away := Vector2(-facing, 0.0)
 			if court != null:
@@ -804,6 +857,34 @@ func do_move(kind: String) -> bool:
 			global_position += away * 28.0
 		"hesi":
 			velocity *= 0.25
+		"euro":
+			# EUROSTEP A DUE TEMPI (da Hoop City): primo tempo scatto laterale
+			# attorno al difensore, secondo tempo (a 0.30s) esplosione verso
+			# il ferro, poi chiusura automatica a schiacciata o layup.
+			var hoop_dir: Vector2 = Vector2.ZERO
+			if court != null:
+				hoop_dir = (court.attack_hoop_for(self) - global_position).normalized()
+			var side_dir: Vector2 = Vector2(-hoop_dir.y, hoop_dir.x)
+			if side_dir.dot(Vector2(facing, 0)) < 0.0:
+				side_dir = -side_dir
+			velocity += side_dir * 300.0 + hoop_dir * 70.0
+			hand_side = -hand_side
+			euro_t = 0.52
+			euro_finish = true
+		"dropstep":
+			# POST MOVE (da Hoop City): scatto attorno al difensore verso il
+			# ferro, cambio mano e via. Il drop step e' l'USCITA dal post.
+			var hr: Vector2 = Vector2.ZERO
+			if court != null:
+				hr = (court.attack_hoop_for(self) - global_position).normalized()
+			var sd: Vector2 = Vector2(-hr.y, hr.x)
+			if sd.dot(Vector2(facing, 0)) < 0.0:
+				sd = -sd
+			velocity += sd * 290.0 + hr * 120.0
+			hand_side = -hand_side
+			posting = false
+			if absf(hr.x) > 0.2:
+				facing = signf(hr.x)
 		"between":
 			# TRA LE GAMBE: la palla passa sotto, il corpo si abbassa,
 			# la mano cambia lato senza cambiare direzione.
@@ -1204,6 +1285,8 @@ func _draw() -> void:
 	# Inclinazione del corpo: in accelerazione si va "in avanti", in frenata
 	# indietro. E' una frazione dell'altezza disegnata.
 	po["lean_f"] = lean_frac()
+	if fade_t > 0.0:
+		po["lean_back"] = clampf(fade_t / 0.75, 0.0, 1.0)
 	# In scivolata difensiva il corpo pende dalla parte verso cui scivola, e il
 	# rimbalzo si prende con TUTTE E DUE le mani.
 	po["shot_arm"] = float(sp["arm"])

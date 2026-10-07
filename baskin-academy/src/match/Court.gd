@@ -88,6 +88,7 @@ var total_makes := 0
 # l'IA non prende bonus nascosti (GAMEPLAY-IA).
 var user_heat := false
 var user_streak := 0
+var _clutch_slowmo := false      # bullet-time sul tiro decisivo (da Hoop City)
 var countdown_hold := 0.0          # bounded presentation pause; never disables recovery forever
 var _dead_time := 0.0               # watchdog accumulator, see _deadball_watchdog
 var _ghost_t := 0.0                 # ghost-holder accumulator (ball in nobody's hands)
@@ -460,6 +461,9 @@ func _run_jump_ball() -> void:
 		back.tween_callback(func(): ref.tossing = false)
 
 func _reset_possession(full := false) -> void:
+	if _clutch_slowmo:
+		_clutch_slowmo = false
+		Engine.time_scale = 1.0
 	shot_clock = 24.0
 	var team_players := players.filter(func(p): return p.team == possession)
 	# The ball never teleports to a pivot: only a role 3-5 can carry it.
@@ -918,6 +922,9 @@ func _close_quarter_book() -> void:
 	_end_run()
 
 func _end_quarter() -> void:
+	if _clutch_slowmo:
+		_clutch_slowmo = false
+		Engine.time_scale = 1.0
 	_inbound_epoch += 1
 	_inbound_preparing = false
 	_inbound_requested = false
@@ -972,6 +979,9 @@ func _end_quarter() -> void:
 	Events.toast.emit("T%d" % quarter)
 
 func _finish() -> void:
+	if _clutch_slowmo:
+		_clutch_slowmo = false
+		Engine.time_scale = 1.0
 	_inbound_epoch += 1
 	_inbound_preparing = false
 	_inbound_requested = false
@@ -1046,8 +1056,55 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 		call_foul(fouler, shooter, 3 if dist_ft > THREE_FT else 2)
 		return
 
+	# FADE / REVERSE / HOOK / STEPBACK / FLOATER / PULL-UP: la famiglia dei
+	# tiri "scolpiti" di Hoop City. In tutti il contest pesa meno (ti separi
+	# dal difensore) ma il timing peggiora. Il popup dice QUALE tiro stai
+	# giocando, cosi' il giocatore capisce perche' e' piu' difficile.
+	var hoop_dir: Vector2 = hoop - shooter.global_position
+	var _floater_shot := false
+	var going_away: bool = shooter.velocity.dot(hoop_dir.normalized()) < -60.0
+	var back_to: bool = signf(float(shooter.facing)) != signf(hoop_dir.x) \
+		and absf(hoop_dir.x) > 1.0   # spalle al canestro
+	if going_away and dist_ft < 8.0 and not shooter.posting:
+		contest *= 0.55
+		timing_err *= 1.20
+		Events.popup.emit("REVERSE", shooter.global_position, Color(0.8, 0.9, 1.0), true)
+	elif back_to and dist_ft < (9.0 if shooter.posting else 12.0):
+		# HOOK: archi la palla SOPRA il difensore: quasi zero contest,
+		# ma il timing diventa molto piu' severo. Da POST la finestra e'
+		# piu' corta (9ft): oltre, il post gioca FADEAWAY.
+		contest *= 0.45
+		timing_err *= 1.30
+		Events.popup.emit("HOOK", shooter.global_position, Color(1.0, 0.9, 0.6), true)
+	elif shooter.stepback_t > 0.0 and going_away \
+	and (dist_ft > THREE_FT or is_side_hoop(hoop)):
+		# STEPBACK: spaziati con lo stepback e tira nello spazio creato
+		# entro 0.9s: molto spazio (contest basso) ma timing difficile.
+		contest *= 0.75
+		timing_err *= 1.25
+		Events.popup.emit("STEPBACK", shooter.global_position, Color(1.0, 0.65, 0.35), true)
+	elif hoop_dir.length() > 40.0 and shooter.velocity.dot(hoop_dir.normalized()) > 120.0 \
+	and dist_ft > 6.0 and dist_ft < 16.0 and _nearest_defender_dist(shooter) < 90.0:
+		# FLOATER: in corsa al ferro con un difensore addosso (6-16ft) la
+		# palla va SOPRA: arco alto, quasi zero contest, difficile da stoppare.
+		contest *= 0.5
+		timing_err *= 1.15
+		_floater_shot = true
+		Events.popup.emit("FLOATER", shooter.global_position, Color(0.75, 0.90, 1.0), true)
+	elif going_away:
+		contest *= 0.62
+		timing_err *= 1.15
+		Events.popup.emit("FADEAWAY", shooter.global_position, Color(0.72, 0.93, 0.72), true)
+	elif shooter.combo_pullup:
+		# COMBO PULL-UP (TRICK -> TIRA entro mezzo secondo): tiro in
+		# slancio, si vede il popup, timing un filo piu' severo.
+		timing_err *= 1.10
+		Events.popup.emit("PULL-UP", shooter.global_position, Color(0.65, 0.85, 1.0), true)
+	shooter.combo_pullup = false   # la combo vive per un tiro solo
+
 	var res := ShotSystem.resolve({
 		"dist_ft": dist_ft, "contest": contest, "timing_err": timing_err,
+		"diff": int(Settings.get_v("difficulty", 1)),
 		"stamina01": shooter.stamina01(), "momentum": momentum if shooter.team == 0 else -momentum,
 		"a_close": shooter.ratings["close"], "a_mid": shooter.ratings["mid"], "a_three": shooter.ratings["three"],
 		"badges": shooter.badges, "open_catch": open_catch,
@@ -1082,6 +1139,8 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 
 	# flight: longer shots hang longer -> readable arcs
 	var flight: float = clampf(0.55 + dist_ft * 0.022, 0.55, 1.25)
+	if _floater_shot:
+		flight = minf(flight + 0.18, 1.4)
 	var aim := hoop
 	if not res["made"]:
 		# A miss physically misses, and HOW it misses matches the timing on
@@ -1118,6 +1177,17 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 	ball.shoot(shooter.global_position + Vector2(0, -50), aim, 480.0, flight, res["made"], shooter, rim_height_of(hoop, shooter.role))
 	ball.last_touch_team = shooter.team
 
+	# Bullet-time / Slow-mo (da Hoop City): al buzzer o su un tiro clutch
+	# decisivo nei finali il tempo si ferma per mezzo respiro.
+	var is_clutch_shot: bool = play_live and not one_on_one \
+	and (game_clock <= 2.8 or shot_clock <= 1.2 \
+	or (quarter >= QUARTERS and absf(score[0] - score[1]) <= 3 and game_clock <= 6.0))
+	if is_clutch_shot and Engine.time_scale <= 1.05:
+		_clutch_slowmo = true
+		Engine.time_scale = 0.45
+		Events.popup.emit("CLUTCH!", shooter.global_position + Vector2(0, -70),
+			Color(1.0, 0.85, 0.2), true)
+
 	if shooter.is_user:
 		box["fga"] += 1
 		if bpts == 3: box["tpa"] += 1
@@ -1144,6 +1214,15 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 		if shooter.role <= 2 and is_side_hoop(hoop) and not one_on_one:
 			_open_pivot_rebound(shooter)
 	shot_clock = maxf(shot_clock, 2.0)
+
+func _nearest_defender_dist(shooter: BallPlayer) -> float:
+	var best := 99999.0
+	for d in players:
+		if d.team == shooter.team:
+			continue
+		var dd: float = d.global_position.distance_to(shooter.global_position)
+		best = minf(best, dd)
+	return best
 
 ## A defender closing out on a shooter can commit a shooting foul. Rare at
 ## low contest, more likely when he is right in the shooter's landing space.

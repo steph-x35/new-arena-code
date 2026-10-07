@@ -1,3 +1,48 @@
+# Baskin Academy — palleggio, difesa ed effetti di tiro da Hoop City (v1.19.2)
+
+Data: 7 ottobre 2026 • Motore: Godot 4.3 stable
+
+Portato da Hoop City tutto cioe' che in baskin mancava (la difesa era gia'
+alla pari: steal/block/guard identici).
+
+## Palleggio: due mosse nuove + post up
+
+- **EUROSTEP** (TRICK con stick avanti): due tempi — scatto laterale attorno
+  al difensore, poi esplosione verso il ferro e chiusura automatica a
+  schiacciata o layup. La chiusura automatica vale solo per il ruolo 5
+  (gli altri ruoli verrebbero fischiati dalle regole baskin: loro fanno
+  solo i due tempi).
+- **POST UP** (nuovo bottone POST): spalle al canestro, back-down lento;
+  da li' TIRA gioca la famiglia fade/hook e TRICK fa il **DROP STEP**
+  (l'uscita verso il ferro). Secondo tap sul POST per uscire.
+- Lo **stepback** ora apre una finestra di 0,9s: il tiro creato in quello
+  spazio e' riconosciuto (popup STEPBACK, piu' spazio, timing piu' severo).
+
+## Effetti di tiro: la famiglia dei tiri "scolpiti"
+
+Ogni tiro ora viene RICONOSCIUTO e mostrato a popup, con il suo vero
+compromesso (meno contest, timing piu' severo):
+
+- **REVERSE** (andando via da sotto il ferro), **HOOK** (spalle al canestro,
+  la palla archiata sopra il difensore; da post entro 9ft), **STEPBACK**
+  (tirando nello spazio creato), **FLOATER** (in corsa col difensore addosso,
+  6-16ft, arco alto +0,18s), **FADEAWAY** (rilascio in arretramento, con la
+  schienata disegnata sul torso), **PULL-UP** (combo TRICK->TIRA entro
+  mezzo secondo).
+- **CLUTCH bullet-time**: al buzzer o sul tiro decisivo dell'ultimo minuto
+  il tempo rallenta a 0,45 per mezzo respiro (popup CLUTCH!). Ripristino
+  del tempo su cambio possesso, fine tempo e fine partita.
+- **Difficolta'** ora pesa sui tiri (come in Hoop City): a difficolta' alta
+  il canestro e' protetto (sotto il ferro si regala meno, il contest pesa
+  fino al doppio). Vale per TUTTI i tiratori: e' il livello di gioco, non
+  un bonus nascosto all'IA.
+
+## Verifica
+
+CI smoke (SceneSmoke, MatchTest 5v5 IA, tutte le scene menu) verde.
+
+---
+
 # Baskin Academy — playtest v1.19.0: correzioni (v1.19.1)
 
 Data: 7 ottobre 2026 • Motore: Godot 4.3 stable

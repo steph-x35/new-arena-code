@@ -70,6 +70,10 @@ static func resolve(p: Dictionary) -> Dictionary:
 	#                a_close, a_mid, a_three, badges (Array), open_catch (bool), moving (bool)
 	var t := timing_from_error(float(p.get("timing_err", 0.0)))
 	var rating := rating_for_distance(p.a_close, p.a_mid, p.a_three, p.dist_ft)
+	# Difficolta' alta (da Hoop City): canestro protetto — meno regalo sotto
+	# il ferro e il contest pesa di piu'. Vale per TUTTI i tiri (utente e IA):
+	# e' il livello di gioco, non un bonus nascosto.
+	var d01: float = clampf(float(p.get("diff", 1)) / 3.0, 0.0, 1.0)
 
 	# 1) base make% from rating, anchored to real shot-type expectations.
 	#    Rim shots are high-percentage for everyone; jumpers depend far more on skill.
@@ -81,6 +85,8 @@ static func resolve(p: Dictionary) -> Dictionary:
 		floor_p = 0.36; ceil_p = 0.66
 	else:
 		floor_p = 0.28; ceil_p = 0.60        # NBA-ish: elite open 3 lands near 45-50%
+	floor_p *= lerpf(1.0, 0.82, d01)
+	ceil_p *= lerpf(1.0, 0.88, d01)
 	var base := lerpf(floor_p, ceil_p, clampf((rating - 35.0) / 60.0, 0.0, 1.0))
 
 	# 2) distance penalty on top of the rating curve. Quadratic past the arc so
@@ -96,6 +102,8 @@ static func resolve(p: Dictionary) -> Dictionary:
 
 	# 3) contest: a hand in the face is the single biggest factor
 	var contest_pen: float = float(p.get("contest", 0.0)) * lerpf(0.42, 0.22, clampf((rating - 40.0) / 55.0, 0.0, 1.0))
+	# A difficolta' alta la mano in faccia pesa il doppio del solito.
+	contest_pen *= lerpf(0.9, 1.45, d01)
 
 	# 4) fatigue
 	var fatigue_pen := (1.0 - clampf(float(p.get("stamina01", 1.0)), 0.0, 1.0)) * 0.20

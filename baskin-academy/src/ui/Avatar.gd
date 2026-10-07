@@ -429,6 +429,11 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 		lift = 0.0
 		crouch = h * 0.02
 
+	# FADEAWAY (da Hoop City): schienata indietro durante il rilascio (post
+	# fade o rilascio in arretramento). lean_back 0..1 -> arco sul torso.
+	if p.has("lean_back"):
+		lean = -facing * float(p.get("lean_back", 0.0)) * h * 0.30
+
 	# --- dribble-move body language: the arms pump and the body shifts the
 	#     way the move actually feels (stepback leans away, behind-the-back
 	#     drops low, the hand switches whip the arms across).
