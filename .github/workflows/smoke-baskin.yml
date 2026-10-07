@@ -57,5 +57,16 @@ jobs:
             git commit -m "ci: baskin smoke test errors log" || true
             git pull --rebase origin arena/01a0cac8-new-arena-code || true
             git push origin arena/01a0cac8-new-arena-code || true
+          else
+            # run pulito: rimuove un eventuale log di errori rimasto da run falliti
+            if [ -f "$GITHUB_WORKSPACE/baskin_smoke_errors.log" ]; then
+              cd $GITHUB_WORKSPACE
+              git rm -q baskin_smoke_errors.log || true
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+              git commit -m "ci: baskin smoke pulito — rimuovo log errori" || true
+              git pull --rebase origin arena/01a0cac8-new-arena-code || true
+              git push origin arena/01a0cac8-new-arena-code || true
+            fi
           fi
           exit $ERR
