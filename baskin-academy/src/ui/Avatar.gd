@@ -531,7 +531,6 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			c.draw_line(kn2, ft2, skin, lw * 0.85)
 			c.draw_rect(Rect2(ft2.x - h * 0.07, ft2.y - h * 0.02, h * 0.14, h * 0.055), shoes)
 	else:
-		var stepping: bool = walking and (kind == RUN or kind == DRIBBLE)
 		for sx in [-1.0, 1.0]:
 			var gait: float = 0.0
 			if stepping:
