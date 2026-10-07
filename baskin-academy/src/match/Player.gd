@@ -1092,6 +1092,7 @@ func _draw() -> void:
 	var air_draw := air
 	# Dunk pose, sampled from the shared catalogue. Empty for everything else.
 	var slam: Dictionary = {}
+	var rim_drop_v := 0.0
 	var sp: Dictionary = shot_pose_vals()
 	if fake_t > 0.0:
 		kind = Avatar.SHOOT
@@ -1113,6 +1114,12 @@ func _draw() -> void:
 		# DunkStyle.REACH the pose and the ball carry are built from.
 		air_draw = maxf(court.RIM_HEIGHT - h * DunkStyle.REACH, 0.0)
 		slam = DunkStyle.sample(dunk_style, 1.0)
+		# APPESO COME IN HOOP CITY LIFE: il corpo sta PIU' BASSO (le spalle
+		# sotto il bordo, la testa fuori dal canestro) e la mano dello slam
+		# risale al LABBRO PIEGATO mentre il ferro cede sotto il peso.
+		var bend_now: float = clampf(hang_t * 4.0, 0.0, 1.0)
+		rim_drop_v = 12.0 * bend_now - 34.0
+		air_draw = maxf(air_draw - 34.0, 40.0)
 	elif dunking:
 		kind = Avatar.DUNK
 		amount = clampf(dunk_t, 0.0, 1.0)
@@ -1212,6 +1219,8 @@ func _draw() -> void:
 		# The slam drives the pose, including the turn: a spin360/reverse flips
 		# the body from the sample's `spin`, not from a flag.
 		po["dunk"] = slam
+	if hanging:
+		po["rim_drop"] = rim_drop_v
 	if hanging and slam.is_empty():
 		po["hang"] = true
 		if hang_off.y < -12.0:
@@ -1226,6 +1235,9 @@ func _draw() -> void:
 	# Hang: slightly bigger figure + a long shadow on the floor so he reads
 	# as dangling in front of the glass, not standing on it.
 	var feet := Vector2(0, -air_draw)
+	if hanging:
+		# appeso: oscillazione dx/sx (pendolo attorno al ferro)
+		feet.x = sin(Time.get_ticks_msec() * 0.003) * 12.0
 	if wheelchair:
 		feet = Vector2(0, -15.0 - air_draw)   # up on the footrest, not on the floor
 	# OMBRA REALE (richiesta utente): durante la schiacciata sta A TERRA,

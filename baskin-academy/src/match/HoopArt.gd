@@ -134,7 +134,8 @@ static func draw_hoop_front(c: CanvasItem, rim: Vector2, scale := 1.0,
 ## lies to the left, so the whole assembly mirrors correctly at each end.
 static func draw_hoop_unified(c: CanvasItem, rim: Vector2, rim_half: float,
 	floor_y: float, face: float, wobble := 0.0, phase := 0.0,
-	lean := 0.0, base_dx := 98.0, board_off := Vector2.ZERO) -> void:
+	lean := 0.0, base_dx := 98.0, board_off := Vector2.ZERO,
+	rim_bend := 0.0) -> void:
 	## Real hoop: pole plants at the CENTRE of the short baseline, then an L
 	## gooseneck bolts to the BACK of the glass. The ring sits centred on that
 	## board. The orange shooter's square is painted ON the glass, parallel to
@@ -257,7 +258,7 @@ static func draw_hoop_unified(c: CanvasItem, rim: Vector2, rim_half: float,
 
 	# Rim centred on the board (same along-centre as the square).
 	draw_net_perspective(c, Vector2(rx, ry), rim_half, rim_half * RIM_SQUASH,
-		wobble, phase)
+		wobble, phase, rim_bend, face)
 	# Short orange bracket from the bottom-centre of the glass to the ring.
 	var hitch := (bl + br) * 0.5
 	c.draw_colored_polygon(PackedVector2Array([
@@ -265,7 +266,7 @@ static func draw_hoop_unified(c: CanvasItem, rim: Vector2, rim_half: float,
 		hitch - along * rim_half * 0.12,
 		Vector2(rx, ry)]), orange_dk)
 	_draw_ring_3d(c, Vector2(rx, ry), rim_half, rim_half * RIM_SQUASH,
-		orange, orange_dk)
+		orange, orange_dk, rim_bend, face)
 
 ## A solid parallelepiped: a front face in `col`, a shaded side face and a lit
 ## top face, extruded toward the viewer by `d3`. `x` is the left edge of the
@@ -286,13 +287,20 @@ static func _box3d(c: CanvasItem, x: float, top: float, bottom: float,
 ## the opening) plus a solid front band whose inner wall is shadowed, so the
 ## hoop reads as a 3D torus rather than a flat line.
 static func _draw_ring_3d(c: CanvasItem, centre: Vector2, rx: float, ry: float,
-		orange: Color, dark: Color) -> void:
+		orange: Color, dark: Color, bend := 0.0, pdir := -1.0) -> void:
 	var N := 40
+	## BEND: mensola vera — la piega PARTE DALL'ATTACCO COL TABELLONE
+	## (peso 0 lì, il supporto resta fisso) e cresce fino al fronte libero
+	## dove tira chi si appende. Il lato del supporto resta su.
+	var bend_amt: float = bend * ry * 1.15
 	# --- far (upper) arc: the back of the ring, visible through the hole
+	# (il lato del giocatore scende anche qui, ma a meta': il ferro e' un pezzo solo)
 	var far := PackedVector2Array()
 	for k in N + 1:
 		var a: float = PI + PI * float(k) / float(N)   # PI .. TAU (top half)
-		far.append(centre + Vector2(cos(a) * rx, sin(a) * ry))
+		var pt: Vector2 = centre + Vector2(cos(a) * rx, sin(a) * ry)
+		var sd: float = pow((1.0 + cos(a) * pdir) * 0.5, 1.35) * bend_amt * 0.45
+		far.append(Vector2(pt.x + pdir * sd * 0.12, pt.y + sd))
 	for k in N:
 		c.draw_line(far[k], far[k + 1], dark, maxf(rx * 0.12, 3.0))
 
@@ -301,8 +309,11 @@ static func _draw_ring_3d(c: CanvasItem, centre: Vector2, rx: float, ry: float,
 	var inner := PackedVector2Array()
 	for k in N + 1:
 		var a: float = PI * float(k) / float(N)        # 0 .. PI (bottom half)
-		outer.append(centre + Vector2(cos(a) * rx, sin(a) * ry))
-		inner.append(centre + Vector2(cos(a) * rx * 0.66, sin(a) * ry * 0.66))
+		var sd: float = pow((1.0 + cos(a) * pdir) * 0.5, 1.35) * bend_amt
+		var po: Vector2 = centre + Vector2(cos(a) * rx, sin(a) * ry)
+		outer.append(Vector2(po.x + pdir * sd * 0.15, po.y + sd))
+		var pi2: Vector2 = centre + Vector2(cos(a) * rx * 0.66, sin(a) * ry * 0.66)
+		inner.append(Vector2(pi2.x + pdir * sd * 0.15, pi2.y + sd))
 	var band := PackedVector2Array()
 	for p in outer:
 		band.append(p)
@@ -370,12 +381,15 @@ static func draw_hoop_perspective(c: CanvasItem, rim: Vector2, rim_half: float,
 
 ## Net for the head-on hoop: a cone of mesh hanging under the ring.
 static func draw_net_perspective(c: CanvasItem, rim: Vector2, rx: float,
-		ry: float, wobble := 0.0, phase := 0.0) -> void:
+		ry: float, wobble := 0.0, phase := 0.0, bend := 0.0, pdir := -1.0) -> void:
 	var rows := 7
 	var cols := 14
 	var snap: float = pow(wobble, 0.55)
 	var depth: float = rx * 1.25 + snap * rx * 0.45
 	var col := Color(0.93, 0.94, 0.97, 0.85)
+	# La RETE SEGUE IL FERRO piegato: agganciata in cima (offset pieno),
+	# la pieca si smorza verso l'orlo raccolto (la maglia non e' rigida).
+	var bend_amt: float = bend * ry * 1.15
 	var grid := []
 	for row in rows + 1:
 		var f: float = float(row) / rows
@@ -387,8 +401,10 @@ static func draw_net_perspective(c: CanvasItem, rim: Vector2, rx: float,
 		var ring := []
 		for k in cols:
 			var a: float = TAU * float(k) / cols
-			ring.append(Vector2(rim.x + cos(a) * rx * shrink + swing,
-				y + sin(a) * ry * shrink))
+			var sd: float = pow((1.0 + cos(a) * pdir) * 0.5, 1.35) \
+				* bend_amt * (1.0 - f * 0.55)
+			ring.append(Vector2(rim.x + cos(a) * rx * shrink + swing + pdir * sd * 0.12,
+				y + sin(a) * ry * shrink + sd))
 		grid.append(ring)
 	# top hem: the loops that hook over the ring
 	for k in cols:
@@ -408,11 +424,13 @@ static func draw_net_perspective(c: CanvasItem, rim: Vector2, rx: float,
 ## instead of sliding across the front of it. Same geometry as
 ## draw_net_perspective -- only the bottom arcs of each ring are painted.
 static func draw_net_front(c: CanvasItem, rim: Vector2, rx: float,
-		ry: float, wobble := 0.0, phase := 0.0) -> void:
+		ry: float, wobble := 0.0, phase := 0.0, bend := 0.0, pdir := -1.0) -> void:
 	var rows := 7
 	var snap: float = pow(wobble, 0.55)
 	var depth: float = rx * 1.25 + snap * rx * 0.45
 	var col := Color(0.96, 0.97, 1.0, 1.0)
+	# ANCHE la mezza rete davanti segue il ferro piegato (stessa mensola).
+	var bend_amt: float = bend * ry * 1.15
 	for row in rows + 1:
 		var f: float = float(row) / rows
 		if f < 0.12:
@@ -423,8 +441,10 @@ static func draw_net_front(c: CanvasItem, rim: Vector2, rx: float,
 		var prev := Vector2.INF
 		for k in 9:
 			var a: float = PI * float(k) / 8.0     # bottom half of the ring
-			var pt := Vector2(rim.x + cos(a) * rx * shrink + swing,
-				y + sin(a) * ry * shrink)
+			var sd: float = pow((1.0 + cos(a) * pdir) * 0.5, 1.35) \
+				* bend_amt * (1.0 - f * 0.55)
+			var pt := Vector2(rim.x + cos(a) * rx * shrink + swing + pdir * sd * 0.12,
+				y + sin(a) * ry * shrink + sd)
 			if prev != Vector2.INF:
 				c.draw_line(prev, pt, col, 3.2)
 			prev = pt

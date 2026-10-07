@@ -21,6 +21,8 @@ var floor_style := "maple"
 var net_wobble := [0.0, 0.0, 0.0, 0.0]
 var rim_shake := [0.0, 0.0, 0.0, 0.0]    # canestro che vibra (schiacciata/ferro)
 var board_shake := [0.0, 0.0, 0.0, 0.0]  # il TABELLONE insegue il ferro in ritardo
+var rim_bend := [0.0, 0.0]          # ferro sinistro/destro piegato dal peso
+var rim_bend_v := [0.0, 0.0]
 var crowd_hype := 0.0
 var fx_kind := ""
 var fx_t := 0.0
@@ -188,6 +190,25 @@ func _process(delta: float) -> void:
 		net_wobble[i] = HoopArt.decay(net_wobble[i], delta)
 		rim_shake[i] = maxf(0.0, rim_shake[i] - delta * 1.15)
 		board_shake[i] = lerpf(board_shake[i], rim_shake[i], clampf(delta * 14.0, 0.0, 1.0))
+	# PIEGA DEL FERRO: target 1 se qualcuno è appeso a quel canestro.
+	for i in 2:
+		var target := 0.0
+		if court != null:
+			var pls: Array = court.get("players")
+			for pl in pls:
+				if pl.get("hanging"):
+					var pos: Vector2 = pl.get("global_position")
+					var hoops_v: Array = court.get("hoops")
+					if hoops_v.size() == 2:
+						var i_near := 0 if pos.distance_to(hoops_v[0]) < pos.distance_to(hoops_v[1]) else 1
+						if i_near == i:
+							target = 1.0
+		# molla: carica con il peso, rimbalza quando molli
+		rim_bend_v[i] += (target - rim_bend[i]) * 26.0 * delta
+		rim_bend_v[i] *= maxf(0.0, 1.0 - 7.0 * delta)
+		rim_bend[i] = clampf(rim_bend[i] + rim_bend_v[i] * delta, -0.25, 1.0)
+		if absf(rim_bend[i]) > 0.003 or absf(rim_bend_v[i]) > 0.003:
+			live = true
 	crowd_hype = maxf(0.0, crowd_hype - delta * 0.8)
 	flash_t = maxf(0.0, flash_t - delta)
 	if live or flash_t > 0.0:
@@ -416,7 +437,7 @@ func _draw() -> void:
 		var qb: Vector2 = board_quake_off(idx)
 		HoopArt.draw_hoop_unified(self, Vector2(rim_floor.x + q.x, rim_floor.y - rim_height + q.y),
 			22.0, rim_floor.y + 6.0, -s, net_wobble[idx], t, lean, maxf(base_dx, 64.0),
-			qb - q)
+			qb - q, clampf(rim_bend[idx], 0.0, 1.0))
 	# BASKIN side baskets are drawn by NetFront, ON TOP of the players: the
 	# rim must read as being in front of the pivot standing behind it (and it
 	# fades while a body passes it).

@@ -558,6 +558,8 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 		var elbow: Vector2
 		var hand: Vector2
 		var up: float = arm_up if (strong or both_up) else arm_up * 0.75
+		if bool(p.get("hang_one", false)) and not strong:
+			up = 0.0    # slam a una mano -> appeso con UNA: l'altro pende
 		if not strong and off_hand > 0.01:
 			# Mano di appoggio: sta sullo stesso lato della mano forte, un filo
 			# piu' in basso, come quando si accompagna la palla.
@@ -577,7 +579,8 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			# strong one and both stay on the strong side, so the arms frame the
 			# ball instead of crossing the face.
 			var ax: float = hl.x if strong else hl.x - 0.11
-			hand = Vector2(base.x + ax * h * sdir, floor_y - hl.y * h)
+			hand = Vector2(base.x + ax * h * sdir,
+				floor_y - hl.y * h + float(p.get("rim_drop", 0.0)))
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.5) + sdir * h * 0.06,
 				lerpf(sh_p.y, hand.y, 0.5) + h * 0.02)
 		elif kind == STEAL and strong:
@@ -599,6 +602,12 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			hand = Vector2(base.x + sx * h * (0.26 + 0.10 * arms_out) + lean,
 				sh_y + h * (0.22 - 0.16 * arms_out))
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.42), lerpf(sh_p.y, hand.y, 0.40) - h * 0.04)
+		elif bool(p.get("hang", false)) and not bool(p.get("hang_one", false)):
+			# APPESO A DUE MANI: le mani CONVERGONO sul tubo del ferro, una
+			# appena davanti all'altra (vera presa a due mani sull'anello).
+			var gwx: float = h * 0.030 if sx > 0.0 else -h * 0.020
+			hand = Vector2(base.x + gwx + lean * 0.3, sh_y - h * 0.42)
+			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.52), lerpf(sh_p.y, hand.y, 0.52))
 		elif up > 0.01:
 			elbow = Vector2(sh_p.x + sx * h * 0.10, sh_y - h * 0.10 * up + h * 0.10 * (1.0 - up))
 			hand = Vector2(sh_p.x + sx * h * 0.06, sh_y - h * 0.44 * up)
