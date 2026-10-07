@@ -30,7 +30,6 @@ jobs:
           fetch-depth: 0
 
       - name: Prepara il keystore (Secrets > progetto.zip > debug nuovo)
-        id: keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -89,29 +88,38 @@ jobs:
       - name: Setup Android SDK (sdkmanager dovunque sia)
         run: |
           set -e
-          # Il runner non garantisce piu' sdkmanager nel PATH: lo cerco, e se
-          # manca proprio installo le cmdline-tools a mano.
-          SDKM="$(command -v sdkmanager || true)"
+          exec > >(tee /tmp/step_sdk.log) 2>&1
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "JAVA_HOME=$JAVA_HOME"
+          ls -la "$ANDROID_HOME" 2>/dev/null || true
+          ls -la "$ANDROID_HOME/cmdline-tools" 2>/dev/null || true
+          # Il runner non garantisce piu' sdkmanager nel PATH: preferisco
+          # quello DENTRO l'SDK (capisce da solo la root), altrimenti lo
+          # installo. Ogni chiamata con --sdk_root esplicito.
+          SDKM="$(ls "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | sort -V | tail -1 || true)"
           if [ -z "$SDKM" ]; then
-            SDKM="$(ls "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | sort -V | tail -1 || true)"
+            SDKM="$(command -v sdkmanager || true)"
           fi
           if [ -z "$SDKM" ]; then
             echo "cmdline-tools assenti: le installo."
             curl -sL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/ct.zip
             sudo mkdir -p "$ANDROID_HOME/cmdline-tools"
             sudo unzip -q /tmp/ct.zip -d "$ANDROID_HOME/cmdline-tools"
-            sudo mv "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest"
+            if [ ! -d "$ANDROID_HOME/cmdline-tools/latest" ]; then
+              sudo mv "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest"
+            fi
             SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           fi
           echo "sdkmanager: $SDKM"
-          CT="$(cd "$(dirname "$SDKM")/.." && pwd)"
-          echo "$CT/bin" >> "$GITHUB_PATH"
+          chmod +x "$SDKM" 2>/dev/null || true
+          "$SDKM" --version --sdk_root="$ANDROID_HOME"
+          yes | "$SDKM" --licenses --sdk_root="$ANDROID_HOME" >/dev/null 2>&1 || true
+          "$SDKM" --sdk_root="$ANDROID_HOME" "platform-tools" "build-tools;34.0.0" "platforms;android-34"
+          BT="$(ls -d "$ANDROID_HOME"/build-tools/* 2>/dev/null | sort -V | tail -1)"
+          echo "build-tools in: $BT"
+          echo "$BT" >> "$GITHUB_PATH"
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
-          echo "$ANDROID_HOME/build-tools/34.0.0" >> "$GITHUB_PATH"
-          export PATH="$CT/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0:$PATH"
-          yes | "$SDKM" --licenses >/dev/null 2>&1 || true
-          "$SDKM" "platform-tools" "build-tools;34.0.0" "platforms;android-34" >/dev/null
-          echo "SDK pronto.
+          echo "SDK pronto."
 
       - name: Download Godot 4.3 e template di export
         run: |
@@ -147,6 +155,8 @@ jobs:
 
       - name: Import headless ed export APK
         run: |
+          set -e
+          exec > >(tee /tmp/step_export.log) 2>&1
           cd baskin-academy
           godot --headless --import > /tmp/import.log 2>&1 || true
           V=$(grep 'version/name=' export_presets.cfg | head -1 | cut -d'"' -f2)
@@ -163,6 +173,8 @@ jobs:
 
       - name: Firma e verifica l'APK
         run: |
+          set -e
+          exec > >(tee /tmp/step_sign.log) 2>&1
           cd baskin-academy/build
           APK=$(ls BaskinAcademy-v*.apk | head -1)
           # Firma esplicita (se Godot l'ha gia' firmata, questa la sostituisce)
@@ -172,6 +184,22 @@ jobs:
           apksigner verify --verbose "$APK" || exit 1
           unzip -l "$APK" | grep -i mipmap | head -n 6
           ls -lh "$APK"
+
+      - name: Debug: pubblica i log sul branch
+        if: failure()
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          {
+            for f in /tmp/step_sdk.log /tmp/import.log /tmp/step_export.log /tmp/step_sign.log; do
+              [ -f "$f" ] && echo "===== $f (ultime 150 righe) =====" && tail -150 "$f"
+            done
+          } > build_error.log 2>&1 || true
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add build_error.log || true
+          git commit -m "ci: baskin apk debug log" || true
+          git pull --rebase origin arena/01a0cac8-new-arena-code || true
+          git push origin arena/01a0cac8-new-arena-code || true
 
       - name: Carica l'APK come artifact
         uses: actions/upload-artifact@v4
