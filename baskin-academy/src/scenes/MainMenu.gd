@@ -144,7 +144,7 @@ func _draw_hero_hoop() -> void:
 	bg.draw_rect(Rect2(px - 16.0, floor_y - 8.0, 32.0, 8.0), Color(0.12, 0.13, 0.16))
 	# the two hoops: HIGH first (2.20 m at 90 px/m), then LOW (1.20 m)
 	var f := ThemeDB.fallback_font
-	for hy in [502.0, 592.0]:
+	for hy: float in [502.0, 592.0]:
 		var big := hy < 550.0
 		var board_x := px - (64.0 if big else 50.0)
 		var bh := 30.0 if big else 22.0

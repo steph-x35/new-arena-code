@@ -151,7 +151,7 @@ func _draw_court(d: Control) -> void:
 				a0 + (i + 1) * (PI / 12.0) - 0.05, 3, Color(0.97, 0.97, 0.95, 0.7), 1.6)
 		# five sectors: 200/150/70/150/200 cm of the 770 cm semicircle
 		for cm in [200.0, 350.0, 420.0, 570.0]:
-			var sa := a0 + (cm / 770.0) * PI
+			var sa: float = a0 + (cm / 770.0) * PI
 			d.draw_line(hc + Vector2(cos(sa), sin(sa)) * 8.0,
 				hc + Vector2(cos(sa), sin(sa)) * r, line, 1.4)
 		# spot values: 2 straight ahead, 3 on the sides
