@@ -1,3 +1,57 @@
+# Baskin Academy — playtest v1.19.0: correzioni (v1.19.1)
+
+Data: 7 ottobre 2026 • Motore: Godot 4.3 stable
+
+Primo collaudo su dispositivo dell'utente. Cinque punti a sistema:
+
+## 1. CRASH al tasto CAMBIO (risolto)
+
+Causa radice: il selettore amichevole/ufficiale non esiste piu', ma il
+default di `match_is_fixture` era rimasto **false** → partita sempre
+"scrimmage" → panchina mai costruita (`bench_roster` vuoto). Il tasto CAMBIO
+pero' restava visibile e `_fill_subs` indicizzava `bench_roster[0][seat]`:
+indice fuori range, crash. Triplo fix:
+
+- `KitPicker`: default `match_is_fixture = true` (la partita e' il 5v5
+  completo: panchina, rotazioni dell'allenatore e CAMBIO attivi);
+- `Court.available_sub_seats()`: ritorna [] se non c'e' panchina (la classe
+  di crash e' impossibile anche con la UI davanti);
+- il tasto CAMBIO ora e' visibile solo nelle partite con panchina.
+
+## 2. Palla piccola → palla di Hoop City
+
+`BALL_R` 5.5 → **7.0 px** (identico a Hoop City: su un giocatore da 56 px
+la palla legge ~24 cm, regolamento) e stesso disegno: tinta piu' calda
+(0.95/0.55/0.15) e cuciture spesse. Il palleggio (incrocio, dietro-schiena,
+cambio mano, stepback, esitazione, giro, sotto-gamba, con pallino e suono
+sincroni alla mano) era gia' la versione rifinita del motore di Hoop City.
+
+## 3. HEAT CHECK (il miglioramento del tiro di Hoop City)
+
+3 canestri consecutivi dell'UTENTE = **ON FIRE**: finestra verde del metro
+piu' larga (+18% perfect, +15% good, `ShotSystem.shot_windows(ft, heat)`),
+popup ON FIRE/COLD e **palla in fiamme** NBA-JAM (fiammelle in mano, scia
+dietro al tiro — `Avatar.draw_ball_flames` portato da Hoop City). Solo
+l'utente: l'IA non prende bonus nascosti (GAMEPLAY-IA invariato).
+
+## 4. Aree laterali: tratti veri, niente numeri inutili
+
+Feedback: i raggi che partivano da meta' campo non sono veritieri e i "3"
+dipinti per ogni settore affollavano. Ora i cinque settori sono segnalati
+come sui campi veri: **quattro tacche di nastro che attraversano la linea**
+(ai confini 200/350/420/570 cm dei 770 cm di arco) e **solo il "2"** del
+settore centrale dipinto a pavimento (il valore laterale lo dice il chip
+sotto il tabellone). Stesso disegno nel diagramma di COME SI GIOCA.
+
+## 5. REGOLE: bottone a sinistra, pannello sopra tutto
+
+Il bottone torna **in alto a sinistra** (a destra si confondeva con TIMEOUT
+e CAMBIO) e il pannello della scheda ha `z_index` 60: nessun pulsante
+dell'HUD (ESCI, TIMEOUT, CAMBIO, tasti azione) se lo disegna piu' sopra.
+Aggiornati hint ("REGOLE in alto a sinistra") e guida.
+
+---
+
 # Baskin Academy — regolamento a norma + prima volta (post 1.18.0, quarta passata)
 
 Data: 7 ottobre 2026 • Motore: Godot 4.3 stable
@@ -39,9 +93,10 @@ liberi del ruolo 3 sul laterale erano già dietro la tratteggiata (194 px).
 - Nuova voce **COME SI GIOCA** nel menu → `RulesScene`: cos'è il baskin, il
   campo, i 5 ruoli, i punti, le regole chiave, i comandi, più il DIAGRAMMA
   del campo visto dall'alto con i 5 settori e i due ferri sullo stesso palo.
-- In partenza il bottone **REGOLE** è in alto a DESTRA (era a sinistra,
-  poco visibile), sotto TIMEOUT e CAMBIO; la scheda si apre a destra e ora
-  inizia da IL CAMPO.
+- In partenza il bottone **REGOLE** sta in alto a SINISTRA sotto ESCI
+  (al playtest e' risultato piu' chiaro: a destra si confondeva con TIMEOUT
+  e CAMBIO — sistemato in v1.19.1); la scheda si apre a sinistra, sopra ogni
+  altro controllo (z_index), e inizia da IL CAMPO.
 - Chip «quanto vale il tuo tiro» sotto il tabellone per chi gioca pivot:
   ruolo 1 → «1° TIRO · VALE 3» / «2° TIRO · VALE 2»; ruolo 2 → «SETTORE
   CENTRALE · 2 PUNTI» / «SETTORE LATERALE · 3 PUNTI» / «ESCI DIETRO LA TUA
@@ -80,7 +135,7 @@ ha fermato due regressioni prima della consegna — inferenza `:=` da Variant
 nei loop su array non tipizzati (MainMenu, RulesScene) e `draw_ellipse`
 (inesistente in Godot 4.3) — entrambe corrette nel giro di due commit. Nel
 MatchTest si vedono già i nuovi hint («Consegna dentro, 2 palleggi, esci:
-dal SETTORE LATERALE vale 3!», «Prima volta? REGOLE (in alto a destra)
+dal SETTORE LATERALE vale 3!», «Prima volta? REGOLE (in alto a sinistra)
 spiega tutto.») e i pivot 2T/2R in campo.
 
 ---
