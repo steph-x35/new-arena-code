@@ -77,7 +77,7 @@ jobs:
             -storepass "$KS_PASS" 2>/dev/null | grep -iE "SHA256|Alias" | head -4
           if [ "$KS_SOURCE" = "progetto.zip" ]; then
             FP=$(keytool -list -v -keystore baskin-academy/keystore/release.keystore \
-              -storepass "$KS_PASS" 2>/dev/null | grep -i "SHA256:" | head -1 | tr -d ' ' | sed 's/SHA256://I')
+              -storepass "$KS_PASS" 2>/dev/null | grep -i "SHA256:" | head -1 | tr -d ' \t' | sed 's/SHA256://I')
             EXPECT="60:12:DD:C6:22:9E:66:DD:02:EB:AF:71:D4:24:C3:30:45:61:AE:1A:DE:BA:AA:DF:A4:B1:9D:DB:BD:52:94:F3"
             if [ "$(echo "$FP" | tr 'A-F' 'a-f')" = "$(echo "$EXPECT" | tr 'A-F' 'a-f')" ]; then
               echo "OK: impronta IDENTICA al keystore dell'APK gia' distribuito (si aggiorna)."
@@ -86,13 +86,32 @@ jobs:
             fi
           fi
 
-      - name: Setup Android SDK PATH
+      - name: Setup Android SDK (sdkmanager dovunque sia)
         run: |
-          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
-          echo "$ANDROID_HOME/build-tools/34.0.0" >> $GITHUB_PATH
-          yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34"
+          set -e
+          # Il runner non garantisce piu' sdkmanager nel PATH: lo cerco, e se
+          # manca proprio installo le cmdline-tools a mano.
+          SDKM="$(command -v sdkmanager || true)"
+          if [ -z "$SDKM" ]; then
+            SDKM="$(ls "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | sort -V | tail -1 || true)"
+          fi
+          if [ -z "$SDKM" ]; then
+            echo "cmdline-tools assenti: le installo."
+            curl -sL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/ct.zip
+            sudo mkdir -p "$ANDROID_HOME/cmdline-tools"
+            sudo unzip -q /tmp/ct.zip -d "$ANDROID_HOME/cmdline-tools"
+            sudo mv "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest"
+            SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          fi
+          echo "sdkmanager: $SDKM"
+          CT="$(cd "$(dirname "$SDKM")/.." && pwd)"
+          echo "$CT/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/build-tools/34.0.0" >> "$GITHUB_PATH"
+          export PATH="$CT/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0:$PATH"
+          yes | "$SDKM" --licenses >/dev/null 2>&1 || true
+          "$SDKM" "platform-tools" "build-tools;34.0.0" "platforms;android-34" >/dev/null
+          echo "SDK pronto.
 
       - name: Download Godot 4.3 e template di export
         run: |
