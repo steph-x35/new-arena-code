@@ -1,0 +1,1332 @@
+=== SMOKE: tools/SceneSmoke.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+MatchScene instantiated, children: 7
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:106)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:106)
+t= 0.2 live=false await=true poss=0 shotc=24.0 holder=none
+t= 0.5 live=false await=true poss=0 shotc=24.0 holder=none
+t= 0.8 live=false await=true poss=0 shotc=24.0 holder=none
+t= 1.0 live=false await=true poss=0 shotc=24.0 holder=none
+t= 1.3 live=false await=true poss=0 shotc=24.0 holder=none
+t= 1.5 live=false await=true poss=0 shotc=24.0 holder=none
+t= 1.8 live=false await=true poss=0 shotc=24.0 holder=none
+t= 2.0 live=false await=true poss=0 shotc=24.0 holder=none
+t= 2.2 live=false await=true poss=0 shotc=24.0 holder=none
+t= 2.5 live=false await=true poss=0 shotc=24.0 holder=none
+t= 2.8 live=false await=true poss=0 shotc=24.0 holder=none
+t= 3.0 live=false await=true poss=0 shotc=24.0 holder=none
+t= 3.3 live=false await=true poss=0 shotc=24.0 holder=none
+t= 3.5 live=false await=true poss=0 shotc=24.0 holder=none
+t= 3.8 live=false await=true poss=0 shotc=24.0 holder=none
+t= 4.0 live=false await=true poss=0 shotc=24.0 holder=none
+[toast] GO!
+[toast] Cleared - go!
+t= 4.3 live=true await=false poss=0 shotc=23.7 holder=0
+t= 4.5 live=true await=false poss=0 shotc=23.3 holder=0
+t= 4.8 live=true await=false poss=0 shotc=23.0 holder=0
+t= 5.0 live=true await=false poss=0 shotc=22.7 holder=0
+t= 5.3 live=true await=false poss=0 shotc=22.3 holder=0
+[toast] Shook!
+t= 5.5 live=true await=false poss=0 shotc=22.0 holder=0
+t= 5.8 live=true await=false poss=0 shotc=21.7 holder=0
+t= 6.0 live=true await=false poss=0 shotc=21.3 holder=0
+t= 6.3 live=true await=false poss=0 shotc=21.0 holder=0
+t= 6.5 live=true await=false poss=0 shotc=20.7 holder=0
+t= 6.8 live=true await=false poss=0 shotc=20.3 holder=0
+t= 7.0 live=true await=false poss=0 shotc=20.0 holder=0
+t= 7.3 live=true await=false poss=0 shotc=19.7 holder=0
+t= 7.5 live=true await=false poss=0 shotc=19.3 holder=0
+[toast] Shook!
+t= 7.8 live=true await=false poss=0 shotc=19.0 holder=0
+t= 8.0 live=true await=false poss=0 shotc=18.7 holder=0
+[toast] Shook!
+t= 8.3 live=true await=false poss=0 shotc=18.3 holder=0
+t= 8.5 live=true await=false poss=0 shotc=18.0 holder=0
+t= 8.8 live=true await=false poss=0 shotc=17.7 holder=0
+[toast] Shook!
+t= 9.0 live=true await=false poss=0 shotc=17.3 holder=0
+t= 9.3 live=true await=false poss=0 shotc=17.0 holder=0
+t= 9.5 live=true await=false poss=0 shotc=16.7 holder=0
+t= 9.8 live=true await=false poss=0 shotc=16.4 holder=0
+t=10.0 live=true await=false poss=0 shotc=16.1 holder=0
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2284)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:604)
+OK: tools/SceneSmoke.tscn
+=== SMOKE: tools/MatchTest.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+ROLES t0 [[2, "2T"], [3, ""], [4, ""], [5, ""], [5, ""]] t1 [[2, "2R"], [3, ""], [4, ""], [5, ""], [5, ""]]
+MODE full  teams 10  fixture false
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:106)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:106)
+t= 1.0 live=false poss=0 clock=120.0 score=[0, 0]
+[toast] GO!
+t= 2.0 live=true poss=0 clock=120.0 score=[0, 0]
+t= 3.0 live=false poss=0 clock=120.0 score=[0, 0]
+[toast] JUMP BALL  ·  DOC
+[toast] Consegna dentro, 2 palleggi, esci: dal SETTORE LATERALE vale 3!
+t= 4.0 live=true poss=1 clock=119.0 score=[0, 0]
+t= 5.0 live=true poss=1 clock=117.7 score=[0, 0]
+[toast] Prima volta? REGOLE (in alto a destra) spiega tutto.
+t= 6.0 live=true poss=1 clock=116.0 score=[0, 0]
+[toast] Loose ball!
+[toast] Inbound
+t= 7.0 live=false poss=0 clock=115.2 score=[0, 3]
+[toast] Shook!
+t= 8.0 live=true poss=0 clock=114.2 score=[0, 3]
+[toast] SCREEN
+t= 9.0 live=true poss=0 clock=112.9 score=[0, 3]
+[toast] Shook!
+[toast] SCREEN
+t=10.0 live=true poss=0 clock=111.0 score=[0, 3]
+[toast] Shook!
+[toast] SCREEN
+[toast] SCREEN
+t=11.0 live=true poss=0 clock=109.0 score=[0, 3]
+t=12.0 live=true poss=0 clock=107.0 score=[0, 3]
+[toast] Shook!
+[toast] SCREEN
+t=13.0 live=true poss=0 clock=105.0 score=[0, 3]
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2284)
+ERROR: 8 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:604)
+OK: tools/MatchTest.tscn
+=== SMOKE: src/scenes/MainMenu.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+          at: _draw_hero_hoop (res://src/scenes/MainMenu.gd:140)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2284)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:604)
+!!! SCRIPT ERRORS in src/scenes/MainMenu.tscn:
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+SCRIPT ERROR: Invalid call. Nonexistent function 'draw_ellipse' in base 'Node2D'.
+=== SMOKE: src/scenes/RolePicker.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+OK: src/scenes/RolePicker.tscn
+=== SMOKE: src/scenes/KitPicker.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+OK: src/scenes/KitPicker.tscn
+=== SMOKE: src/scenes/SettingsScene.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+OK: src/scenes/SettingsScene.tscn
+=== SMOKE: src/scenes/RulesScene.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+WARNING: The draw_rect() "width" argument has no effect when "filled" is "true".
+     at: draw_rect (scene/main/canvas_item.cpp:709)
+WARNING: The draw_rect() "width" argument has no effect when "filled" is "true".
+     at: draw_rect (scene/main/canvas_item.cpp:709)
+OK: src/scenes/RulesScene.tscn
