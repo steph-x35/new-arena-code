@@ -55,3 +55,46 @@ Controlli completati:
 5. Dichiarare l'eventuale assenza di test su dispositivo. La firma è ancora quella **di debug del progetto**: non presentarla come firma di produzione o approvazione Play Store.
 
 La coincidenza di package e firma serve per l'aggiornamento della stessa app. La compatibilità effettiva dell'installazione andrà comunque verificata sul dispositivo; non chiedere di disinstallare preventivamente, per evitare la perdita dei dati.
+
+
+## Pipeline APK su GitHub (da v1.19.0)
+
+L'APK ora si può compilare su GitHub Actions, senza computer locale:
+workflow **Baskin APK** (`.github/workflows/build-apk-baskin.yml`).
+Bottone: repo → scheda **Actions** → **Baskin APK** → **Run workflow**.
+
+### Perché serve il keystore
+
+L'APK va firmato con la STESSA chiave dell'app già installata, altrimenti
+Android rifiuta l'aggiornamento («App not installed»). La chiave NON può
+stare in un repo pubblico: viaggia solo nei GitHub Secrets.
+
+### Configura i 4 secret (una volta sola, ~5 minuti)
+
+1. Apri il repo su GitHub → scheda **Settings** (barra in alto) → colonna
+   sinistra **Secrets and variables** → **Actions** → bottone verde
+   **New repository secret**.
+2. Primo secret, nome `KEYSTORE_BASE64`: serve il keystore convertito in
+   testo. Se hai il file `debug.keystore` del vecchio progetto, chiedi la
+   conversione qui in chat e incolla il risultato nel campo Value.
+   (In locale su Mac/Linux sarebbe: `base64 -i debug.keystore -o firma.b64`,
+   poi apri `firma.b64` con un editor di testo e copia TUTTO il contenuto.)
+3. Secondo secret `KEYSTORE_PASSWORD`: la password del keystore (per il
+   debug keystore di Godot è `android`).
+4. Terzo secret `KEY_ALIAS`: il nome della chiave (per il debug keystore di
+   Godot è `androiddebugkey`).
+5. Quarto secret `KEY_PASSWORD`: la password della chiave (di solito uguale
+   a quella del keystore: ripetila lo stesso).
+6. Finito. Actions → **Baskin APK** → **Run workflow**: run verde = APK
+   pronto nella sezione **Artifacts** in fondo alla pagina del run. Per una
+   Release pubblica: crea un tag `baskin-v1.19.0` e pushalo, la Release con
+   l'APK allegato si crea da sola.
+
+Il vecchio keystore di debug (impronta SHA-256
+`60:12:DD:C6:22:9E:66:DD:02:EB:AF:71:D4:24:C3:30:45:61:AE:1A:DE:BA:AA:DF:A4:B1:9D:DB:BD:52:94:F3`)
+serve SOLO per continuare ad aggiornare l'APK già distribuito; per ripartire
+da zero (nuova installazione) va bene anche un keystore nuovo.
+
+Il preset Android resta `com.baskinacademy.app`, ARM64, versionCode 21,
+firma in `keystore/release.keystore` (file git-ignorato: la CI lo crea dai
+secret al volo).

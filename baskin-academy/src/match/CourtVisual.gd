@@ -511,6 +511,13 @@ func _parc(centre: Vector2, radius: float, a0: float, a1: float,
 			_c().draw_line(prev, pt, col, w)
 		prev = pt
 
+## A painted stencil character on the floor (the sector values): a single
+## digit, so the fallback font is fine and no extra resource is loaded.
+func _pchar(txt: String, world: Vector2, col: Color, size := 16) -> void:
+	var w := size * 1.2
+	_c().draw_string(ThemeDB.fallback_font, _p(world) + Vector2(-w * 0.5, -size * 0.3),
+		txt, HORIZONTAL_ALIGNMENT_CENTER, w, size, col)
+
 # ------------------------------------------------------------------ floor
 func _draw_floor() -> void:
 	# Light maple indoors, asphalt outdoors -- same floor, same markings.
@@ -621,23 +628,37 @@ func _draw_lines() -> void:
 		# no-charge arc
 		_parc(Vector2(hx, 0), Court.FIBA_RESTRICTED, out0, out1, 24,
 			Color(0.97, 0.97, 0.95, 0.75), 3.0)
-	# BASKIN side areas: shots at the side baskets only count from OUTSIDE
-	# them (the 2R variant shoots from the smaller dashed one).
+	# BASKIN side areas (Rev.19): the 3 m semicircle is split into FIVE
+	# sectors (200/150/70/150/200 cm along the arc); the DASHED arc 0,7 m
+	# beyond it (3,70 m) is the line the 2R and the role-3 free throws shoot
+	# from. Painted spot values tell a first-timer what each sector pays.
 	for shy in [-1.0, 1.0]:
 		var hc := Vector2(0.0, shy * H * 0.5)
 		var a0: float = 0.0 if shy < 0.0 else PI
 		# White like every other line on the floor (it used to be orange and
 		# blue, which made the areas read as a different court).
 		_parc(hc, Court.SIDE_AREA_R, a0, a0 + PI, 40, line, 4.0)
-		for i in 10:
-			_parc(hc, Court.SIDE_AREA_R - Court.SIDE_AREA_BAND, a0 + i * (PI / 10.0) + 0.05,
-				a0 + (i + 1) * (PI / 10.0) - 0.05, 5, Color(0.97, 0.97, 0.95, 0.85), 2.5)
-		# Official baskin: the semicircle is split into FIVE shooting sectors.
-		for k in [1, 2, 3, 4]:
-			var sa: float = a0 + k * (PI / 5.0)
-			_pline(hc + Vector2(cos(sa), sin(sa)) * 26.0,
+		# The dashed 3,70 m arc: 2R shots and role-3 free throws come from
+		# behind THIS line, not the continuous one.
+		for i in 14:
+			_parc(hc, Court.SIDE_DASH_R, a0 + i * (PI / 14.0) + 0.05,
+				a0 + (i + 1) * (PI / 14.0) - 0.05, 4, Color(0.97, 0.97, 0.95, 0.82), 2.5)
+		# FIVE sectors: radial lines at 200, 350, 420 and 570 cm of the 770 cm
+		# semicircle (Rev.19 fig. 2). The 70 cm wedge in the middle is the
+		# two-point sector; every other wedge is worth three.
+		for cm in [200.0, 350.0, 420.0, 570.0]:
+			var sa: float = a0 + (cm / 770.0) * PI
+			_pline(hc + Vector2(cos(sa), sin(sa)) * 22.0,
 				hc + Vector2(cos(sa), sin(sa)) * Court.SIDE_AREA_R,
 				Color(0.97, 0.97, 0.95, 0.8), 2.5)
+		# Painted spot values, stencil-style: 2 dead in front, 3 on the sides.
+		var in_dir := Vector2(0.0, -shy)
+		for sd in [[0.0, "2", 92.0], [Court.SIDE_SEC_LAT_MID, "3", 100.0],
+				[-Court.SIDE_SEC_LAT_MID, "3", 100.0],
+				[Court.SIDE_SEC_LAT_MID * 2.59, "3", 86.0],
+				[-Court.SIDE_SEC_LAT_MID * 2.59, "3", 86.0]]:
+			_pchar(str(sd[1]), hc + in_dir.rotated(sd[0]) * sd[2],
+				Color(0.97, 0.97, 0.95, 0.5), 17)
 
 ## Everything that never moves, drawn a single time.
 class CourtStatic extends Node2D:

@@ -24,10 +24,17 @@ const FIBA_CENTRE_R := 112.0     # 1.8 m centre circle
 const THREE_FT := ShotSystem.THREE_FT
 const SIDE_RIM_HIGH := 136.0    # canestro laterale ALTO: 2,20 m (reg. 2,00-2,20) — ruolo 2
 const SIDE_RIM_LOW := 74.0     # canestro laterale BASSO: 1,20 m (reg. 1,00-1,20) — ruolo 1
-const SIDE_AREA_R := 150.0        # side-area radius on the sideline
-const SIDE_AREA_BAND := 46.0      # 2R variant: shoots from a smaller area
-const SIDE_INBOUND_MARKS := 100.0  # restart 2 m beyond the small side area (fig. 2)
-const SIDE_PIVOT_RANGE := SIDE_AREA_R + SIDE_AREA_BAND + 30.0  # role 2 steps out to shoot
+const SIDE_AREA_R := 150.0        # side-area semicircle on the sideline (r = 3 m)
+const SIDE_DASH_R := 185.0        # DASHED arc 0,7 m beyond the area (r = 3,70 m):
+                                  # the 2R and the role-3 free throws shoot from behind it
+const SIDE_INBOUND_MARKS := 100.0  # restart 2 m beyond the side area (fig. 2)
+const SIDE_PIVOT_RANGE := 226.0    # how far role 2 may wander out with the ball (~4,5 m)
+## Rev.19 fig. 2: the 3 m semicircle is split into FIVE sectors whose widths
+## along the arc are 200/150/70/150/200 cm (770 cm total). The CENTRAL wedge
+## (70 cm, straight in front of the hoop) is the role-2 TWO-point sector;
+## every other wedge is a THREE-point sector.
+const SIDE_SEC_C_HALF := PI * (70.0 / 770.0) * 0.5      # central sector half-angle (~8.2 deg)
+const SIDE_SEC_LAT_MID := PI * ((70.0 + 150.0) * 0.5 / 770.0)  # mid of a 150 cm wedge (~25.7 deg)
 const RIM_HEIGHT := 188.0          # px above the floor — the pole must read as 3.05 m tall
 # A match player is drawn 56 px tall (~1.93 m). The rim is raised well above
 # him so the 3.05 m height reads clearly even in the tilted side view: the
@@ -478,6 +485,11 @@ func give_ball(p: BallPlayer) -> void:
 		must_clear = false
 	Events.possession_changed.emit(possession)
 	p.dribble_t = 0.0
+	# Rev.19: quando la palla arriva al pivot di ruolo 2 lui sceglie in quale
+	# dei tre settori spostarsi per tirare (centrale = 2, laterale = 3).
+	if p.role == 2 and not one_on_one:
+		var roll := randf()
+		pivot_sector[p.team] = 0 if roll < 0.25 else (1 if roll < 0.625 else -1)
 	p.received_in_side_area = in_side_area(p.global_position)
 	if changed_hands:
 		p.pivot_attempts = 0
@@ -1467,7 +1479,12 @@ func _score_basket(b: Ball) -> void:
 	Sfx.play("swish", -1.5 if b.swish_clean else -3.5)
 	Sfx.cheer(beyond_arc)
 	Events.shake.emit(0.5 if beyond_arc else 0.32)
-	Events.popup.emit("+%d%s" % [pts, "  THREE!" if beyond_arc and not one_on_one else ""],
+	var pop_extra := ""
+	if beyond_arc and not one_on_one:
+		pop_extra = "  THREE!"
+	elif not one_on_one and shooter.role == 2 and is_side_hoop(hoop):
+		pop_extra = "  " + (Loc.t("pop.central") if pts == 2 else Loc.t("pop.lateral"))
+	Events.popup.emit("+%d%s" % [pts, pop_extra],
 		hoop,
 		Color(0.45, 0.85, 1.0) if beyond_arc else Color(0.7, 1.0, 0.75),
 		beyond_arc)
@@ -2327,15 +2344,33 @@ func in_side_area(pos: Vector2) -> bool:
 			return true
 	return false
 
-## Roles 1-3 must shoot at the side baskets from OUTSIDE the painted area
-## (the 2R variant shoots from a smaller, dashed area).
+## Roles 2-3 must shoot at the side baskets from OUTSIDE the painted area
+## (continuous line, 3 m). Rev.19: a 2R shoots from behind the DASHED arc,
+## 0,7 m FARTHER OUT (3,70 m) — not closer. Role 1 shoots from inside his area.
 func shot_must_clear_area(s: BallPlayer, hoop: Vector2) -> bool:
 	if not is_side_hoop(hoop):
 		return false
 	if s.role != 2 and s.role != 3:
 		return false   # role 1 shoots from INSIDE his area (official baskin)
-	var r := SIDE_AREA_R - (SIDE_AREA_BAND if s.variant == "2R" else 0.0)
+	var r := SIDE_DASH_R if s.variant == "2R" else SIDE_AREA_R
 	return s.global_position.distance_to(hoop) < r
+
+## True when the shooter already stands beyond the line his role must shoot
+## from (continuous 3 m, dashed 3,70 m for a 2R). The AI pivot uses it to
+## keep stepping out instead of planting inside the line.
+func pivot_beyond_line(s: BallPlayer, hoop: Vector2) -> bool:
+	var r := SIDE_DASH_R if s.variant == "2R" else SIDE_AREA_R
+	return s.global_position.distance_to(hoop) >= r
+
+## Which sector of a side area a floor position falls in, radially from the
+## hoop: TRUE = the central 70 cm wedge straight in front of the basket (the
+## role-2 two-point sector). Angles outside the semicircle count as lateral.
+func in_central_sector(pos: Vector2, hoop: Vector2) -> bool:
+	var off: Vector2 = pos - hoop
+	if off.length() < 1.0:
+		return true
+	var inward := Vector2(0.0, -signf(hoop.y))   # perpendicular, into the court
+	return absf(inward.angle_to(off)) <= SIDE_SEC_C_HALF
 
 func tutor_of(team: int) -> BallPlayer:
 	for p in players:
@@ -2350,14 +2385,19 @@ func pivot_player(team: int, role_only: int = 0) -> BallPlayer:
 			return p
 	return null
 
-## Where the pivot takes his shot from: role 1 shoots INSIDE his area, role 2
-## must be outside the semicircle (he steps out past the line).
+## Where the pivot takes his shot from: role 1 shoots INSIDE his area; role 2
+## steps out past his line INTO ONE OF THE SECTORS (Rev.19: "si sposta in uno
+## dei tre settori"): the central wedge is worth 2, a lateral wedge 3. Which
+## one he fancies is rolled when the ball reaches him (see give_ball).
+var pivot_sector := [0, 0]   # per team: -1 left lateral, 0 central, +1 right
 func pivot_shot_spot(team: int, p: BallPlayer) -> Vector2:
 	if p == null or p.role <= 1:
 		return pivot_home(team)
 	var h: Vector2 = side_hoops[team]
 	var inward := Vector2(0.0, -signf(h.y))
-	return h + inward * (SIDE_AREA_R + 26.0)
+	var dist: float = (SIDE_DASH_R + 26.0) if p.variant == "2R" else (SIDE_AREA_R + 26.0)
+	var dir: Vector2 = inward.rotated(SIDE_SEC_LAT_MID * float(pivot_sector[team]))
+	return h + dir * dist
 
 func pivot_spot(team: int) -> Vector2:
 	var h: Vector2 = side_hoops[team]
@@ -2408,9 +2448,12 @@ func _baskin_points(s: BallPlayer, hoop: Vector2) -> int:
 		1:
 			return 3 if s.pivot_attempts <= 1 else 2
 		2:
-			# Regolamento: canestro laterale alto = 2 (settore centrale),
-			# canestro tradizionale = 3. Prima era invertito.
-			return 2 if side else 3
+			# Rev.19: dal canestro laterale alto il valore dipende dal SETTORE
+			# di tiro: centrale (70 cm) = 2 punti, laterale = 3 punti.
+			# Al canestro tradizionale (caso limite) vale 3.
+			if side:
+				return 2 if in_central_sector(s.global_position, hoop) else 3
+			return 3
 		3:
 			if side:
 				return 2

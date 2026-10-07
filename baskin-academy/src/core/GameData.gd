@@ -1,6 +1,6 @@
 extends Node
 
-const VERSION := "1.17.0"
+const VERSION := "1.19.0"
 ## Single source of truth for the persistent player profile + world clock.
 ## Autoloaded as `Game`.
 

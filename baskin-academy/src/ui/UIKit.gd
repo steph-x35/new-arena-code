@@ -92,6 +92,49 @@ func grid_menu(parent: Control, pos: Vector2, entries: Array, col_w := 560.0) ->
 			b.modulate = Color(1, 1, 1, 0.45)
 	return cols
 
+## Styled menu buttons (v1.19): "primary" is the one big orange action,
+## "ghost" the quiet secondary ones -- the default grey Godot button read as
+## unfinished on a title screen, which is exactly what the first screen must
+## never look like.
+func menu_button(parent: Control, text: String, cb: Callable, kind := "ghost",
+		width := 250.0) -> Button:
+	var b := Button.new()
+	b.text = text
+	var primary := kind == "primary"
+	b.custom_minimum_size = Vector2(width, 92.0 if primary else 64.0)
+	b.add_theme_font_size_override("font_size", 30 if primary else 22)
+	b.clip_text = true
+	for state in ["normal", "hover", "pressed", "focus"]:
+		var sb := StyleBoxFlat.new()
+		sb.set_corner_radius_all(14)
+		sb.content_margin_left = 18
+		sb.content_margin_right = 18
+		if primary:
+			sb.bg_color = {"normal": Art.ORANGE, "hover": Art.ORANGE_HOT,
+				"pressed": Art.ORANGE_DK,
+				"focus": Art.ORANGE}[state]
+		else:
+			sb.bg_color = {"normal": Color(1, 1, 1, 0.045),
+				"hover": Color(1, 1, 1, 0.10), "pressed": Color(1, 1, 1, 0.03),
+				"focus": Color(1, 1, 1, 0.045)}[state]
+			sb.set_border_width_all(2)
+			sb.border_color = Color(Art.CREAM.r, Art.CREAM.g, Art.CREAM.b,
+				0.6 if state == "hover" else 0.35)
+		b.add_theme_stylebox_override(state, sb)
+	var ink := Color(0.10, 0.07, 0.04)
+	if primary:
+		for k in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color"]:
+			b.add_theme_color_override(k, ink)
+		b.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.25))
+	else:
+		b.add_theme_color_override("font_color", Art.CREAM)
+		b.add_theme_color_override("font_hover_color", Color(1.0, 0.86, 0.45))
+		b.add_theme_color_override("font_pressed_color", Art.CREAM_DIM)
+	if cb.is_valid():
+		b.pressed.connect(cb)
+	parent.add_child(b)
+	return b
+
 func big_button(parent: Control, text: String, cb: Callable, subtitle := "", width := 600.0) -> Button:
 	var b := Button.new()
 	b.text = text if subtitle == "" else "%s\n%s" % [text, subtitle]

@@ -50,6 +50,8 @@ var _rule_t := 0.0
 var role_panel: Control
 var _role_pending := true
 var rules_btn: Button
+var pivot_chip: Label                 # "SETTORE CENTRALE · 2 PUNTI" for the user pivot
+var _chip_last := "" 
 var btn_sub: Button                  # il tasto CAMBIO (sostituzioni dal vivo)
 var sub_panel: PanelContainer        # pannello IN CAMPO / PANCHINA
 var sub_court_box: VBoxContainer     # chi e' in campo (si ricostruisce all'apertura)
@@ -127,6 +129,7 @@ func _process(delta: float) -> void:
 	if _role_pending:
 		return
 	_update_rule_card(delta)
+	_update_pivot_chip()
 	# ---- broadcast intro: the tip-off countdown waits for the card. A tap
 	#      skips straight to the 3-2-1.
 	if intro_left > 0.0:
@@ -368,6 +371,10 @@ func _show_first_hint() -> void:
 	await get_tree().create_timer(1.8).timeout
 	var r := court.user.role if court != null and court.user != null else 5
 	Events.toast.emit(Loc.t("role.%d.hint" % r))
+	# Second beat: tell a first-timer where the quick rules card lives.
+	await get_tree().create_timer(2.8).timeout
+	if court != null and is_instance_valid(court) and not court.finished:
+		Events.toast.emit(Loc.t("rules.firsthint"))
 
 func _place_meter() -> void:
 	## The arc sits directly above the shooter's HEAD -- not above the SHOOT
@@ -561,6 +568,21 @@ func _build_hud() -> void:
 	lbl_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	lbl_banner.modulate.a = 0.0
 	hud.add_child(lbl_banner)
+
+	# "What is my shot worth right now?" — the pivot's value chip, dead centre
+	# under the score bug. It teaches the sector rule without a tutorial.
+	pivot_chip = Label.new()
+	pivot_chip.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	pivot_chip.position = Vector2(0, 100)
+	pivot_chip.custom_minimum_size = Vector2(0, 30)
+	pivot_chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pivot_chip.add_theme_font_size_override("font_size", 21)
+	pivot_chip.add_theme_color_override("font_color", Color(1.0, 0.84, 0.40))
+	pivot_chip.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	pivot_chip.add_theme_constant_override("shadow_offset_y", 2)
+	pivot_chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pivot_chip.visible = false
+	hud.add_child(pivot_chip)
 
 	# Way out. A match with no exit meant force-quitting the app to leave.
 	# Way out: a compact icon slab, not a grey default button eating the
@@ -1590,18 +1612,18 @@ func _build_rules_ref() -> void:
 	## running: it is a quick reference, not a pause menu.
 	rules_btn = Button.new()
 	rules_btn.text = Loc.t("rules.btn")
-	rules_btn.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	rules_btn.position = Vector2(18, 72)
-	rules_btn.custom_minimum_size = Vector2(96, 50)
-	rules_btn.add_theme_font_size_override("font_size", 18)
+	rules_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	rules_btn.position = Vector2(-206, 124)
+	rules_btn.custom_minimum_size = Vector2(188, 46)
+	rules_btn.add_theme_font_size_override("font_size", 17)
 	rules_btn.pressed.connect(_toggle_rules)
 	hud.add_child(rules_btn)
 	rules_panel = PanelContainer.new()
-	rules_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	rules_panel.offset_left = 12.0
-	rules_panel.offset_top = 130.0
-	rules_panel.offset_right = 430.0
-	rules_panel.offset_bottom = 640.0
+	rules_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	rules_panel.offset_left = -442.0
+	rules_panel.offset_top = 178.0
+	rules_panel.offset_right = -14.0
+	rules_panel.offset_bottom = 692.0
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.05, 0.07, 0.12, 0.93)
 	sb.set_corner_radius_all(14)
@@ -1621,6 +1643,8 @@ func _build_rules_ref() -> void:
 	vb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(vb)
 	_rules_line(vb, Loc.t("rules.title"), 24, Color(1.0, 0.85, 0.40))
+	_rules_line(vb, Loc.t("rules.court_h"), 18, Color(0.55, 0.85, 1.0))
+	_rules_line(vb, Loc.t("rules.court"), 15, Color(0.93, 0.94, 0.97))
 	for r in [1, 2, 3, 4, 5]:
 		_rules_line(vb, Loc.t("role.%d" % r), 18, Color(1.0, 0.86, 0.45))
 		_rules_line(vb, Loc.t("role.%d.d" % r), 15, Color(0.93, 0.94, 0.97))
@@ -1631,6 +1655,33 @@ func _build_rules_ref() -> void:
 	_rules_line(vb, Loc.t("rules.hint"), 14, Color(1, 1, 1, 0.55))
 	rules_panel.visible = false
 	hud.add_child(rules_panel)
+
+## Live "shot value" readout for the human pivot: role 1 sees which attempt
+## he is on (3 then 2), role 2 sees the sector he stands in (central 2 /
+## lateral 3) or a prompt to step out, role 3 near the side area sees the 2.
+func _update_pivot_chip() -> void:
+	if pivot_chip == null or court == null or court.user == null:
+		return
+	var u: BallPlayer = court.user
+	var txt := ""
+	if not court.one_on_one and u.has_ball and not court.ft_active and not u.own_miss_rebound:
+		var hoop: Vector2 = court.side_hoops[u.team]
+		if u.role == 1:
+			txt = Loc.t("chip.r1a") if u.pivot_attempts == 0 else Loc.t("chip.r1b")
+		elif u.role == 2:
+			var need: float = Court.SIDE_DASH_R if u.variant == "2R" else Court.SIDE_AREA_R
+			if u.global_position.distance_to(hoop) < need:
+				txt = Loc.t("chip.r2out")
+			elif court.in_central_sector(u.global_position, hoop):
+				txt = Loc.t("chip.r2c")
+			else:
+				txt = Loc.t("chip.r2l")
+		elif u.role == 3 and u.global_position.distance_to(hoop) < 360.0:
+			txt = Loc.t("chip.r3")
+	if txt != _chip_last:
+		_chip_last = txt
+		pivot_chip.text = txt
+		pivot_chip.visible = txt != ""
 
 func _rules_line(parent: Control, text: String, sz: int, col: Color) -> void:
 	var l := Label.new()

@@ -819,10 +819,11 @@ func _pivot_attack(delta: float, hoop: Vector2) -> void:
 		return
 	var spot: Vector2 = court.pivot_shot_spot(p.team, p)
 	var d: Vector2 = spot - p.global_position
-	# A role-2 pivot shoots from BEHIND the line: if he is still inside the
-	# area he keeps stepping out. Without this he planted inside, the shot was
-	# refused as illegal and the possession died on the shot clock.
-	if p.role == 2 and court.in_side_area(p.global_position):
+	# A role-2 pivot shoots from BEHIND his line (continuous 3 m, dashed
+	# 3,70 m for a 2R): until he is past it he keeps stepping out. Without
+	# this he planted inside, the shot was refused as illegal and the
+	# possession died on the shot clock.
+	if p.role == 2 and not court.pivot_beyond_line(p, hoop):
 		p.move_input = d.normalized() if d.length() > 10.0 else Vector2.ZERO
 		settle_t = 0.0
 		settled = false

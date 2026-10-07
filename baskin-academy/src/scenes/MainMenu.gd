@@ -1,6 +1,9 @@
 extends Node2D
-## Title screen: BASKIN ACADEMY big on top, PLAY + SETTINGS, over an animated
-## charcoal skyline with drifting embers. Everything procedural.
+## Title screen (v1.19 restyle): BASKIN ACADEMY over a night arena — skyline,
+## drifting embers and, as the hero art, the DOUBLE side basket (high 2.20 m +
+## low 1.20 m on the same pole) that makes a baskin court a baskin court.
+## PLAY is the one big orange action; HOW TO PLAY and SETTINGS stay quiet
+## beside it, so a first-timer knows exactly what to press first.
 
 @onready var root: Control = $UI/Root
 
@@ -80,20 +83,22 @@ func _ready() -> void:
 	tag.size = Vector2(1280, 34)
 	root.add_child(tag)
 
-	# --- two choices only: play, settings
-	var v := UIKit.column(root, Vector2(360, 330), 560)
-	UIKit.big_button(v, Loc.t("menu.play"),
-		func(): SceneRouter.goto("res://src/scenes/KitPicker.tscn"),
-		Loc.t("menu.play.sub"), 560)
-	UIKit.big_button(v, Loc.t("menu.settings"),
-		func(): SceneRouter.goto("res://src/scenes/SettingsScene.tscn"), "", 560)
+	# --- one big action, two quiet ones
+	var play := UIKit.menu_button(root, Loc.t("menu.play"),
+		func(): SceneRouter.goto("res://src/scenes/KitPicker.tscn"), "primary", 520)
+	play.position = Vector2(380, 316)
+	var how := UIKit.menu_button(root, Loc.t("menu.how"),
+		func(): SceneRouter.goto("res://src/scenes/RulesScene.tscn"), "ghost", 250)
+	how.position = Vector2(380, 428)
+	var cfg := UIKit.menu_button(root, Loc.t("menu.settings"),
+		func(): SceneRouter.goto("res://src/scenes/SettingsScene.tscn"), "ghost", 250)
+	cfg.position = Vector2(650, 428)
 	var ver := Label.new()
 	ver.text = "v%s" % Game.VERSION
 	ver.add_theme_font_size_override("font_size", 16)
 	ver.add_theme_color_override("font_color", Color(1, 1, 1, 0.35))
 	root.add_child(ver)
-	ver.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	ver.position = Vector2(-90, -34)
+	ver.position = Vector2(24, 688)
 
 func _draw_bg() -> void:
 	# vertical gradient: ink at the top, warmer charcoal at the horizon
@@ -114,3 +119,57 @@ func _draw_bg() -> void:
 	# drifting embers
 	for m in motes:
 		bg.draw_circle(m["p"], m["r"], Color(0.949, 0.420, 0.114, m["a"]))
+	_draw_hero_hoop()
+
+## The baskin signature as hero art: one pole, TWO baskets — 2.20 m and
+## 1.20 m — in spotlight, right of the buttons. Scale: 90 px = 1 m, floor
+## line at y = 700 (the same proportions the match draws, so what a player
+## sees here is what he gets on the court).
+func _draw_hero_hoop() -> void:
+	var px := 1168.0
+	var floor_y := 700.0
+	var steel := Color(0.16, 0.17, 0.21)
+	# spotlight cone over the whole assembly
+	bg.draw_colored_polygon(PackedVector2Array([
+		Vector2(1046, 0), Vector2(1296, 0),
+		Vector2(1244, floor_y), Vector2(1088, floor_y)]),
+		Color(1.0, 0.82, 0.55, 0.05))
+	# floor line + shadow
+	bg.draw_line(Vector2(1000.0, floor_y), Vector2(1276.0, floor_y),
+		Color(0.949, 0.420, 0.114, 0.28), 3.0)
+	bg.draw_ellipse(Rect2(px - 60.0, floor_y - 7.0, 120.0, 12.0),
+		Color(0, 0, 0, 0.30))
+	# pole + base
+	bg.draw_rect(Rect2(px - 5.0, 248.0, 10.0, floor_y - 240.0), steel)
+	bg.draw_rect(Rect2(px - 16.0, floor_y - 8.0, 32.0, 8.0), Color(0.12, 0.13, 0.16))
+	# the two hoops: HIGH first (2.20 m at 90 px/m), then LOW (1.20 m)
+	var f := ThemeDB.fallback_font
+	for hy in [502.0, 592.0]:
+		var big := hy < 550.0
+		var board_x := px - (64.0 if big else 50.0)
+		var bh := 30.0 if big else 22.0
+		# arm from the pole to the little board
+		bg.draw_rect(Rect2(board_x, hy - 2.0, px - board_x, 4.0), steel)
+		# transparent mini board with an orange target square
+		bg.draw_rect(Rect2(board_x - 5.0, hy - bh * 0.55, 5.0, bh),
+			Color(0.75, 0.80, 0.86, 0.92))
+		# rim: a bar sticking out toward the court, side view
+		var rw := 30.0 if big else 21.0
+		bg.draw_line(Vector2(board_x - 5.0, hy + 4.0),
+			Vector2(board_x - 5.0 - rw, hy + 4.0), Art.ORANGE, 3.5)
+		# short net
+		var ny := hy + 5.0
+		var nend := ny + (24.0 if big else 16.0)
+		bg.draw_colored_polygon(PackedVector2Array([
+			Vector2(board_x - 5.0 - rw, ny), Vector2(board_x - 5.0, ny),
+			Vector2(board_x - 5.0 - rw * 0.25, nend),
+			Vector2(board_x - 5.0 - rw * 0.75, nend)]),
+			Color(0.95, 0.95, 0.92, 0.15))
+		# regulation height tag next to each rim
+		bg.draw_string(f, Vector2(board_x + 10.0, hy + 8.0),
+			"2.20 m" if big else "1.20 m",
+			HORIZONTAL_ALIGNMENT_LEFT, 90, 17, Color(1.0, 0.84, 0.40, 0.85))
+	# a ball resting on the floor beside the low hoop
+	bg.draw_circle(Vector2(1046.0, floor_y - 9.0), 9.0, Color(0.85, 0.47, 0.16))
+	bg.draw_arc(Vector2(1046.0, floor_y - 9.0), 9.0, -PI * 0.18, PI * 0.18, 12,
+		Color(0.45, 0.20, 0.05, 0.8), 1.5)

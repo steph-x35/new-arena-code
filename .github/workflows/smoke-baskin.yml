@@ -36,7 +36,7 @@ jobs:
           # I tool di test del progetto stesso: SceneSmoke carica la MatchScene
           # completa headless, MatchTest simula un 5v5 con IA in entrambe le
           # squadre. Poi le scene dei menu.
-          for SC in tools/SceneSmoke.tscn tools/MatchTest.tscn src/scenes/MainMenu.tscn src/scenes/RolePicker.tscn src/scenes/KitPicker.tscn src/scenes/SettingsScene.tscn; do
+          for SC in tools/SceneSmoke.tscn tools/MatchTest.tscn src/scenes/MainMenu.tscn src/scenes/RolePicker.tscn src/scenes/KitPicker.tscn src/scenes/SettingsScene.tscn src/scenes/RulesScene.tscn; do
             echo "=== SMOKE: $SC ===" | tee -a /tmp/smoke_all.log
             timeout 120 godot --headless "res://$SC" --quit-after 400 > /tmp/smoke.log 2>&1 || true
             cat /tmp/smoke.log >> /tmp/smoke_all.log

@@ -1,3 +1,84 @@
+# Baskin Academy — regolamento a norma + prima volta (post 1.18.0, quarta passata)
+
+Data: 7 ottobre 2026 • Motore: Godot 4.3 stable
+
+## Riferimento aggiornato: Rev.19 (25/09/2024)
+
+L'audit della 2ª passata era sulla Rev.12. Questa passata allinea il gioco al
+testo PIÙ RECENTE (Rev.19, scaricata e verificata per intero): le regole già
+implementate sono tutte confermate, con una correzione e un completamento.
+
+## I 5 settori dell'area laterale (Rev.19 fig. 2)
+
+- Geometria a norma: il semicerchio da 3 m è diviso in CINQUE settori con
+  larghezze lungo l'arco 200/150/70/150/200 cm (770 cm totali). Il settore
+  CENTRALE (70 cm, davanti al canestro) è il posto da 2 punti; tutti gli
+  altri settori valgono 3.
+- `Court.in_central_sector()` ricava il settore dalla posizione di tiro;
+  `_baskin_points` per il ruolo 2 ora vale 2 dal centrale / 3 dal laterale
+  (prima: 2 fisso sul laterale, semplificazione documentata in 3ª passata).
+- Disegno a pavimento (CourtVisual): 4 linee radiali con le proporzioni
+  vere, arco TRATTEGGIATO a 3,70 m e cifre "2"/"3" dipinte a stampino nei
+  settori — chi prende il gioco in mano capisce a colpo d'occhio quanto
+  paga ogni posto.
+- Il pivot IA sceglie il settore a ogni consegna (`give_ball` →
+  `pivot_sector`: 25% centrale / 75% laterale) e cammina fin lì prima di
+  tirare.
+
+## FIX regolamentare: la linea del 2R
+
+Rev.19: il 2R tira da FUORI l'arco tratteggiato a 3,70 m («cioè 0,7 metri
+più lontano degli altri»). Il codice lo faceva tirare da una linea PIÙ
+VICINA (≈2,1 m). Corretti `shot_must_clear_area` (nuovo `SIDE_DASH_R` =
+185 px), lo spot di tiro (`pivot_shot_spot`) e l'IA (`pivot_beyond_line`),
+così un 2R non pianta più i piedi dove il tiro verrebbe fischiato. I tiri
+liberi del ruolo 3 sul laterale erano già dietro la tratteggiata (194 px).
+
+## Prima volta: si capisce senza manuale
+
+- Nuova voce **COME SI GIOCA** nel menu → `RulesScene`: cos'è il baskin, il
+  campo, i 5 ruoli, i punti, le regole chiave, i comandi, più il DIAGRAMMA
+  del campo visto dall'alto con i 5 settori e i due ferri sullo stesso palo.
+- In partenza il bottone **REGOLE** è in alto a DESTRA (era a sinistra,
+  poco visibile), sotto TIMEOUT e CAMBIO; la scheda si apre a destra e ora
+  inizia da IL CAMPO.
+- Chip «quanto vale il tuo tiro» sotto il tabellone per chi gioca pivot:
+  ruolo 1 → «1° TIRO · VALE 3» / «2° TIRO · VALE 2»; ruolo 2 → «SETTORE
+  CENTRALE · 2 PUNTI» / «SETTORE LATERALE · 3 PUNTI» / «ESCI DIETRO LA TUA
+  LINEA PER TIRARE»; ruolo 3 presso l'area → «CANESTRO LATERALE · 2 PUNTI».
+- Popup sul canestro realizzato dal ruolo 2: «+2 SETTORE CENTRALE» /
+  «+3 SETTORE LATERALE».
+- Il secondo hint della prima azione dice dove sta il bottone REGOLE; le
+  schede ruoli (RolePicker) e i testi del riquadro regole sono aggiornati
+  ai settori. Tutto in IT/EN (`Loc`).
+
+## Menu iniziale rinnovato
+
+- Pulsanti da menu veri (`UIKit.menu_button`): GIOCA primario arancione,
+  COME SI GIOCA + IMPOSTAZIONI secondari in stile «ghost» — addio ai
+  bottoni grigi di default sullo schermo di titolo.
+- Hero art: il DOPPIO canestro laterale (2,20 + 1,20 m sullo stesso palo,
+  scala 90 px/m, stesse proporzioni del campo di gioco) sotto riflettore a
+  destra, con le altezze scritte accanto ai ferri: è il simbolo del baskin
+  e ora è la prima cosa che si vede.
+
+## Versione e pipeline
+
+- **v1.19.0 / versionCode 21** (`GameData.VERSION` finalmente allineato: era
+  rimasto a 1.17.0 mentre il preset diceva 1.18.0).
+- Nuovo workflow `build-apk-baskin.yml`: APK firmato SOLO con il keystore
+  dai GitHub Secrets (mai nel repo; `keystore/` è ignorato da git); senza
+  secret la pipeline si salta in verde con un avviso; un tag `baskin-v*`
+  crea la Release con l'APK allegato. Istruzioni passo-passo per i secret in
+  `CONTINUITA-E-APK.md`.
+
+## Verifica
+
+CI smoke (Godot 4.3 headless: SceneSmoke, MatchTest 5v5 con IA, tutte le
+scene dei menu più la nuova RulesScene) verde, nessuno SCRIPT ERROR.
+
+---
+
 # Baskin Academy — upgrade EISI (post 1.18.0, terza passata)
 
 Data: 7 ottobre 2026 • Motore: Godot 4.3 stable

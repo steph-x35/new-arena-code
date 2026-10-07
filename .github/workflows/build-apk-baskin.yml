@@ -1,0 +1,144 @@
+name: Baskin APK
+
+# Pipeline APK di Baskin Academy (v1.19.0+). Il keystore NON sta mai nel repo:
+# arriva dai GitHub Secrets. Senza secret la pipeline si salta in verde con un
+# avviso, cosi' il primo run dopo il push non e' un fallimento.
+#
+# Secrets richiesti (repo -> Settings -> Secrets and variables -> Actions):
+#   KEYSTORE_BASE64   il file .keystore/.jks codificato in base64
+#                     (locale: base64 -w0 firma.keystore > firma.b64)
+#   KEYSTORE_PASSWORD password del keystore
+#   KEY_ALIAS         alias della chiave (nel progetto era "baskin")
+#   KEY_PASSWORD      password della chiave (spesso = KEYSTORE_PASSWORD)
+#
+# Per pubblicare: Actions -> Baskin APK -> Run workflow, oppure push di un tag
+# baskin-v1.19.0 (crea la Release con l'APK allegato).
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'baskin-v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Segnala versione e secret presenti
+        run: |
+          V=$(grep 'version/name=' baskin-academy/export_presets.cfg | head -1 | cut -d'"' -f2)
+          echo "Versione nel preset: $V"
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::notice::Secret KEYSTORE_BASE64 assente: la build APK viene SALTATA."
+            echo "Leggi baskin-academy/CONTINUITA-E-APK.md (sezione Pipeline APK su GitHub) per configurare i 4 secret."
+            echo "SKIP_APK=1" >> "$GITHUB_ENV"
+          else
+            echo "SKIP_APK=0" >> "$GITHUB_ENV"
+          fi
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
+      - name: Setup Java 17
+        if: env.SKIP_APK == '0'
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK PATH
+        if: env.SKIP_APK == '0'
+        run: |
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/build-tools/34.0.0" >> $GITHUB_PATH
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34"
+
+      - name: Download Godot 4.3 e template di export
+        if: env.SKIP_APK == '0'
+        run: |
+          mkdir -p /tmp/godot
+          curl -sL https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip -o /tmp/godot/godot.zip
+          unzip -q /tmp/godot/godot.zip -d /tmp/godot/bin
+          chmod +x /tmp/godot/bin/Godot_*
+          sudo ln -s /tmp/godot/bin/Godot_* /usr/local/bin/godot
+          godot --version
+          mkdir -p ~/.local/share/godot/export_templates/4.3.stable
+          curl -sL https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz -o /tmp/godot/templates.tpz
+          unzip -q /tmp/godot/templates.tpz -d /tmp/godot/tpl
+          cp -r /tmp/godot/tpl/templates/* ~/.local/share/godot/export_templates/4.3.stable/
+
+      - name: Prepara keystore dai Secrets e imposta i percorsi editor
+        if: env.SKIP_APK == '0'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          mkdir -p baskin-academy/keystore
+          echo "$KEYSTORE_BASE64" | base64 -d > baskin-academy/keystore/release.keystore
+          ls -la baskin-academy/keystore/
+          mkdir -p ~/.config/godot
+          cat > ~/.config/godot/editor_settings-4.3.tres <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/java_sdk_path = "${JAVA_HOME}"
+          export/android/android_sdk_path = "${ANDROID_HOME}"
+          EOF
+          cp ~/.config/godot/editor_settings-4.3.tres ~/.config/godot/editor_settings-4.tres
+          # Il preset punta a res://keystore/debug.keystore (file che NON sta
+          # nel repo): la CI lo gira sul keystore vero arrivato dai secret.
+          cd baskin-academy
+          sed -i "s|keystore/release=\".*\"|keystore/release=\"res://keystore/release.keystore\"|" export_presets.cfg
+          sed -i "s|keystore/release_user=\".*\"|keystore/release_user=\"${KEY_ALIAS}\"|" export_presets.cfg
+          sed -i "s|keystore/release_password=\".*\"|keystore/release_password=\"${KEYSTORE_PASSWORD}\"|" export_presets.cfg
+          grep keystore export_presets.cfg
+
+      - name: Import headless ed export APK
+        if: env.SKIP_APK == '0'
+        run: |
+          cd baskin-academy
+          godot --headless --import > /tmp/import.log 2>&1 || true
+          V=$(grep 'version/name=' export_presets.cfg | head -1 | cut -d'"' -f2)
+          echo "VERSIONE=$V" >> "$GITHUB_ENV"
+          mkdir -p build
+          godot --headless --export-release "Android" "build/BaskinAcademy-v${V}.apk" 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/BaskinAcademy-v${V}.apk" ]; then
+            echo "=== EXPORT FALLITO: ultime righe di log ==="
+            tail -n 60 /tmp/export.log
+            exit 1
+          fi
+          ls -lh build/
+
+      - name: Verifica firma APK
+        if: env.SKIP_APK == '0'
+        run: |
+          cd baskin-academy/build
+          apksigner verify --verbose BaskinAcademy-v*.apk || exit 1
+          unzip -l BaskinAcademy-v*.apk | grep -i mipmap | head -n 6
+
+      - name: Carica l'APK come artifact
+        if: env.SKIP_APK == '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: BaskinAcademy-APK
+          path: baskin-academy/build/BaskinAcademy-v*.apk
+          retention-days: 30
+
+      - name: Crea la Release (solo da tag baskin-v*)
+        if: env.SKIP_APK == '0' && startsWith(github.ref, 'refs/tags/baskin-v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          V="$VERSIONE"
+          gh release create "$GITHUB_REF_NAME" "baskin-academy/build/BaskinAcademy-v${V}.apk" \
+            --title "Baskin Academy v${V}" \
+            --notes "Baskin Academy v${V} — APK ARM64 firmato con il keystore dai Secrets. Installa sovrascrivendo la versione precedente (stesso package, stessa firma)." \
+            --target arena/01a0cac8-new-arena-code || true
