@@ -137,8 +137,13 @@ func _draw_hero_hoop() -> void:
 	# floor line + shadow
 	bg.draw_line(Vector2(1000.0, floor_y), Vector2(1276.0, floor_y),
 		Color(0.949, 0.420, 0.114, 0.28), 3.0)
-	bg.draw_ellipse(Rect2(px - 60.0, floor_y - 7.0, 120.0, 12.0),
-		Color(0, 0, 0, 0.30))
+	# soft shadow at the base of the pole: a flattened ellipse as a polygon
+	# (CanvasItem has no draw_ellipse in 4.3)
+	var shadow := PackedVector2Array()
+	for i in 20:
+		var sa: float = TAU * float(i) / 20.0
+		shadow.append(Vector2(px + cos(sa) * 60.0, floor_y - 7.0 + sin(sa) * 6.0))
+	bg.draw_colored_polygon(shadow, Color(0, 0, 0, 0.30))
 	# pole + base
 	bg.draw_rect(Rect2(px - 5.0, 248.0, 10.0, floor_y - 240.0), steel)
 	bg.draw_rect(Rect2(px - 16.0, floor_y - 8.0, 32.0, 8.0), Color(0.12, 0.13, 0.16))
