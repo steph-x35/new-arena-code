@@ -1,3 +1,47 @@
+# Baskin Academy — revisione dei sorgenti (post 1.18.0, seconda passata)
+
+Data: 7 ottobre 2026 • Motore: Godot 4.3 stable • Basato sui sorgenti 1.18.0
+
+## Animazioni delle schiacciate (portate da Hoop City Life v2.39)
+
+Stesso lavoro di rifinitura fatto su Hoop City Life, applicato al match 5v5:
+
+1. **FERRO A MENSOLA** (`HoopArt.gd`). La piega parte dall'ATTACCO COL
+   TABELLONE (peso zero lì) e cresce fino al fronte libero: molla reale
+   (`rim_bend`/`rim_bend_v`, k=26 damp 7) guidata dai giocatori appesi
+   (`CourtVisual.gd`, canestro più vicino). Vale per i due canestri da fondo.
+2. **LA RETE SEGUE IL FERRO**: tutta la maglia — prospettica e mezza rete
+   davanti alla palla — si sposta col ferro piegato, agganciata in cima e
+   smorzata verso l'orlo raccolto (`draw_net_perspective`, `draw_net_front`).
+3. **HANG ABBASSATO CON PENDOLO** (`Player.gd`, `Avatar.gd`). Appeso dopo lo
+   slam: corpo più basso (spalle sotto il bordo, testa fuori dal canestro),
+   la mano dello slam risale al LABBRO PIEGATO (`rim_drop`), oscillazione
+   destra/sinistra a pendolo attorno al ferro, e — quando la posa slam non
+   guida — presa a DUE mani convergenti sul tubo (`hang` + `hang_one`).
+4. (dalla prima passata: tabellone che insegue il ferro in ritardo, falli in
+   attacco calibrati, canestro laterale più leggibile.)
+
+## Audit regolamento (Rev.12 ufficiale, 18/10/2016)
+
+Verificato punto per punto sul motore regole esistente. GIÀ CONFORME:
+pivot = ruoli 1-2 (uno solo in campo, liberi da marcatura); ruolo 1: 3 punti
+al primo tiro / 2 dopo; ruolo 2: canestro laterale, obbligo palleggi prima
+del tiro; ruolo 3: laterale 2 / tradizionale 3, corsa con palleggi, no
+layup ravvicinato; ruoli 4-5: 3 da oltre l'arco; limite 3 TIR a tempo per
+il ruolo 5 e 3 CANESTRI a tempo per i ruoli 1-4 (regola 9); divieto di
+ingresso nelle aree laterali per i ruoli 3-4-5 salvo consegna (regola 5);
+canestri laterali più bassi. Documentate come semplificazioni: un solo
+canestro laterale per lato (il regolamento prevede alto+basso), punteggio
+del ruolo 2 semplificato (3 laterale / 2 frontale invece dei settori
+centrale/laterale).
+
+## Verifica
+
+- Workflow CI `smoke-baskin.yml`: SceneSmoke (MatchScene completa headless),
+  MatchTest (5v5 simulato), scene dei menu — verde, nessuno SCRIPT ERROR.
+
+---
+
 # Baskin Academy — revisione dei sorgenti (post 1.18.0)
 
 Data: 7 ottobre 2026 • Motore: Godot 4.3 stable • Basato sui sorgenti 1.18.0
