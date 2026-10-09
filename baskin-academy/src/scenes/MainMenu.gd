@@ -109,19 +109,19 @@ func _draw_bg() -> void:
 	# than the 1280x720 design -- the backdrop must cover it all or a dark
 	# stripe shows on the right (the playtest bug).
 	var vs: Vector2 = root.get_viewport_rect().size
-	var w := maxf(vs.x, 1280.0)
-	var h := maxf(vs.y, 720.0)
+	var sw := maxf(vs.x, 1280.0)
+	var sh := maxf(vs.y, 720.0)
 	# vertical gradient: ink at the top, warmer charcoal at the horizon
 	for i in 24:
 		var k := float(i) / 24.0
-		bg.draw_rect(Rect2(0, k * h, w, h / 24.0 + 1.0),
+		bg.draw_rect(Rect2(0, k * sh, sw, sh / 24.0 + 1.0),
 			Art.INK.lerp(Color(0.16, 0.12, 0.10), k * 0.8))
 	# court-line motif: a giant faint centre circle behind the title
-	bg.draw_arc(Vector2(w * 0.5, h * 1.25), 560, 0, TAU, 64, Color(0.949, 0.420, 0.114, 0.10), 3.0)
-	bg.draw_arc(Vector2(w * 0.5, h * 1.25), 400, 0, TAU, 64, Color(0.949, 0.420, 0.114, 0.07), 2.0)
+	bg.draw_arc(Vector2(sw * 0.5, sh * 1.25), 560, 0, TAU, 64, Color(0.949, 0.420, 0.114, 0.10), 3.0)
+	bg.draw_arc(Vector2(sw * 0.5, sh * 1.25), 400, 0, TAU, 64, Color(0.949, 0.420, 0.114, 0.07), 2.0)
 	# skyline silhouette with lit windows
 	for b in buildings:
-		var top := h - float(b["h"])
+		var top := sh - float(b["h"])
 		bg.draw_rect(Rect2(b["x"], top, b["w"], b["h"]), Color(0.045, 0.050, 0.068))
 		for w in b["wins"]:
 			bg.draw_rect(Rect2(b["x"] + w[0], top + w[1], 6, 8),
