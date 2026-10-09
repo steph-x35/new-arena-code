@@ -1,3 +1,38 @@
+# Baskin Academy — adattamento telefono/tablet + via il POST (v1.19.3)
+
+Data: 9 ottobre 2026 • Motore: Godot 4.3 stable
+
+## Schermi piu' larghi del 16:9: niente piu' strisce ne' interfaccia spostata
+
+Il gioco e' disegnato su un canvas 1280x720 con stretch "expand": su tablet
+(16:10) e telefoni moderni (19.5:9) lo schermo VERO e' piu' largo, e due cose
+si rompevano (segnalate al playtest su tablet: sfalsamenti e strisce a
+destra, interfaccia tutta spostata a sinistra):
+
+1. **Menu a coordinate fisse**: titolo, bottoni e blocchi 1280 restavano
+   incollati a sinistra e oltre il gradiente compariva una striscia scura.
+   Ora `UIKit.center_dx()` calcola l'offset di ricentro e menu principale,
+   COME SI GIOCA, scelta ruolo e prepartita si ricentrano da soli; lo
+   sfondo del menu (gradiente, skyline, cerchio di campo, hero art del
+   doppio canestro) e' disegnato sulla larghezza/altezza VERA del viewport,
+   con il canestro agganciato al bordo destro effettivo.
+2. **Bake statico del campo troppo stretto**: la camera spazia fino a
+   ~1030 px dal centro ma la "ciotola" precotta copriva solo +/-1003 px →
+   striscia di sfondo sul lato lontano. Margini del bake allargati
+   (W+680 × H+800): copre ogni aspect ratio senza costi per frame.
+
+In partenza tutto era gia' ancorato (tabellone, ESCI/REGOLE/TIMEOUT/CAMBIO,
+tasti azione in basso a destra): si adattano da soli.
+
+## Rimosso il bottone POST
+
+Al playtest il POST confondeva il pad baskin. Tolto bottone, gestore e
+visibilita'. Restano (invisibili al pad ma nel motore): fadeaway, hook da
+spalle, stepback, floater, pull-up, eurostep (TRICK + stick avanti) e
+tutta la famiglia dei tiri scolpiti v1.19.2.
+
+---
+
 # Baskin Academy — palleggio, difesa ed effetti di tiro da Hoop City (v1.19.2)
 
 Data: 7 ottobre 2026 • Motore: Godot 4.3 stable

@@ -12,6 +12,7 @@ const TXT_COL := Color(0.93, 0.94, 0.97)    # body text
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Art.INK)
+	var dx := UIKit.center_dx(root)
 	var bg := ColorRect.new()
 	bg.color = Color(0.078, 0.086, 0.110)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -31,7 +32,7 @@ func _ready() -> void:
 	title.add_theme_font_size_override("font_size", 58)
 	title.add_theme_color_override("font_color", Color(1.0, 0.86, 0.45))
 	title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.65))
-	title.position = Vector2(0, 30)
+	title.position = Vector2(dx, 30)
 	title.size = Vector2(1280, 74)
 	root.add_child(title)
 	var sub := Label.new()
@@ -39,12 +40,12 @@ func _ready() -> void:
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub.add_theme_font_size_override("font_size", 21)
 	sub.modulate = Color(1, 1, 1, 0.7)
-	sub.position = Vector2(0, 100)
+	sub.position = Vector2(dx, 100)
 	sub.size = Vector2(1280, 30)
 	root.add_child(sub)
 
 	# ---- left: the guide, scrollable (it is long by design) ----------------
-	var v := UIKit.column(root, Vector2(56, 150), 600)
+	var v := UIKit.column(root, Vector2(56.0 + dx, 150), 600)
 	_section(v, "guide.what_h")
 	_body(v, "guide.what")
 	_section(v, "guide.court_h")
@@ -61,7 +62,7 @@ func _ready() -> void:
 
 	# ---- right: the court diagram + caption + actions ----------------------
 	var diagram := Control.new()
-	diagram.position = Vector2(700, 168)
+	diagram.position = Vector2(700.0 + dx, 168)
 	diagram.size = Vector2(520, 350)
 	diagram.draw.connect(_draw_court.bind(diagram))
 	root.add_child(diagram)
@@ -70,16 +71,16 @@ func _ready() -> void:
 	cap.add_theme_font_size_override("font_size", 18)
 	cap.modulate = Color(1, 1, 1, 0.75)
 	cap.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	cap.position = Vector2(700, 524)
+	cap.position = Vector2(700.0 + dx, 524)
 	cap.size = Vector2(520, 56)
 	root.add_child(cap)
 
 	var play := UIKit.menu_button(root, Loc.t("rolepick.go"),
 		func(): SceneRouter.goto("res://src/scenes/KitPicker.tscn"), "primary", 300)
-	play.position = Vector2(700, 600)
+	play.position = Vector2(700.0 + dx, 600)
 	var back := UIKit.menu_button(root, Loc.t("common.back"),
 		func(): SceneRouter.goto(SceneRouter.MENU), "ghost", 200)
-	back.position = Vector2(1020, 600)
+	back.position = Vector2(1020.0 + dx, 600)
 
 func _section(v: VBoxContainer, key: String) -> void:
 	var l := Label.new()

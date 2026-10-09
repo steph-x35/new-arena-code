@@ -15,6 +15,13 @@ const FONT_TITLE := 44
 const TOP_SAFE := 168        ## y below the header where content may start
 const BOTTOM_SAFE := 24      ## keep this much clear at the bottom
 
+## Sui dispositivi PIU' LARGHI del canvas di progetto 1280x720 (tablet 16:10,
+## telefoni 19.5:9) lo stretch "expand" aggiunge spazio a destra: tutto cio'
+## che e' disegnato come blocco 1280 verrebbe spostato a sinistra. Questo
+## offset ricentra quei blocchi. 0 su un 16:9 esatto.
+func center_dx(parent: Control) -> float:
+	return maxf((vp(parent).x - 1280.0) * 0.5, 0.0)
+
 func vp(parent: Control) -> Vector2:
 	## Usable viewport size, with a sane fallback before the tree is ready.
 	var s: Vector2 = parent.get_viewport_rect().size

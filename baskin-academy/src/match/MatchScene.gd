@@ -26,7 +26,6 @@ var btn_check: TouchButton
 var btn_steal: TouchButton
 var btn_guard: TouchButton
 var btn_pnr: TouchButton
-var btn_post: TouchButton                 # POST UP (spalle al canestro)
 var _last_move_ms := -100000              # per la combo TRICK->TIRA (pull-up)
 var btn_timeout: Button
 var bench_panel: PanelContainer
@@ -275,7 +274,6 @@ func _process(delta: float) -> void:
 	if court.ft_active:
 		_show_btn(btn_crossover, false)
 		_show_btn(btn_pass, false)
-		_show_btn(btn_post, false)
 		_show_btn(btn_block, false)
 		_show_btn(btn_steal, false)
 		_show_btn(btn_guard, false)
@@ -290,14 +288,13 @@ func _process(delta: float) -> void:
 		if show_check:
 			_show_btn(btn_shoot, false)
 			_show_btn(btn_crossover, false)
-			_show_btn(btn_post, false)
 			_show_btn(btn_pass, false)
 			_show_btn(btn_pnr, false)
 			_show_btn(btn_block, false)
 			_show_btn(btn_steal, false)
 			_show_btn(btn_guard, false)
 	if not court.user_on_court:
-		for b in [btn_shoot, btn_crossover, btn_pass, btn_pnr, btn_post, btn_block, btn_steal, btn_guard, btn_check]:
+		for b in [btn_shoot, btn_crossover, btn_pass, btn_pnr, btn_block, btn_steal, btn_guard, btn_check]:
 			_show_btn(b, false)
 		if joystick != null:
 			joystick.visible = false
@@ -787,13 +784,6 @@ func _build_hud() -> void:
 	btn_crossover = _button("TRICK", SLOT_LEFT, SZ_S, _dribble_move, Callable())
 	btn_pass = _button("PASS", SLOT_RIGHT, SZ_S, _pass, Callable())
 	btn_pnr = _button("P&R", SLOT_PNR, SZ_S, _pnr_tap, Callable())
-	# POST UP (da Hoop City): spalle al canestro. Da li' TIRA gioca la
-	# famiglia fade/hook e TRICK fa il drop step. Sopra il CHECK (che esiste
-	# solo nel 1v1, il POST solo nel 5v5: mai insieme).
-	btn_post = _button("POST", Vector2(-214, -484), SZ_S, _post_tap, Callable())
-	btn_post.accent = Color(0.980, 0.780, 0.260)
-	btn_post.visible = false
-	btn_post.set_process_input(false)
 
 	btn_block = _button("JUMP", SLOT_PRIMARY, SZ_P, _block, Callable())
 	btn_check = _button("CHECK", Vector2(-214, -500), SZ_P, _do_check, Callable())
@@ -853,7 +843,6 @@ func _apply_pad(offence: bool) -> void:
 	_show_btn(btn_crossover, team_off)  # 1v1 and 5v5 — same TRICK as street
 	_show_btn(btn_pass, team_off and five)
 	_show_btn(btn_pnr, team_off and five)
-	_show_btn(btn_post, team_off and five and not court.one_on_one)
 	_show_btn(btn_block, not team_off)
 	_show_btn(btn_steal, not team_off)
 	_show_btn(btn_guard, not team_off)
@@ -923,9 +912,7 @@ func _shoot_down() -> void:
 	# secondo = tiro in slancio (popup visibile, timing leggermente severo).
 	u.combo_pullup = u.has_ball and Time.get_ticks_msec() - _last_move_ms < 500 \
 		and not court.ft_active
-	# Da POST niente auto-dunk: TIRA gioca hook/fade. Per la schiacciata si
-	# esce prima dalla post (secondo tap su POST).
-	if u.can_dunk() and not u.posting:
+	if u.can_dunk():
 		# Close enough to throw it down: skip the meter entirely.
 		u.do_dunk()
 		return
@@ -1111,24 +1098,6 @@ func _guard_up() -> void:
 	if court.user:
 		court.user.guarding = false
 
-func _post_tap() -> void:
-	## POST UP (da Hoop City): spalle al canestro. Da li' SHOOT gioca la
-	## famiglia fade/hook e TRICK fa il drop step.
-	var u := court.user
-	if u == null or not u.has_ball or court.finished or court.awaiting_check:
-		return
-	if u.jumping or u.hanging or court.ft_active:
-		return
-	u.posting = not u.posting
-	if u.posting:
-		var h: Vector2 = court.attack_hoop_for(u)
-		var hx: float = h.x - u.global_position.x
-		if absf(hx) > 1.0:
-			u.facing = -signf(hx)
-		u.velocity *= 0.3
-		Events.popup.emit("POST", u.global_position, Color(0.98, 0.78, 0.26), false)
-		Events.toast.emit("POST: TIRA = fade/hook · TRICK = drop step")
-
 func _dribble_move() -> void:
 	## CROSSOVER reads the joystick so the SAME button plays five moves:
 	##   neutral   -> crossover (or a hesitation when standing still)
@@ -1157,10 +1126,7 @@ func _dribble_move() -> void:
 		#   otherwise    -> crossover
 		var mi: Vector2 = u.move_input
 		var kind := "crossover"
-		if u.posting:
-			# DAL POST il TRICK e' sempre il DROP STEP (l'uscita verso il ferro)
-			kind = "dropstep"
-		elif mi.length() < 0.25:
+		if mi.length() < 0.25:
 			_neutral_trick_i += 1
 			kind = "crossover" if _neutral_trick_i % 2 == 0 else "between"
 		elif mi.y > 0.35:
@@ -1181,7 +1147,6 @@ func _dribble_move() -> void:
 				"hesi": "HESITATION",
 				"between": "THROUGH THE LEGS",
 				"euro": "EURO STEP",
-				"dropstep": "DROP STEP",
 			}.get(kind, "MOVE"))
 		return
 	# No ball: CROSSOVER becomes an explosive cut, so the button is never dead.

@@ -296,7 +296,10 @@ func apply_env(e: String) -> void:
 
 ## Bounds of everything the static layer paints, in local court coords.
 func _static_bounds() -> Rect2:
-	return Rect2(-W * 0.5 - 130, -H * 0.5 - 430, W + 260, H + 760)
+	# Margini ampi: su tablet/telefoni larghi la camera spazia fino a
+	# ~1030 px dal centro e oltre il vecchio bake (+/-1003) restava una
+	# striscia di colore di sfondo. Ora la "ciotola" copre ogni aspect.
+	return Rect2(-W * 0.5 - 340, -H * 0.5 - 440, W + 680, H + 800)
 
 ## Ask for the bowl to be rasterised into `_static_tex` (one frame of a
 ## throwaway SubViewport, then a CPU readback). Falls back to vector drawing

@@ -16,6 +16,7 @@ func _ready() -> void:
 func _build() -> void:
 	for c in root.get_children():
 		c.queue_free()
+	var dx := UIKit.center_dx(root)
 	var bg := ColorRect.new()
 	bg.color = Color(0.08, 0.09, 0.13)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -25,7 +26,7 @@ func _build() -> void:
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	t.add_theme_font_size_override("font_size", 46)
 	t.add_theme_color_override("font_color", Color(1.0, 0.86, 0.45))
-	t.position = Vector2(0, 26)
+	t.position = Vector2(dx, 26)
 	t.size = Vector2(1280, 60)
 	root.add_child(t)
 	var sub := Label.new()
@@ -33,13 +34,13 @@ func _build() -> void:
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub.add_theme_font_size_override("font_size", 20)
 	sub.modulate = Color(1, 1, 1, 0.7)
-	sub.position = Vector2(0, 92)
+	sub.position = Vector2(dx, 92)
 	sub.size = Vector2(1280, 30)
 	root.add_child(sub)
 
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
-	row.position = Vector2(56, 150)
+	row.position = Vector2(56.0 + dx, 150)
 	root.add_child(row)
 	for r in [1, 2, 3, 4, 5]:
 		row.add_child(_card(r))
@@ -49,21 +50,21 @@ func _build() -> void:
 	who.text = Loc.t("rolepick.as") % Loc.t("role.%d" % selected)
 	who.add_theme_font_size_override("font_size", 24)
 	who.add_theme_color_override("font_color", Color(1.0, 0.86, 0.45))
-	who.position = Vector2(56, 610)
+	who.position = Vector2(56.0 + dx, 610)
 	who.size = Vector2(640, 40)
 	root.add_child(who)
 	var go := Button.new()
 	go.text = Loc.t("rolepick.go")
 	go.custom_minimum_size = Vector2(300, 76)
 	go.add_theme_font_size_override("font_size", 26)
-	go.position = Vector2(706, 596)
+	go.position = Vector2(706.0 + dx, 596)
 	go.pressed.connect(_start)
 	root.add_child(go)
 	var back := Button.new()
 	back.text = Loc.t("common.back")
 	back.custom_minimum_size = Vector2(180, 76)
 	back.add_theme_font_size_override("font_size", 22)
-	back.position = Vector2(1020, 596)
+	back.position = Vector2(1020.0 + dx, 596)
 	back.pressed.connect(func(): SceneRouter.goto("res://src/scenes/KitPicker.tscn"))
 	root.add_child(back)
 
