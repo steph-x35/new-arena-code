@@ -133,14 +133,18 @@ func build(title: String, card_size := Vector2(880, 720)) -> GamePanel:
 	return self
 
 func _screen() -> Vector2:
-	## Prefer the real window size: get_viewport_rect() can still report the
-	## previous resolution right after a rotation/resize, which sized the card
-	## for the wrong screen and pushed the close button past the edge.
+	## CANVAS units, NOT window pixels. This panel lives inside the stretched
+	## viewport (canvas_items + expand): on a tablet the window is e.g.
+	## 2560x1600 physical while the canvas is only 1280x800 -- centring the
+	## card on the WINDOW size put it past the right/bottom edge of the
+	## canvas (the "ESCI menu off screen" playtest bug).
+	if is_inside_tree():
+		var r: Rect2 = get_viewport_rect()
+		if r.size.x > 1.0 and r.size.y > 1.0:
+			return r.size
 	var w: Window = get_window()
 	if w != null and w.size.x > 0:
 		return Vector2(w.size)
-	if get_viewport() != null:
-		return get_viewport_rect().size
 	return Vector2(1280, 720)
 
 func _fit(vp: Vector2) -> Vector2:

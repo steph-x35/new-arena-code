@@ -663,8 +663,9 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			hand = Vector2(elbow.x + sx * h * 0.04 + arm_swing * sx * 0.6,
 				hip_y + h * 0.06)
 		if kind == DRIBBLE and strong:
-			var curve := drib_arm_curve(sh_p, elbow, hand)
-			c.draw_polyline(curve, skin, lw * 0.83, true)
+			# PLAYTEST: la curva continua (bezier sul gomito proiettato)
+			# sembrava un braccio "ondulato". Braccio DRETTO spalla->mano.
+			c.draw_line(sh_p, hand, skin, lw * 0.85)
 			c.draw_circle(sh_p, lw * 0.415, skin)
 			c.draw_circle(hand, lw * 0.415, skin)
 		else:

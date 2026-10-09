@@ -1,3 +1,38 @@
+# Baskin Academy — v1.19.4: menu ESCI a schermo, braccio dritto, regole piu' corte
+
+Data: 9 ottobre 2026 • Motore: Godot 4.3 stable
+
+## Il menu "ESCI" usciva dallo schermo (tablet)
+
+`GamePanel` centava la card sui **pixel fisici della finestra**
+(`get_window().size`, es. 2560x1600) ma il pannello vive nel **canvas**
+dello stretch (1280x800): la card finiva oltre il bordo destro/inferiore.
+`_screen()` ora restituisce le unita' canvas (viewport del pannello), con
+fallback alla finestra solo se non ancora nell'albero. Copre anche
+_relayout, _fit e content_width.
+
+## Braccio del palleggio: DRETTO
+
+Il braccio forte in palleggio era una bezier continua sul gomito
+proiettato: al playtest risultava "ondulato". Ora e' una linea dritta
+spalla->mano (le funzioni statiche restano per i tool di debug).
+
+## Testi delle regole accorciati
+
+Le cards didattiche (in alto a destra, 6,5 s) e il pannello REGOLE
+avevano testi che non si facevano in tempo a leggere. Accorciati i piu'
+lunghi mantenendo ogni regola: campo, punteggi, fischi, fallo L,
+sostituzioni, doppio palleggio, R2/R3.
+
+## QA pad
+
+Ricontrollato il pad dopo la rimozione di POST: TIRA/TRICK/PASSA/P&R in
+attacco (PASSA e P&R solo 5v5), BLOCCA/RUBBA/MARCA in difesa, solo TIRA
+ai liberi, CHECK solo 1v1, tutto nascosto quando l'utente e' in panchina.
+Nessun riferimento residuo a btn_post/_post_tap.
+
+---
+
 # Baskin Academy — adattamento telefono/tablet + via il POST (v1.19.3)
 
 Data: 9 ottobre 2026 • Motore: Godot 4.3 stable
