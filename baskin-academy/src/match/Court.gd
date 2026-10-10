@@ -181,7 +181,7 @@ var drill := ""                            # id allenamento attivo ("" = partita
 var _drill_ct := 0                         # obiettivi centrati
 var drill_done := false
 var onboarding := false                    # prima partita con obiettivi
-var onboard_step := 0                      # 0 consegna · 1 pivot segna · 2 classico
+var onboard_phase := 0                     # 0 consegna · 1 pivot segna · 2 classico
 
 func _ready() -> void:
 	randomize()
@@ -3815,9 +3815,9 @@ func _made_tally(shooter: BallPlayer, pts: int, side: bool) -> void:
 			if (String(cfg["hoop"]) == "side") == side:
 				_drill_progress()
 	if onboarding:
-		if onboard_step == 1 and shooter.team == 0 and shooter.role <= 2:
+		if onboard_phase == 1 and shooter.team == 0 and shooter.role <= 2:
 			_onboard_next()
-		elif onboard_step == 2 and shooter.is_user and not side:
+		elif onboard_phase == 2 and shooter.is_user and not side:
 			_onboard_next()
 
 func _drill_progress() -> void:
@@ -3833,9 +3833,9 @@ func _drill_progress() -> void:
 func _onboard_next() -> void:
 	if not onboarding:
 		return
-	onboard_step += 1
-	onboard_step.emit(onboard_step)
-	if onboard_step >= 3:
+	onboard_phase += 1
+	onboard_step.emit(onboard_phase)
+	if onboard_phase >= 3:
 		onboarding = false
 		Game.profile["baskin_onboarded"] = true
 		SaveSystem.save_game()
