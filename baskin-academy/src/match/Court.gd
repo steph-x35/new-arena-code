@@ -560,7 +560,7 @@ func give_ball(p: BallPlayer) -> void:
 	and (Time.get_ticks_msec() / 1000.0 - last_pass_time) < 1.4:
 		if drill == "pivot_delivery" and last_passer.is_user and not drill_done:
 			_drill_progress()
-		if onboarding and onboard_step == 0:
+		if onboarding and onboard_phase == 0:
 			_onboard_next()
 
 ## Grab a loose ball. Makes the SHOOT button meaningful even without possession
