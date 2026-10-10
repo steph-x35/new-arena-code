@@ -149,4 +149,7 @@ func _highlight(b: Button, col: Color, ink := false) -> void:
 func _start() -> void:
 	Game.profile["next_match_mode"] = "full"
 	Game.profile["next_kit_return"] = SceneRouter.MENU
+	# PRIMA PARTITA (una volta sola): obiettivi didattici in campo + consigli
+	if not bool(Game.profile.get("baskin_onboarded", false)):
+		Game.profile["baskin_onboarding"] = true
 	SceneRouter.goto("res://src/scenes/RolePicker.tscn")

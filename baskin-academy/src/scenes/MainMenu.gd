@@ -97,6 +97,9 @@ func _ready() -> void:
 	var cfg := UIKit.menu_button(root, Loc.t("menu.settings"),
 		func(): SceneRouter.goto("res://src/scenes/SettingsScene.tscn"), "ghost", 250)
 	cfg.position = Vector2(650.0 + dx, 428)
+	var train := UIKit.menu_button(root, Loc.t("menu.train"),
+		func(): SceneRouter.goto("res://src/scenes/DrillPicker.tscn"), "ghost", 250)
+	train.position = Vector2(650.0 + dx, 316)
 	var ver := Label.new()
 	ver.text = "v%s" % Game.VERSION
 	ver.add_theme_font_size_override("font_size", 16)

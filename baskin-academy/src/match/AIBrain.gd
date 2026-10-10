@@ -20,6 +20,7 @@ var pnr_from: BallPlayer = null
 var pnr_hold := false
 var screen_on: BallPlayer = null
 var aggression := 0.5
+var passive := false             # ALLENAMENTO: resta fermo, l'esercizio e' sul gesto
 var shot_cd := 0.0
 var want_drive := true
 var _jumped_gather := false   # one contest jump per opponent gather
@@ -83,6 +84,12 @@ func setup(player: BallPlayer, c: Node2D) -> void:
 	spot = p.global_position
 
 func _physics_process(delta: float) -> void:
+	if passive and p != null:
+		# ALLENAMENTO: avversario fermo. Niente marcamento ne' rubate: il
+		# giocatore prova il gesto senza pressione, le regole restano.
+		p.move_input = Vector2.ZERO
+		p.stance = false
+		return
 	if p != null and (p.entering or p.leaving):
 		return
 	if p == null or court == null or not court.play_live:

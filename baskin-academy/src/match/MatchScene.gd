@@ -50,6 +50,12 @@ var rule_body: Label
 var rule_why: Label                        # la terza riga: IL PERCHE'
 var _rule_t := 0.0
 var _viol_counts := {}                     # fischi del tempo corrente (riepilogo)
+var score_holder: Control                  # il tabellone (nascosto in allenamento)
+var drill_banner: Label                    # obiettivo + progresso dell'esercizio
+var drill_panel: PanelContainer            # pannello fine allenamento (RIPROVA/ESCI)
+var onboard_banner: Label                  # obiettivi della prima partita
+var _tip_step := -1                        # -1 = niente; 0..4 = consigli onboarding
+var _tip_panel: Control
 var role_panel: Control
 var _role_pending := true
 var rules_btn: Button
@@ -123,8 +129,18 @@ func _ready() -> void:
 	add_child(nf)
 	# Hold play for the countdown: nobody moves until "GO!".
 	court.play_live = false
-	tip_left = 3.0
-	court.countdown_hold = tip_left + 0.5
+	if court.onboarding:
+		# PRIMA PARTITA: prima i consigli (al tocco), POI il 3-2-1.
+		_setup_onboarding()
+		_tip_step = 0
+		_show_tip()
+		tip_left = 0.0
+		court.countdown_hold = 1.0e9
+	else:
+		tip_left = 3.0
+		court.countdown_hold = tip_left + 0.5
+	if court.drill != "":
+		_setup_drill()
 
 func _process(delta: float) -> void:
 	var u := court.user
@@ -139,6 +155,10 @@ func _process(delta: float) -> void:
 		intro_left -= delta
 		if intro_left <= 0.0:
 			_intro_done()
+		return
+	# ---- ONBOARDING: i consigli del primo avvio aspettano il tocco; il
+	#      3-2-1 parte solo quando sono finiti.
+	if _tip_step >= 0:
 		return
 	# ---- between-quarters: cheerleaders dance on the court for 10 seconds,
 	#      then the 3-2-1 countdown brings the next quarter in.
@@ -432,6 +452,7 @@ func _build_hud() -> void:
 	holder.offset_bottom = 96
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hud.add_child(holder)
+	score_holder = holder
 	var board := PanelContainer.new()
 	holder.add_child(board)
 	var sb := StyleBoxFlat.new()
@@ -1329,6 +1350,12 @@ func _on_quarter_ended(q: int) -> void:
 		rule_panel.modulate.a = 1.0
 		_rule_t = 9.0
 		_viol_counts.clear()
+	# QUIZ DELL'ALLENATORE: una domandina a fine tempo (mai dopo l'ultimo:
+	# la partita finita ha gia' il suo epilogo). L'intervallo si allunga
+	# per lasciare il tempo di rispondere con calma.
+	if court.drill == "" and q >= 2 and q <= 4:
+		intermission_left = 13.0
+		_show_quiz()
 
 func _on_score(h: int, a: int) -> void:
 	lbl_score.text = "%d - %d" % [h, a]
@@ -1755,3 +1782,245 @@ func _toggle_rules() -> void:
 	if rules_panel != null:
 		rules_panel.visible = _rules_open
 	Sfx.play("go", -8.0)
+
+
+# ================================================== ALLENAMENTO / ONBOARDING
+const QUIZ := [
+	{"k": "quiz.q1", "ok": 0, "w": "rule.v_illegal.why"},
+	{"k": "quiz.q2", "ok": 1, "w": "rule.r1_make.why"},
+	{"k": "quiz.q3", "ok": 2, "w": "quiz.w3"},
+	{"k": "quiz.q4", "ok": 0, "w": "rule.v_stop4.why"},
+	{"k": "quiz.q5", "ok": 2, "w": "rule.v_pivot5s.why"},
+	{"k": "quiz.q6", "ok": 1, "w": "rule.v_lim3.why"},
+	{"k": "quiz.q7", "ok": 2, "w": "rule.v_dbl.why"},
+	{"k": "quiz.q8", "ok": 0, "w": "rule.v_area.why"},
+]
+
+var _quiz_panel: PanelContainer
+var _quiz_answered := false
+
+func _center_panel(width: float) -> PanelContainer:
+	## Pannello centrato sopra l'HUD (quiz, fine allenamento).
+	var p := PanelContainer.new()
+	p.set_anchors_preset(Control.PRESET_CENTER)
+	p.z_index = 70
+	p.offset_left = -width * 0.5
+	p.offset_right = width * 0.5
+	p.offset_top = -220.0
+	p.offset_bottom = 220.0
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.05, 0.07, 0.12, 0.96)
+	sb.set_corner_radius_all(16)
+	sb.set_border_width_all(2)
+	sb.border_color = Color(1.0, 0.82, 0.35, 0.65)
+	sb.content_margin_left = 20
+	sb.content_margin_right = 20
+	sb.content_margin_top = 16
+	sb.content_margin_bottom = 16
+	p.add_theme_stylebox_override("panel", sb)
+	var vb := VBoxContainer.new()
+	vb.add_theme_constant_override("separation", 10)
+	p.add_child(vb)
+	p.set_meta("vb", vb)
+	hud.add_child(p)
+	return p
+
+# ------------------------------------------------------------------ drill
+func _setup_drill() -> void:
+	if score_holder != null:
+		score_holder.visible = false
+	if momentum_left != null:
+		momentum_left.visible = false
+	if momentum_right != null:
+		momentum_right.visible = false
+	if lbl_clock != null:
+		lbl_clock.text = ""
+	drill_banner = Label.new()
+	drill_banner.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	drill_banner.offset_top = 30
+	drill_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	drill_banner.add_theme_font_size_override("font_size", 26)
+	drill_banner.add_theme_color_override("font_color", Color(1.0, 0.85, 0.40))
+	drill_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hud.add_child(drill_banner)
+	var cfg := Drills.cfg(court.drill)
+	_refresh_drill_banner(0, int(cfg.get("target", 0)) if not cfg.is_empty() else 0)
+	court.drill_step.connect(_refresh_drill_banner)
+	court.drill_complete.connect(_drill_finish)
+
+func _refresh_drill_banner(done: int, total: int) -> void:
+	if drill_banner == null:
+		return
+	var cfg := Drills.cfg(court.drill)
+	drill_banner.text = "%s   ·   %d/%d" % [
+		Loc.t(String(cfg.get("loc", ""))), done, total]
+
+func _drill_finish() -> void:
+	_jumbo("jumbo.three")
+	Events.toast.emit(Loc.t("drill.done.toast"))
+	if drill_panel != null:
+		return
+	drill_panel = _center_panel(620.0)
+	var vb: VBoxContainer = drill_panel.get_meta("vb")
+	var t := Label.new()
+	t.text = Loc.t("drill.done.title")
+	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	t.add_theme_font_size_override("font_size", 30)
+	t.add_theme_color_override("font_color", Color(1.0, 0.85, 0.40))
+	vb.add_child(t)
+	var s := Label.new()
+	s.text = Loc.t("drill.done.sub")
+	s.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	s.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	s.add_theme_font_size_override("font_size", 19)
+	vb.add_child(s)
+	var again := Button.new()
+	again.text = Loc.t("drill.again")
+	again.custom_minimum_size = Vector2(0, 74)
+	again.add_theme_font_size_override("font_size", 24)
+	again.pressed.connect(func():
+		Game.profile["next_match_mode"] = "drill"
+		Game.profile["next_drill"] = court.drill
+		SceneRouter.goto("res://src/match/MatchScene.tscn"))
+	vb.add_child(again)
+	var out := Button.new()
+	out.text = Loc.t("drill.exit")
+	out.custom_minimum_size = Vector2(0, 74)
+	out.add_theme_font_size_override("font_size", 22)
+	out.pressed.connect(func(): SceneRouter.goto(SceneRouter.MENU))
+	vb.add_child(out)
+
+# ------------------------------------------------------------- onboarding
+func _setup_onboarding() -> void:
+	onboard_banner = Label.new()
+	onboard_banner.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	onboard_banner.offset_top = 104
+	onboard_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	onboard_banner.add_theme_font_size_override("font_size", 22)
+	onboard_banner.add_theme_color_override("font_color", Color(0.55, 0.85, 1.0))
+	onboard_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hud.add_child(onboard_banner)
+	court.onboard_step.connect(_on_onboard_step)
+	_on_onboard_step(0)
+
+func _on_onboard_step(step: int) -> void:
+	if onboard_banner == null:
+		return
+	if step >= 3:
+		onboard_banner.text = Loc.t("onboard.done")
+		var tw := create_tween()
+		tw.tween_interval(6.0)
+		tw.tween_callback(func():
+			if onboard_banner != null:
+				onboard_banner.visible = false)
+	else:
+		onboard_banner.text = "%s   (%d/3)" % [Loc.t("onboard.o%d" % step), step]
+
+func _show_tip() -> void:
+	if _tip_panel == null:
+		_tip_panel = Control.new()
+		_tip_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_tip_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+		var dim := ColorRect.new()
+		dim.color = Color(0.02, 0.03, 0.05, 0.9)
+		dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_tip_panel.add_child(dim)
+		var box := VBoxContainer.new()
+		box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		box.alignment = BoxContainer.ALIGNMENT_CENTER
+		box.add_theme_constant_override("separation", 22)
+		box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_tip_panel.add_child(box)
+		var txt := Label.new()
+		txt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		txt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		txt.add_theme_font_size_override("font_size", 30)
+		txt.add_theme_color_override("font_color", Color(0.97, 0.95, 0.9))
+		box.add_child(txt)
+		var hint := Label.new()
+		hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		hint.add_theme_font_size_override("font_size", 18)
+		hint.modulate = Color(1, 1, 1, 0.45)
+		box.add_child(hint)
+		_tip_panel.set_meta("txt", txt)
+		_tip_panel.set_meta("hint", hint)
+		_tip_panel.gui_input.connect(func(e):
+			var tap: bool = (e is InputEventScreenTouch and not e.pressed) \
+				or (e is InputEventMouseButton and not e.pressed)
+			if tap:
+				_tip_next())
+		hud.add_child(_tip_panel)
+	var txt: Label = _tip_panel.get_meta("txt")
+	var hint: Label = _tip_panel.get_meta("hint")
+	txt.text = Loc.t("onboard.t%d" % _tip_step)
+	hint.text = Loc.t("onboard.tap")
+
+func _tip_next() -> void:
+	_tip_step += 1
+	if _tip_step > 4:
+		_tip_step = -1
+		if _tip_panel != null:
+			_tip_panel.queue_free()
+			_tip_panel = null
+		# ora si parte davvero: il 3-2-1 che era rimasto in attesa
+		tip_left = 3.0
+		court.countdown_hold = tip_left + 0.5
+		Sfx.play("go", -6.0)
+		return
+	_show_tip()
+
+# -------------------------------------------------------------------- quiz
+func _show_quiz() -> void:
+	var qd: Dictionary = QUIZ.pick_random()
+	_quiz_answered = false
+	_quiz_panel = _center_panel(640.0)
+	var vb: VBoxContainer = _quiz_panel.get_meta("vb")
+	var t := Label.new()
+	t.text = Loc.t("quiz.title")
+	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	t.add_theme_font_size_override("font_size", 22)
+	t.add_theme_color_override("font_color", Color(0.55, 0.85, 1.0))
+	vb.add_child(t)
+	var q := Label.new()
+	q.text = Loc.t(String(qd["k"]))
+	q.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	q.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	q.add_theme_font_size_override("font_size", 26)
+	vb.add_child(q)
+	var fb := Label.new()
+	fb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	fb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	fb.add_theme_font_size_override("font_size", 17)
+	fb.modulate = Color(1, 1, 1, 0)
+	vb.add_child(fb)
+	var opts: PackedStringArray = Loc.t(String(qd["k"]) + ".a").split("|")
+	for i in opts.size():
+		var b := Button.new()
+		b.text = String(opts[i])
+		b.custom_minimum_size = Vector2(0, 64)
+		b.add_theme_font_size_override("font_size", 21)
+		var idx: int = i
+		b.pressed.connect(func(): _quiz_answer(qd, idx, b, fb))
+		vb.add_child(b)
+
+func _quiz_answer(qd: Dictionary, idx: int, btn: Button, fb: Label) -> void:
+	if _quiz_answered:
+		return
+	_quiz_answered = true
+	var ok: bool = idx == int(qd["ok"])
+	if ok:
+		Sfx.play("go", -2.0)
+		Sfx.haptic(60)
+		fb.modulate = Color(0.55, 1.0, 0.6)
+		fb.text = Loc.t("quiz.right") + " " + Loc.t(String(qd["w"]))
+	else:
+		Sfx.haptic(35)
+		btn.modulate = Color(1, 1, 1, 0.45)
+		var opts: PackedStringArray = Loc.t(String(qd["k"]) + ".a").split("|")
+		fb.modulate = Color(1.0, 0.62, 0.5)
+		fb.text = Loc.t("quiz.wrong") % String(opts[int(qd["ok"])]) \
+			+ " " + Loc.t(String(qd["w"]))
+	var p := _quiz_panel
+	get_tree().create_timer(5.0).timeout.connect(func():
+		if p != null and is_instance_valid(p):
+			p.queue_free())

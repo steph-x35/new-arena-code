@@ -173,10 +173,31 @@ var _ft_keep_possession := false  # illegal defense: victim team keeps the ball
 var _ends_swapped := false         # after Q2 the teams change ends
 var ft_side := false               # this FT series is shot at a small side basket
 
+# ------------------------------------------------- ALLENAMENTO / ONBOARDING
+signal drill_step(done: int, total: int)   # progresso dell'esercizio
+signal drill_complete                      # obiettivo raggiunto
+signal onboard_step(step: int)             # prossimo obiettivo della prima partita
+var drill := ""                            # id allenamento attivo ("" = partita)
+var _drill_ct := 0                         # obiettivi centrati
+var drill_done := false
+var onboarding := false                    # prima partita con obiettivi
+var onboard_step := 0                      # 0 consegna · 1 pivot segna · 2 classico
+
 func _ready() -> void:
 	randomize()
 	if Game.profile.has("next_match_mode") and String(Game.profile["next_match_mode"]) == "1v1":
 		one_on_one = true
+	# ALLENAMENTO (v1.20.0): la partita diventa un esercizio guidato —
+	# avversari fermi, cronometro sospeso, obiettivo contato dal gioco.
+	if Game.profile.has("next_match_mode") and String(Game.profile["next_match_mode"]) == "drill":
+		drill = String(Game.profile.get("next_drill", ""))
+	# ONBOARDING: la PRIMA partita porta tre obiettivi didattici (consegna,
+	# canestro del pivot, canestro classico). Consumato subito: se si esce
+	# a meta', al prossimo match si riparte da capo.
+	onboarding = drill == "" and not one_on_one \
+		and bool(Game.profile.get("baskin_onboarding", false))
+	if onboarding:
+		Game.profile["baskin_onboarding"] = false
 	if one_on_one:
 		team_size = 1
 		# Both players attack the SAME rim in a half-court game.
@@ -187,6 +208,8 @@ func _ready() -> void:
 	if not one_on_one:
 		_spawn_referees()
 	quarter_len = float(Game.profile.get("quarter_seconds", 120.0))
+	if drill != "":
+		quarter_len = 3600.0      # in allenamento non finisce il tempo: conta l'obiettivo
 	game_clock = quarter_len
 	is_fixture = (not one_on_one) and bool(Game.profile.get("match_is_fixture", false))
 	if is_fixture:
@@ -199,7 +222,11 @@ func _ready() -> void:
 			{"t": qs * 2.0 + 50.0, "a": 0}, # mid Q3 breath
 			{"t": qs * 2.0 + 92.0, "a": 1}, # in for the stretch run
 		]
-	_tipoff()
+	_spawn_drill_freeze()
+	if drill != "":
+		_drill_kickoff()
+	else:
+		_tipoff()
 
 var _refs: Array = []
 
@@ -231,7 +258,11 @@ func _spawn_teams() -> void:
 				p.add_child(brain)
 				brain.setup(p, self)
 			p.global_position = _formation_pos(t, i)
-			var want: int = clampi(int(Game.profile.get("baskin_role", 5)), 1, 5) if not one_on_one else 5
+			var want: int = 5
+			if drill != "":
+				want = int(Drills.cfg(drill).get("role", 5))
+			elif not one_on_one:
+				want = clampi(int(Game.profile.get("baskin_role", 5)), 1, 5)
 			p.role = _lineup_plan(t, want)[i]
 			_apply_role_kit(p)
 			if p.role <= 2 and not one_on_one:
@@ -522,6 +553,15 @@ func give_ball(p: BallPlayer) -> void:
 		p.pivot_clock = 0.0
 	if p.role <= 2:
 		pivot_last_touch[p.team] = Time.get_ticks_msec() / 1000.0
+	# ALLENAMENTO + ONBOARDING: la consegna al pivot e' IL gesto del baskin.
+	# Vale se la palla arriva al pivot da un passaggio recente di un compagno.
+	if p.team == 0 and p.role <= 2 and last_passer != null and last_passer != p \
+	and last_passer.team == p.team \
+	and (Time.get_ticks_msec() / 1000.0 - last_pass_time) < 1.4:
+		if drill == "pivot_delivery" and last_passer.is_user and not drill_done:
+			_drill_progress()
+		if onboarding and onboard_step == 0:
+			_onboard_next()
 
 ## Grab a loose ball. Makes the SHOOT button meaningful even without possession
 ## (rebounds, blocked shots) instead of being a dead input.
@@ -1204,6 +1244,8 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 		else:
 			_user_break_heat()
 	Events.shot_taken.emit(ShotSystem.timing_name(res["timing"]) + " / " + res["quality"], res["made"], bpts)
+	if res["made"]:
+		_made_tally(shooter, bpts, ball.shot_is_side)
 	if bool(res["made"]):
 		if randf() < 0.55:
 			_voice("nice", 2.0)
@@ -1518,6 +1560,7 @@ func _dunk_scored(p: BallPlayer) -> void:
 		box["fgm"] += 1
 		box["fga"] += 1
 	Events.shot_taken.emit("DUNK %s" % DunkStyle.label(p.dunk_style), true, pts)
+	_made_tally(p, pts, false)
 	_net_bump(hoop_index_of(hoop_for(p.team)), 1.0)
 	_rim_fx("swish", hoop_for(p.team))
 	_rim_quake(hoop_index_of(hoop_for(p.team)), 1.0)
@@ -3734,3 +3777,65 @@ func start_quarter_inbound() -> void:
 		p.has_ball = false
 	ball.visible = true
 	_inbound(possession)
+
+
+# ============================================================== ALLENAMENTO
+func _spawn_drill_freeze() -> void:
+	## In allenamento la DIFESA sta ferma: l'esercizio e' sul gesto, non
+	## sull'avversario. I compagni restano vivi (qualcuno deve consegnare la
+	## palla al pivot) e le regole continuano a valere: i fischi insegnano.
+	if drill == "":
+		return
+	for q in players:
+		if q.team == 1:
+			for c in q.get_children():
+				if c is AIBrain:
+					c.passive = true
+
+func _drill_kickoff() -> void:
+	## Niente salto a due: la palla parte gia' in mano. Per il tiro del pivot
+	## la consegna e' parte dell'esercizio, quindi la diamo a un compagno.
+	possession = 0
+	if drill == "pivot_shot":
+		for q in players:
+			if q.team == 0 and q.role >= 3:
+				give_ball(q)
+				return
+	if user != null:
+		give_ball(user)
+
+func _made_tally(shooter: BallPlayer, pts: int, side: bool) -> void:
+	## Ogni canestro fatto aggiorna allenamento e onboarding.
+	if shooter == null:
+		return
+	if drill != "" and not drill_done and shooter.is_user:
+		var cfg := Drills.cfg(drill)
+		if not cfg.is_empty() and cfg.has("hoop"):
+			# l'esercizio vale solo sul canestro giusto (laterale/classico)
+			if (String(cfg["hoop"]) == "side") == side:
+				_drill_progress()
+	if onboarding:
+		if onboard_step == 1 and shooter.team == 0 and shooter.role <= 2:
+			_onboard_next()
+		elif onboard_step == 2 and shooter.is_user and not side:
+			_onboard_next()
+
+func _drill_progress() -> void:
+	_drill_ct += 1
+	var cfg := Drills.cfg(drill)
+	var total := 1 if cfg.is_empty() else int(cfg.get("target", 1))
+	drill_step.emit(_drill_ct, total)
+	if _drill_ct >= total:
+		drill_done = true
+		play_live = false
+		drill_complete.emit()
+
+func _onboard_next() -> void:
+	if not onboarding:
+		return
+	onboard_step += 1
+	onboard_step.emit(onboard_step)
+	if onboard_step >= 3:
+		onboarding = false
+		Game.profile["baskin_onboarded"] = true
+		SaveSystem.save_game()

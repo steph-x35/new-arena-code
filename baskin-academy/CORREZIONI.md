@@ -1,3 +1,45 @@
+# Baskin Academy — v1.20.0: ALLENAMENTO, onboarding e quiz dell'allenatore
+
+Data: 10 ottobre 2026 • Motore: Godot 4.3 stable
+
+## Modalita' ALLENAMENTO (drill)
+
+Nuova voce nel menu principale. Quattro esercizi guidati (src/match/Drills.gd
++ DrillPicker): tiro del pivot (R1, 5 canestri al laterale), consegna al
+pivot (R4, 3 consegne), prima-palleggia (R2, 3 canestri), arresto-e-tiro
+(R4, 3 canestri classici). In drill: difesa FERMA (AIBrain.passive), niente
+salto a due (palla in mano subito), cronometro sospeso (3600s), tabellone
+nascosto e banner con obiettivo + progresso (0/5...). Le regole continuano a
+valere: i fischi e le card didattiche insegnano anche in allenamento. A
+obiettivo raggiunto: pannello RIPROVA / TORNA AL MENU.
+
+## Onboarding della prima partita
+
+Al primo "GIOCA" (profile baskin_onboarded assente): cinque consigli a
+tocco (controlli, TIRA/TRICK, REGOLE, obiettivi) che trattengono il 3-2-1,
+poi tre obiettivi in campo contati dal gioco: 1) consegna al pivot 2) il
+pivot segna 3) canestro CLASSICO dell'utente. Completati: banner di festa e
+flag salvato nel profilo. Se si esce a meta', la prossima partita riparte
+dall'inizio.
+
+## Quiz dell'allenatore (fine tempo)
+
+Ai fine-tempo 1-3 una domandina a 3 risposte (8 domande EN/IT, Loc.gd):
+risposta giusta -> GIUSTO! + il perche' della regola; sbagliata -> si vede
+la giusta + il perche'. L'intervallo si allunga a 13s per leggere con calma.
+Mai dopo l'ultimo tempo (l'epilogo resta alla partita).
+
+## Dettagli tecnici
+
+- Court: segnali drill_step/drill_complete/onboard_step; _made_tally su
+  ogni canestro (shot_is_side decide laterale/classico); detection della
+  CONSEGNA in give_ball (passaggio recente al pivot della squadra 0)
+- MatchScene: score_holder (tabellone nascosto in drill), _center_panel
+  condiviso da quiz e fine-allenamento, gate _tip_step nel _process
+- AIBrain.passive: avversari fermi solo in allenamento
+
+---
+
 # Baskin Academy — v1.19.5: il perche', il riepilogo dei fischi, la vibrazione
 
 Data: 10 ottobre 2026 • Motore: Godot 4.3 stable
