@@ -135,6 +135,13 @@ const MIX := {
 	"whistle": -2.0, "whistle_short": -2.0, "buzzer": -3.0, "beep": -1.0,
 }
 
+## Micro-vibrazione aptica per mobile (da Hoop City): silenziosa e safe su
+## desktop/web, e rispetta l'interruttore VIBRAZIONE nelle impostazioni.
+func haptic(ms: int = 50) -> void:
+	if not bool(Settings.get_v("haptic", true)):
+		return
+	Input.vibrate_handheld(ms)
+
 func play(name: String, volume_db := 0.0, pitch := 1.0) -> void:
 	_play_impl(_pool, name, volume_db, pitch)
 

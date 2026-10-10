@@ -1119,6 +1119,7 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 	if blocker != null:
 		Events.toast.emit("BLOCKED by #%d" % blocker.jersey_num)
 		Sfx.play("block", -1.0)
+		Sfx.haptic(45)
 		Sfx.ooh()
 		Events.shake.emit(0.7)
 		Events.popup.emit("BLOCK!", blocker.global_position, Color(1.0, 0.45, 0.3), true)
@@ -1312,6 +1313,7 @@ func _try_inflight_block() -> void:
 		if d.is_user:
 			box["blk"] += 1
 		Sfx.play("block", -0.5)
+		Sfx.haptic(45)
 		Sfx.ooh()
 		Events.shake.emit(0.8)
 		Events.popup.emit("CHASEDOWN!", d.global_position, Color(1.0, 0.45, 0.3), true)
@@ -1483,6 +1485,7 @@ func on_dunk_started(p: BallPlayer) -> void:
 	# Rim-rattler: the impact carries the whole stack -- shake, rim clang and
 	# the loudest crowd pop in the game.
 	Sfx.play("dunk", 1.0)
+	Sfx.haptic(60)
 	Sfx.cheer(true)
 	Events.shake.emit(1.0)
 	# Il canestro VIBRA: e' la richiesta "la schiacciata fa tremare il ferro".
@@ -2241,6 +2244,7 @@ func _ft_shoot(err: float) -> void:
 	var made := randf() < clampf(q * (0.60 + float(ft_shooter.ratings["close"]) / 200.0), 0.05, 0.97)
 	var hoop: Vector2 = side_hoops[ft_shooter.team] if ft_side else hoop_for(ft_shooter.team)
 	Sfx.play("shot_release", -8.0)
+	Sfx.haptic(35)
 	ball.shoot(ft_shooter.global_position + Vector2(0, -50), hoop, 400.0, 0.75, made, ft_shooter,
 		rim_height_of(hoop, ft_shooter.role))
 	# Flag AFTER shoot(): shoot() resets the flag to false for every launch.

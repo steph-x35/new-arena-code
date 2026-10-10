@@ -47,7 +47,9 @@ var stamina_bar: ProgressBar
 var rule_panel: PanelContainer
 var rule_title: Label
 var rule_body: Label
+var rule_why: Label                        # la terza riga: IL PERCHE'
 var _rule_t := 0.0
+var _viol_counts := {}                     # fischi del tempo corrente (riepilogo)
 var role_panel: Control
 var _role_pending := true
 var rules_btn: Button
@@ -1005,6 +1007,9 @@ func _open_subs() -> void:
 	if court.available_sub_seats().is_empty() and _sub_pick == null:
 		Events.toast.emit(Loc.t("t.sub.none"))
 		return
+	if rules_panel != null and rules_panel.visible:
+		rules_panel.visible = false
+		_rules_open = false
 	_sub_pick = null
 	_fill_subs()
 	sub_panel.visible = true
@@ -1307,6 +1312,23 @@ func _on_quarter_ended(q: int) -> void:
 		vis.cheer_on_court = true
 		_big_banner(Loc.t("match.endperiod") % maxi(1, q - 1), Color(1.0, 0.85, 0.35))
 		_jumbo(["jumbo.noise", "jumbo.dance", "jumbo.defense"].pick_random(), 3.5)
+	# RIEPILOGO DIDATTICO: i fischi del tempo appena finito, contati. Resta
+	# su 9 secondi (le card normali 6,5): e' il momento in cui il giocatore
+	# riflette su cosa e' andato storto -- e REGOLE e' a un tocco.
+	if not _viol_counts.is_empty() and rule_title != null:
+		var parts: PackedStringArray = []
+		var keys := _viol_counts.keys()
+		keys.sort()
+		for k in keys:
+			parts.append("%d× %s" % [int(_viol_counts[k]), Loc.t("rule." + k, k)])
+		rule_title.text = Loc.t("rules.whistle_h") % maxi(1, q - 1)
+		rule_body.text = " · ".join(parts) + "\n" + Loc.t("rules.whistle_hint")
+		if rule_why != null:
+			rule_why.text = ""
+		rule_panel.visible = true
+		rule_panel.modulate.a = 1.0
+		_rule_t = 9.0
+		_viol_counts.clear()
 
 func _on_score(h: int, a: int) -> void:
 	lbl_score.text = "%d - %d" % [h, a]
@@ -1420,6 +1442,8 @@ func _on_shot_taken(quality: String, made: bool, pts: int) -> void:
 		_big_banner(Loc.tx("DUNK!"), Color(1.0, 0.78, 0.20))
 		_jumbo("jumbo.slam")
 		return
+	if made:
+		Sfx.haptic(50)
 	if made and pts >= 3:
 		_jumbo("jumbo.three")
 	var head: String = quality.split(" / ")[0]
@@ -1463,6 +1487,9 @@ func _on_finished(res: Dictionary) -> void:
 func _confirm_exit() -> void:
 	## Walking out mid-game abandons it, so ask first rather than dumping the
 	## player back to the menu on a mis-tap.
+	if rules_panel != null and rules_panel.visible:
+		rules_panel.visible = false
+		_rules_open = false
 	var p := GamePanel.new().build(Loc.t("exit.title"), Vector2(720, 380))
 	hud.add_child(p)
 	p.add_text(Loc.t("exit.body"), 22, Color(1, 1, 1, 0.8))
@@ -1538,6 +1565,15 @@ func _build_rule_card() -> void:
 	rule_body.custom_minimum_size = Vector2(356, 0)
 	rule_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vb.add_child(rule_body)
+	# IL PERCHE' della regola (didattica): piu' piccolo, color sabbia, e
+	# invisibile quando la regola non ha un perche' scritto.
+	rule_why = Label.new()
+	rule_why.add_theme_font_size_override("font_size", 14)
+	rule_why.add_theme_color_override("font_color", Color(1.0, 0.72, 0.45, 0.95))
+	rule_why.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	rule_why.custom_minimum_size = Vector2(356, 0)
+	rule_why.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vb.add_child(rule_why)
 	rule_panel.visible = false
 	rule_panel.modulate.a = 0.0
 	hud.add_child(rule_panel)
@@ -1547,9 +1583,16 @@ func _on_rule(key: String) -> void:
 		return
 	rule_title.text = Loc.t("rule." + key, key)
 	rule_body.text = Loc.t("rule." + key + ".body", "")
+	if rule_why != null:
+		rule_why.text = Loc.t("rule." + key + ".why", "")
 	rule_panel.visible = true
 	rule_panel.modulate.a = 1.0
 	_rule_t = 6.5
+	# Il fischio si sente ANCHE in mano; e ogni violazione finisce nel
+	# riepilogo di fine tempo (imparare dai propri errori).
+	if key.begins_with("v_"):
+		Sfx.haptic(50)
+		_viol_counts[key] = int(_viol_counts.get(key, 0)) + 1
 
 func _update_rule_card(delta: float) -> void:
 	if rule_panel == null or not rule_panel.visible:

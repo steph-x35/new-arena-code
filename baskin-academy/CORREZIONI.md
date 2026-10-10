@@ -1,3 +1,41 @@
+# Baskin Academy — v1.19.5: il perche', il riepilogo dei fischi, la vibrazione
+
+Data: 10 ottobre 2026 • Motore: Godot 4.3 stable
+
+## Il PERCHE' sulle card delle regole (didattica)
+
+Ogni card contestuale (fischio/canestro) ora ha una terza riga, piu'
+piccola e color sabbia, che spiega PERCHE' la regola esiste — non solo
+cosa e' successo. 21 testi nuovi (EN/IT): dal doppio palleggio ("la
+raccolta chiude il palleggio: ora ti impegni") al fallo L ("si marca per
+ruolo: il piu' debole non resta mai esposto"). Un fischio diventa una
+lezione.
+
+## Riepilogo dei fischi a fine tempo
+
+MatchScene conta le violazioni di ogni tempo (_on_rule -> _viol_counts)
+e a quarter_ended riempie la card didattica col conteggio: "FISCHI DEL
+TEMPO 1 — 2x DOPPIO PALLEGGIO · 1x FALLO L..." con l'invito ad aprire
+REGOLE. Resta su 9 secondi (le card normali 6,5): e' il momento in cui
+il giocatore riflette sugli errori. Conta i fischi di entrambe le squadre:
+in baskin ogni fischio insegna.
+
+## Vibrazione (parita' Hoop City, finalmente portata)
+
+- Sfx.haptic(ms): Input.vibrate_handheld, safe su desktop/web, con
+  interruttore VIBRAZIONE nelle impostazioni (Settings, default ON)
+- Rilascio tiro 35ms · canestro 50ms · schiacciata 60ms · stoppata 45ms
+  · fischio (violazioni) 50ms — il fischio si sente ANCHE in mano
+
+## Fix UX
+
+- REGOLE ora si chiude da solo quando si apre il menu ESCI o il pannello
+  CAMBIO (restava sopra, z_index 60, e copriva la dialog)
+- verifiche: slow-mo gia' ripristinato in _exit_tree (Engine.time_scale);
+  copertura IT completa (unica voce vuota: bc.style.none, voluta)
+
+---
+
 # Baskin Academy — v1.19.4: menu ESCI a schermo, braccio dritto, regole piu' corte
 
 Data: 9 ottobre 2026 • Motore: Godot 4.3 stable
