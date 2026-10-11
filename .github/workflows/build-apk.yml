@@ -11,7 +11,50 @@ permissions:
   contents: write
 
 jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Godot 4.3
+        run: |
+          mkdir -p /tmp/godot
+          echo "Downloading Godot 4.3 Linux..."
+          curl -sL https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip -o /tmp/godot/godot.zip
+          unzip -q /tmp/godot/godot.zip -d /tmp/godot/bin
+          chmod +x /tmp/godot/bin/Godot_*
+          sudo ln -s /tmp/godot/bin/Godot_* /usr/local/bin/godot
+          godot --version
+
+      - name: Script Health Check (headless smoke)
+        run: |
+          cd hoop-city-life/hoopcity
+          godot --headless --import > /tmp/import.log 2>&1 || true
+          cat /tmp/import.log | grep -E "SCRIPT ERROR|Parse Error" && echo "!!! ERRORI DI PARSE NELL'IMPORT" || echo "Import pulito"
+          ERR=0
+          # HangCamProbe verifica la camera della schiacciata (zoom reale in
+          # arena E campetto, ripristino al distacco): HANGCAM OK=true/false.
+          # MenuProbe verifica il layout del menu principale.
+          for SC in tools/HangCamProbe.tscn tools/MenuProbe.tscn; do
+            echo "=== SMOKE: $SC ==="
+            timeout 180 godot --headless "res://$SC" --quit-after 900 > /tmp/smoke.log 2>&1 || true
+            cat /tmp/smoke.log
+            if grep -E "SCRIPT ERROR|Parse Error" /tmp/smoke.log > /tmp/smoke_err.txt; then
+              echo "!!! SCRIPT ERRORS in $SC:"
+              cat /tmp/smoke_err.txt
+              ERR=1
+            elif grep -q "HANGCAM OK=false" /tmp/smoke.log; then
+              echo "!!! CAMERA DELLA SCHIACCIATA NON VERIFICATA in $SC"
+              ERR=1
+            else
+              echo "OK: $SC"
+            fi
+          done
+          exit $ERR
+
   build:
+    needs: smoke
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
