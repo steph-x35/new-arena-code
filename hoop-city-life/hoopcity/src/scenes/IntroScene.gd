@@ -30,6 +30,10 @@ const T_SWISH := 3.05
 
 func _ready() -> void:
 	Sfx.play_life()
+	# FINESTRA NOVITA' (v2.40.2): qui, nella PRIMA scena dell'app — appena
+	# finito lo splash di Godot, non alla prima apertura del menu. Il layer
+	# sta sulla root: sopravvive ai cambi di scena finche' non la chiudi.
+	News.maybe_show(get_tree())
 	var layer := CanvasLayer.new()
 	add_child(layer)
 	ui = Control.new()

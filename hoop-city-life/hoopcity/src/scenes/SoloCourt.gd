@@ -52,6 +52,7 @@ var dust_t := 0.0           # nuvolette all'atterraggio
 var dust_big := false       # atterraggio da slam
 var dunk_phase := ""        # "" | "rise" | "hang" | "drop"
 var hang_swing_t := 0.0    # tempo appeso: oscilla dx/sx come un pendolo
+var hang_cam := 0.0        # 0..1: zoom della camera della schiacciata (v2.40.2)
 var hang_lift_now := 0.0   # lift reale dell'hang (il corpo e' piu' basso del rise)
 var dunk_style := ""        # DunkStyle: windmill / spin360 / tomahawk ...
 var dunk_rise_t := 0.70     # seconds of the rise, from DunkStyle (per style)
@@ -378,15 +379,34 @@ func _process(delta: float) -> void:
 		hang_swing_t = 0.0
 	if has_meta("cam"):
 		var cam: Camera2D = get_meta("cam")
-		var want_x: float = CourtStage.m_project(player_pos, Court.COURT_H).x
+		var fp: Vector2 = CourtStage.m_project(player_pos, Court.COURT_H)
+		var want_x: float = fp.x
 		var half_view: float = get_viewport_rect().size.x * 0.5 / CAM_ZOOM
 		var floor_x: float = CourtStage.m_project(
 			Vector2(Court.COURT_W * 0.5, 0.0), Court.COURT_H).x
 		var limit: float = maxf(floor_x - half_view + 160.0, 80.0)
 		want_x = clampf(want_x, -limit, limit)
-		cam.position.x = lerpf(cam.position.x, want_x, clampf(4.0 * delta, 0.0, 1.0))
-		cam.position.y = -40.0
-		cam.zoom = Vector2.ONE * CAM_ZOOM
+		# CAMERA DELLA SCHIACCIATA (v2.40.2): nel campetto — dove si gioca
+		# davvero — la visuale fa uno zoom leggero DAL MOMENTO della
+		# schiacciata, e durante l'appesa al ferro ONDEGGIA a tempo col
+		# pendolo del corpo (sin(hang_swing_t*2.0): la stessa onda del
+		# disegno). Al distacco torna morbida com'era.
+		var hang_on: bool = dunk_phase != ""
+		hang_cam = move_toward(hang_cam, 1.0 if hang_on else 0.0,
+			delta * (5.0 if hang_on else 4.0))
+		var cam_y := -40.0
+		var zoom_k := 1.0
+		if hang_cam > 0.001:
+			var sway: float = sin(hang_swing_t * 2.0) * 34.0 \
+				if dunk_phase == "hang" else 0.0
+			cam.position.x = lerpf(cam.position.x, want_x + sway,
+				clampf(8.0 * delta * hang_cam, 0.0, 1.0))
+			cam_y = lerpf(-40.0, fp.y - 30.0, 0.6 * hang_cam)
+			zoom_k = lerpf(1.0, 1.25, hang_cam)
+		else:
+			cam.position.x = lerpf(cam.position.x, want_x, clampf(4.0 * delta, 0.0, 1.0))
+		cam.position.y = cam_y
+		cam.zoom = Vector2.ONE * CAM_ZOOM * zoom_k
 	if outdoor:
 		_update_npcs(delta)
 		# Fade the whole park with the day/night cycle, like the city street.

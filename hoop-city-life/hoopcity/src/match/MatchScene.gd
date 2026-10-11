@@ -216,15 +216,14 @@ func _process(delta: float) -> void:
 			clampf(CAM_FOLLOW * delta, 0.0, 1.0))
 	# Height is FIXED. The court is a fixed-height band on screen, so there is
 	# nothing for the camera to track vertically.
-	# --- CAMERA DELLA SCHIACCIATA (v2.40.0): quando qualcuno resta appeso
-	#     al ferro, la visuale fa un LEGGERO zoom su di lui e ondeggia IN
-	#     TEMPO con l'oscillazione (stesso orologio e stessa frequenza del
-	#     pendolo disegnato in Player: sin(ticks*0.003)). Appena molla,
-	#     tutto torna morbido com'era.
+	# --- CAMERA DELLA SCHIACCIATA (v2.40.2): lo zoom parte DALLA
+	#     SCHIACCIATA (dunking) e prosegue sull'appesa al ferro (hanging),
+	#     dove la visuale ondeggia IN TEMPO col pendolo disegnato in Player
+	#     (sin(ticks*0.003)). Appena molla, tutto torna morbido com'era.
 	var hang_tgt: BallPlayer = null
 	if court != null and intermission_left <= 0.0:
 		for q in court.players:
-			if q != null and q.hanging:
+			if q != null and (q.hanging or q.dunking):
 				hang_tgt = q
 				break
 	_hang_cam = move_toward(_hang_cam, 1.0 if hang_tgt != null else 0.0,
@@ -240,7 +239,8 @@ func _process(delta: float) -> void:
 		# sbagliato = effetto invisibile).
 		var focus: Vector2 = CourtStage.m_project(_hang_p.global_position,
 			Court.COURT_H)
-		var sway: float = sin(Time.get_ticks_msec() * 0.003) * 32.0
+		var sway: float = (sin(Time.get_ticks_msec() * 0.003) * 32.0) \
+			if _hang_p.hanging else 0.0
 		cam.global_position.x = lerpf(cam.global_position.x, focus.x + sway,
 			clampf(delta * 8.0 * _hang_cam, 0.0, 1.0))
 		cam_y = lerpf(CAM_HEIGHT, focus.y - 46.0, _hang_cam)
