@@ -3758,6 +3758,16 @@ func start_quarter_inbound() -> void:
 	_inbound(possession)
 
 
+func _made_tally(shooter: BallPlayer, pts: int, side: bool) -> void:
+	## Ogni canestro fatto aggiorna gli obiettivi dell'onboarding.
+	if shooter == null:
+		return
+	if onboarding:
+		if onboard_phase == 1 and shooter.team == 0 and shooter.role <= 2:
+			_onboard_next()
+		elif onboard_phase == 2 and shooter.is_user and not side:
+			_onboard_next()
+
 func _onboard_next() -> void:
 	if not onboarding:
 		return
