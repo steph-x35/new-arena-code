@@ -96,6 +96,11 @@ const HC_MIN_FT := 34.0          # più vicino di così il green non vale
 var hc_mode := false
 var hc_greens := 0
 var hc_best := 0
+var stat_dunks := 0            # CARRIERA: schiacciate totali (v2.41.0)
+var stat_hangs := 0            # CARRIERA: appese al ferro totali
+var tut_open := false          # tutorial del campetto aperto (congela il tempo)
+var _tut_step := -1
+var hang_creak_t := 0.0        # scricchiolio del ferro mentre sei appeso
 var btn_hc: Button
 var btn_hc_big: Button      # bottone APERTO: due controlli, zero spostamenti
 var hc_expanded := false   # quadratino -> tap -> bottone pieno -> tap -> parte
@@ -126,6 +131,8 @@ func _ready() -> void:
 	outdoor = String(Game.profile.get("last_building", "park")) != "court"
 	hand_left = Game.shooting_hand() < 0.0
 	hc_best = int(Game.profile.get("hc_best", 0))
+	stat_dunks = int(Game.profile.get("stat_dunks", 0))
+	stat_hangs = int(Game.profile.get("stat_hangs", 0))
 	# Same packed CourtVisual as 1v1 — Script.new() never painted the floor
 	# on device, which is why shoot-around was a blank brown/grey sheet.
 	court_art = $CourtVisual
@@ -163,6 +170,71 @@ func _ready() -> void:
 	queue_redraw()
 
 ## Court space -> screen space, identical to how the court art is drawn.
+	# TUTORIAL: a fine setup, la prima volta che si entra nel campetto
+	_maybe_tutorial.call_deferred()
+
+func _maybe_tutorial() -> void:
+	## TUTORIAL DEL CAMPETTO (v2.41.0): la PRIMA volta che si entra, quattro
+	## consigli a tocco. Mentre e' aperto il cronometro della sessione sta
+	## fermo. Una volta sola: il flag vive nel profilo.
+	if bool(Game.profile.get("solo_tut_done", false)):
+		return
+	tut_open = true
+	_tut_step = 0
+	_show_tut()
+
+func _show_tut() -> void:
+	const TIPS := [
+		"TIRO DA SOLO — lo stick a sinistra muove il giocatore",
+		"TIRA: tieni premuto per caricare il tiro. Vicino al ferro diventa SCHIACCIATA — tieni premuto per restare APPESO e dondolare",
+		"TRICK: finta, eurostep verso il ferro, drop step dal post",
+		"La COPPA in alto a destra apre la SFIDA METÀ CAMPO: 60 secondi, contano solo i GREEN. Ora prova!",
+	]
+	var panel := Control.new()
+	panel.name = "TutOverlay"
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	var dim := ColorRect.new()
+	dim.color = Color(0.02, 0.03, 0.05, 0.9)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	panel.add_child(dim)
+	var box := VBoxContainer.new()
+	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.add_theme_constant_override("separation", 24)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(box)
+	var txt := Label.new()
+	txt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	txt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	txt.add_theme_font_size_override("font_size", 28)
+	txt.add_theme_color_override("font_color", Color(0.97, 0.95, 0.9))
+	box.add_child(txt)
+	var hint := Label.new()
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 18)
+	hint.modulate = Color(1, 1, 1, 0.45)
+	box.add_child(hint)
+	panel.gui_input.connect(func(e):
+		var tap: bool = (e is InputEventScreenTouch and not e.pressed) \
+			or (e is InputEventMouseButton and not e.pressed)
+		if not tap:
+			return
+		Sfx.play("ui_tap", -6.0)
+		_tut_step += 1
+		if _tut_step >= TIPS.size():
+			tut_open = false
+			_tut_step = -1
+			Game.profile["solo_tut_done"] = true
+			SaveSystem.save_game()
+			panel.queue_free()
+			return
+		txt.text = TIPS[_tut_step]
+		hint.text = "tocca per continuare (%d/%d)" % [_tut_step + 1, TIPS.size()])
+	hud_layer.add_child(panel)
+	txt.text = TIPS[0]
+	hint.text = "tocca per continuare (1/%d)" % TIPS.size()
+
 func _screen(p: Vector2) -> Vector2:
 	return CourtStage.m_project(p, Court.COURT_H)
 
@@ -383,6 +455,13 @@ func _process(delta: float) -> void:
 	dust_t = maxf(dust_t - delta, 0.0)
 	if dunk_phase == "hang":
 		hang_swing_t += delta
+		# SCRICCHIOLIO DEL FERRO: a ogni dondolio il ferro si lamenta,
+		# squeak basso e soffuso — il ferro sotto sforzo si sente.
+		hang_creak_t -= delta
+		if hang_creak_t <= 0.0:
+			hang_creak_t = 0.8
+			Sfx.play("squeak1" if int(hang_swing_t * 1.25) % 2 == 0 else "squeak2",
+				-12.0, 0.30)
 	else:
 		hang_swing_t = 0.0
 	if has_meta("cam"):
@@ -434,7 +513,7 @@ func _process(delta: float) -> void:
 			c = c.lerp(Color(0.72, 0.70, 0.62), 0.55)
 			night_tint.color = night_tint.color.lerp(c, 2.0 * delta)
 
-	if not session_over:
+	if not session_over and not tut_open:
 		session_left -= delta
 		if session_left <= 0.0:
 			session_left = 0.0
@@ -530,6 +609,13 @@ func _process(delta: float) -> void:
 			Sfx.play("swish", -1.0, randf_range(0.84, 0.90))
 			if want_hang:
 				dunk_phase = "hang"
+			stat_hangs += 1
+			Game.profile["stat_hangs"] = stat_hangs
+			if stat_hangs % 25 == 0:
+				Events.toast.emit("%d appese al ferro in carriera!" % stat_hangs)
+			Sfx.play("rim", -6.0, 0.72)
+			Sfx.haptic(45)
+			hang_creak_t = 0.0
 			else:
 				dunk_phase = "drop"
 			dunk_anim = 0.0
@@ -847,6 +933,10 @@ func _start_dunk() -> void:
 func _dunk_throw() -> void:
 	attempts += 1
 	makes += 1
+	stat_dunks += 1
+	Game.profile["stat_dunks"] = stat_dunks
+	if stat_dunks % 25 == 0:
+		Events.toast.emit("%d schiacciate in carriera!" % stat_dunks)
 	streak += 1
 	best_streak = maxi(best_streak, streak)
 	net_wobble = 1.0
@@ -865,6 +955,7 @@ func _drop_from_rim() -> void:
 	if dunk_phase == "hang":
 		dunk_phase = "drop"
 		dunk_anim = 0.0
+		Sfx.haptic(30)
 
 func _shoot_up() -> void:
 	# Dunk button release: stop hanging and come down (or skip the hang if the
@@ -1168,6 +1259,8 @@ func _end_session() -> void:
 		p.add_text("SCORE  %d" % session_score, 46, Color(1, 0.88, 0.35))
 		p.add_text("%d of %d shots made  ·  %d%%" % [makes, attempts, pct], 24)
 		p.add_text("Best streak: %d" % best_streak, 22, Color(1, 1, 1, 0.7))
+	p.add_text("CARRIERA · schiacciate %d · appese al ferro %d · record GREEN %d"
+		% [stat_dunks, stat_hangs, hc_best], 20, Color(1, 0.85, 0.40))
 	p.add_text("")
 	if hc_mode:
 		# Crescita organica: il punteggio finisce negli appunti, pronto da

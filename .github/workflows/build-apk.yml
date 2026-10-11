@@ -155,8 +155,8 @@ jobs:
           echo "Importing project assets in headless mode..."
           godot -v --headless --import 2>&1 | tee /tmp/import.log || true
           echo "Exporting Android APK..."
-          godot -v --headless --export-release "Android" build/HoopCity-v2.40.4.apk 2>&1 | tee /tmp/export.log || true
-          if [ ! -f "build/HoopCity-v2.40.4.apk" ]; then
+          godot -v --headless --export-release "Android" build/HoopCity-v2.41.0.apk 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/HoopCity-v2.41.0.apk" ]; then
             echo "=== EXPORT FAILED! Printing log: ==="
             cat /tmp/export.log | tail -n 80
             cp /tmp/export.log $GITHUB_WORKSPACE/build_error.log
@@ -173,27 +173,27 @@ jobs:
             --ks-pass pass:android \
             --ks-key-alias androiddebugkey \
             --key-pass pass:android \
-            build/HoopCity-v2.40.4.apk
+            build/HoopCity-v2.41.0.apk
           echo "Verifying APK signature..."
-          apksigner verify --verbose build/HoopCity-v2.40.4.apk
+          apksigner verify --verbose build/HoopCity-v2.41.0.apk
           echo "Checking APK launcher icons..."
-          unzip -l build/HoopCity-v2.40.4.apk | grep -i "mipmap" | head -n 20
-          ls -lh build/HoopCity-v2.40.4.apk
+          unzip -l build/HoopCity-v2.41.0.apk | grep -i "mipmap" | head -n 20
+          ls -lh build/HoopCity-v2.41.0.apk
 
       - name: Create or Update GitHub Release with APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp hoop-city-life/hoopcity/build/HoopCity-v2.40.4.apk /tmp/HoopCity-v2.40.4.apk
-          gh release delete v2.40.4 -y --cleanup-tag || true
+          cp hoop-city-life/hoopcity/build/HoopCity-v2.41.0.apk /tmp/HoopCity-v2.41.0.apk
+          gh release delete v2.41.0 -y --cleanup-tag || true
           sleep 5
           # L'API delle release ogni tanto perde colpi (race delete/create):
           # tre tentativi prima di arrendersi.
           ok=0
           for i in 1 2 3; do
-            if gh release create v2.40.4 /tmp/HoopCity-v2.40.4.apk \
-              --title "Hoop City Life v2.40.4" \
-              --notes "Aggiornamento v2.40.4 🏀 SFIDA METÀ CAMPO: il bottone ora è una COPPA dorata disegnata a mano (nessuna emoji: identica su ogni dispositivo), allineata con precisione sotto Leave. Confermata la v2.40.3: camera della schiacciata circolare col canestro in vista, finestra NOVITÀ all'avvio." \
+            if gh release create v2.41.0 /tmp/HoopCity-v2.41.0.apk \
+              --title "Hoop City Life v2.41.0" \
+              --notes "Aggiornamento v2.41.0 🏀 CAMPETTO: contatori di CARRIERA (schiacciate, appese al ferro, record GREEN) nel riquadro TIME · TUTORIAL al primo avvio (4 consigli, il tempo si congela) · VIBRAZIONE sul ferro quando ti appendi e quando ti stacchi · SCRICCHIOLIO del ferro a ogni dondolio. E la coppa della sfida allineata sotto Leave." \
               --target arena/01a0cac8-new-arena-code; then
               ok=1
               break
