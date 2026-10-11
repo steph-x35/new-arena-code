@@ -206,8 +206,11 @@ func _process(delta: float) -> void:
 	var limit: float = maxf(floor_x - half_view + 160.0, 80.0)
 	target_x = clampf(target_x, -limit, limit)
 	# A small dead zone so jostling for position does not swing the whole screen.
+	# Durante l'appesa al ferro la camera e' DELLA schiacciata: il follow
+	# normale si congela, altrimenti le due lerp si combattono ogni frame
+	# (era meta' del perche' la v2.40.0 non si vedeva).
 	var dx: float = target_x - cam.global_position.x
-	if absf(dx) > CAM_DEADZONE:
+	if _hang_cam < 0.5 and absf(dx) > CAM_DEADZONE:
 		var want: float = target_x - signf(dx) * CAM_DEADZONE
 		cam.global_position.x = lerpf(cam.global_position.x, want,
 			clampf(CAM_FOLLOW * delta, 0.0, 1.0))
@@ -225,18 +228,23 @@ func _process(delta: float) -> void:
 				hang_tgt = q
 				break
 	_hang_cam = move_toward(_hang_cam, 1.0 if hang_tgt != null else 0.0,
-		delta * (3.0 if hang_tgt != null else 4.0))
+		delta * (5.0 if hang_tgt != null else 4.0))
 	if hang_tgt != null:
 		_hang_p = hang_tgt
 	var cam_y: float = CAM_HEIGHT
 	var zoom_k: float = 1.0
 	if _hang_cam > 0.001 and _hang_p != null and is_instance_valid(_hang_p):
-		var sway: float = sin(Time.get_ticks_msec() * 0.003) * 26.0
-		var focus: Vector2 = _hang_p.global_position
+		# FOCUS NELLO SPAZIO PROIETTATO, come tutto il resto della camera:
+		# global_position e' mondo, la camera vive in m_project. Puntare il
+		# mondo grezzo era il bug della v2.40.0 (camera ferma sul posto
+		# sbagliato = effetto invisibile).
+		var focus: Vector2 = CourtStage.m_project(_hang_p.global_position,
+			Court.COURT_H)
+		var sway: float = sin(Time.get_ticks_msec() * 0.003) * 32.0
 		cam.global_position.x = lerpf(cam.global_position.x, focus.x + sway,
-			clampf(delta * 6.0 * _hang_cam, 0.0, 1.0))
-		cam_y = lerpf(CAM_HEIGHT, focus.y - 30.0, 0.5 * _hang_cam)
-		zoom_k = lerpf(1.0, 1.14, _hang_cam)
+			clampf(delta * 8.0 * _hang_cam, 0.0, 1.0))
+		cam_y = lerpf(CAM_HEIGHT, focus.y - 46.0, _hang_cam)
+		zoom_k = lerpf(1.0, 1.28, _hang_cam)
 	cam.global_position.y = cam_y
 	cam.zoom = Vector2.ONE * CAM_ZOOM * zoom_k
 	# Game-feel shake from dunks, blocks and iron. Offset (never the follow

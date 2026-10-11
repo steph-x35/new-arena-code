@@ -65,7 +65,9 @@ func _ready() -> void:
 	# dopo che il menu e' pronto, spiega cosa e' cambiato e non rivede piu'
 	# finche' la versione non cambia.
 	if String(Game.profile.get("changelog_seen", "")) != Game.VERSION:
-		get_tree().create_timer(0.8).timeout.connect(_show_changelog)
+		# APPENA APRI L'APP: al primo frame utile, con il menu gia' visibile
+		# sotto la finestra. Niente ritardi.
+		_show_changelog.call_deferred()
 
 	bg = Node2D.new()
 	bg.z_index = -5
@@ -264,7 +266,15 @@ func _show_changelog() -> void:
 	## prossima volta non si vede piu' (flag salvato nel profilo).
 	var p := GamePanel.new().build(
 		"%s  ·  v%s" % [Loc.t("news.title"), Game.VERSION], Vector2(800, 620))
-	root.add_child(p)
+	# SOPRA OGNI COSA: layer dedicato piu' alto di ogni UI del menu, cosi'
+	# la finestra spicca sulla schermata principale e nulla puo' coprirla.
+	var layer := CanvasLayer.new()
+	layer.layer = 100
+	add_child(layer)
+	layer.add_child(p)
+	p.tree_exiting.connect(func():
+		if is_instance_valid(layer):
+			layer.queue_free())
 	p.add_text(Loc.t("news.b1"), 19)
 	p.add_text("")
 	p.add_text(Loc.t("news.b2"), 19)
