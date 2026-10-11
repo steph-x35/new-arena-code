@@ -59,6 +59,8 @@ var _trick_tap_ms := -999     # last TRICK press: double tap = SPIN MOVE
 var _neutral_trick_i := 0     # (storico) non piu usato: fermo = HESI come nel court solo
 var _perf_checked := false
 var _shake := 0.0
+var _hang_cam := 0.0                # 0..1: zoom sul giocatore appeso al ferro
+var _hang_p: BallPlayer = null      # chi si sta dondolando dopo la schiacciata
 var _last_count := ""
 
 func _ready() -> void:
@@ -211,14 +213,38 @@ func _process(delta: float) -> void:
 			clampf(CAM_FOLLOW * delta, 0.0, 1.0))
 	# Height is FIXED. The court is a fixed-height band on screen, so there is
 	# nothing for the camera to track vertically.
-	cam.global_position.y = CAM_HEIGHT
-	cam.zoom = Vector2.ONE * CAM_ZOOM
+	# --- CAMERA DELLA SCHIACCIATA (v2.40.0): quando qualcuno resta appeso
+	#     al ferro, la visuale fa un LEGGERO zoom su di lui e ondeggia IN
+	#     TEMPO con l'oscillazione (stesso orologio e stessa frequenza del
+	#     pendolo disegnato in Player: sin(ticks*0.003)). Appena molla,
+	#     tutto torna morbido com'era.
+	var hang_tgt: BallPlayer = null
+	if court != null and intermission_left <= 0.0:
+		for q in court.players:
+			if q != null and q.hanging:
+				hang_tgt = q
+				break
+	_hang_cam = move_toward(_hang_cam, 1.0 if hang_tgt != null else 0.0,
+		delta * (3.0 if hang_tgt != null else 4.0))
+	if hang_tgt != null:
+		_hang_p = hang_tgt
+	var cam_y: float = CAM_HEIGHT
+	var zoom_k: float = 1.0
+	if _hang_cam > 0.001 and _hang_p != null and is_instance_valid(_hang_p):
+		var sway: float = sin(Time.get_ticks_msec() * 0.003) * 26.0
+		var focus: Vector2 = _hang_p.global_position
+		cam.global_position.x = lerpf(cam.global_position.x, focus.x + sway,
+			clampf(delta * 6.0 * _hang_cam, 0.0, 1.0))
+		cam_y = lerpf(CAM_HEIGHT, focus.y - 30.0, 0.5 * _hang_cam)
+		zoom_k = lerpf(1.0, 1.14, _hang_cam)
+	cam.global_position.y = cam_y
+	cam.zoom = Vector2.ONE * CAM_ZOOM * zoom_k
 	# Game-feel shake from dunks, blocks and iron. Offset (never the follow
 	# target), decaying quickly so it never interferes with readability.
 	if _shake > 0.001:
 		var s: float = _shake * 26.0
 		cam.offset = Vector2(randf_range(-s, s), randf_range(-s * 0.7, s * 0.7))
-		cam.zoom = Vector2.ONE * CAM_ZOOM * (1.0 + _shake * 0.015)
+		cam.zoom = Vector2.ONE * CAM_ZOOM * zoom_k * (1.0 + _shake * 0.015)
 		_shake = maxf(0.0, _shake - delta * 3.4)
 	else:
 		cam.offset = cam.offset.lerp(Vector2.ZERO, clampf(delta * 12.0, 0.0, 1.0))

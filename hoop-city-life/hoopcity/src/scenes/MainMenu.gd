@@ -61,6 +61,11 @@ func _ready() -> void:
 	RenderingServer.set_default_clear_color(Art.INK)
 	Sfx.play_life()
 	logo_tex = load("res://assets/logo_t.png") as Texture2D
+	# FINESTRA NOVITA' (v2.40.0): una volta sola per ogni versione. Esce poco
+	# dopo che il menu e' pronto, spiega cosa e' cambiato e non rivede piu'
+	# finche' la versione non cambia.
+	if String(Game.profile.get("changelog_seen", "")) != Game.VERSION:
+		get_tree().create_timer(0.8).timeout.connect(_show_changelog)
 
 	bg = Node2D.new()
 	bg.z_index = -5
@@ -250,3 +255,29 @@ func _draw_bg() -> void:
 		return
 	for m in motes:
 		bg.draw_circle(m["p"], m["r"], Color(0.949, 0.420, 0.114, m["a"]))
+
+
+# ----------------------------------------------------------- FINESTRA NOVITA'
+func _show_changelog() -> void:
+	## Elenco dei miglioramenti della versione corrente. Si chiude col
+	## bottone, col gesto indietro o toccando fuori — e in ogni caso la
+	## prossima volta non si vede piu' (flag salvato nel profilo).
+	var p := GamePanel.new().build(
+		"%s  ·  v%s" % [Loc.t("news.title"), Game.VERSION], Vector2(800, 620))
+	root.add_child(p)
+	p.add_text(Loc.t("news.b1"), 19)
+	p.add_text("")
+	p.add_text(Loc.t("news.b2"), 19)
+	p.add_text("")
+	p.add_text(Loc.t("news.b3"), 19)
+	p.add_text(Loc.t("news.b4"), 19)
+	p.add_text(Loc.t("news.b5"), 19)
+	p.add_text("")
+	p.tree_exiting.connect(_changelog_mark)
+	p.add_button(Loc.t("news.ok"), func():
+		_changelog_mark()
+		p.close(), true)
+
+func _changelog_mark() -> void:
+	Game.profile["changelog_seen"] = Game.VERSION
+	SaveSystem.save_game()
