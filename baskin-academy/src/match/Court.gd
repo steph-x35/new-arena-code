@@ -175,7 +175,10 @@ var ft_side := false               # this FT series is shot at a small side bask
 
 # ------------------------------------------------- ONBOARDING (prima partita)
 signal onboard_step(step: int)             # prossimo obiettivo della prima partita
+signal pivot_declare(p: BallPlayer)        # il pivot R1 sceglie: 1 tiro da 3 o 2 da 2
 var onboarding := false                    # prima partita con obiettivi
+var subs_used_q := 0                       # cambi usati nel tempo corrente (squadra utente)
+var _decl_hold := false                    # play_live congelata durante la scelta
 var onboard_phase := 0                     # 0 consegna · 1 pivot segna · 2 classico
 
 func _ready() -> void:
@@ -516,6 +519,7 @@ func give_ball(p: BallPlayer) -> void:
 	p.received_in_side_area = in_side_area(p.global_position)
 	if changed_hands:
 		p.pivot_attempts = 0
+		p.pivot_decl = ""
 	# BASKIN: the pivot's clock starts when the ball reaches him by hand —
 	# 10 s for role 1 and for the 2T, 7 s for the 2R.
 	for q in players:
@@ -528,6 +532,16 @@ func give_ball(p: BallPlayer) -> void:
 		p.tutor = last_passer
 	if p.role == 1:
 		p.pivot_clock = 10.0
+		# Rev.19: il ruolo 1 COMUNICA PRIMA la scelta — 1 tiro da 3 punti
+		# oppure 2 tiri da 2 punti. L'utente sceglie da panel (il gioco si
+		# ferma un attimo), l'IA decide da sola.
+		if p.pivot_decl == "" and not one_on_one:
+			if p.is_user:
+				_decl_hold = play_live
+				play_live = false
+				pivot_declare.emit(p)
+			else:
+				p.pivot_decl = "two" if randf() < 0.6 else "one"
 	elif p.role == 2:
 		p.pivot_clock = 7.0 if p.variant == "2R" else 10.0
 	else:
@@ -961,7 +975,9 @@ func _end_quarter() -> void:
 		p.period_makes = 0
 		p.period_shots = 0
 		p.pivot_attempts = 0
+		p.pivot_decl = ""
 		p.pivot_clock = 0.0
+	subs_used_q = 0
 	quarter += 1
 	team_fouls = [0, 0]
 	if quarter > QUARTERS:
@@ -2579,6 +2595,10 @@ func _baskin_points(s: BallPlayer, hoop: Vector2) -> int:
 	var side := is_side_hoop(hoop)
 	match s.role:
 		1:
+			if s.pivot_decl == "one":
+				return 3
+			if s.pivot_decl == "two":
+				return 2
 			return 3 if s.pivot_attempts <= 1 else 2
 		2:
 			# Rev.19: dal canestro laterale alto il valore dipende dal SETTORE
@@ -2614,6 +2634,12 @@ func _baskin_shot_check(s: BallPlayer, hoop: Vector2) -> String:
 			return "v_layup3"
 	if s.role == 4 and spd > 60.0:
 		return "v_stop4"
+	if s.role == 1 and s.pivot_decl != "" \
+	and s.pivot_attempts >= (1 if s.pivot_decl == "one" else 2):
+		return "v_att"
+	if s.role == 2 and s.variant == "2R" and is_side_hoop(hoop) \
+	and s.global_position.distance_to(hoop) < SIDE_DASH_R:
+		return "v_dash"
 	if s.role <= 2:
 		s.pivot_attempts += 1
 	return ""
@@ -2632,6 +2658,9 @@ func baskin_ai_shoot_allowed(p: BallPlayer, hoop: Vector2) -> bool:
 		return false
 	if shot_must_clear_area(p, hoop):
 		return false
+	if p.role == 2 and p.variant == "2R" and is_side_hoop(hoop) \
+	and p.global_position.distance_to(hoop) < SIDE_DASH_R:
+		return false
 	return true
 
 ## Same gates for the AI's pull-the-trigger decision.
@@ -2643,6 +2672,9 @@ func baskin_ai_may_shoot(p: BallPlayer, hoop: Vector2) -> bool:
 	if p.role <= 4 and p.period_makes >= 3:
 		return false
 	if shot_must_clear_area(p, hoop):
+		return false
+	if p.role == 2 and p.variant == "2R" and is_side_hoop(hoop) \
+	and p.global_position.distance_to(hoop) < SIDE_DASH_R:
 		return false
 	var spd: float = p.velocity.length()
 	if p.role == 2 and p.variant == "" and p.dribble_t < 0.6:
@@ -3397,6 +3429,9 @@ func _start_sub(out_p: BallPlayer, seat: int) -> void:
 	var team: int = out_p.team
 	if team < 0 or team >= bench_roster.size() or seat < 0 or seat >= bench_roster[team].size():
 		return
+	if team == 0 and subs_used_q >= 3:
+		Events.toast.emit(Loc.t("t.sub.limit"))
+		return
 	var inn: BallPlayer = preload("res://src/match/Player.gd").new()
 	inn.team = team
 	add_child(inn)
@@ -3425,6 +3460,8 @@ func _start_sub(out_p: BallPlayer, seat: int) -> void:
 	_refresh_bench_vis()
 	Events.toast.emit(Loc.t("t.sub.done") % [inn.jersey_num, out_p.jersey_num])
 	if team == 0:
+		subs_used_q += 1
+		Events.toast.emit(Loc.t("t.sub.count") % subs_used_q)
 		Events.rule.emit("sub")
 
 ## Camminata dei cambi: chi esce va a sedersi, chi entra aspetta che l'altro sia
@@ -3777,3 +3814,13 @@ func _onboard_next() -> void:
 		onboarding = false
 		Game.profile["baskin_onboarded"] = true
 		SaveSystem.save_game()
+
+
+func pivot_declared(choice: String) -> void:
+	## Chiude la scelta del ruolo 1 (panel utente) e riprende il gioco.
+	if user != null and user.role == 1 and user.pivot_decl == "":
+		user.pivot_decl = choice
+		Events.toast.emit(Loc.t("pivot.decl.toast") % Loc.t("pivot.decl." + choice))
+	if _decl_hold:
+		play_live = true
+		_decl_hold = false

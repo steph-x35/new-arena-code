@@ -40,6 +40,7 @@ var pivot_clock := 0.0                # roles 1-2: seconds left to shoot
 var period_makes := 0                 # baskets made this period
 var period_shots := 0                 # shots taken this period
 var pivot_attempts := 0               # role 1: attempts this possession (3/2 pts)
+var pivot_decl := ""                  # role 1: scelta comunicata prima ("one"/"two")
 var _dribble_phase := 0.0
 var _dribble_scale := 1.0
 var dribble_t := 0.0                  # seconds dribbling this possession

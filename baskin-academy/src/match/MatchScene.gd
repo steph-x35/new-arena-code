@@ -98,6 +98,7 @@ func _ready() -> void:
 	Events.rule.connect(_on_rule)
 	_build_inbound_transition()
 	court.inbound_transition.connect(_on_inbound_transition)
+	court.pivot_declare.connect(_on_pivot_declare)
 	Sfx.start_crowd()
 	Sfx.set_match_live(true)
 	if court.is_fixture:
@@ -1954,3 +1955,37 @@ func _quiz_answer(qd: Dictionary, idx: int, btn: Button, fb: Label) -> void:
 	get_tree().create_timer(5.0).timeout.connect(func():
 		if p != null and is_instance_valid(p):
 			p.queue_free())
+
+
+# ------------------------------------------------- SCELTA DEL PIVOT (RUOLO 1)
+func _on_pivot_declare(piv: BallPlayer) -> void:
+	## Rev.19: quando il ruolo 1 dell'utente riceve la palla, comunica prima
+	## come giochera' il suo turno: 1 tiro da 3 punti o 2 tiri da 2 punti.
+	## Il gioco riprende solo dopo la scelta.
+	if piv == null or not piv.is_user:
+		return
+	var p := _center_panel(560.0)
+	var vb: VBoxContainer = p.get_meta("vb")
+	var title := Label.new()
+	title.text = Loc.t("pivot.decl.title")
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 24)
+	title.add_theme_color_override("font_color", Color(1.0, 0.82, 0.35))
+	vb.add_child(title)
+	var sub := Label.new()
+	sub.text = Loc.t("pivot.decl.sub")
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sub.add_theme_font_size_override("font_size", 17)
+	sub.add_theme_color_override("font_color", Color(0.85, 0.88, 0.95))
+	vb.add_child(sub)
+	for choice in ["one", "two"]:
+		var b := Button.new()
+		b.text = Loc.t("pivot.decl." + choice)
+		b.custom_minimum_size = Vector2(460, 62)
+		b.add_theme_font_size_override("font_size", 20)
+		var ch: String = choice
+		b.pressed.connect(func() -> void:
+			court.pivot_declared(ch)
+			p.queue_free())
+		vb.add_child(b)

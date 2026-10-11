@@ -1,3 +1,35 @@
+# Baskin Academy — v1.21.0: il regolamento Rev.19 completo (pack 1+2)
+
+Data: 12 ottobre 2026 • Motore: Godot 4.3 stable
+
+Chiuse le ultime tre differenze tra il gioco e il regolamento:
+
+1. SCELTA DEL PIVOT (ruolo 1) — quando il ruolo 1 riceve la palla, COMUNICA
+   PRIMA come giochera' il suo turno: 1 tiro da 3 punti oppure 2 tiri da 2
+   punti. Per l'utente si apre un pannello (il gioco aspetta la scelta,
+   come per il quiz); l'IA decide da sola. Andare oltre i tiri comunicati
+   e' infrazione (v_att): palla agli avversari. I canestri valgono quanto
+   dichiarato, non piu' il vecchio fisso 3-2.
+
+2. 2R DIETRO IL TRATTEGGIATO — il pivot 2R puo' tirare al canestro laterale
+   solo da OLTRE l'arco tratteggiato (3,70 m). Il movimento c'era gia'
+   (_pivot_attack lo sposta oltre la linea); ora la regola e' applicata
+   davvero: tiro da dentro = v_dash, palla agli avversari. Vale per
+   l'utente e per l'IA (gate in may_shoot / shoot_allowed).
+
+3. MAX 3 CAMBI PER TEMPO (squadra utente) — al 4.mo cambio richiesto
+   arriva il rifiuto con avviso; ogni cambio riuscito mostra il conteggio
+   (Cambi usati: X di 3). Il contatore si azzera a ogni tempo.
+
+Verificato in cantiere (già a posto, nessun intervento):
+- TUTOR DEL 2T: posizionamento accanto al pivot, raccolta del suo errore,
+  consegna a mano e divieto di ritorno — tutto già attivo dal codice 28.
+- Orologio fermo sui canestri laterali: era già corretto.
+
+v1.21.0 / versionCode 29.
+
+---
+
 # Baskin Academy — v1.20.1: rimossa la modalita' ALLENAMENTO
 
 Data: 12 ottobre 2026 • Motore: Godot 4.3 stable
