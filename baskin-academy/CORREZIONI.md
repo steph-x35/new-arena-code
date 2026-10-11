@@ -1,3 +1,31 @@
+# Baskin Academy — v1.21.1: i cambi automatici e il limite dei 3, insieme
+
+Data: 12 ottobre 2026 • Motore: Godot 4.3 stable
+
+I cambi seguono l'andamento della partita (stamina e impatto: e' l'allenatore
+che decide, con avviso e card esplicativa). Il limite Rev.19 dei 3 cambi per
+tempo ora convive con quel flusso senza attriti:
+
+- TOAST UNICO — "CAMBIO: entra #7 per #5 · 2/3": i toast si sovrascrivono
+  (niente coda), quindi conteggio e cambio viaggiano in un solo messaggio.
+  Prima il contatore cancellava l'avviso del cambio.
+- DISSOLVENZA IN ENTRATA dei toast (0,18s): prima comparivano a schermo
+  secco; l'uscita in dissolvenza c'era gia'. Il tween precedente ora viene
+  fermato, cosi' toast ravvicinati non lottano sull'alpha.
+- L'ALLENATORE RISPETTA IL BUDGET — esauriti i 3 cambi, non accoda piu'
+  richieste che verrebbero respinte a ogni palla morta (niente toast
+  ripetuti): il giocatore semplicemente resta in campo.
+- LIMITE PER ENTRAMBE LE SQUADRE — prima valeva solo per quella
+  dell'utente; ora il contatore e' per squadra (3 e 3).
+- LA CARD "SOSTITUZIONE" INSEGNA IL LIMITE — prima non lo nominava.
+
+I riposi dell'utente (l'allenatore lo manda in panchina per stamina e lo
+richiama) restano fuori dal conteggio: devono restare fluidi, sempre.
+
+v1.21.1 / versionCode 30.
+
+---
+
 # Baskin Academy — v1.21.0: il regolamento Rev.19 completo (pack 1+2)
 
 Data: 12 ottobre 2026 • Motore: Godot 4.3 stable

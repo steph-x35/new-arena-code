@@ -177,7 +177,7 @@ var ft_side := false               # this FT series is shot at a small side bask
 signal onboard_step(step: int)             # prossimo obiettivo della prima partita
 signal pivot_declare(p: BallPlayer)        # il pivot R1 sceglie: 1 tiro da 3 o 2 da 2
 var onboarding := false                    # prima partita con obiettivi
-var subs_used_q := 0                       # cambi usati nel tempo corrente (squadra utente)
+var subs_used := [0, 0]                    # cambi usati nel tempo corrente (per squadra: max 3)
 var _decl_hold := false                    # play_live congelata durante la scelta
 var onboard_phase := 0                     # 0 consegna · 1 pivot segna · 2 classico
 
@@ -977,7 +977,7 @@ func _end_quarter() -> void:
 		p.pivot_attempts = 0
 		p.pivot_decl = ""
 		p.pivot_clock = 0.0
-	subs_used_q = 0
+	subs_used = [0, 0]
 	quarter += 1
 	team_fouls = [0, 0]
 	if quarter > QUARTERS:
@@ -3429,8 +3429,12 @@ func _start_sub(out_p: BallPlayer, seat: int) -> void:
 	var team: int = out_p.team
 	if team < 0 or team >= bench_roster.size() or seat < 0 or seat >= bench_roster[team].size():
 		return
-	if team == 0 and subs_used_q >= 3:
-		Events.toast.emit(Loc.t("t.sub.limit"))
+	if subs_used[team] >= 3:
+		# Rev.19: massimo 3 cambi per tempo e per squadra. Per l'utente
+		# c'e' l'avviso; per l'IA il suo allenatore lo sa gia' (il budget
+		# e' controllato prima di accodare, qui e' solo una rete di sicurezza).
+		if team == 0:
+			Events.toast.emit(Loc.t("t.sub.limit"))
 		return
 	var inn: BallPlayer = preload("res://src/match/Player.gd").new()
 	inn.team = team
@@ -3458,11 +3462,14 @@ func _start_sub(out_p: BallPlayer, seat: int) -> void:
 	sub_seat_cd[seat] = SUB_GAP
 	_sub_walk.append([out_p, inn, seat])
 	_refresh_bench_vis()
-	Events.toast.emit(Loc.t("t.sub.done") % [inn.jersey_num, out_p.jersey_num])
+	subs_used[team] += 1
 	if team == 0:
-		subs_used_q += 1
-		Events.toast.emit(Loc.t("t.sub.count") % subs_used_q)
+		# UN solo toast: il messaggio dei toast si sovrascrive (niente coda),
+		# quindi chi entra/esce e il conteggio viaggiano insieme.
+		Events.toast.emit(Loc.t("t.sub.done.c") % [inn.jersey_num, out_p.jersey_num, subs_used[0]])
 		Events.rule.emit("sub")
+	else:
+		Events.toast.emit(Loc.t("t.sub.done") % [inn.jersey_num, out_p.jersey_num])
 
 ## Camminata dei cambi: chi esce va a sedersi, chi entra aspetta che l'altro sia
 ## arrivato e poi prende il suo posto in campo (con il cervello IA).
@@ -3540,6 +3547,11 @@ func _coach_subs() -> void:
 		if p == null or not is_instance_valid(p) or p.role <= 0 or p.is_user or p == user or p == sub_partner:
 			continue
 		if p.leaving or p.entering or p.has_ball or p.stamina > 18.0:
+			continue
+		# Rev.19: l'allenatore conosce il proprio budget — esauriti i 3
+		# cambi del tempo, il giocatore resta in campo (nessuna richiesta
+		# accodata che verrebbe poi respinta).
+		if subs_used[p.team] >= 3:
 			continue
 		var busy := false
 		for r in sub_pending:

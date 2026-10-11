@@ -1495,12 +1495,17 @@ func _big_banner(text: String, col: Color) -> void:
 	tw.tween_interval(0.7)
 	tw.tween_property(lbl_banner, "modulate:a", 0.0, 0.4)
 
+var _toast_tw: Tween = null
+
 func _on_toast(t: String) -> void:
 	lbl_toast.text = Loc.tx(t)
-	lbl_toast.modulate.a = 1.0
-	var tw := create_tween()
-	tw.tween_interval(1.1)
-	tw.tween_property(lbl_toast, "modulate:a", 0.0, 0.5)
+	if _toast_tw != null and _toast_tw.is_valid():
+		_toast_tw.kill()
+	lbl_toast.modulate.a = 0.0
+	_toast_tw = create_tween()
+	_toast_tw.tween_property(lbl_toast, "modulate:a", 1.0, 0.18)
+	_toast_tw.tween_interval(1.1)
+	_toast_tw.tween_property(lbl_toast, "modulate:a", 0.0, 0.5)
 
 func _on_finished(res: Dictionary) -> void:
 	var panel := preload("res://src/ui/PostGame.tscn").instantiate()
