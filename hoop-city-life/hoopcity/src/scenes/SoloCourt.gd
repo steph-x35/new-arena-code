@@ -98,8 +98,6 @@ var hc_greens := 0
 var hc_best := 0
 var stat_dunks := 0            # CARRIERA: schiacciate totali (v2.41.0)
 var stat_hangs := 0            # CARRIERA: appese al ferro totali
-var tut_open := false          # tutorial del campetto aperto (congela il tempo)
-var _tut_step := -1
 var hang_creak_t := 0.0        # scricchiolio del ferro mentre sei appeso
 var btn_hc: Button
 var btn_hc_big: Button      # bottone APERTO: due controlli, zero spostamenti
@@ -170,70 +168,6 @@ func _ready() -> void:
 	queue_redraw()
 
 ## Court space -> screen space, identical to how the court art is drawn.
-	# TUTORIAL: a fine setup, la prima volta che si entra nel campetto
-	_maybe_tutorial.call_deferred()
-
-func _maybe_tutorial() -> void:
-	## TUTORIAL DEL CAMPETTO (v2.41.0): la PRIMA volta che si entra, quattro
-	## consigli a tocco. Mentre e' aperto il cronometro della sessione sta
-	## fermo. Una volta sola: il flag vive nel profilo.
-	if bool(Game.profile.get("solo_tut_done", false)):
-		return
-	tut_open = true
-	_tut_step = 0
-	_show_tut()
-
-func _show_tut() -> void:
-	const TIPS := [
-		"TIRO DA SOLO — lo stick a sinistra muove il giocatore",
-		"TIRA: tieni premuto per caricare il tiro. Vicino al ferro diventa SCHIACCIATA — tieni premuto per restare APPESO e dondolare",
-		"TRICK: finta, eurostep verso il ferro, drop step dal post",
-		"La COPPA in alto a destra apre la SFIDA METÀ CAMPO: 60 secondi, contano solo i GREEN. Ora prova!",
-	]
-	var panel := Control.new()
-	panel.name = "TutOverlay"
-	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	var dim := ColorRect.new()
-	dim.color = Color(0.02, 0.03, 0.05, 0.9)
-	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	panel.add_child(dim)
-	var box := VBoxContainer.new()
-	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_theme_constant_override("separation", 24)
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(box)
-	var txt := Label.new()
-	txt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	txt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	txt.add_theme_font_size_override("font_size", 28)
-	txt.add_theme_color_override("font_color", Color(0.97, 0.95, 0.9))
-	box.add_child(txt)
-	var hint := Label.new()
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_font_size_override("font_size", 18)
-	hint.modulate = Color(1, 1, 1, 0.45)
-	box.add_child(hint)
-	panel.gui_input.connect(func(e):
-		var tap: bool = (e is InputEventScreenTouch and not e.pressed) \
-			or (e is InputEventMouseButton and not e.pressed)
-		if not tap:
-			return
-		Sfx.play("ui_tap", -6.0)
-		_tut_step += 1
-		if _tut_step >= TIPS.size():
-			tut_open = false
-			_tut_step = -1
-			Game.profile["solo_tut_done"] = true
-			SaveSystem.save_game()
-			panel.queue_free()
-			return
-		txt.text = TIPS[_tut_step]
-		hint.text = "tocca per continuare (%d/%d)" % [_tut_step + 1, TIPS.size()])
-	hud_layer.add_child(panel)
-	txt.text = TIPS[0]
-	hint.text = "tocca per continuare (1/%d)" % TIPS.size()
 
 func _screen(p: Vector2) -> Vector2:
 	return CourtStage.m_project(p, Court.COURT_H)
@@ -489,8 +423,11 @@ func _process(delta: float) -> void:
 			var rim_p: Vector2 = CourtStage.m_project(RIM, Court.COURT_H)
 			var focus: Vector2 = fp.lerp(rim_p, 0.55)
 			var th: float = hang_swing_t * 2.0
-			var sway_x: float = (sin(th) * 30.0) if dunk_phase == "hang" else 0.0
-			var sway_y: float = (cos(th) * 12.0) if dunk_phase == "hang" else 0.0
+			# Oscillazione DESTRA/SINISTRA ampia, con l'onda verticale che
+			# completa DUE cicoli per ogni ciclo orizzontale: la visuale
+			# scende, sale, ridiscende e risale verso sinistra.
+			var sway_x: float = (sin(th) * 46.0) if dunk_phase == "hang" else 0.0
+			var sway_y: float = (-cos(2.0 * th) * 18.0) if dunk_phase == "hang" else 0.0
 			# Con lo zoom il margine di clamp si allarga: il ferro resta
 			# pienamente in campo anche quando e' al bordo del pavimento.
 			var half_z: float = half_view / lerpf(1.0, 1.25, hang_cam)
@@ -513,7 +450,7 @@ func _process(delta: float) -> void:
 			c = c.lerp(Color(0.72, 0.70, 0.62), 0.55)
 			night_tint.color = night_tint.color.lerp(c, 2.0 * delta)
 
-	if not session_over and not tut_open:
+	if not session_over:
 		session_left -= delta
 		if session_left <= 0.0:
 			session_left = 0.0
