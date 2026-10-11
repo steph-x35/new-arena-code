@@ -64,9 +64,8 @@ func _ready() -> void:
 	# FINESTRA NOVITA' (v2.40.0): una volta sola per ogni versione. Esce poco
 	# dopo che il menu e' pronto, spiega cosa e' cambiato e non rivede piu'
 	# finche' la versione non cambia.
-	# Fallback: se la finestra novita' non e' stata vista all'avvio
-	# (IntroScene), la mostra qui — una volta sola per versione.
-	News.maybe_show(get_tree())
+	# FINESTRA NOVITA': vive in IntroScene (fine intro, subito dopo lo
+	# splash). Qui NON si mostra mai — mai al click sul menu.
 
 	bg = Node2D.new()
 	bg.z_index = -5

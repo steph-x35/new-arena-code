@@ -239,11 +239,12 @@ func _process(delta: float) -> void:
 		# sbagliato = effetto invisibile).
 		var focus: Vector2 = CourtStage.m_project(_hang_p.global_position,
 			Court.COURT_H)
-		var sway: float = (sin(Time.get_ticks_msec() * 0.003) * 32.0) \
-			if _hang_p.hanging else 0.0
+		var th: float = Time.get_ticks_msec() * 0.003
+		var sway: float = (sin(th) * 32.0) if _hang_p.hanging else 0.0
+		var sway_y: float = (cos(th) * 12.0) if _hang_p.hanging else 0.0
 		cam.global_position.x = lerpf(cam.global_position.x, focus.x + sway,
 			clampf(delta * 8.0 * _hang_cam, 0.0, 1.0))
-		cam_y = lerpf(CAM_HEIGHT, focus.y - 46.0, _hang_cam)
+		cam_y = lerpf(CAM_HEIGHT, focus.y - 46.0, _hang_cam) + sway_y * _hang_cam
 		zoom_k = lerpf(1.0, 1.28, _hang_cam)
 	cam.global_position.y = cam_y
 	cam.zoom = Vector2.ONE * CAM_ZOOM * zoom_k

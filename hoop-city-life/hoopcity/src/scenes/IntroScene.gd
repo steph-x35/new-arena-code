@@ -27,13 +27,10 @@ const FLOOR_Y := 250.0
 ## Rim sits 370px above the floor line -- a believable 10ft at this scale.
 const HOOP := Vector2(340.0, -120.0)
 const T_SWISH := 3.05
+var _news_shown := false       # la finestra NOVITA' esce una volta sola
 
 func _ready() -> void:
 	Sfx.play_life()
-	# FINESTRA NOVITA' (v2.40.2): qui, nella PRIMA scena dell'app — appena
-	# finito lo splash di Godot, non alla prima apertura del menu. Il layer
-	# sta sulla root: sopravvive ai cambi di scena finche' non la chiudi.
-	News.maybe_show(get_tree())
 	var layer := CanvasLayer.new()
 	add_child(layer)
 	ui = Control.new()
@@ -138,6 +135,16 @@ func _finish_now() -> void:
 	var hint: Node = ui.get_node_or_null("SkipHint")
 	if hint: hint.visible = false
 	queue_redraw()
+	_show_news()
+
+func _show_news() -> void:
+	## FINESTRA NOVITA' (v2.40.3): esce quando l'intro si e' ASSEDATO —
+	## logo atterrato e bottoni del menu visibili, subito dopo lo splash
+	## di Godot. Una volta sola per versione; mai al click sul menu.
+	if _news_shown:
+		return
+	_news_shown = true
+	News.maybe_show(get_tree())
 
 func _process(delta: float) -> void:
 	if done:
@@ -160,6 +167,7 @@ func _process(delta: float) -> void:
 		done = true
 		var hint: Node = ui.get_node_or_null("SkipHint")
 		if hint: hint.visible = false
+		_show_news()
 	queue_redraw()
 
 func _animate_ball() -> void:

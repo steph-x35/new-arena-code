@@ -264,11 +264,11 @@ func _build_hud() -> void:
 	leave.pressed.connect(_leave)
 	root.add_child(leave)
 
-	# HALF-COURT GREEN CHALLENGE: di base e' solo un QUADRATINO 🏆 sotto
+	# HALF-COURT GREEN CHALLENGE: di base e' solo un QUADRATINO HC sotto
 	# Leave (piu' visuale); un tap lo APRE col nome intero, il tap seguente
 	# FA PARTIRE la sfida. Si richiude da solo dopo 6 secondi o a sfida finita.
 	btn_hc = Button.new()
-	btn_hc.text = "🏆"
+	btn_hc.text = "HC"
 	btn_hc.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	btn_hc.position = Vector2(-66, 92)
 	btn_hc.size = Vector2(56, 56)
@@ -278,7 +278,7 @@ func _build_hud() -> void:
 	root.add_child(btn_hc)
 	# Il bottone APERTO: creato una volta, nascosto. Mai mosso o ridimensionato.
 	btn_hc_big = Button.new()
-	btn_hc_big.text = "🏆 SFIDA METÀ CAMPO"
+	btn_hc_big.text = "SFIDA METÀ CAMPO"
 	btn_hc_big.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	btn_hc_big.position = Vector2(-312, 92)
 	btn_hc_big.size = Vector2(302, 56)
@@ -309,7 +309,7 @@ func _hc_collapse() -> void:
 	if btn_hc:
 		btn_hc.visible = true
 		btn_hc.disabled = hc_mode
-		btn_hc.text = "⏱" if hc_mode else "🏆"
+		btn_hc.text = "HC..." if hc_mode else "HC"
 
 func _leave() -> void:
 	SaveSystem.save_game()
@@ -386,22 +386,32 @@ func _process(delta: float) -> void:
 			Vector2(Court.COURT_W * 0.5, 0.0), Court.COURT_H).x
 		var limit: float = maxf(floor_x - half_view + 160.0, 80.0)
 		want_x = clampf(want_x, -limit, limit)
-		# CAMERA DELLA SCHIACCIATA (v2.40.2): nel campetto — dove si gioca
-		# davvero — la visuale fa uno zoom leggero DAL MOMENTO della
-		# schiacciata, e durante l'appesa al ferro ONDEGGIA a tempo col
-		# pendolo del corpo (sin(hang_swing_t*2.0): la stessa onda del
-		# disegno). Al distacco torna morbida com'era.
+		# CAMERA DELLA SCHIACCIATA (v2.40.3): nel campetto — dove si gioca
+		# davvero — zoom leggero DAL MOMENTO della schiacciata. Il fuoco e'
+		# spostato a DESTRA verso il ferro (il canestro deve vedersi bene)
+		# e durante l'appesa la visuale DONDOLA IN CERCHIO: destra/sinistra
+		# col pendolo del corpo (sin) e su/giu' sfasato di un quarto d'onda
+		# (cos), come una culla. Segue il corpo: se il personaggio va a
+		# sinistra, la visuale va a sinistra. Al distacco torna come prima.
 		var hang_on: bool = dunk_phase != ""
 		hang_cam = move_toward(hang_cam, 1.0 if hang_on else 0.0,
 			delta * (5.0 if hang_on else 4.0))
 		var cam_y := -40.0
 		var zoom_k := 1.0
 		if hang_cam > 0.001:
-			var sway: float = sin(hang_swing_t * 2.0) * 34.0 \
-				if dunk_phase == "hang" else 0.0
-			cam.position.x = lerpf(cam.position.x, want_x + sway,
+			var rim_p: Vector2 = CourtStage.m_project(RIM, Court.COURT_H)
+			var focus: Vector2 = fp.lerp(rim_p, 0.55)
+			var th: float = hang_swing_t * 2.0
+			var sway_x: float = (sin(th) * 30.0) if dunk_phase == "hang" else 0.0
+			var sway_y: float = (cos(th) * 12.0) if dunk_phase == "hang" else 0.0
+			# Con lo zoom il margine di clamp si allarga: il ferro resta
+			# pienamente in campo anche quando e' al bordo del pavimento.
+			var half_z: float = half_view / lerpf(1.0, 1.25, hang_cam)
+			var limit_z: float = maxf(floor_x - half_z + 160.0, 80.0)
+			var target_x: float = clampf(focus.x, -limit_z, limit_z)
+			cam.position.x = lerpf(cam.position.x, target_x + sway_x,
 				clampf(8.0 * delta * hang_cam, 0.0, 1.0))
-			cam_y = lerpf(-40.0, fp.y - 30.0, 0.6 * hang_cam)
+			cam_y = lerpf(-40.0, focus.y - 34.0, 0.6 * hang_cam) + sway_y * hang_cam
 			zoom_k = lerpf(1.0, 1.25, hang_cam)
 		else:
 			cam.position.x = lerpf(cam.position.x, want_x, clampf(4.0 * delta, 0.0, 1.0))
@@ -527,10 +537,10 @@ func _process(delta: float) -> void:
 	var ft: float = _distance_ft()
 	var tag: String = "  ·  DUNK READY" if (can_dunk() and dunk_phase == "") else ""
 	if hc_mode:
-		lbl_top.text = "🏆 HALF-COURT   ⏱ 0:%02d   GREEN %d   RECORD %d   %.0f ft" % [
+		lbl_top.text = "HALF-COURT · 0:%02d · GREEN %d · RECORD %d · %.0f ft" % [
 			int(session_left), hc_greens, hc_best, ft]
 	else:
-		lbl_top.text = "⏱ %d:%02d   SCORE %d   %d/%d   streak %d (best %d)   %.0f ft%s" % [
+		lbl_top.text = "%d:%02d · SCORE %d · %d/%d · streak %d (best %d) · %.0f ft%s" % [
 			int(session_left) / 60, int(session_left) % 60, session_score,
 			makes, attempts, streak, best_streak, ft, tag]
 	lbl_top.modulate = Color(1, 0.45, 0.4) if session_left <= 15.0 else Color(1, 1, 1)
@@ -734,7 +744,7 @@ func can_dunk() -> bool:
 ## risultati si riprova o si torna al tiro libero. Mai "spegnerla" a metà.
 func _toggle_hc() -> void:
 	if hc_mode:
-		Events.toast.emit("Sfida in corso! Finisci i 60 secondi ⏱")
+		Events.toast.emit("Sfida in corso! Finisci i 60 secondi!")
 		return
 	# PRIMO tap: il quadratino si APRE sempre, anche col pallone in giro.
 	if not hc_expanded:
@@ -762,7 +772,7 @@ func _toggle_hc() -> void:
 	through_rim = false
 	lbl_mid.text = ""
 	session_left = HC_SECONDS
-	Events.toast.emit("SFIDA METÀ CAMPO: 60 secondi, contano solo i GREEN 🟢")
+	Events.toast.emit("SFIDA METÀ CAMPO: 60 secondi, contano solo i GREEN")
 	_hc_teleport()
 	hc_expanded = false
 	_hc_collapse()
@@ -955,7 +965,7 @@ func _shoot_up() -> void:
 			hc_greens += 1
 			session_score = hc_greens
 			if hc_greens > hc_best:
-				lbl_mid.text = "GREEN %d   ·   NEW RECORD! 🏆" % hc_greens
+				lbl_mid.text = "GREEN %d   ·   NEW RECORD!" % hc_greens
 			else:
 				lbl_mid.text = "GREEN %d   ·   RECORD %d" % [hc_greens, hc_best]
 		elif zone == "green":
@@ -1137,13 +1147,13 @@ func _end_session() -> void:
 		Game.profile["hc_best"] = hc_best
 		hc_new_record = true
 	SaveSystem.save_game()
-	var p: GamePanel = GamePanel.new().build("⏱  TIME", Vector2(760, 560))
+	var p: GamePanel = GamePanel.new().build("TIME", Vector2(760, 560))
 	hud_layer.add_child(p)
 	var pct: int = int(round(100.0 * float(makes) / maxf(float(attempts), 1.0)))
 	if hc_mode:
 		p.add_text("GREEN  %d" % hc_greens, 46, Color(0.3, 1.0, 0.45))
 		if hc_new_record:
-			p.add_text("🏆 NEW RECORD!  (record: %d)" % hc_best, 28, Color(1, 0.88, 0.35))
+			p.add_text("NEW RECORD!  (record: %d)" % hc_best, 28, Color(1, 0.88, 0.35))
 		else:
 			p.add_text("Record da battere:  %d" % hc_best, 24, Color(1, 1, 1, 0.8))
 	else:
@@ -1156,8 +1166,8 @@ func _end_session() -> void:
 		# incollare su WhatsApp/TikTok — è il gioco che si pubblicita da solo.
 		var _share := func() -> void:
 			DisplayServer.clipboard_set("🟢 %d GREEN in 60 secondi nella SFIDA METÀ CAMPO di Hoop City Life 🏀\nRiesci a battermi? Gratis, solo Android 👉 https://github.com/steph-x35/new-arena-code/releases" % hc_greens)
-			Events.toast.emit("Copiato! Incollalo su WhatsApp o TikTok 📋")
-		p.add_button("🏁 SFIDA GLI AMICI (copia messaggio)", _share, true)
+			Events.toast.emit("Copiato! Incollalo su WhatsApp o TikTok!")
+		p.add_button("SFIDA GLI AMICI (copia messaggio)", _share, true)
 	p.add_button("Riprova (60 secondi)" if hc_mode else "Shoot again (2 more minutes)", func():
 		if hc_mode:
 			session_left = HC_SECONDS
