@@ -264,16 +264,20 @@ func _build_hud() -> void:
 	leave.pressed.connect(_leave)
 	root.add_child(leave)
 
-	# HALF-COURT GREEN CHALLENGE: di base e' solo un QUADRATINO HC sotto
-	# Leave (piu' visuale); un tap lo APRE col nome intero, il tap seguente
-	# FA PARTIRE la sfida. Si richiude da solo dopo 6 secondi o a sfida finita.
+	# HALF-COURT GREEN CHALLENGE (v2.40.4): COPPA dorata disegnata a mano
+	# (niente emoji: identica su ogni dispositivo), ALLINEATA sotto Leave —
+	# stessa x e stessa larghezza. Un tap la APRE col nome intero, il tap
+	# seguente FA PARTIRE la sfida. Si richiude da sola dopo 6 secondi.
 	btn_hc = Button.new()
-	btn_hc.text = "HC"
+	btn_hc.text = ""
 	btn_hc.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	btn_hc.position = Vector2(-66, 92)
-	btn_hc.size = Vector2(56, 56)
-	btn_hc.custom_minimum_size = Vector2(56, 56)
-	btn_hc.add_theme_font_size_override("font_size", 24)
+	btn_hc.position = Vector2(-150, 94)
+	btn_hc.size = Vector2(140, 60)
+	btn_hc.custom_minimum_size = Vector2(140, 60)
+	var hc_icon := TrophyIcon.new()
+	hc_icon.size = Vector2(28, 28)
+	hc_icon.position = Vector2(56, 16)
+	btn_hc.add_child(hc_icon)
 	btn_hc.pressed.connect(_toggle_hc)
 	root.add_child(btn_hc)
 	# Il bottone APERTO: creato una volta, nascosto. Mai mosso o ridimensionato.
@@ -284,6 +288,10 @@ func _build_hud() -> void:
 	btn_hc_big.size = Vector2(302, 56)
 	btn_hc_big.custom_minimum_size = Vector2(302, 56)
 	btn_hc_big.add_theme_font_size_override("font_size", 19)
+	var big_icon := TrophyIcon.new()
+	big_icon.size = Vector2(28, 28)
+	big_icon.position = Vector2(14, 14)
+	btn_hc_big.add_child(big_icon)
 	btn_hc_big.pressed.connect(_toggle_hc)
 	btn_hc_big.visible = false
 	root.add_child(btn_hc_big)
@@ -309,7 +317,7 @@ func _hc_collapse() -> void:
 	if btn_hc:
 		btn_hc.visible = true
 		btn_hc.disabled = hc_mode
-		btn_hc.text = "HC..." if hc_mode else "HC"
+		btn_hc.modulate = Color(1, 1, 1, 0.45) if hc_mode else Color(1, 1, 1, 1)
 
 func _leave() -> void:
 	SaveSystem.save_game()
