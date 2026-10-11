@@ -609,13 +609,13 @@ func _process(delta: float) -> void:
 			Sfx.play("swish", -1.0, randf_range(0.84, 0.90))
 			if want_hang:
 				dunk_phase = "hang"
-			stat_hangs += 1
-			Game.profile["stat_hangs"] = stat_hangs
-			if stat_hangs % 25 == 0:
-				Events.toast.emit("%d appese al ferro in carriera!" % stat_hangs)
-			Sfx.play("rim", -6.0, 0.72)
-			Sfx.haptic(45)
-			hang_creak_t = 0.0
+				stat_hangs += 1
+				Game.profile["stat_hangs"] = stat_hangs
+				if stat_hangs % 25 == 0:
+					Events.toast.emit("%d appese al ferro in carriera!" % stat_hangs)
+				Sfx.play("rim", -6.0, 0.72)
+				Sfx.haptic(45)
+				hang_creak_t = 0.0
 			else:
 				dunk_phase = "drop"
 			dunk_anim = 0.0
