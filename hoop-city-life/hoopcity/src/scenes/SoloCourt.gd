@@ -98,7 +98,6 @@ var hc_greens := 0
 var hc_best := 0
 var stat_dunks := 0            # CARRIERA: schiacciate totali (v2.41.0)
 var stat_hangs := 0            # CARRIERA: appese al ferro totali
-var hang_creak_t := 0.0        # scricchiolio del ferro mentre sei appeso
 var btn_hc: Button
 var btn_hc_big: Button      # bottone APERTO: due controlli, zero spostamenti
 var hc_expanded := false   # quadratino -> tap -> bottone pieno -> tap -> parte
@@ -389,13 +388,6 @@ func _process(delta: float) -> void:
 	dust_t = maxf(dust_t - delta, 0.0)
 	if dunk_phase == "hang":
 		hang_swing_t += delta
-		# SCRICCHIOLIO DEL FERRO: a ogni dondolio il ferro si lamenta,
-		# squeak basso e soffuso — il ferro sotto sforzo si sente.
-		hang_creak_t -= delta
-		if hang_creak_t <= 0.0:
-			hang_creak_t = 0.8
-			Sfx.play("squeak1" if int(hang_swing_t * 1.25) % 2 == 0 else "squeak2",
-				-12.0, 0.30)
 	else:
 		hang_swing_t = 0.0
 	if has_meta("cam"):
@@ -423,11 +415,11 @@ func _process(delta: float) -> void:
 			var rim_p: Vector2 = CourtStage.m_project(RIM, Court.COURT_H)
 			var focus: Vector2 = fp.lerp(rim_p, 0.55)
 			var th: float = hang_swing_t * 2.0
-			# Oscillazione DESTRA/SINISTRA ampia, con l'onda verticale che
-			# completa DUE cicoli per ogni ciclo orizzontale: la visuale
-			# scende, sale, ridiscende e risale verso sinistra.
-			var sway_x: float = (sin(th) * 46.0) if dunk_phase == "hang" else 0.0
-			var sway_y: float = (-cos(2.0 * th) * 18.0) if dunk_phase == "hang" else 0.0
+			# La camera SEGUE il dondolio del giocatore (stessa fase e
+			# ampiezza vicina al corpo: si muove CON lui, non da sola) e
+			# l'onda verticale e' una U: un solo ciclo per ciclo orizzontale.
+			var sway_x: float = (sin(th) * 30.0) if dunk_phase == "hang" else 0.0
+			var sway_y: float = (cos(th) * 16.0) if dunk_phase == "hang" else 0.0
 			# Con lo zoom il margine di clamp si allarga: il ferro resta
 			# pienamente in campo anche quando e' al bordo del pavimento.
 			var half_z: float = half_view / lerpf(1.0, 1.25, hang_cam)
@@ -552,7 +544,6 @@ func _process(delta: float) -> void:
 					Events.toast.emit("%d appese al ferro in carriera!" % stat_hangs)
 				Sfx.play("rim", -6.0, 0.72)
 				Sfx.haptic(45)
-				hang_creak_t = 0.0
 			else:
 				dunk_phase = "drop"
 			dunk_anim = 0.0

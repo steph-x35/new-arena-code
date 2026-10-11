@@ -240,10 +240,11 @@ func _process(delta: float) -> void:
 		var focus: Vector2 = CourtStage.m_project(_hang_p.global_position,
 			Court.COURT_H)
 		var th: float = Time.get_ticks_msec() * 0.003
-		# Oscillazione destra/sinistra ampia + onda verticale giu'-su'-giu'-su
-		# (due cicli verticali per ogni ciclo orizzontale, come nel campetto).
-		var sway: float = (sin(th) * 46.0) if _hang_p.hanging else 0.0
-		var sway_y: float = (-cos(2.0 * th) * 18.0) if _hang_p.hanging else 0.0
+		# Come nel campetto: la camera segue il dondolio del corpo (stessa
+		# fase del pendolo disegnato) e l'onda verticale e' una U, un solo
+		# ciclo per ogni ciclo orizzontale.
+		var sway: float = (sin(th) * 22.0) if _hang_p.hanging else 0.0
+		var sway_y: float = (cos(th) * 16.0) if _hang_p.hanging else 0.0
 		cam.global_position.x = lerpf(cam.global_position.x, focus.x + sway,
 			clampf(delta * 8.0 * _hang_cam, 0.0, 1.0))
 		cam_y = lerpf(CAM_HEIGHT, focus.y - 46.0, _hang_cam) + sway_y * _hang_cam
