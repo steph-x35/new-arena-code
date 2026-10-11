@@ -1,3 +1,21 @@
+# Baskin Academy — v1.20.1: rimossa la modalita' ALLENAMENTO
+
+Data: 12 ottobre 2026 • Motore: Godot 4.3 stable
+
+Playtest: la modalita' ALLENAMENTO (drill) non convinceva. Tolta del tutto
+(menu, DrillPicker, Drills.gd, logica drill in Court/MatchScene/AIBrain).
+L'app resta didattica ATTRAVERSO IL GIOCO, che e' la strada giusta:
+
+- card contestuali con Cosa + Perche' a ogni fischio
+- riepilogo dei fischi a fine tempo
+- quiz dell'allenatore ai fine-tempo 1-3
+- onboarding della prima partita (consigli + 3 obiettivi)
+- vibrazione e POPUP che spiegano i tiri scolpiti
+
+v1.20.1 / versionCode 28.
+
+---
+
 # Baskin Academy — v1.20.0: ALLENAMENTO, onboarding e quiz dell'allenatore
 
 Data: 10 ottobre 2026 • Motore: Godot 4.3 stable

@@ -50,9 +50,6 @@ var rule_body: Label
 var rule_why: Label                        # la terza riga: IL PERCHE'
 var _rule_t := 0.0
 var _viol_counts := {}                     # fischi del tempo corrente (riepilogo)
-var score_holder: Control                  # il tabellone (nascosto in allenamento)
-var drill_banner: Label                    # obiettivo + progresso dell'esercizio
-var drill_panel: PanelContainer            # pannello fine allenamento (RIPROVA/ESCI)
 var onboard_banner: Label                  # obiettivi della prima partita
 var _tip_step := -1                        # -1 = niente; 0..4 = consigli onboarding
 var _tip_panel: Control
@@ -139,8 +136,7 @@ func _ready() -> void:
 	else:
 		tip_left = 3.0
 		court.countdown_hold = tip_left + 0.5
-	if court.drill != "":
-		_setup_drill()
+
 
 func _process(delta: float) -> void:
 	var u := court.user
@@ -452,7 +448,6 @@ func _build_hud() -> void:
 	holder.offset_bottom = 96
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hud.add_child(holder)
-	score_holder = holder
 	var board := PanelContainer.new()
 	holder.add_child(board)
 	var sb := StyleBoxFlat.new()
@@ -1353,7 +1348,7 @@ func _on_quarter_ended(q: int) -> void:
 	# QUIZ DELL'ALLENATORE: una domandina a fine tempo (mai dopo l'ultimo:
 	# la partita finita ha gia' il suo epilogo). L'intervallo si allunga
 	# per lasciare il tempo di rispondere con calma.
-	if court.drill == "" and q >= 2 and q <= 4:
+	if q >= 2 and q <= 4:
 		intermission_left = 13.0
 		_show_quiz()
 
@@ -1824,71 +1819,6 @@ func _center_panel(width: float) -> PanelContainer:
 	p.set_meta("vb", vb)
 	hud.add_child(p)
 	return p
-
-# ------------------------------------------------------------------ drill
-func _setup_drill() -> void:
-	if score_holder != null:
-		score_holder.visible = false
-	if momentum_left != null:
-		momentum_left.visible = false
-	if momentum_right != null:
-		momentum_right.visible = false
-	if lbl_clock != null:
-		lbl_clock.text = ""
-	drill_banner = Label.new()
-	drill_banner.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	drill_banner.offset_top = 30
-	drill_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	drill_banner.add_theme_font_size_override("font_size", 26)
-	drill_banner.add_theme_color_override("font_color", Color(1.0, 0.85, 0.40))
-	drill_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hud.add_child(drill_banner)
-	var cfg := Drills.cfg(court.drill)
-	_refresh_drill_banner(0, int(cfg.get("target", 0)) if not cfg.is_empty() else 0)
-	court.drill_step.connect(_refresh_drill_banner)
-	court.drill_complete.connect(_drill_finish)
-
-func _refresh_drill_banner(done: int, total: int) -> void:
-	if drill_banner == null:
-		return
-	var cfg := Drills.cfg(court.drill)
-	drill_banner.text = "%s   ·   %d/%d" % [
-		Loc.t(String(cfg.get("loc", ""))), done, total]
-
-func _drill_finish() -> void:
-	_jumbo("jumbo.three")
-	Events.toast.emit(Loc.t("drill.done.toast"))
-	if drill_panel != null:
-		return
-	drill_panel = _center_panel(620.0)
-	var vb: VBoxContainer = drill_panel.get_meta("vb")
-	var t := Label.new()
-	t.text = Loc.t("drill.done.title")
-	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	t.add_theme_font_size_override("font_size", 30)
-	t.add_theme_color_override("font_color", Color(1.0, 0.85, 0.40))
-	vb.add_child(t)
-	var s := Label.new()
-	s.text = Loc.t("drill.done.sub")
-	s.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	s.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	s.add_theme_font_size_override("font_size", 19)
-	vb.add_child(s)
-	var again := Button.new()
-	again.text = Loc.t("drill.again")
-	again.custom_minimum_size = Vector2(0, 74)
-	again.add_theme_font_size_override("font_size", 24)
-	again.pressed.connect(func():
-		Game.profile["next_match_mode"] = "drill"
-		Game.profile["next_drill"] = court.drill
-		SceneRouter.goto("res://src/match/MatchScene.tscn"))
-	vb.add_child(again)
-	var out := Button.new()
-	out.text = Loc.t("drill.exit")
-	out.custom_minimum_size = Vector2(0, 74)
-	out.add_theme_font_size_override("font_size", 22)
-	out.pressed.connect(func(): SceneRouter.goto(SceneRouter.MENU))
-	vb.add_child(out)
 
 # ------------------------------------------------------------- onboarding
 func _setup_onboarding() -> void:
