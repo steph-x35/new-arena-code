@@ -20,7 +20,13 @@ jobs:
       - name: Download Godot 4.3
         run: |
           mkdir -p /tmp/godot
-          curl -sL --retry 5 --retry-delay 5 --retry-all-errors https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3_linux.x86_64.zip -o /tmp/godot/godot.zip
+          # -f: un errore HTTP NON diventa uno zip corrotto; il ciclo riprova
+          # tre volte (i download da releases ogni tanto tremano sui runner).
+          for i in 1 2 3; do
+            curl -fSL --retry 3 --retry-delay 5 https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3_linux.x86_64.zip -o /tmp/godot/godot.zip && break
+            echo "tentativo $i fallito, riprovo..."
+            sleep 10
+          done
           unzip -q /tmp/godot/godot.zip -d /tmp/godot/bin
           chmod +x /tmp/godot/bin/Godot_*
           sudo ln -s /tmp/godot/bin/Godot_* /usr/local/bin/godot
