@@ -14,6 +14,7 @@ var _ip_lbl: Label = null             # host: il tuo indirizzo, per il giro a ma
 var _ip_edit: LineEdit = null         # client: indirizzo a mano
 var _list_hash := ""                  # ricostruisce la lista solo se cambia
 var _mode := ""                       # pick / host / client
+var _duel_next := false               # vero = sto andando al duello: la connessione resta
 
 
 func _ready() -> void:
@@ -35,11 +36,13 @@ func _ready() -> void:
 	NetLayer.connection_failed.connect(_on_conn_failed)
 	NetLayer.disconnected.connect(_on_disc)
 	NetLayer.ping_ms.connect(_on_ping)
+	NetLayer.duel_ev_rx.connect(_on_duel_ev)
 	_build_pick()
 
 
 func _exit_tree() -> void:
-	NetLayer.close()
+	if not _duel_next:
+		NetLayer.close()
 
 
 func _process(_delta: float) -> void:
@@ -178,6 +181,8 @@ func _refresh_rooms() -> void:
 func _on_client_connected(info: Dictionary) -> void:
 	if _mode == "host" and _stat1 != null:
 		_stat1.text = "%s: %s" % [Loc.t("lobby.connected"), String(info.get("name", "?"))]
+	if _mode == "host":
+		UIKit.big_button(_v, Loc.t("lobby.start"), _tap_start)
 		if _stat2 != null:
 			_stat2.text = ""
 			if String(info.get("ver", "")) != Game.VERSION:
@@ -232,3 +237,17 @@ func _label_in(parent: Control, text: String, size := 20, col := Color(1, 1, 1, 
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	parent.add_child(l)
 	return l
+
+
+func _tap_start() -> void:
+	## L'host lancia l'1v1: se stesso e l'altro cambiano scena, la stanza
+	## resta aperta (la chiude chi esce dal duello).
+	_duel_next = true
+	NetLayer.rpc("rpc_duel_ev", {"t": "start"})
+	SceneRouter.goto("res://src/scenes/DuelScene.tscn")
+
+
+func _on_duel_ev(d: Dictionary) -> void:
+	if String(d.get("t", "")) == "start":
+		_duel_next = true
+		SceneRouter.goto("res://src/scenes/DuelScene.tscn")

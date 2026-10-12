@@ -27,6 +27,10 @@ signal connected_to_host(info: Dictionary)   # client: dentro la stanza
 signal connection_failed()                   # client: collegamento fallito
 signal disconnected()                        # il collegamento è caduto
 signal ping_ms(ms: int)                      # ping misurato da questo telefono
+signal duel_state(d: Dictionary)             # 1v1: stato dell'altro giocatore
+signal duel_shot_rx(d: Dictionary)           # 1v1: esito del tiro dell'altro
+signal duel_ev_rx(d: Dictionary)             # 1v1: eventi di gioco (punti, palla...)
+signal duel_look_rx(d: Dictionary)           # 1v1: aspetto dell'altro giocatore
 
 var state: int = State.OFF
 var role := ""                               # "host" / "client"
@@ -105,6 +109,27 @@ func rpc_pong(seq: int, t0: int) -> void:
 	if seq == _ping_seq:
 		ping_ms.emit(int(Time.get_ticks_msec()) - t0)
 
+
+# ------------------------------------------------------------------ RPC 1v1
+# Il canale della partita in due. Gli @rpc vivono qui (path identico su
+# entrambi i telefoni: /root/NetLayer) e vengono RIEMESSI come signal:
+# la DuelScene li ascolta. Per spedire: NetLayer.rpc("rpc_duel_me", d).
+
+@rpc("any_peer", "call_remote", "unreliable")
+func rpc_duel_me(d: Dictionary) -> void:
+	duel_state.emit(d)
+
+@rpc("any_peer", "call_remote", "reliable")
+func rpc_duel_shot(d: Dictionary) -> void:
+	duel_shot_rx.emit(d)
+
+@rpc("any_peer", "call_remote", "reliable")
+func rpc_duel_ev(d: Dictionary) -> void:
+	duel_ev_rx.emit(d)
+
+@rpc("any_peer", "call_remote", "reliable")
+func rpc_duel_look(d: Dictionary) -> void:
+	duel_look_rx.emit(d)
 
 # ------------------------------------------------------------------ comandi
 func host() -> bool:

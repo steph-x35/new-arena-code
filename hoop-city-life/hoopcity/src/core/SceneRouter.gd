@@ -3,7 +3,7 @@ extends Node
 
 var phone_instance: Node = null
 
-const COURT_SCENES := ["MatchScene", "DrillScene", "GymScene", "SoloCourt", "TeamCourt"]
+const COURT_SCENES := ["MatchScene", "DrillScene", "GymScene", "SoloCourt", "TeamCourt", "DuelScene"]
 
 func goto(path: String) -> void:
 	SaveSystem.save_game()
