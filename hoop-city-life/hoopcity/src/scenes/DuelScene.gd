@@ -61,7 +61,8 @@ var foe := {
 	"name": "?", "look": {}, "seen": false, "live": false,
 }
 var foe_colours := {}
-var foe_ball := {"live": false, "pos": Vector2.ZERO, "h": 0.0, "spin": 0.0}
+var foe_ball := {"live": false, "pos": Vector2.ZERO, "h": 0.0, "spin": 0.0,
+	"t_pos": Vector2.ZERO, "t_h": 0.0}
 
 # ---- la mia palla (sempre mia: torna in mano da sola)
 var ball_pos := Vector2.ZERO
@@ -233,6 +234,15 @@ func _process(delta: float) -> void:
 	# l'avversario scivola verso l'ultima posizione ricevuta
 	var tp: Vector2 = foe["t_pos"]
 	foe["pos"] = (foe["pos"] as Vector2).lerp(tp, clampf(14.0 * delta, 0.0, 1.0))
+	var was_flying: bool = bool(foe_ball["live"])
+	foe_ball["pos"] = (foe_ball["pos"] as Vector2).lerp(foe_ball["t_pos"],
+		clampf(14.0 * delta, 0.0, 1.0))
+	foe_ball["h"] = lerpf(float(foe_ball["h"]), float(foe_ball["t_h"]),
+		clampf(14.0 * delta, 0.0, 1.0))
+	if not was_flying and bool(foe_ball["live"]):
+		# il tiro parte: niente scia dalla posizione vecchia
+		foe_ball["pos"] = foe_ball["t_pos"]
+		foe_ball["h"] = foe_ball["t_h"]
 	if _net_ok:
 		_my_move(delta)
 		_dunk_flow(delta)
@@ -650,8 +660,8 @@ func _on_foe_state(d: Dictionary) -> void:
 	foe["ta"] = d.get("ta", 0.0)
 	foe["live"] = true
 	foe_ball["live"] = bool(d.get("bl", false))
-	foe_ball["pos"] = d.get("bp", foe_ball["pos"])
-	foe_ball["h"] = d.get("bh", foe_ball["h"])
+	foe_ball["t_pos"] = d.get("bp", foe_ball["t_pos"])
+	foe_ball["t_h"] = d.get("bh", foe_ball["t_h"])
 	foe_ball["spin"] = d.get("bs", foe_ball["spin"])
 
 
@@ -710,6 +720,12 @@ func _draw() -> void:
 	_draw_char(true)
 	if foe["seen"] or foe["live"]:
 		_draw_char(false)
+	# LA MIA PALLA IN VOLO: parabola, ferro e retina (v2.43.3: nella
+	# riscrittura era rimasta fuori dal disegno — il tiro partiva, il
+	# verdetto usciva, ma la palla non si vedeva mai).
+	if ball_live:
+		var bs: Vector2 = _screen(ball_pos)
+		_draw_ball_at(Vector2(bs.x, bs.y - ball_h), BALL_R, ball_spin)
 	# la palla dell'altro (quando e' in volo)
 	if (foe["seen"] or foe["live"]) and bool(foe_ball["live"]):
 		var fbs: Vector2 = _screen(foe_ball["pos"])
