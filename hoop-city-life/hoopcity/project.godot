@@ -28,6 +28,7 @@ Pets="*res://src/core/Pets.gd"
 Library="*res://src/core/Library.gd"
 UIKit="*res://src/ui/UIKit.gd"
 SceneRouter="*res://src/core/SceneRouter.gd"
+NetLayer="*res://src/net/NetLayer.gd"
 
 [gui]
 

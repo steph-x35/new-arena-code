@@ -207,6 +207,12 @@ func _ready() -> void:
 		Game.profile["next_home"] = true
 		Game.set_team_kit(1, Season.kit_for(String(Game.profile["next_opponent"])))
 		SceneRouter.goto("res://src/match/MatchScene.tscn"), "", _btn_w)
+	UIKit.big_button(v, Loc.t("menu.multi"), func():
+		if SaveSystem.has_save():
+			SaveSystem.load_game()
+		else:
+			Game.profile = Game.default_profile()
+		SceneRouter.goto("res://src/scenes/LobbyScene.tscn"), Loc.t("menu.multi.sub"), _btn_w)
 	UIKit.big_button(v, Loc.t("menu.settings"), func():
 		SceneRouter.goto("res://src/scenes/SettingsScene.tscn"), "", _btn_w)
 	UIKit.big_button(v, Loc.t("menu.quit"), func(): get_tree().quit(), "", _btn_w)
