@@ -14,7 +14,8 @@ const RIM_HALF := 42.0
 const GRAV := 1800.0
 const BALL_R := Court.BALL_R
 const CAM_ZOOM := 1.04
-const MOVE_SPEED := 310.0
+const MOVE_SPEED := 255.0
+const LEFT_RIM := Vector2(-Court.COURT_W * 0.5 + Court.FIBA_HOOP_INSET, 0.0)
 const SEND_HZ := 30.0
 const DUNK_R := 132.0          # ~7 piedi dal ferro
 
@@ -40,6 +41,15 @@ var streak := 0
 var hand_left := false
 var trick_t := 0.0
 var trick_kind := ""
+var posting := false          # POST UP: spalle al canestro
+var euro_t := 0.0             # EUROSTEP: 1 tempo laterale, 2 verso il ferro
+var euro_side := Vector2.ZERO
+var euro_finish := false
+var fade_pending := false     # FADEAWAY: levetta indietro mentre carichi
+var fade_t := 0.0
+var fade_dir := Vector2.ZERO
+var _family_tag := ""
+var npcs: Array = []          # i bambini dall'altro lato del campo
 
 # ---- la mia schiacciata (stessa coreografia del campetto solo)
 var dunk_phase := ""           # "" | rise | hang | drop
@@ -61,8 +71,21 @@ var foe := {
 	"name": "?", "look": {}, "seen": false, "live": false,
 }
 var foe_colours := {}
-var foe_ball := {"live": false, "pos": Vector2.ZERO, "h": 0.0, "spin": 0.0,
-	"t_pos": Vector2.ZERO, "t_h": 0.0}
+# La palla dell'altro non viaggia a pezzi: il suo tiro (partenza+arrivo)
+# arriva con un messaggio e la simulo QUI, con la mia stessa fisica —
+# parabola fluida identica alla mia, e i suoi effetti li vedo e li sento.
+var fb_live := false
+var fb_pos := Vector2.ZERO
+var fb_h := 0.0
+var fb_vel := Vector2.ZERO
+var fb_vh := 0.0
+var fb_spin := 0.0
+var fb_prev_h := 0.0
+var fb_prev_pos := Vector2.ZERO
+var fb_through := false
+var fb_rattled := false
+var fb_ghost := false
+var fb_settled := 0.0
 
 # ---- la mia palla (sempre mia: torna in mano da sola)
 var ball_pos := Vector2.ZERO
@@ -106,6 +129,7 @@ func _ready() -> void:
 	cam.make_current()
 	set_meta("cam", cam)
 	_build_hud()
+	_spawn_npcs()
 	_net_ok = (NetLayer.state == NetLayer.State.CONNECTED) \
 		or (NetLayer.role == "host" and NetLayer._has_peer)
 	NetLayer.duel_state.connect(_on_foe_state)
@@ -196,6 +220,16 @@ func _build_hud() -> void:
 	btn_trick.pressed_down.connect(_do_trick)
 	root.add_child(btn_trick)
 
+	var btn_post := TouchButton.new()
+	btn_post.text = "POST"
+	btn_post.accent = Color(0.980, 0.780, 0.260)
+	btn_post.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	btn_post.position = Vector2(-416, -320)
+	btn_post.custom_minimum_size = Vector2(118, 118)
+	btn_post.size = Vector2(118, 118)
+	btn_post.pressed_down.connect(_post_tap)
+	root.add_child(btn_post)
+
 	meter = ShotMeter.new()
 	meter.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	meter.position = Vector2(0, 0)
@@ -239,15 +273,33 @@ func _process(delta: float) -> void:
 		court_art.solo_hang = (dunk_phase == "hang")
 	var tp: Vector2 = foe["t_pos"]
 	foe["pos"] = (foe["pos"] as Vector2).lerp(tp, clampf(14.0 * delta, 0.0, 1.0))
-	var was_flying: bool = bool(foe_ball["live"])
-	foe_ball["pos"] = (foe_ball["pos"] as Vector2).lerp(foe_ball["t_pos"],
-		clampf(14.0 * delta, 0.0, 1.0))
-	foe_ball["h"] = lerpf(float(foe_ball["h"]), float(foe_ball["t_h"]),
-		clampf(14.0 * delta, 0.0, 1.0))
-	if not was_flying and bool(foe_ball["live"]):
-		# il tiro parte: niente scia dalla posizione vecchia
-		foe_ball["pos"] = foe_ball["t_pos"]
-		foe_ball["h"] = foe_ball["t_h"]
+	# EUROSTEP: due tempi — laterale, poi esplosione verso il ferro — e
+	# chiusura automatica (schiacciata se vicino, layup se no)
+	if euro_t > 0.0:
+		euro_t = maxf(0.0, euro_t - delta)
+		if euro_t > 0.30:
+			player_pos += euro_side * 430.0 * delta
+		else:
+			player_pos += (RIM - player_pos).normalized() * 470.0 * delta
+		_clamp_me()
+		if euro_t <= 0.0 and euro_finish:
+			euro_finish = false
+			if _can_dunk():
+				_start_dunk()
+			else:
+				charging = true
+				ideal = clampf(0.42 + _distance_ft() * 0.012, 0.42, 0.78)
+				charge = ideal + randf_range(-0.006, 0.006)
+				_family_tag = "EUROSTEP"
+				_shoot_up()
+	# FADEAWAY: dopo il rilascio scivoli all'indietro con la schienata
+	if fade_t > 0.0:
+		fade_t = maxf(0.0, fade_t - delta)
+		if shot_anim > 0.0:
+			player_pos += fade_dir * 55.0 * delta
+			_clamp_me()
+	_update_npcs(delta)
+	_step_foe_ball(delta)
 	if _net_ok:
 		_my_move(delta)
 		_dunk_flow(delta)
@@ -297,8 +349,8 @@ func _my_move(delta: float) -> void:
 		_clamp_me()
 		return
 	var mv: Vector2 = joystick.output
-	player_pos += mv * MOVE_SPEED * delta
-	if absf(mv.x) > 0.12:
+	player_pos += mv * (155.0 if posting else MOVE_SPEED) * delta
+	if absf(mv.x) > 0.12 and not posting:
 		facing = signf(mv.x)
 	_clamp_me()
 
@@ -339,8 +391,11 @@ func _place_meter() -> void:
 
 
 func _clamp_me() -> void:
-	player_pos.x = clampf(player_pos.x, -110.0, Court.COURT_W * 0.5 - 34.0)
-	player_pos.y = clampf(player_pos.y, -Court.COURT_H + 120.0, Court.COURT_H - 120.0)
+	## Il confine e' il RETTANGOLO DIPINTO del campo (come nel campetto
+	## solo): niente girovagare fuori dal parquet.
+	var m := 40.0
+	player_pos.x = clampf(player_pos.x, -Court.COURT_W * 0.5 + m, Court.COURT_W * 0.5 - m)
+	player_pos.y = clampf(player_pos.y, -Court.COURT_H * 0.5 + m, Court.COURT_H * 0.5 - m)
 
 
 func _charge_flow(delta: float) -> void:
@@ -372,12 +427,71 @@ func _dunk_flow(delta: float) -> void:
 
 
 func _do_trick() -> void:
-	## TRICK: crossover, dietro la schiena o spin — a caso, come nel
-	## campetto solo. Solo a palla in mano.
-	if trick_t > 0.0 or dunk_phase != "" or ball_live or charging:
+	## TRICK come nel campetto solo: verso il ferro diventa EUROSTEP,
+	## dal post e' un DROP STEP, altrimenti la mossa la decide il joystick.
+	if trick_t > 0.0 or dunk_phase != "" or ball_live or charging or euro_t > 0.0:
 		return
-	trick_kind = ["cross", "behind", "spin"].pick_random()
+	# EUROSTEP: corri verso il ferro entro 14 ft e TRICK diventa il passo
+	# laterale a due tempi (chiusura automatica a schiacciata/layup).
+	var to_rim: Vector2 = RIM - player_pos
+	var mv_e: Vector2 = joystick.output if joystick != null else Vector2.ZERO
+	if not posting and to_rim.length() / Court.PX_PER_FT < 14.0 \
+	and mv_e.dot(to_rim.normalized()) > 0.50:
+		euro_t = 0.52
+		euro_finish = true
+		var rn: Vector2 = to_rim.normalized()
+		euro_side = Vector2(-rn.y, rn.x)
+		if mv_e.dot(euro_side) < 0.0:
+			euro_side = -euro_side
+		hand_left = not hand_left
+		facing = 1.0
+		Sfx.squeak()
+		_say("EUROSTEP", 1.2)
+		return
+	# POST: TRICK = DROP STEP, scatto attorno al difensore verso il ferro.
+	if posting:
+		var hr: Vector2 = (RIM - player_pos).normalized()
+		var sd: Vector2 = Vector2(-hr.y, hr.x)
+		if sd.dot(Vector2(facing, 0)) < 0.0:
+			sd = -sd
+		player_pos += sd * 95.0 + hr * 40.0
+		_clamp_me()
+		hand_left = not hand_left
+		posting = false
+		if absf(hr.x) > 0.2:
+			facing = signf(hr.x)
+		trick_kind = "dropstep"
+		trick_t = 0.45
+		Sfx.squeak()
+		_say("DROP STEP", 1.2)
+		return
+	# TRICK col joystick: hesi, cambio mano, stepback, spin, crossover
+	var mv: Vector2 = joystick.output if joystick != null else Vector2.ZERO
+	if mv.length() < 0.25:
+		trick_kind = "hesi"
+	elif mv.y > 0.35:
+		trick_kind = "hand_switch"
+		hand_left = not hand_left
+	elif mv.x < -0.35:
+		trick_kind = "stepback"
+		player_pos += (player_pos - RIM).normalized() * 70.0
+		_clamp_me()
+	elif mv.y < -0.35:
+		trick_kind = "spin"
+	else:
+		trick_kind = ["cross", "behind"].pick_random()
 	trick_t = 0.45
+
+func _post_tap() -> void:
+	## POST UP: spalle al canestro. TIRA = fade/hook, TRICK = drop step.
+	if charging or dunk_phase != "" or ball_live or euro_t > 0.0:
+		return
+	posting = not posting
+	if posting:
+		var hx: float = RIM.x - player_pos.x
+		if absf(hx) > 1.0:
+			facing = -signf(hx)
+		_say("POST", 1.2)
 
 
 func _camera(delta: float) -> void:
@@ -412,6 +526,15 @@ func _shoot_down() -> void:
 	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
 	meter.perfect_window = float(w["perfect"])
 	meter.good_window = float(w["good"])
+	# FADEAWAY: levetta INDIETRO mentre carichi -> schienata: la finestra
+	# si stringe, ma la mossa e' tua.
+	fade_pending = false
+	var mv_f: Vector2 = joystick.output if joystick != null else Vector2.ZERO
+	if not posting and mv_f.dot((player_pos - RIM).normalized()) > 0.40 \
+	and _distance_ft() > 8.0:
+		fade_pending = true
+		meter.perfect_window *= 0.72
+		meter.good_window *= 0.85
 
 
 func _start_dunk() -> void:
@@ -460,6 +583,21 @@ func _shoot_up() -> void:
 			meter.charge = 0.0
 		return
 	charging = false
+	# POST: TIRA = HOOK da vicino, FADEAWAY da lontano (con l'hop indietro)
+	if _family_tag != "EUROSTEP":
+		_family_tag = ""
+	if posting:
+		_family_tag = "HOOK!" if _distance_ft() < 9.0 else "FADEAWAY!"
+		posting = false
+		var away: Vector2 = player_pos - RIM
+		if away.length() > 1.0:
+			player_pos += away.normalized() * 46.0
+			_clamp_me()
+	if fade_pending:
+		_family_tag = "FADEAWAY!"
+		fade_t = 0.75
+		fade_dir = (player_pos - RIM).normalized()
+		fade_pending = false
 	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
 	var pw: float = float(w["perfect"])
 	var gw: float = float(w["good"])
@@ -499,7 +637,7 @@ func _shoot_up() -> void:
 		if streak >= 3 and not hot:
 			hot = true
 			Events.popup.emit("ON FIRE!", player_pos, Color(1.0, 0.55, 0.15), true)
-		_say("+%d  ·  x%d" % [pts, streak])
+		_say((_family_tag + "  " if _family_tag != "" else "") + "+%d  ·  x%d" % [pts, streak])
 	else:
 		hot = false
 		streak = 0
@@ -666,7 +804,6 @@ func _send(delta: float) -> void:
 		"dbt": dunk_ball_t, "hot": hot,
 		"tk": trick_kind if trick_t > 0.0 else "",
 		"ta": trick_t / 0.45,
-		"bl": ball_live, "bp": ball_pos, "bh": ball_h, "bs": ball_spin,
 	}
 	NetLayer.rpc("rpc_duel_me", d)
 
@@ -728,19 +865,29 @@ func _on_foe_state(d: Dictionary) -> void:
 	foe["tk"] = d.get("tk", "")
 	foe["ta"] = d.get("ta", 0.0)
 	foe["live"] = true
-	foe_ball["live"] = bool(d.get("bl", false))
-	foe_ball["t_pos"] = d.get("bp", foe_ball["t_pos"])
-	foe_ball["t_h"] = d.get("bh", foe_ball["t_h"])
-	foe_ball["spin"] = d.get("bs", foe_ball["spin"])
+	# (la palla dell'altro non viaggia nello stato: la simula il suo tiro)
 
 
 func _on_foe_shot(d: Dictionary) -> void:
-	## Il tiro dell'altro: la palla viaggia gia' coi suoi stati; qui arrivano
-	## solo gli effetti del verdetto (la retina che si muove se ha segnato).
-	if bool(d.get("made", false)):
+	## Il tiro dell'altro: la palla la simulo QUI con la stessa parabola
+	## (fluida come la mia), e il suo verdetto lo vedo: GREEN, canestro
+	## o errore, con popup sopra di lui.
+	var fpos: Vector2 = foe["pos"]
+	if bool(d.get("dunk", false)):
 		net_wobble = 1.0
 		if court_art != null:
 			court_art.net_bump(1, 1.0)
+		Events.popup.emit("GREEN!", fpos + Vector2(0, -95), Color(0.3, 1.0, 0.45), true)
+		return
+	var zone: String = String(d.get("zone", ""))
+	if zone == "green":
+		Events.popup.emit("GREEN!", fpos + Vector2(0, -95), Color(0.3, 1.0, 0.45), true)
+	elif bool(d.get("made", false)):
+		Events.popup.emit("+%d" % int(d.get("pts", 2)), fpos + Vector2(0, -80),
+			Color(1.0, 0.82, 0.35), true)
+	else:
+		Events.popup.emit("MISS!", fpos + Vector2(0, -80), Color(1.0, 0.45, 0.38), false)
+	_foe_launch(d.get("from", fpos), d.get("aim", RIM), zone == "green")
 
 
 func _on_foe_look(d: Dictionary) -> void:
@@ -786,6 +933,7 @@ func _distance_ft() -> float:
 
 
 func _draw() -> void:
+	_draw_npcs()
 	_draw_char(true)
 	if foe["seen"] or foe["live"]:
 		_draw_char(false)
@@ -800,13 +948,11 @@ func _draw() -> void:
 		if ball_h < RIM_HEIGHT + 30.0 and (ball_pos - RIM).length() < 70.0:
 			HoopArt.draw_net_front(self, _rim_screen(), 22.0,
 				22.0 * HoopArt.RIM_SQUASH, net_wobble, net_t, 0.0, -1.0)
-	# la palla dell'altro (quando e' in volo)
-	if (foe["seen"] or foe["live"]) and bool(foe_ball["live"]):
-		var fbs: Vector2 = _screen(foe_ball["pos"])
-		_draw_ball_at(Vector2(fbs.x, fbs.y - float(foe_ball["h"])), BALL_R,
-			float(foe_ball["spin"]))
-		if float(foe_ball["h"]) < RIM_HEIGHT + 30.0 \
-		and ((foe_ball["pos"] as Vector2) - RIM).length() < 70.0:
+	# la palla dell'altro (quando e' in volo): simulata qui, fluida
+	if fb_live:
+		var fbs: Vector2 = _screen(fb_pos)
+		_draw_ball_at(Vector2(fbs.x, fbs.y - fb_h), BALL_R, fb_spin)
+		if fb_h < RIM_HEIGHT + 30.0 and (fb_pos - RIM).length() < 70.0:
 			HoopArt.draw_net_front(self, _rim_screen(), 22.0,
 				22.0 * HoopArt.RIM_SQUASH, net_wobble, net_t, 0.0, -1.0)
 	# nomi sopra la testa: ci si conosce, al campetto
@@ -862,7 +1008,7 @@ func _draw_char(mine: bool) -> void:
 	if mine:
 		hold_ball = not ball_live and dp == "" and trick_t <= 0.0
 	else:
-		hold_ball = not bool(foe_ball["live"]) and dp == "" and tk == ""
+		hold_ball = not fb_live and dp == "" and tk == ""
 
 	var po: Dictionary = Avatar.pose(kind, phase, amount, tk, walking)
 	po["hand"] = -1.0 if hand_left else 1.0
@@ -968,3 +1114,196 @@ func _draw_char(mine: bool) -> void:
 	if is_hot and not bool(Settings.get_v("lowgfx", false)):
 		Avatar.draw_flames(self, screen + Vector2(0.0, -h * 1.16),
 			Time.get_ticks_msec() / 1000.0)
+
+
+# ------------------------------------------------------------ I BAMBINI
+func _spawn_npcs() -> void:
+	## I bambini dall'altro lato del campo: giocano per i fatti loro al
+	## canestro sinistro, come nel campetto solo.
+	var homes := [Vector2(-560.0, -150.0), Vector2(-330.0, 140.0), Vector2(-640.0, 60.0)]
+	var cols := [Color(0.16, 0.45, 0.85), Color(0.72, 0.20, 0.22), Color(0.20, 0.55, 0.30)]
+	for i in homes.size():
+		npcs.append({
+			"pos": homes[i],
+			"state": "wait",
+			"t": randf_range(1.0, 4.5),
+			"made": false,
+			"target": homes[i],
+			"col": cols[i % cols.size()],
+		})
+
+func _update_npcs(delta: float) -> void:
+	for n in npcs:
+		match String(n["state"]):
+			"wait":
+				n["t"] -= delta
+				if n["t"] <= 0.0:
+					n["state"] = "shoot"
+					n["t"] = 0.0
+					n["made"] = randf() < 0.55
+			"shoot":
+				n["t"] += delta / 0.9
+				if n["t"] >= 1.0:
+					if n["made"]:
+						net_wobble = 1.0
+						if court_art != null:
+							court_art.net_bump(0, 1.0)
+					else:
+						net_wobble = maxf(net_wobble, 0.5)
+						if court_art != null:
+							court_art.net_bump(0, 0.6)
+					n["state"] = "chase"
+					n["t"] = 0.0
+					n["target"] = Vector2(randf_range(-720.0, -260.0), randf_range(-220.0, 220.0))
+			"chase":
+				var to: Vector2 = n["target"] - n["pos"]
+				if to.length() < 14.0:
+					n["state"] = "wait"
+					n["t"] = randf_range(2.0, 5.0)
+				else:
+					n["pos"] += to.normalized() * 95.0 * delta
+
+func _draw_npcs() -> void:
+	for n in npcs:
+		var s: Vector2 = _screen(n["pos"])
+		var h: float = 64.0 * Game.height_factor() * 0.92
+		var kind := Avatar.DRIBBLE
+		var amount := 0.0
+		if n["state"] == "shoot":
+			kind = Avatar.SHOOT
+			amount = clampf(n["t"], 0.0, 1.0)
+		elif n["state"] == "chase":
+			kind = Avatar.RUN
+		Avatar.draw_body(self, s, h, -1.0,
+			Avatar.pose(kind, dribble_t, amount),
+			Avatar.colours(false, n["col"]), n["state"] == "wait")
+		if n["state"] == "shoot":
+			var t: float = clampf(n["t"], 0.0, 1.0)
+			var from: Vector2 = s + Vector2(-10.0, -h * 0.4)
+			var rim_s: Vector2 = _screen(LEFT_RIM) + Vector2(0.0, -RIM_HEIGHT)
+			var bp: Vector2 = from.lerp(rim_s, t)
+			bp.y -= sin(t * PI) * 150.0
+			_draw_ball_at(bp, BALL_R)
+
+
+# -------------------------------------------------- LA PALLA DELL'ALTRO
+func _foe_launch(from: Vector2, aim: Vector2, ghost: bool) -> void:
+	## Stessa parabola esatta del mio tiro: parte da dove ha tirato lui e
+	## passa per l'arrivo che ha deciso il SUO verdetto.
+	fb_pos = from
+	fb_h = 55.0
+	fb_live = true
+	fb_settled = 0.0
+	fb_through = false
+	fb_rattled = false
+	fb_ghost = ghost
+	var dist: Vector2 = aim - from
+	var flight: float = clampf(dist.length() / 430.0, 0.5, 1.6)
+	fb_vel = dist / flight
+	fb_vh = (RIM_HEIGHT - fb_h + 0.5 * GRAV * flight * flight) / flight
+	fb_spin = -signf(dist.x) * 7.0
+	fb_prev_h = fb_h
+	fb_prev_pos = fb_pos
+
+func _step_foe_ball(delta: float) -> void:
+	if not fb_live:
+		return
+	var steps := 4
+	var hstep: float = delta / float(steps)
+	for _i in steps:
+		fb_prev_h = fb_h
+		fb_prev_pos = fb_pos
+		fb_vh -= GRAV * hstep
+		fb_pos += fb_vel * hstep
+		fb_h += fb_vh * hstep
+		_foe_ball_rim()
+		_foe_ball_backboard()
+		_foe_ball_floor()
+	fb_spin += fb_vel.x * 0.0004
+	if fb_pos.x < -1300.0 or fb_pos.x > 1300.0 \
+	or fb_pos.y < -Court.COURT_H or fb_pos.y > Court.COURT_H:
+		fb_live = false
+	if fb_settled > 0.6:
+		fb_live = false
+
+func _foe_ball_rim() -> void:
+	## L'attraversamento della retina della SUA palla, coi miei occhi:
+	## swish, rattle e ferro — tutto quello che vedo del mio tiro.
+	if fb_h <= RIM_HEIGHT and fb_prev_h >= RIM_HEIGHT and fb_vh < 0.0:
+		var span: float = fb_prev_h - fb_h
+		var f: float = 0.0 if span <= 0.0 else (fb_prev_h - RIM_HEIGHT) / span
+		var cx: float = lerpf(fb_prev_pos.x, fb_pos.x, clampf(f, 0.0, 1.0))
+		var cy: float = lerpf(fb_prev_pos.y, fb_pos.y, clampf(f, 0.0, 1.0))
+		var d: Vector2 = Vector2(cx, cy) - RIM
+		var dist: float = d.length()
+		if dist < RIM_HALF - 6.0 or (fb_rattled and dist < RIM_HALF + 6.0):
+			if not fb_rattled and not fb_through and not fb_ghost \
+			and randf() < 0.30:
+				fb_rattled = true
+				var rn_s: Vector2 = (fb_pos - RIM).normalized()
+				if rn_s.length() < 0.1:
+					rn_s = Vector2(1, 0)
+				fb_pos = RIM + rn_s * 9.0
+				fb_vh = randf_range(500.0, 640.0)
+				fb_vel = rn_s * randf_range(30.0, 55.0) \
+					+ Vector2(randf_range(-25, 25), randf_range(-25, 25))
+				Sfx.play("rim", -0.5, randf_range(0.95, 1.08))
+				net_wobble = 0.9
+				Events.shake.emit(0.60)
+				if court_art != null:
+					if court_art.has_method("rim_fx"):
+						court_art.rim_fx("rattle", RIM)
+					if court_art.has_method("net_bump"):
+						court_art.net_bump(1, 0.9)
+				return
+			if not fb_through:
+				fb_through = true
+				net_wobble = 1.0
+				Sfx.play("swish", -2.5)
+				if court_art != null:
+					court_art.net_bump(1, 1.0)
+					if court_art.has_method("rim_fx"):
+						court_art.rim_fx("swish", RIM)
+				fb_vh *= 0.55
+				fb_vel *= 0.5
+				return
+		if dist < RIM_HALF + 14.0 and not fb_ghost:
+			var nrm: Vector2 = d.normalized() if dist > 0.01 else Vector2(1, 0)
+			fb_pos = RIM + nrm * (RIM_HALF + 12.0)
+			fb_vel = fb_vel.bounce(nrm) * 0.5
+			net_wobble = maxf(net_wobble, 0.85)
+			Sfx.play("rim", -5.0)
+			if court_art != null:
+				court_art.net_bump(1, 0.85)
+				if court_art.has_method("rim_fx"):
+					court_art.rim_fx("iron", RIM)
+			fb_spin *= -0.6
+			return
+	var d2: Vector2 = fb_pos - RIM
+	if fb_h < RIM_HEIGHT and fb_h > RIM_HEIGHT - 130.0 \
+	and d2.length() < RIM_HALF + 26.0:
+		net_wobble = maxf(net_wobble, 0.45)
+		if court_art != null:
+			court_art.net_bump(1, 0.45)
+
+func _foe_ball_backboard() -> void:
+	var bx: float = RIM.x + 42.0
+	if fb_h > RIM_HEIGHT - 30.0 and fb_h < RIM_HEIGHT + 90.0:
+		if fb_pos.x > bx and fb_vel.x > 0.0:
+			fb_pos.x = bx
+			fb_vel.x = -absf(fb_vel.x) * 0.55
+			fb_vel.y *= 0.8
+			net_wobble = maxf(net_wobble, 0.35)
+			if court_art != null and court_art.has_method("rim_fx"):
+				court_art.rim_fx("iron", RIM)
+
+func _foe_ball_floor() -> void:
+	if fb_h < 0.0:
+		fb_h = 0.0
+		if absf(fb_vh) > 90.0:
+			fb_vh = -fb_vh * 0.45
+			fb_vel *= 0.72
+		else:
+			fb_vh = 0.0
+			fb_settled += 0.02
+			fb_vel *= 0.94
