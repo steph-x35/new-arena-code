@@ -1,19 +1,12 @@
 extends Node2D
-## SFIDA UN AMICO — l'1v1 in tempo reale sul campetto (passo 2).
+## SFIDA UN AMICO — il campetto condiviso (passo 2, versione "tiri insieme").
 ##
-## Due telefoni, una sola rete, un canestro: chi segna di piu' vince.
-## Il netcode e' volutamente semplice, come il basket del campetto:
-##   TIRO    : lo decide CHI TIRA, sul suo orologio (il metro verde non
-##             deve soffrire di rete). L'esito viaggia all'host, che tiene
-##             il punteggio e simula la palla per entrambi.
-##   MOVIMENTO: ciascuno e' padrone della propria posizione; l'altro la
-##             vede arrivare a 30 Hz e la interpola.
-##   PALLA   : in mano a chi ce l'ha (nessun sync necessario); in volo la
-##             simula l'host. Il cliente simula in locale il PROPRIO tiro
-##             perche' il swish si deve sentire subito, dal suo telefono.
-## Regole da campetto: 2 punti, 3 da dietro l'arco, primo a 11, dopo il
-## canestro la palla va all'altro. Nessuna rubata (v1): la difesa si fa
-## mettendosi davanti — restringe la finestra verde di chi tira.
+## Due telefoni, un campetto, palla ciascuno: si cammina, si palleggia, si
+## tira insieme. Niente punteggio, niente possesso: e' il riscaldamento
+## a due del campetto. L'1v1 coi punti e' il passo dopo.
+## Ogni telefono e' padrone del PROPRIO giocatore e della PROPRIA palla:
+## il tiro lo decidi tu, sul tuo orologio (il verde non soffre di rete),
+## e la palla dell'altro la vedi arrivare a 30 Hz.
 
 const RIM := Vector2(Court.COURT_W * 0.5 - Court.FIBA_HOOP_INSET, 0.0)
 const RIM_HEIGHT := Court.RIM_HEIGHT
@@ -21,12 +14,9 @@ const RIM_HALF := 42.0
 const GRAV := 1800.0
 const BALL_R := Court.BALL_R
 const CAM_ZOOM := 1.04
-const WIN_SCORE := 11
 const MOVE_SPEED := 310.0
 const SEND_HZ := 30.0
 const DUNK_R := 132.0          # ~7 piedi dal ferro
-const CONTEST_R := 115.0       # il difensore addosso restringe la finestra
-const PICKUP_R := 66.0
 
 var joystick: VirtualJoystick
 var meter: ShotMeter
@@ -34,8 +24,7 @@ var btn_shoot: TouchButton
 var lbl_top: Label
 var lbl_mid: Label
 var court_art: Node
-var game_on := false
-var over := false
+var _net_ok := false
 
 # ---- il mio giocatore (questo telefono)
 var player_pos := Vector2(RIM.x - 640.0, -140.0)
@@ -49,6 +38,8 @@ var pump_t := 0.0
 var hot := false
 var streak := 0
 var hand_left := false
+var trick_t := 0.0
+var trick_kind := ""
 
 # ---- la mia schiacciata (stessa coreografia del campetto solo)
 var dunk_phase := ""           # "" | rise | hang | drop
@@ -65,12 +56,14 @@ var dust_big := false
 var foe := {
 	"pos": Vector2(RIM.x - 640.0, 160.0), "t_pos": Vector2(RIM.x - 640.0, 160.0),
 	"facing": -1.0, "kind": Avatar.DRIBBLE, "amount": 0.0, "phase": 0.0,
-	"dp": "", "ds": "", "da": 0.0, "ht": 0.0, "ho": false,
+	"walk": false, "dp": "", "ds": "", "da": 0.0, "ht": 0.0, "ho": false,
+	"dbt": 0.0, "hot": false, "tk": "", "ta": 0.0,
 	"name": "?", "look": {}, "seen": false,
 }
 var foe_colours := {}
+var foe_ball := {"live": false, "pos": Vector2.ZERO, "h": 0.0, "spin": 0.0}
 
-# ---- palla e punteggio (host autoritativo)
+# ---- la mia palla (sempre mia: torna in mano da sola)
 var ball_pos := Vector2.ZERO
 var ball_h := 0.0
 var ball_vel := Vector2.ZERO
@@ -80,18 +73,10 @@ var ball_spin := 0.0
 var ball_settled := 0.0
 var prev_h := 0.0
 var prev_pos := Vector2.ZERO
-var my_shot_live := false          # il mio tiro, simulato in locale
-var holder := 0                    # 0 = io, 1 = lui, -1 = palla libera
-var pending := {}                  # host: esito del tiro in volo
-var flight_t := 0.0
-var score_me := 0
-var score_foe := 0
 
 var net_wobble := 0.0
 var net_t := 0.0
 var _send_t := 0.0
-var _net_ok := false
-var _begin_t := 0.0
 var _msg_t := 0.0
 
 
@@ -119,7 +104,6 @@ func _ready() -> void:
 		or (NetLayer.role == "host" and NetLayer._has_peer)
 	NetLayer.duel_state.connect(_on_foe_state)
 	NetLayer.duel_shot_rx.connect(_on_foe_shot)
-	NetLayer.duel_ev_rx.connect(_on_ev)
 	NetLayer.duel_look_rx.connect(_on_foe_look)
 	NetLayer.disconnected.connect(_on_net_lost)
 	if not _net_ok:
@@ -127,9 +111,6 @@ func _ready() -> void:
 		return
 	# scambio aspetto: l'altro ti deve vedere COME SEI
 	NetLayer.rpc("rpc_duel_look", _my_look())
-	_lbl_top_refresh()
-	if NetLayer.role == "host":
-		_begin_t = 1.2    # si parte appena l'altro ha il tempo di entrare
 
 
 func _exit_tree() -> void:
@@ -137,8 +118,6 @@ func _exit_tree() -> void:
 		NetLayer.duel_state.disconnect(_on_foe_state)
 	if NetLayer.duel_shot_rx.is_connected(_on_foe_shot):
 		NetLayer.duel_shot_rx.disconnect(_on_foe_shot)
-	if NetLayer.duel_ev_rx.is_connected(_on_ev):
-		NetLayer.duel_ev_rx.disconnect(_on_ev)
 	if NetLayer.duel_look_rx.is_connected(_on_foe_look):
 		NetLayer.duel_look_rx.disconnect(_on_foe_look)
 	if NetLayer.disconnected.is_connected(_on_net_lost):
@@ -202,6 +181,15 @@ func _build_hud() -> void:
 	btn_shoot.released.connect(_shoot_up)
 	root.add_child(btn_shoot)
 
+	var btn_trick := TouchButton.new()
+	btn_trick.text = "TRICK"
+	btn_trick.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	btn_trick.position = Vector2(-416, -172)
+	btn_trick.custom_minimum_size = Vector2(118, 118)
+	btn_trick.size = Vector2(118, 118)
+	btn_trick.pressed_down.connect(_do_trick)
+	root.add_child(btn_trick)
+
 	meter = ShotMeter.new()
 	meter.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	meter.position = Vector2(0, 0)
@@ -221,22 +209,6 @@ func _build_hud() -> void:
 	leave.pressed.connect(_leave)
 	root.add_child(leave)
 
-	var again := Button.new()
-	again.text = Loc.t("duel.rematch")
-	again.set_anchors_preset(Control.PRESET_CENTER)
-	again.position = Vector2(-160, 150)
-	again.custom_minimum_size = Vector2(320, 72)
-	again.add_theme_font_size_override("font_size", 24)
-	again.visible = false
-	again.pressed.connect(_tap_rematch)
-	root.add_child(again)
-	set_meta("again", again)
-
-
-func _lbl_top_refresh() -> void:
-	lbl_top.text = "%s %d  ·  %d %s" % [Loc.t("duel.you"), score_me,
-		score_foe, String(foe.get("name", "?"))]
-
 
 func _say(msg: String, t := 2.2) -> void:
 	lbl_mid.text = msg
@@ -251,6 +223,7 @@ func _process(delta: float) -> void:
 	pump_t = maxf(0.0, pump_t - delta)
 	dust_t = maxf(0.0, dust_t - delta)
 	shot_anim = maxf(0.0, shot_anim - delta * 4.5)
+	trick_t = maxf(0.0, trick_t - delta)
 	if _msg_t > 0.0:
 		_msg_t -= delta
 		if _msg_t <= 0.0:
@@ -258,48 +231,26 @@ func _process(delta: float) -> void:
 	# l'avversario scivola verso l'ultima posizione ricevuta
 	var tp: Vector2 = foe["t_pos"]
 	foe["pos"] = (foe["pos"] as Vector2).lerp(tp, clampf(14.0 * delta, 0.0, 1.0))
-
-	if not game_on:
-		_wait_flow(delta)
-		_camera(delta)
-		queue_redraw()
-		return
-
-	if not over:
+	if _net_ok:
 		_my_move(delta)
 		_dunk_flow(delta)
 		_charge_flow(delta)
-	_host_ball(delta)
-	_resolve_flight(delta)
+		_step_ball(delta)
 	_camera(delta)
 	_send(delta)
 	queue_redraw()
 
 
-func _wait_flow(delta: float) -> void:
-	if not _net_ok:
-		return
-	if NetLayer.role == "host":
-		if foe["seen"] and not game_on:
-			_begin_t = minf(_begin_t, 0.5)
-		_begin_t -= delta
-		if _begin_t <= 0.0 and foe["seen"] and not game_on:
-			NetLayer.rpc("rpc_duel_ev", {"t": "begin",
-				"poss": randi() % 2})
-			_begin_t = 1.0e9
-	elif not foe["seen"]:
-		lbl_mid.text = Loc.t("duel.waiting")
-
-
 func _my_move(delta: float) -> void:
-	if dunk_phase != "" or charging:
+	if dunk_phase == "rise":
+		var rim_x: Vector2 = RIM - Vector2(20.0, 0.0)
+		var f: float = clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
+		player_pos = player_pos.lerp(rim_x, smoothstep(0.0, 0.62, f) * 0.5)
+		_clamp_me()
+		return
+	if charging or dunk_phase != "":
 		if charging and dunk_phase == "":
-			var mv0: Vector2 = joystick.output * 0.25
-			player_pos += mv0 * MOVE_SPEED * delta
-		elif dunk_phase == "rise":
-			var rim_x: Vector2 = RIM - Vector2(20.0, 0.0)
-			var f: float = clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
-			player_pos = player_pos.lerp(rim_x, smoothstep(0.0, 0.62, f) * 0.5)
+			player_pos += joystick.output * 0.25 * MOVE_SPEED * delta
 		_clamp_me()
 		return
 	var mv: Vector2 = joystick.output
@@ -334,20 +285,21 @@ func _dunk_flow(delta: float) -> void:
 			dunk_phase = ""
 			dust_t = 0.45
 			dust_big = false
-	match dunk_phase:
-		"rise":
-			if dunk_anim >= dunk_rise_t:
-				dunk_phase = "hang"
-				dunk_anim = 0.0
-				hang_swing_t = 0.0
-				dunk_ball_t = 0.0
-				_dunk_throw()
-		"hang":
-			pass   # si scende quando il dito lascia il bottone
-		"drop":
-			pass
-		_:
-			pass
+	if dunk_phase == "rise" and dunk_anim >= dunk_rise_t:
+		dunk_phase = "hang"
+		dunk_anim = 0.0
+		hang_swing_t = 0.0
+		dunk_ball_t = 0.0
+		_dunk_throw()
+
+
+func _do_trick() -> void:
+	## TRICK: crossover, dietro la schiena o spin — a caso, come nel
+	## campetto solo. Solo a palla in mano.
+	if trick_t > 0.0 or dunk_phase != "" or ball_live or charging:
+		return
+	trick_kind = ["cross", "behind", "spin"].pick_random()
+	trick_t = 0.45
 
 
 func _camera(delta: float) -> void:
@@ -367,11 +319,11 @@ func _camera(delta: float) -> void:
 
 # ------------------------------------------------------------------ tiro
 func _i_have_ball() -> bool:
-	return holder == 0 and not ball_live and not my_shot_live and dunk_phase == ""
+	return not ball_live and dunk_phase == ""
 
 
 func _shoot_down() -> void:
-	if not game_on or over or not _i_have_ball():
+	if not _net_ok or not _i_have_ball():
 		return
 	if player_pos.distance_to(RIM) < DUNK_R:
 		_start_dunk()
@@ -380,11 +332,6 @@ func _shoot_down() -> void:
 	charge = 0.0
 	ideal = clampf(0.42 + _distance_ft() * 0.012, 0.42, 0.78)
 	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
-	# DIFESA ADDOSSO: la finestra si restringe come nel fadeaway.
-	var fd: Vector2 = (foe["pos"] as Vector2) - player_pos
-	if fd.length() < CONTEST_R:
-		w["perfect"] = float(w["perfect"]) * 0.70
-		w["good"] = float(w["good"]) * 0.82
 	meter.perfect_window = float(w["perfect"])
 	meter.good_window = float(w["good"])
 	meter.visible = true
@@ -405,7 +352,11 @@ func _dunk_throw() -> void:
 	if court_art != null:
 		court_art.net_bump(1, 1.0)
 	Events.popup.emit("GREEN!", player_pos + Vector2(0, -95), Color(0.3, 1.0, 0.45), true)
-	_fire_shot({"dunk": true, "made": true, "pts": 2,
+	streak += 1
+	if streak >= 3 and not hot:
+		hot = true
+		Events.popup.emit("ON FIRE!", player_pos, Color(1.0, 0.55, 0.15), true)
+	NetLayer.rpc("rpc_duel_shot", {"dunk": true, "made": true, "pts": 2,
 		"style": dunk_style, "from": RIM})
 
 
@@ -425,8 +376,8 @@ func _shoot_up() -> void:
 	if not charging:
 		return
 	meter.visible = false
+	# tap veloce: pump fake, niente tiro
 	if charge < 0.17:
-		# tap veloce: pump fake, niente tiro
 		charging = false
 		charge = 0.0
 		pump_t = 0.35
@@ -435,10 +386,6 @@ func _shoot_up() -> void:
 		return
 	charging = false
 	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
-	var fd: Vector2 = (foe["pos"] as Vector2) - player_pos
-	if fd.length() < CONTEST_R:
-		w["perfect"] = float(w["perfect"]) * 0.70
-		w["good"] = float(w["good"]) * 0.82
 	var pw: float = float(w["perfect"])
 	var gw: float = float(w["good"])
 	var err: float = absf(charge - ideal)
@@ -471,6 +418,16 @@ func _shoot_up() -> void:
 	if meter:
 		meter.show_release(verdict, verdict_col)
 	shot_anim = 0.22
+	# streak: come nel campetto, solo i canestri contano
+	if made:
+		streak += 1
+		if streak >= 3 and not hot:
+			hot = true
+			Events.popup.emit("ON FIRE!", player_pos, Color(1.0, 0.55, 0.15), true)
+		_say("+%d  ·  x%d" % [pts, streak])
+	else:
+		hot = false
+		streak = 0
 	# traiettoria coerente con il verdetto (stessa regola del campetto solo)
 	var aim: Vector2
 	if zone == "green":
@@ -485,28 +442,9 @@ func _shoot_up() -> void:
 			aim = RIM + Vector2(-away * randf_range(70.0, 120.0), 30.0)
 		else:
 			aim = RIM + Vector2(away * randf_range(50.0, 90.0), -40.0)
-	_fire_shot({"dunk": false, "made": made, "pts": pts, "zone": zone,
-		"from": player_pos, "aim": aim})
-
-
-func _fire_shot(d: Dictionary) -> void:
-	## Il mio tiro: parte da qui, lo vedo SUBITO dal mio telefono.
-	streak = streak + 1 if d.get("made", false) else 0
-	if d.get("made", false):
-		if streak >= 3 and not hot:
-			hot = true
-			Events.popup.emit("ON FIRE!", player_pos, Color(1.0, 0.55, 0.15), true)
-	else:
-		hot = false
-		streak = 0
-	if not d.get("dunk", false):
-		_launch_ball(d["from"], d["aim"])
-		my_shot_live = true
-		flight_t = 0.0
-	if NetLayer.role == "host":
-		_host_apply_shot(0, d)
-	else:
-		NetLayer.rpc("rpc_duel_shot", d)
+	_launch_ball(player_pos, aim)
+	NetLayer.rpc("rpc_duel_shot", {"dunk": false, "made": made, "pts": pts,
+		"zone": zone, "from": player_pos, "aim": aim})
 
 
 # ------------------------------------------------------------------ palla
@@ -522,7 +460,6 @@ func _launch_ball(from: Vector2, aim: Vector2) -> void:
 	ball_spin = -signf(dist.x) * 7.0
 	prev_h = ball_h
 	prev_pos = ball_pos
-	holder = -1
 
 
 func _step_ball(delta: float) -> void:
@@ -541,6 +478,8 @@ func _step_ball(delta: float) -> void:
 	ball_spin += ball_vel.x * 0.0004
 	if ball_pos.x < -1300.0 or ball_pos.x > 1300.0 \
 	or ball_pos.y < -Court.COURT_H or ball_pos.y > Court.COURT_H:
+		ball_live = false
+	if ball_settled > 0.6:
 		ball_live = false
 
 
@@ -575,88 +514,21 @@ func _collide_floor() -> void:
 			ball_vel *= 0.94
 
 
-func _host_ball(delta: float) -> void:
-	## L'host simula la palla dei tiri di ENTRAMBI (quella del cliente la
-	## riceve gia' risolta); il cliente simula solo il PROPRIO tiro, per
-	## vederlo subito. Le due simulazioni partono dagli stessi dati.
-	if NetLayer.role == "host":
-		_step_ball(delta)
-		if ball_live and ball_settled > 0.5:
-			ball_live = false
-		if not ball_live:
-			my_shot_live = false
-	elif my_shot_live:
-		_step_ball(delta)
-		if not ball_live:
-			my_shot_live = false
-
-
-func _resolve_flight(delta: float) -> void:
-	## HOST: quando la palla muore, applica l'esito in attesa e comunica.
-	if NetLayer.role != "host" or pending.is_empty():
-		return
-	flight_t += delta
-	if flight_t < 3.5 and my_shot_live or (ball_live and flight_t < 3.5):
-		return
-	var d: Dictionary = pending
-	pending = {}
-	var by: int = int(d.get("by", 0))
-	if bool(d.get("made", false)):
-		var pts: int = int(d.get("pts", 2))
-		if by == 0:
-			score_me += pts
-		else:
-			score_foe += pts
-		_ev_broadcast({"t": "score", "by": by, "pts": pts,
-			"me": score_me, "foe": score_foe})
-		if score_me >= WIN_SCORE or score_foe >= WIN_SCORE:
-			var winner: int = 0 if score_me >= WIN_SCORE else 1
-			_ev_broadcast({"t": "win", "w": winner, "me": score_me, "foe": score_foe})
-			return
-		# canestro: palla all'altro, si riparte
-		_ev_broadcast({"t": "possess", "who": 1 - by, "check": true})
-	else:
-		# errore: la prende chi e' piu' vicino a dove si e' fermata
-		var dme: float = player_pos.distance_to(ball_pos)
-		var dfoe: float = (foe["pos"] as Vector2).distance_to(ball_pos)
-		_ev_broadcast({"t": "possess", "who": 0 if dme <= dfoe else 1})
-	_ev_apply({"t": "score_sync", "me": score_me, "foe": score_foe})
-
-
-func _host_apply_shot(by: int, d: Dictionary) -> void:
-	## Host: registra l'esito del tiro (suo o ricevuto dal cliente) e lancia
-	## la sua copia della palla.
-	if not bool(d.get("dunk", false)):
-		_launch_ball(d["from"], d["aim"])
-	pending = {"by": by, "made": d.get("made", false), "pts": d.get("pts", 2)}
-	flight_t = 0.0
-	if bool(d.get("dunk", false)):
-		flight_t = 2.2    # la schiacciata si risolve da se': solo pausa
-		ball_live = false
-		ball_pos = RIM
-		ball_h = RIM_HEIGHT
-
-
 # ------------------------------------------------------------------ rete
 func _send(delta: float) -> void:
 	_send_t -= delta
-	if _send_t > 0.0:
+	if _send_t > 0.0 or not _net_ok:
 		return
 	_send_t = 1.0 / SEND_HZ
-	if not _net_ok:
-		return
 	var d := {
 		"p": player_pos, "f": facing, "k": _my_kind(), "a": _my_amount(),
-		"ph": dribble_t, "dp": dunk_phase, "ds": dunk_style, "da": dunk_anim,
-		"ht": hang_swing_t, "ho": _hang_one(),
+		"ph": dribble_t, "w": _my_walking(), "dp": dunk_phase, "ds": dunk_style,
+		"da": dunk_anim, "ht": hang_swing_t, "ho": _hang_one(),
+		"dbt": dunk_ball_t, "hot": hot,
+		"tk": trick_kind if trick_t > 0.0 else "",
+		"ta": trick_t / 0.45,
+		"bl": ball_live, "bp": ball_pos, "bh": ball_h, "bs": ball_spin,
 	}
-	if NetLayer.role == "host":
-		d["bl"] = ball_live
-		d["bp"] = ball_pos
-		d["bh"] = ball_h
-		d["bs"] = ball_spin
-		d["sm"] = score_me
-		d["sf"] = score_foe
 	NetLayer.rpc("rpc_duel_me", d)
 
 
@@ -665,23 +537,18 @@ func _my_kind() -> String:
 		return Avatar.REACH
 	if dunk_phase != "":
 		return Avatar.DUNK
-	if shot_anim > 0.0:
+	if shot_anim > 0.0 or pump_t > 0.0 or charging:
 		return Avatar.SHOOT
-	if pump_t > 0.0:
-		return Avatar.SHOOT
-	if charging:
-		return Avatar.SHOOT
-	if joystick and joystick.output.length() > 0.06:
-		return Avatar.DRIBBLE
 	return Avatar.DRIBBLE
 
 
 func _my_amount() -> float:
 	if dunk_phase == "hang":
 		return 1.0
-	if dunk_phase != "":
-		return clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0) \
-			if dunk_phase == "rise" else 1.0 - clampf(dunk_anim / 0.5, 0.0, 1.0)
+	if dunk_phase == "rise":
+		return clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
+	if dunk_phase == "drop":
+		return 1.0 - clampf(dunk_anim / 0.5, 0.0, 1.0)
 	if shot_anim > 0.0:
 		return clampf(shot_anim / 0.22, 0.0, 1.0)
 	if pump_t > 0.0:
@@ -689,7 +556,14 @@ func _my_amount() -> float:
 		return 0.25 + 0.60 * (1.0 - absf(k * 2.0 - 1.0))
 	if charging:
 		return 1.0 - clampf(charge / maxf(ideal, 0.01), 0.0, 1.0) * 0.85
+	if trick_t > 0.0:
+		return trick_t / 0.45
 	return 0.0
+
+
+func _my_walking() -> bool:
+	return joystick != null and joystick.output.length() > 0.12 \
+		and dunk_phase == "" and shot_anim <= 0.0 and not charging
 
 
 func _hang_one() -> bool:
@@ -704,142 +578,47 @@ func _on_foe_state(d: Dictionary) -> void:
 	foe["kind"] = d.get("k", Avatar.DRIBBLE)
 	foe["amount"] = d.get("a", 0.0)
 	foe["phase"] = d.get("ph", 0.0)
+	foe["walk"] = d.get("w", false)
 	foe["dp"] = d.get("dp", "")
 	foe["ds"] = d.get("ds", "")
 	foe["da"] = d.get("da", 0.0)
 	foe["ht"] = d.get("ht", 0.0)
 	foe["ho"] = d.get("ho", false)
-	if NetLayer.role == "client":
-		# la palla dell'host (quando non e' il mio tiro in locale)
-		if not my_shot_live:
-			ball_live = bool(d.get("bl", false))
-			ball_pos = d.get("bp", ball_pos)
-			ball_h = d.get("bh", ball_h)
-			ball_spin = d.get("bs", ball_spin)
-		var sm: int = int(d.get("sm", score_me))
-		var sf: int = int(d.get("sf", score_foe))
-		if sm != score_me or sf != score_foe:
-			score_me = sm
-			score_foe = sf
-			_lbl_top_refresh()
+	foe["dbt"] = d.get("dbt", 0.0)
+	foe["hot"] = d.get("hot", false)
+	foe["tk"] = d.get("tk", "")
+	foe["ta"] = d.get("ta", 0.0)
+	foe_ball["live"] = bool(d.get("bl", false))
+	foe_ball["pos"] = d.get("bp", foe_ball["pos"])
+	foe_ball["h"] = d.get("bh", foe_ball["h"])
+	foe_ball["spin"] = d.get("bs", foe_ball["spin"])
 
 
 func _on_foe_shot(d: Dictionary) -> void:
-	## L'host riceve il tiro del cliente: lo applica.
-	if NetLayer.role == "host":
-		_host_apply_shot(1, d)
-		if bool(d.get("dunk", false)):
-			net_wobble = 1.0
-			if court_art != null:
-				court_art.net_bump(1, 1.0)
+	## Il tiro dell'altro: la palla viaggia gia' coi suoi stati; qui arrivano
+	## solo gli effetti del verdetto (la retina che si muove se ha segnato).
+	if bool(d.get("made", false)):
+		net_wobble = 1.0
+		if court_art != null:
+			court_art.net_bump(1, 1.0)
 
 
 func _on_foe_look(d: Dictionary) -> void:
 	foe["name"] = String(d.get("name", "?"))
 	foe["look"] = d
 	foe["seen"] = true
+	var j: Color = d.get("jersey", Color(0.5, 0.2, 0.2))
 	foe_colours = {
 		"skin": d.get("skin", Color(0.72, 0.53, 0.38)),
 		"hair": d.get("hair", Color(0.16, 0.13, 0.12)),
-		"jersey": d.get("jersey", Color(0.5, 0.2, 0.2)),
-		"shorts": (d.get("jersey", Color(0.5, 0.2, 0.2)) as Color).darkened(0.45),
+		"jersey": j,
+		"shorts": j.darkened(0.45),
 		"shoes": d.get("shoes", Color(0.9, 0.9, 0.92)),
 		"num": str(int(d.get("num", 7))),
 		"kit": false,
 		"trim": Color(0.95, 0.95, 0.97),
 	}
-	_lbl_top_refresh()
-
-
-func _on_ev(d: Dictionary) -> void:
-	_ev_apply(d)
-
-
-func _ev_broadcast(ev: Dictionary) -> void:
-	## Host: esegue e spedisce.
-	_ev_apply(ev)
-	NetLayer.rpc("rpc_duel_ev", ev)
-
-
-func _ev_apply(ev: Dictionary) -> void:
-	var t: String = String(ev.get("t", ""))
-	match t:
-		"begin":
-			game_on = true
-			holder = int(ev.get("poss", 0))
-			if holder == 0:
-				_say(Loc.t("duel.yourball"))
-			else:
-				_say(Loc.t("duel.hisball") % String(foe.get("name", "?")))
-			_lbl_top_refresh()
-		"score":
-			score_me = int(ev.get("me", score_me))
-			score_foe = int(ev.get("foe", score_foe))
-			_lbl_top_refresh()
-			var by: int = int(ev.get("by", 0))
-			if by == 0:
-				_say("%s +%d" % [Loc.t("duel.basket"), int(ev.get("pts", 2))])
-			else:
-				_say("%s +%s" % [String(foe.get("name", "?")), int(ev.get("pts", 2))])
-		"score_sync":
-			score_me = int(ev.get("me", score_me))
-			score_foe = int(ev.get("foe", score_foe))
-			_lbl_top_refresh()
-		"possess":
-			holder = int(ev.get("who", 0))
-			ball_live = false
-			my_shot_live = false
-			pending = {}
-			if bool(ev.get("check", false)):
-				_say(Loc.t("duel.check") % (String(foe.get("name", "?"))
-					if holder == 1 else Loc.t("duel.you")))
-		"win":
-			over = true
-			game_on = false
-			var w: int = int(ev.get("w", 0))
-			lbl_mid.text = (Loc.t("duel.youwin") if w == 0 else
-				Loc.t("duel.hewins") % String(foe.get("name", "?"))) + \
-				"  %d-%d" % [int(ev.get("me", 0)), int(ev.get("foe", 0))]
-			var again: Button = get_meta("again") if has_meta("again") else null
-			if again != null:
-				again.visible = NetLayer.role == "host"
-			btn_shoot.visible = false
-		"restart":
-			_restart()
-		"start":
-			pass
-		_:
-			pass
-
-
-func _restart() -> void:
-	score_me = 0
-	score_foe = 0
-	streak = 0
-	hot = false
-	over = false
-	game_on = true
-	ball_live = false
-	my_shot_live = false
-	pending = {}
-	dunk_phase = ""
-	charging = false
-	meter.visible = false
-	btn_shoot.visible = true
-	var again: Button = get_meta("again") if has_meta("again") else null
-	if again != null:
-		again.visible = false
-	player_pos = Vector2(RIM.x - 640.0, -140.0)
-	foe["t_pos"] = Vector2(RIM.x - 640.0, 160.0)
-	foe["pos"] = Vector2(RIM.x - 640.0, 160.0)
-	holder = 0
-	_lbl_top_refresh()
-	_say(Loc.t("duel.yourball"))
-
-
-func _tap_rematch() -> void:
-	if NetLayer.role == "host":
-		_ev_broadcast({"t": "restart"})
+	lbl_top.text = "%s  ·  %s" % [Loc.t("duel.you"), foe["name"]]
 
 
 func _on_net_lost() -> void:
@@ -868,15 +647,13 @@ func _distance_ft() -> float:
 
 func _draw() -> void:
 	_draw_char(true)
-	_draw_char(false)
-	# palla in volo (o dell'host, per il cliente)
-	if ball_live:
-		var bs: Vector2 = _screen(ball_pos)
-		var bpos := Vector2(bs.x, bs.y - ball_h)
-		_draw_ball_at(bpos, BALL_R)
-		if ball_h < RIM_HEIGHT + 30.0 and (ball_pos - RIM).length() < 70.0:
-			HoopArt.draw_net_front(self, _rim_screen(), 22.0,
-				22.0 * HoopArt.RIM_SQUASH, net_wobble, net_t, 0.0, -1.0)
+	if foe["seen"]:
+		_draw_char(false)
+	# la palla dell'altro (quando e' in volo)
+	if foe["seen"] and bool(foe_ball["live"]):
+		var fbs: Vector2 = _screen(foe_ball["pos"])
+		_draw_ball_at(Vector2(fbs.x, fbs.y - float(foe_ball["h"])), BALL_R,
+			float(foe_ball["spin"]))
 	# nomi sopra la testa: ci si conosce, al campetto
 	_draw_name(player_pos, Loc.t("duel.you"), Color(0.55, 0.85, 1.0))
 	if foe["seen"]:
@@ -891,40 +668,56 @@ func _draw_name(world: Vector2, txt: String, col: Color) -> void:
 		HORIZONTAL_ALIGNMENT_CENTER, 120.0, 15, col)
 
 
-func _draw_ball_at(p: Vector2, r: float) -> void:
+func _draw_ball_at(p: Vector2, r: float, spin := 0.0) -> void:
 	draw_circle(p, r, Color(0.95, 0.55, 0.15))
 	draw_arc(p, r, 0, TAU, 18, Color(0.35, 0.18, 0.07), 2.0)
-	var a: float = ball_spin
+	var a: float = spin
 	draw_line(p + Vector2(cos(a), sin(a)) * -r, p + Vector2(cos(a), sin(a)) * r,
 		Color(0.35, 0.18, 0.07), 2.0)
 	var b: float = a + PI * 0.5
 	draw_arc(p, r * 0.86, b - 1.1, b + 1.1, 10, Color(0.35, 0.18, 0.07), 2.0)
+	# retina davanti alla palla quando passa nel ferro
+	if ball_near_rim(p):
+		HoopArt.draw_net_front(self, _rim_screen(), 22.0,
+			22.0 * HoopArt.RIM_SQUASH, net_wobble, net_t, 0.0, -1.0)
 
 
-## Disegna un giocatore (il mio o l'avversario) con l'Avatar condiviso:
-## stesse pose, stesse proporzioni del campetto.
+func ball_near_rim(p: Vector2) -> bool:
+	return p.distance_to(_rim_screen()) < 60.0
+
+
+## Disegna un giocatore (il mio o l'altro) con l'Avatar condiviso: stesse
+## pose, stesse proporzioni, camminata e trick compresi.
 func _draw_char(mine: bool) -> void:
 	var world: Vector2 = player_pos if mine else (foe["pos"] as Vector2)
 	var f: float = facing if mine else float(foe.get("facing", -1.0))
 	var kind: String = _my_kind() if mine else String(foe.get("kind", Avatar.DRIBBLE))
 	var amount: float = _my_amount() if mine else float(foe.get("amount", 0.0))
 	var phase: float = dribble_t if mine else float(foe.get("phase", 0.0))
+	var walking: bool = _my_walking() if mine else bool(foe.get("walk", false))
 	var dp: String = dunk_phase if mine else String(foe.get("dp", ""))
 	var ds: String = dunk_style if mine else String(foe.get("ds", ""))
+	var da: float = dunk_anim if mine else float(foe.get("da", 0.0))
 	var ht: float = hang_swing_t if mine else float(foe.get("ht", 0.0))
+	var dbt: float = dunk_ball_t if mine else float(foe.get("dbt", 0.0))
+	var tk: String = (trick_kind if trick_t > 0.0 else "") if mine \
+		else String(foe.get("tk", ""))
+	var ta: float = (trick_t / 0.45) if mine else float(foe.get("ta", 0.0))
 	var cols: Dictionary = Avatar.colours(true) if mine else foe_colours
 	if not mine and cols.is_empty():
 		cols = {"skin": Color(0.72, 0.53, 0.38), "hair": Color(0.16, 0.13, 0.12),
 			"jersey": Color(0.45, 0.22, 0.22), "shorts": Color(0.28, 0.14, 0.14),
 			"shoes": Color(0.9, 0.9, 0.92), "num": "7", "kit": false}
 	var h: float = 64.0 * Game.height_factor() if mine \
-		else 64.0 * float((foe.get("look") as Dictionary).get("hf", 1.0)) \
-		if foe["seen"] else 64.0
+		else 64.0 * float((foe.get("look") as Dictionary).get("hf", 1.0))
 
-	var hold_ball: bool = (holder == 0 and mine) or (holder == 1 and not mine)
-	hold_ball = hold_ball and not ball_live and not my_shot_live and dp == ""
+	var hold_ball: bool
+	if mine:
+		hold_ball = not ball_live and dp == "" and trick_t <= 0.0
+	else:
+		hold_ball = not bool(foe_ball["live"]) and dp == "" and tk == ""
 
-	var po: Dictionary = Avatar.pose(kind, phase, amount, "", false)
+	var po: Dictionary = Avatar.pose(kind, phase, amount, tk, walking)
 	po["hand"] = -1.0 if hand_left else 1.0
 	var lift := 0.0
 	var draw_base := world
@@ -937,7 +730,7 @@ func _draw_char(mine: bool) -> void:
 
 	if dp == "rise":
 		var rim_x: Vector2 = RIM - Vector2(20.0, 0.0)
-		var fr: float = clampf((dunk_anim if mine else float(foe.get("da", 0.0))) / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
+		var fr: float = clampf(da / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
 		var hang_lift: float = maxf(RIM_HEIGHT - h * DunkStyle.REACH, 0.0)
 		lift = sin(fr * PI * 0.5) * hang_lift
 		draw_base = world.lerp(rim_x, smoothstep(0.0, 0.62, fr))
@@ -962,11 +755,15 @@ func _draw_char(mine: bool) -> void:
 		draw_base = rim_x2
 		hold_ball = false
 	elif dp == "drop":
-		var fr2: float = clampf((dunk_anim if mine else float(foe.get("da", 0.0))) / 0.5, 0.0, 1.0)
+		var fr2: float = clampf(da / 0.5, 0.0, 1.0)
 		draw_base = (RIM - Vector2(20.0, 0.0)).lerp(world, fr2)
 		lift = (1.0 - fr2) * maxf(hang_lift_now if mine else 60.0, 60.0)
 		slam = DunkStyle.sample(ds, 1.0)
 		hold_ball = false
+
+	# SPIN MOVE: il corpo gira di schiena mentre ruota
+	if tk == "spin" and ta > 0.0:
+		po["yaw"] = 2.2 * (1.0 - ta)
 
 	# ombra a terra
 	var sh: Vector2 = _screen(world)
@@ -983,11 +780,11 @@ func _draw_char(mine: bool) -> void:
 	# polvere d'atterraggio (solo la mia: la sua arriva con le pose)
 	if mine and dust_t > 0.0:
 		var kk: float = clampf(1.0 - dust_t / 0.45, 0.0, 1.0)
-		var da: float = (1.0 - kk) * 0.5
+		var da2: float = (1.0 - kk) * 0.5
 		for i in 6:
 			var sd: float = -1.0 if i % 2 == 0 else 1.0
 			draw_circle(screen + Vector2(sd * (14.0 + 30.0 * kk) * (0.4 + 0.6 * float((i + 1) % 3) / 2.0), -6.0 - (i % 2) * 5.0),
-				lerpf(7.0, 2.5, kk), Color(0.85, 0.80, 0.68, da))
+				lerpf(7.0, 2.5, kk), Color(0.85, 0.80, 0.68, da2))
 	if not slam.is_empty():
 		po["dunk"] = slam
 	if dp == "hang":
@@ -1002,11 +799,25 @@ func _draw_char(mine: bool) -> void:
 		draw_set_transform_matrix(Transform2D())
 	else:
 		Avatar.draw_body(self, screen, h, f, po, cols, hold_ball, true, mine, BALL_R)
+	# TRICK: la palla passa da una mano all'altra (come nel campetto solo)
+	if tk != "" and ta > 0.0:
+		var ftk: float = 1.0 - ta
+		var from_side: float = 1.0 if hand_left else -1.0
+		if not mine:
+			from_side = -1.0
+		var to_side: float = -from_side
+		var sway: float = lerpf(from_side, to_side, smoothstep(0.0, 1.0, ftk))
+		var low: float = sin(ftk * PI)
+		var bp := screen + Vector2(sway * h * 0.34, -h * 0.16 - low * h * 0.10)
+		if tk == "behind":
+			bp.y = screen.y - h * 0.30 + low * h * 0.06
+		_draw_ball_at(bp, BALL_R)
 	# la palla della schiacciata che cade nella retina
 	if dp == "hang" or dp == "drop":
-		var fdt: float = clampf(dunk_ball_t * 1.7, 0.0, 1.0)
+		var fdt: float = clampf(dbt * 1.7, 0.0, 1.0)
 		_draw_ball_at(_rim_screen().lerp(_screen(RIM), fdt * fdt), BALL_R)
-	# fiamme quando sono HOT
-	if mine and hot and not bool(Settings.get_v("lowgfx", false)):
+	# fiamme quando e' HOT (le mie in locale, le sue dal suo stato)
+	var is_hot: bool = hot if mine else bool(foe.get("hot", false))
+	if is_hot and not bool(Settings.get_v("lowgfx", false)):
 		Avatar.draw_flames(self, screen + Vector2(0.0, -h * 1.16),
 			Time.get_ticks_msec() / 1000.0)
