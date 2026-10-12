@@ -202,6 +202,10 @@ jobs:
         run: |
           cp hoop-city-life/hoopcity/build/HoopCity-v2.42.1.apk /tmp/HoopCity-v2.42.1.apk
           gh release delete v2.42.1 -y --cleanup-tag || true
+          # TAG ORFANO: se la create e' morta a meta' (tag creato, release no),
+          # --cleanup-tag non lo rimuove perche' la release non esiste — e ogni
+          # tentativo dopo fallisce con "tag already exists". Via il tag a mano.
+          git push origin --delete v2.42.1 || true
           sleep 5
           # L'API delle release ogni tanto perde colpi (race delete/create):
           # tre tentativi prima di arrendersi.
