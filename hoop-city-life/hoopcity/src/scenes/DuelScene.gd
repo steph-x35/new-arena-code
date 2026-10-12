@@ -78,6 +78,8 @@ var net_wobble := 0.0
 var net_t := 0.0
 var _send_t := 0.0
 var _msg_t := 0.0
+var _look_t := 0.0   # invia l'aspetto ogni 1,2 s: se arriva mentre l'altro
+                      # sta ancora caricando la scena, il prossimo passa
 
 
 func _ready() -> void:
@@ -236,8 +238,34 @@ func _process(delta: float) -> void:
 		_dunk_flow(delta)
 		_charge_flow(delta)
 		_step_ball(delta)
+		_look_t -= delta
+		if _look_t <= 0.0:
+			_look_t = 1.2
+			NetLayer.rpc("rpc_duel_look", _my_look())
 	_camera(delta)
 	_send(delta)
+	# METRO DEL TIRO: come nel campetto — vive SOPRA la testa del tiratore,
+	# segue il salto, e dopo il rilascio resta congelato un attimo col
+	# verdetto (e' cosi' che si impara il timing).
+	if meter:
+		if charging:
+			meter.visible = true
+			meter.frozen = false
+			meter.charge = charge
+			meter.ideal = ideal
+		elif not meter.frozen:
+			meter.visible = false
+		_place_meter()
+	if btn_shoot:
+		var want: String = "SHOOT"
+		if dunk_phase == "hang":
+			want = "LET GO"
+		elif dunk_phase == "rise":
+			want = "DUNK!"
+		elif _can_dunk():
+			want = "DUNK"
+		if btn_shoot.text != want:
+			btn_shoot.text = want
 	queue_redraw()
 
 
@@ -258,6 +286,41 @@ func _my_move(delta: float) -> void:
 	if absf(mv.x) > 0.12:
 		facing = signf(mv.x)
 	_clamp_me()
+
+
+func _can_dunk() -> bool:
+	return player_pos.distance_to(RIM) < DUNK_R and dunk_phase == ""
+
+
+func _meter_lift() -> float:
+	## Quanto il tiratore e' sollevato da terra: il metro gli sale accanto
+	## durante una schiacciata invece di restare giu'.
+	if dunk_phase == "":
+		return 0.0
+	var h: float = 64.0 * Game.height_factor()
+	var reach: float = maxf(RIM_HEIGHT - h * DunkStyle.REACH, 0.0)
+	if dunk_phase == "rise":
+		var f: float = clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
+		return sin(f * PI * 0.5) * reach
+	return reach
+
+
+func _place_meter() -> void:
+	## L'arco resta direttamente sopra la testa di chi tira, e resta tutto
+	## dentro lo schermo anche da fondocampo.
+	if meter == null or not has_meta("cam"):
+		return
+	var cam: Camera2D = get_meta("cam")
+	var h: float = 64.0 * Game.height_factor()
+	var world: Vector2 = _screen(player_pos) - Vector2(0.0, h + 36.0 + _meter_lift())
+	var vp: Vector2 = get_viewport_rect().size
+	var scr: Vector2 = (world - cam.position) * cam.zoom + vp * 0.5
+	meter.size = Vector2(120, 78)
+	var msz: Vector2 = meter.size
+	var pos: Vector2 = scr - Vector2(msz.x * 0.5, msz.y)
+	pos.x = clampf(pos.x, 8.0, maxf(vp.x - msz.x - 8.0, 8.0))
+	pos.y = clampf(pos.y, 8.0, maxf(vp.y - msz.y - 8.0, 8.0))
+	meter.position = pos
 
 
 func _clamp_me() -> void:
@@ -325,7 +388,7 @@ func _i_have_ball() -> bool:
 func _shoot_down() -> void:
 	if not _net_ok or not _i_have_ball():
 		return
-	if player_pos.distance_to(RIM) < DUNK_R:
+	if _can_dunk():
 		_start_dunk()
 		return
 	charging = true
@@ -334,8 +397,6 @@ func _shoot_down() -> void:
 	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
 	meter.perfect_window = float(w["perfect"])
 	meter.good_window = float(w["good"])
-	meter.visible = true
-	meter.charge = 0.0
 
 
 func _start_dunk() -> void:
@@ -375,7 +436,6 @@ func _shoot_up() -> void:
 		return
 	if not charging:
 		return
-	meter.visible = false
 	# tap veloce: pump fake, niente tiro
 	if charge < 0.17:
 		charging = false
@@ -588,6 +648,7 @@ func _on_foe_state(d: Dictionary) -> void:
 	foe["hot"] = d.get("hot", false)
 	foe["tk"] = d.get("tk", "")
 	foe["ta"] = d.get("ta", 0.0)
+	foe["live"] = true
 	foe_ball["live"] = bool(d.get("bl", false))
 	foe_ball["pos"] = d.get("bp", foe_ball["pos"])
 	foe_ball["h"] = d.get("bh", foe_ball["h"])
@@ -647,10 +708,10 @@ func _distance_ft() -> float:
 
 func _draw() -> void:
 	_draw_char(true)
-	if foe["seen"]:
+	if foe["seen"] or foe["live"]:
 		_draw_char(false)
 	# la palla dell'altro (quando e' in volo)
-	if foe["seen"] and bool(foe_ball["live"]):
+	if (foe["seen"] or foe["live"]) and bool(foe_ball["live"]):
 		var fbs: Vector2 = _screen(foe_ball["pos"])
 		_draw_ball_at(Vector2(fbs.x, fbs.y - float(foe_ball["h"])), BALL_R,
 			float(foe_ball["spin"]))
