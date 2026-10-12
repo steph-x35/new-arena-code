@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hoop City Life — Scarica il gioco gratis (Android)</title>
+  <meta name="description" content="Hoop City Life: il gioco di basket 2D gratuito per Android. Schiacciate, green release e il campetto di quartiere. Scarica l'APK in un tocco." />
+  <meta property="og:title" content="Hoop City Life — gratis, solo Android" />
+  <meta property="og:description" content="Il gioco di basket 2D del campetto. Scarica l'APK gratuita." />
+  <meta name="theme-color" content="#12151c" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #f4f1ea;
+      --muted: #9aa3b2;
+      --bg: #12151c;
+      --card: #1a1f2a;
+      --line: #2a3140;
+      --accent: #f97316;
+      --accent-2: #fb923c;
+      --ok: #4ade80;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 520px; margin: 0 auto; padding: 0 20px; }
+
+    /* hero con mezzo campo disegnato: cerchio di centro + linee */
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: 56px 0 30px;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      left: 50%; top: -190px;
+      width: 380px; height: 380px;
+      transform: translateX(-50%);
+      border: 2px solid rgba(249, 115, 22, .14);
+      border-radius: 50%;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: 50%; top: 0; bottom: 0;
+      width: 2px;
+      background: rgba(249, 115, 22, .14);
+    }
+    .hero > * { position: relative; z-index: 1; }
+    .ball { font-size: 44px; line-height: 1; }
+    h1 { font-size: 34px; font-weight: 900; letter-spacing: -.02em; margin: 10px 0 4px; }
+    h1 em { font-style: normal; color: var(--accent-2); }
+    .tag { color: var(--muted); font-size: 16px; font-weight: 600; }
+    .tag strong { color: var(--ink); }
+
+    .cta { padding: 30px 0 8px; }
+    .btn {
+      display: block;
+      width: 100%;
+      background: linear-gradient(180deg, var(--accent-2), var(--accent));
+      color: #1a1005;
+      font: 800 19px/1.2 'Inter', sans-serif;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 16px;
+      padding: 19px 16px;
+      box-shadow: 0 10px 30px rgba(249, 115, 22, .35);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .btn:active { transform: scale(.98); box-shadow: 0 6px 18px rgba(249, 115, 22, .3); }
+    .btn small { display: block; font-size: 13px; font-weight: 700; opacity: .75; margin-top: 4px; }
+    .meta { margin-top: 12px; text-align: center; color: var(--muted); font-size: 13.5px; }
+    .meta .dot { margin: 0 6px; opacity: .5; }
+    .ok-line { margin-top: 10px; text-align: center; color: var(--ok); font-size: 13.5px; font-weight: 600; }
+
+    section { padding: 26px 0; }
+    h2 { font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--accent-2); margin-bottom: 14px; }
+    .steps { display: grid; gap: 12px; }
+    .step {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .n {
+      flex: 0 0 30px; height: 30px;
+      display: grid; place-items: center;
+      background: rgba(249, 115, 22, .15);
+      color: var(--accent-2);
+      font-weight: 800; font-size: 15px;
+      border-radius: 50%;
+    }
+    .step p { font-size: 15px; color: var(--ink); }
+    .step p strong { font-weight: 700; }
+    .step p span { color: var(--muted); }
+
+    .note {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      font-size: 14.5px;
+      color: var(--muted);
+    }
+    .note strong { color: var(--ink); }
+    .note a { color: var(--accent-2); font-weight: 700; text-decoration: none; }
+    .note a:active { opacity: .7; }
+
+    ul.feats { list-style: none; display: grid; gap: 10px; }
+    ul.feats li {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 15px;
+      display: flex; gap: 10px; align-items: baseline;
+    }
+    ul.feats li::before { content: "🏀"; font-size: 14px; }
+
+    footer {
+      border-top: 1px solid var(--line);
+      margin-top: 8px;
+      padding: 22px 0 34px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+    footer strong { color: var(--ink); }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="wrap">
+      <div class="ball">🏀</div>
+      <h1>Hoop City <em>Life</em></h1>
+      <p class="tag">Il basket del campetto, in 2D. <strong>Gratis, solo Android.</strong></p>
+      <div class="cta">
+        <a class="btn" id="dl"
+           href="https://github.com/steph-x35/new-arena-code/releases/download/v2.41.2/HoopCity-v2.41.2.apk"
+           rel="noopener">
+          Scarica l'APK gratuita
+          <small id="dl-sub">Versione 2.41.2 · 58,8 MB</small>
+        </a>
+        <p class="meta" id="dl-meta">Ultima versione · pubblicata oggi</p>
+        <p class="ok-line">Nessun account. Nessun acquisto dentro l'app.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <section>
+      <h2>Come si installa</h2>
+      <div class="steps">
+        <div class="step"><div class="n">1</div>
+          <p><strong>Tocca “Scarica l'APK”</strong> e aspetta che il download finisca.</p>
+        </div>
+        <div class="step"><div class="n">2</div>
+          <p><strong>Apri il file scaricato.</strong> <span>Se Android chiede il permesso, consenti “installare app da origini sconosciute”. Si fa una volta sola.</span></p>
+        </div>
+        <div class="step"><div class="n">3</div>
+          <p><strong>Installa e gioca.</strong> <span>Hai già una versione precedente? La nuova si installa sopra: non perdi niente.</span></p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Aggiornamenti</h2>
+      <div class="note">
+        <strong>Questa pagina punta sempre all'ultima versione.</strong> Salvala nei preferiti:
+        quando esce un aggiornamento, la trovi già qui.<br /><br />
+        Vuoi gli avvisi delle nuove versioni? <a href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">Segui il canale Telegram</a> — ma non serve per scaricare.
+      </div>
+    </section>
+
+    <section>
+      <h2>Dentro il gioco</h2>
+      <ul class="feats">
+        <li>Schacciate con green release: timing perfetto, canestro pulito.</li>
+        <li>Il campetto di quartiere: la Sfida Metà Campo e record da battere.</li>
+        <li>Partite vere, con compagni e avversari che sanno giocare.</li>
+        <li>Entri e giochi: niente introduzioni forzate.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <strong>Hoop City Life</strong> · gioco gratuito, nessun acquisto in app<br />
+      Serve Android. Su iPhone non è disponibile.
+    </div>
+  </footer>
+
+  <script>
+    // La pagina si aggiorna da sola: legge l'ultima release di Hoop City
+    // dal repository GitHub (le APK vengono pubblicate lì a ogni versione).
+    // Se il fetch non riesce, resta la versione scritta sopra: il bottone
+    // funziona comunque.
+    (function () {
+      fetch('https://api.github.com/repos/steph-x35/new-arena-code/releases?per_page=20')
+        .then(function (r) { return r.json(); })
+        .then(function (rs) {
+          if (!Array.isArray(rs)) return;
+          var rel = null, asset = null;
+          for (var i = 0; i < rs.length; i++) {
+            var r = rs[i];
+            if (!/^v\d/.test(r.tag_name || '')) continue;
+            for (var j = 0; j < (r.assets || []).length; j++) {
+              if ((r.assets[j].name || '').indexOf('HoopCity') === 0) { rel = r; asset = r.assets[j]; break; }
+            }
+            if (rel) break;
+          }
+          if (!rel || !asset) return;
+          var a = document.getElementById('dl');
+          var sub = document.getElementById('dl-sub');
+          var meta = document.getElementById('dl-meta');
+          var v = (rel.tag_name || '').replace(/^v/, '');
+          var mb = Math.round(asset.size / 104857.6) / 10;
+          a.href = asset.browser_download_url;
+          sub.textContent = 'Versione ' + v + ' · ' + mb.toString().replace('.', ',') + ' MB';
+          var d = rel.published_at ? new Date(rel.published_at) : null;
+          var when = d ? 'pubblicata il ' + d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' }) : 'ultima versione';
+          meta.textContent = 'Ultima versione · ' + when;
+        })
+        .catch(function () { /* fallback: resta la versione statica */ });
+    })();
+  </script>
+</body>
+</html>
