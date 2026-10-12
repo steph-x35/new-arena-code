@@ -74,6 +74,9 @@ var ball_spin := 0.0
 var ball_settled := 0.0
 var prev_h := 0.0
 var prev_pos := Vector2.ZERO
+var through_rim := false      # la palla e' gia' passata nel canestro
+var ball_rattled := false     # ha gia' sbattuto sul ferro (rattle)
+var ball_ghost := false       # tiro verde: passa pulito, niente ferro
 
 var net_wobble := 0.0
 var net_t := 0.0
@@ -232,6 +235,8 @@ func _process(delta: float) -> void:
 		if _msg_t <= 0.0:
 			lbl_mid.text = ""
 	# l'avversario scivola verso l'ultima posizione ricevuta
+	if court_art != null:
+		court_art.solo_hang = (dunk_phase == "hang")
 	var tp: Vector2 = foe["t_pos"]
 	foe["pos"] = (foe["pos"] as Vector2).lerp(tp, clampf(14.0 * delta, 0.0, 1.0))
 	var was_flying: bool = bool(foe_ball["live"])
@@ -512,6 +517,7 @@ func _shoot_up() -> void:
 			aim = RIM + Vector2(-away * randf_range(70.0, 120.0), 30.0)
 		else:
 			aim = RIM + Vector2(away * randf_range(50.0, 90.0), -40.0)
+	ball_ghost = (zone == "green")
 	_launch_ball(player_pos, aim)
 	NetLayer.rpc("rpc_duel_shot", {"dunk": false, "made": made, "pts": pts,
 		"zone": zone, "from": player_pos, "aim": aim})
@@ -530,6 +536,8 @@ func _launch_ball(from: Vector2, aim: Vector2) -> void:
 	ball_spin = -signf(dist.x) * 7.0
 	prev_h = ball_h
 	prev_pos = ball_pos
+	through_rim = false
+	ball_rattled = false
 
 
 func _step_ball(delta: float) -> void:
@@ -544,6 +552,7 @@ func _step_ball(delta: float) -> void:
 		ball_pos += ball_vel * h
 		ball_h += ball_vh * h
 		_collide_rim()
+		_collide_backboard()
 		_collide_floor()
 	ball_spin += ball_vel.x * 0.0004
 	if ball_pos.x < -1300.0 or ball_pos.x > 1300.0 \
@@ -554,22 +563,82 @@ func _step_ball(delta: float) -> void:
 
 
 func _collide_rim() -> void:
+	## Stessa fisica del campetto solo: il punto esatto in cui la palla
+	## attraversa l'altezza del ferro decide swish, rattle o ferro e poi.
 	if ball_h <= RIM_HEIGHT and prev_h >= RIM_HEIGHT and ball_vh < 0.0:
-		var d: Vector2 = ball_pos - RIM
+		var span: float = prev_h - ball_h
+		var f: float = 0.0 if span <= 0.0 else (prev_h - RIM_HEIGHT) / span
+		var cx: float = lerpf(prev_pos.x, ball_pos.x, clampf(f, 0.0, 1.0))
+		var cy: float = lerpf(prev_pos.y, ball_pos.y, clampf(f, 0.0, 1.0))
+		var d: Vector2 = Vector2(cx, cy) - RIM
 		var dist: float = d.length()
-		if dist < RIM_HALF - 6.0:
-			# swish: dentro
-			net_wobble = 1.0
+		if dist < RIM_HALF - 6.0 or (ball_rattled and dist < RIM_HALF + 6.0):
+			# RIM-RATTLE (30% dei tiri riusciti): ferro fortissimo, pop sopra
+			# il ferro, poi swish — il momento firma del campetto.
+			if not ball_rattled and not through_rim and not ball_ghost \
+			and randf() < 0.30:
+				ball_rattled = true
+				var rn_s: Vector2 = (ball_pos - RIM).normalized()
+				if rn_s.length() < 0.1:
+					rn_s = Vector2(1, 0)
+				ball_pos = RIM + rn_s * 9.0
+				ball_vh = randf_range(500.0, 640.0)
+				ball_vel = rn_s * randf_range(30.0, 55.0) \
+					+ Vector2(randf_range(-25, 25), randf_range(-25, 25))
+				Sfx.play("rim", -0.5, randf_range(0.95, 1.08))
+				net_wobble = 0.9
+				Events.shake.emit(0.60)
+				if court_art != null:
+					if court_art.has_method("rim_fx"):
+						court_art.rim_fx("rattle", RIM)
+					if court_art.has_method("net_bump"):
+						court_art.net_bump(1, 0.9)
+				return
+			if not through_rim:
+				# DENTRO: la RETINA TRATTIENE la palla — la rallenta, cosi'
+				# si vede passare dentro la rete, col suo swish.
+				through_rim = true
+				net_wobble = 1.0
+				Sfx.play("swish", -2.5)
+				Sfx.haptic(35)
+				if court_art != null:
+					court_art.net_bump(1, 1.0)
+					if court_art.has_method("rim_fx"):
+						court_art.rim_fx("swish", RIM)
+				ball_vh *= 0.55
+				ball_vel *= 0.5
+				return
+		if dist < RIM_HALF + 14.0 and not ball_ghost:
+			var nrm: Vector2 = d.normalized() if dist > 0.01 else Vector2(1, 0)
+			ball_pos = RIM + nrm * (RIM_HALF + 12.0)
+			ball_vel = ball_vel.bounce(nrm) * 0.5
+			net_wobble = maxf(net_wobble, 0.85)
+			Sfx.play("rim", -5.0)
 			if court_art != null:
-				court_art.net_bump(1, 0.7)
-		elif dist < RIM_HALF + BALL_R + 4.0:
-			var rn: Vector2 = d.normalized() if d.length() > 0.1 else Vector2(1, 0)
-			ball_pos = RIM + rn * (RIM_HALF + BALL_R + 2.0)
-			ball_vel = rn * randf_range(60.0, 130.0) \
-				+ Vector2(randf_range(-40, 40), randf_range(-40, 40))
-			ball_vh = randf_range(120.0, 320.0)
-			Sfx.play("rim", -0.5, randf_range(0.95, 1.08))
-			net_wobble = 0.7
+				court_art.net_bump(1, 0.85)
+				if court_art.has_method("rim_fx"):
+					court_art.rim_fx("iron", RIM)
+			ball_spin *= -0.6
+			return
+	# sfiorare la rete senza passare la muove comunque
+	var d2: Vector2 = ball_pos - RIM
+	if ball_h < RIM_HEIGHT and ball_h > RIM_HEIGHT - 130.0 \
+	and d2.length() < RIM_HALF + 26.0:
+		net_wobble = maxf(net_wobble, 0.45)
+		if court_art != null:
+			court_art.net_bump(1, 0.45)
+
+func _collide_backboard() -> void:
+	## Il tabellone: piano verticale appena dietro il ferro.
+	var bx: float = RIM.x + 42.0
+	if ball_h > RIM_HEIGHT - 30.0 and ball_h < RIM_HEIGHT + 90.0:
+		if ball_pos.x > bx and ball_vel.x > 0.0:
+			ball_pos.x = bx
+			ball_vel.x = -absf(ball_vel.x) * 0.55
+			ball_vel.y *= 0.8
+			net_wobble = maxf(net_wobble, 0.35)
+			if court_art != null and court_art.has_method("rim_fx"):
+				court_art.rim_fx("iron", RIM)
 
 
 func _collide_floor() -> void:
@@ -726,11 +795,20 @@ func _draw() -> void:
 	if ball_live:
 		var bs: Vector2 = _screen(ball_pos)
 		_draw_ball_at(Vector2(bs.x, bs.y - ball_h), BALL_R, ball_spin)
+		# la mezza retina DAVANTI alla palla che sta passando: si legge come
+		# "dentro la rete" (lo stesso trucco del campetto solo)
+		if ball_h < RIM_HEIGHT + 30.0 and (ball_pos - RIM).length() < 70.0:
+			HoopArt.draw_net_front(self, _rim_screen(), 22.0,
+				22.0 * HoopArt.RIM_SQUASH, net_wobble, net_t, 0.0, -1.0)
 	# la palla dell'altro (quando e' in volo)
 	if (foe["seen"] or foe["live"]) and bool(foe_ball["live"]):
 		var fbs: Vector2 = _screen(foe_ball["pos"])
 		_draw_ball_at(Vector2(fbs.x, fbs.y - float(foe_ball["h"])), BALL_R,
 			float(foe_ball["spin"]))
+		if float(foe_ball["h"]) < RIM_HEIGHT + 30.0 \
+		and ((foe_ball["pos"] as Vector2) - RIM).length() < 70.0:
+			HoopArt.draw_net_front(self, _rim_screen(), 22.0,
+				22.0 * HoopArt.RIM_SQUASH, net_wobble, net_t, 0.0, -1.0)
 	# nomi sopra la testa: ci si conosce, al campetto
 	_draw_name(player_pos, Loc.t("duel.you"), Color(0.55, 0.85, 1.0))
 	if foe["seen"]:
@@ -753,14 +831,6 @@ func _draw_ball_at(p: Vector2, r: float, spin := 0.0) -> void:
 		Color(0.35, 0.18, 0.07), 2.0)
 	var b: float = a + PI * 0.5
 	draw_arc(p, r * 0.86, b - 1.1, b + 1.1, 10, Color(0.35, 0.18, 0.07), 2.0)
-	# retina davanti alla palla quando passa nel ferro
-	if ball_near_rim(p):
-		HoopArt.draw_net_front(self, _rim_screen(), 22.0,
-			22.0 * HoopArt.RIM_SQUASH, net_wobble, net_t, 0.0, -1.0)
-
-
-func ball_near_rim(p: Vector2) -> bool:
-	return p.distance_to(_rim_screen()) < 60.0
 
 
 ## Disegna un giocatore (il mio o l'altro) con l'Avatar condiviso: stesse
