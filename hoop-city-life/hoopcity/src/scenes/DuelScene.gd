@@ -58,7 +58,7 @@ var foe := {
 	"facing": -1.0, "kind": Avatar.DRIBBLE, "amount": 0.0, "phase": 0.0,
 	"walk": false, "dp": "", "ds": "", "da": 0.0, "ht": 0.0, "ho": false,
 	"dbt": 0.0, "hot": false, "tk": "", "ta": 0.0,
-	"name": "?", "look": {}, "seen": false,
+	"name": "?", "look": {}, "seen": false, "live": false,
 }
 var foe_colours := {}
 var foe_ball := {"live": false, "pos": Vector2.ZERO, "h": 0.0, "spin": 0.0}
