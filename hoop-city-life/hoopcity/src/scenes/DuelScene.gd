@@ -416,14 +416,21 @@ func _dunk_flow(delta: float) -> void:
 		dunk_ball_t += delta
 		if dunk_anim >= 0.5:
 			dunk_phase = ""
-			dust_t = 0.45
-			dust_big = false
+			# TONFO: polvere grande + suono sordo, come nei match.
+			dust_big = true
+			dust_t = 0.70
+			Sfx.play("body", -6.0, randf_range(0.90, 1.0))
 	if dunk_phase == "rise" and dunk_anim >= dunk_rise_t:
+		_dunk_throw()
+		# La rete canta ESATTAMENTE una volta: al momento della schiacciata.
+		Sfx.play("swish", -1.0, randf_range(0.84, 0.90))
 		dunk_phase = "hang"
 		dunk_anim = 0.0
 		hang_swing_t = 0.0
 		dunk_ball_t = 0.0
-		_dunk_throw()
+		# l'aggancio al ferro: il clangore che resta (via il cigolio da v2.41.2)
+		Sfx.play("rim", -6.0, 0.72)
+		Sfx.haptic(45)
 
 
 func _do_trick() -> void:
@@ -849,6 +856,7 @@ func _hang_one() -> bool:
 
 
 func _on_foe_state(d: Dictionary) -> void:
+	var prev_dp: String = String(foe.get("dp", ""))
 	foe["t_pos"] = d.get("p", foe["t_pos"])
 	foe["facing"] = d.get("f", foe["facing"])
 	foe["kind"] = d.get("k", Avatar.DRIBBLE)
@@ -856,6 +864,9 @@ func _on_foe_state(d: Dictionary) -> void:
 	foe["phase"] = d.get("ph", 0.0)
 	foe["walk"] = d.get("w", false)
 	foe["dp"] = d.get("dp", "")
+	if String(foe["dp"]) == "hang" and prev_dp != "hang":
+		# si e' appeso al ferro: il clangore dell'aggancio, anche per lui
+		Sfx.play("rim", -6.0, 0.72)
 	foe["ds"] = d.get("ds", "")
 	foe["da"] = d.get("da", 0.0)
 	foe["ht"] = d.get("ht", 0.0)
@@ -877,6 +888,7 @@ func _on_foe_shot(d: Dictionary) -> void:
 		net_wobble = 1.0
 		if court_art != null:
 			court_art.net_bump(1, 1.0)
+		Sfx.play("swish", -1.0, randf_range(0.84, 0.90))
 		Events.popup.emit("GREEN!", fpos + Vector2(0, -95), Color(0.3, 1.0, 0.45), true)
 		return
 	var zone: String = String(d.get("zone", ""))
