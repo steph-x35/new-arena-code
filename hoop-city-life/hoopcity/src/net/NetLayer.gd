@@ -52,14 +52,13 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	match state:
-		State.HOSTING:
-			_t += delta
-			if _t >= BEACON_EVERY:
-				_t = 0.0
-				_send_beacon()
-		State.SEARCHING:
-			_poll_rooms()
+	if state == State.HOSTING:
+		_t += delta
+		if _t >= BEACON_EVERY:
+			_t = 0.0
+			_send_beacon()
+	elif state == State.SEARCHING:
+		_poll_rooms()
 	if _linked():
 		_ping_t += delta
 		if _ping_t >= PING_EVERY:
@@ -73,7 +72,7 @@ func _linked() -> bool:
 
 
 # ------------------------------------------------------------------ RPC
-@rpc("any_peer", "reliable")
+@rpc("any_peer", "call_remote", "reliable")
 func rpc_hello(nick: String, ver: String) -> void:
 	## Il client si presenta appena il canale è su.
 	if role == "host":
@@ -85,7 +84,7 @@ func rpc_hello(nick: String, ver: String) -> void:
 		client_connected.emit({"name": peer_name, "ver": peer_ver})
 
 
-@rpc("any_peer", "reliable")
+@rpc("any_peer", "call_remote", "reliable")
 func rpc_welcome(nick: String, ver: String) -> void:
 	## Il ricevere il benvenuto CHIUDE il collegamento del client: adesso
 	## il nome dell'host c'è, e si è davvero dentro.
@@ -96,12 +95,12 @@ func rpc_welcome(nick: String, ver: String) -> void:
 		connected_to_host.emit({"name": peer_name, "ver": peer_ver})
 
 
-@rpc("any_peer", "unreliable")
+@rpc("any_peer", "call_remote", "unreliable")
 func rpc_ping(seq: int, t0: int) -> void:
 	rpc_id(multiplayer.get_remote_sender_id(), "rpc_pong", seq, t0)
 
 
-@rpc("any_peer", "unreliable")
+@rpc("any_peer", "call_remote", "unreliable")
 func rpc_pong(seq: int, t0: int) -> void:
 	if seq == _ping_seq:
 		ping_ms.emit(int(Time.get_ticks_msec()) - t0)

@@ -54,6 +54,16 @@ jobs:
               echo "OK: $SC"
             fi
           done
+          if [ "$ERR" != "0" ]; then
+            echo "!!! SMOKE FALLITO: commito i log per la diagnosi"
+            { cat /tmp/import.log; echo "--- PROBE ---"; cat /tmp/all_smoke.log; } > $GITHUB_WORKSPACE/hc_smoke_errors.log || true
+            cd $GITHUB_WORKSPACE
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add hc_smoke_errors.log
+            git commit -m "ci: log errori smoke Hoop City" || true
+            git push origin arena/01a0cac8-new-arena-code || true
+          fi
           exit $ERR
 
   build:
