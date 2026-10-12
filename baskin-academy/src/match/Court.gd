@@ -533,15 +533,12 @@ func give_ball(p: BallPlayer) -> void:
 	if p.role == 1:
 		p.pivot_clock = 10.0
 		# Rev.19: il ruolo 1 COMUNICA PRIMA la scelta — 1 tiro da 3 punti
-		# oppure 2 tiri da 2 punti. L'utente sceglie da panel (il gioco si
-		# ferma un attimo), l'IA decide da sola.
-		if p.pivot_decl == "" and not one_on_one:
-			if p.is_user:
-				_decl_hold = play_live
-				play_live = false
-				pivot_declare.emit(p)
-			else:
-				p.pivot_decl = "two" if randf() < 0.6 else "one"
+		# oppure 2 tiri da 2 punti. L'IA decide da sola; per l'utente ci
+		# pensa _pivot_decl_watch() quando il gioco e' VIVO (v1.21.2: alla
+		# palla a due si riceve a gioco fermo e il pannello si trovava
+		# sopra una partita gia' ripartita).
+		if p.pivot_decl == "" and not one_on_one and not p.is_user:
+			p.pivot_decl = "two" if randf() < 0.6 else "one"
 	elif p.role == 2:
 		p.pivot_clock = 7.0 if p.variant == "2R" else 10.0
 	else:
@@ -752,6 +749,7 @@ func _process_voices(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	_process_voices(delta)
+	_pivot_decl_watch()
 	if intermission and not finished:
 		# teams jog to their bench-side huddles while the cheerleaders dance
 		for pi in players.size():
@@ -778,7 +776,12 @@ func _physics_process(delta: float) -> void:
 	# senza countdown (sim headless, tool) cosi' il gioco non resta mai a metà.
 	if jump_pending and not _jump_run:
 		_jump_watch += delta
-		if (play_live and _jump_watch > 0.2) or _jump_watch > 6.0:
+		# I 6 secondi di grazia coprono i contesti SENZA countdown (sim
+		# headless, tool). Quando e' l'interfaccia a tenere il gioco in
+		# pausa (countdown_hold enorme: i consigli della prima partita)
+		# il salto non parte da solo: la partita non puo' cominciare
+		# sotto il pannello delle istruzioni.
+		if (play_live and _jump_watch > 0.2) or (_jump_watch > 6.0 and countdown_hold < 90.0):
 			_run_jump_ball()
 	_deadball_watchdog(delta)
 	# THE GHOST-HOLDER NET. If the ball is still attached to somebody who does
@@ -3836,3 +3839,19 @@ func pivot_declared(choice: String) -> void:
 	if _decl_hold:
 		play_live = true
 		_decl_hold = false
+
+func _pivot_decl_watch() -> void:
+	## Rev.19 (v1.21.2): la domanda al pivot utente parte quando il gioco e'
+	## VIVO e ha lui la palla — in qualsiasi modo l'abbia presa (tip della
+	## palla a due, rimessa, passaggio, consegna). Chiederla dentro give_ball
+	## rompeva alla palla a due: la ricezione precede il GO, cosi' il pannello
+	## restava sopra una partita gia' ripartita senza poterla fermare.
+	if _decl_hold or one_on_one or ft_active or finished or not play_live:
+		return
+	if ball == null or not (ball.holder is BallPlayer):
+		return
+	var h: BallPlayer = ball.holder
+	if h.role == 1 and h.is_user and h.has_ball and h.pivot_decl == "":
+		_decl_hold = true
+		play_live = false
+		pivot_declare.emit(h)

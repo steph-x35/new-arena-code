@@ -1,3 +1,30 @@
+# Baskin Academy — v1.21.2: la partita non parte piu' sotto i consigli
+
+Data: 12 ottobre 2026 • Motore: Godot 4.3 stable
+
+Bug segnalato: durante l'interfaccia delle istruzioni, cliccando per
+continuare il pannello non se ne andava mentre la partita sotto partiva e
+proseguiva. Due cause concomitanti, entrambe corrette:
+
+1. WATCHDOG DELLA PALLA A DUE — il salto iniziale ha una rete di sicurezza
+   che lo esegue da solo dopo 6 secondi (pensata per le simulazioni senza
+   countdown). I consigli della prima partita mettono il gioco in pausa
+   "infinita" (countdown enorme): la rete scattava lo stesso e la partita
+   cominciava sotto il pannello. Ora una pausa voluta dall'interfaccia non
+   viene piu' scavalcata.
+
+2. SCELTA DEL PIVOT NEL MOMENTO GIUSTO — il pannello "1 tiro da 3 o 2 da 2"
+   veniva chiesto dentro la ricezione della palla. Ma alla palla a due la
+   ricezione arriva un istante PRIMA che il gioco diventi vivo: il pannello
+   compariva senza presa sul gioco, che ripartiva sotto. Ora la domanda
+   parte da un controllo a gioco VIVO (in qualsiasi modo il pivot abbia
+   preso la palla: tip, rimessa, passaggio, consegna) — quando il pannello
+   c'e', la partita e' davvero ferma; quando si sceglie, riparte davvero.
+
+v1.21.2 / versionCode 31.
+
+---
+
 # Baskin Academy — v1.21.1: i cambi automatici e il limite dei 3, insieme
 
 Data: 12 ottobre 2026 • Motore: Godot 4.3 stable
