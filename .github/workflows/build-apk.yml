@@ -222,7 +222,15 @@ jobs:
             sleep 10
           done
           if [ "$ok" != "1" ]; then
-            echo "!!! IMPOSSIBILE CREARE LA RELEASE"
-            exit 1
+            # RACE API: la create puo' riuscire lato server e tornare comunque
+            # errore; i tentativi dopo falliscono perche' la release esiste gia'.
+            # Se la release c'e' (con l'APK), e' andata bene.
+            if gh release view v2.42.1 > /dev/null 2>&1 \
+            && gh release view v2.42.1 --json assets -q '.assets | length' | grep -q -v "^0$"; then
+              echo "Release creata (il primo tentativo era riuscito lato server)."
+            else
+              echo "!!! IMPOSSIBILE CREARE LA RELEASE"
+              exit 1
+            fi
           fi
           echo "Release created successfully."
