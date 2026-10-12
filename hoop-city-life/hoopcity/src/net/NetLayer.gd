@@ -117,10 +117,10 @@ func host() -> bool:
 		return false
 	multiplayer.multiplayer_peer = peer
 	_beacon = PacketPeerUDP.new()
-	if _beacon.set_broadcast_enabled(true) != OK:
-		# senza broadcast la stanza si raggiunge solo a mano: meglio che niente
-		_beacon.close()
-		_beacon = null
+	# NB: set_broadcast_enabled() restituisce void — niente da controllare.
+	# Se la rete di turno rifiuta il broadcast, il beacon semplicemente non
+	# passa: la stanza resta raggiungibile per indirizzo (campo manuale).
+	_beacon.set_broadcast_enabled(true)
 	role = "host"
 	state = State.HOSTING
 	_t = 0.0
