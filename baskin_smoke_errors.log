@@ -1,0 +1,160 @@
+=== SMOKE: tools/SceneSmoke.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+MatchScene instantiated, children: 7
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:106)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:106)
+t= 0.2 live=false await=true poss=0 shotc=24.0 holder=none
+t= 0.5 live=false await=true poss=0 shotc=24.0 holder=none
+t= 0.8 live=false await=true poss=0 shotc=24.0 holder=none
+t= 1.0 live=false await=true poss=0 shotc=24.0 holder=none
+t= 1.3 live=false await=true poss=0 shotc=24.0 holder=none
+t= 1.5 live=false await=true poss=0 shotc=24.0 holder=none
+t= 1.8 live=false await=true poss=0 shotc=24.0 holder=none
+t= 2.0 live=false await=true poss=0 shotc=24.0 holder=none
+t= 2.2 live=false await=true poss=0 shotc=24.0 holder=none
+t= 2.5 live=false await=true poss=0 shotc=24.0 holder=none
+t= 2.8 live=false await=true poss=0 shotc=24.0 holder=none
+t= 3.0 live=false await=true poss=0 shotc=24.0 holder=none
+t= 3.3 live=false await=true poss=0 shotc=24.0 holder=none
+t= 3.5 live=false await=true poss=0 shotc=24.0 holder=none
+t= 3.8 live=false await=true poss=0 shotc=24.0 holder=none
+t= 4.0 live=false await=true poss=0 shotc=24.0 holder=none
+[toast] GO!
+[toast] Cleared - go!
+t= 4.3 live=true await=false poss=0 shotc=23.7 holder=0
+t= 4.5 live=true await=false poss=0 shotc=23.3 holder=0
+t= 4.8 live=true await=false poss=0 shotc=23.0 holder=0
+t= 5.0 live=true await=false poss=0 shotc=22.7 holder=0
+t= 5.3 live=true await=false poss=0 shotc=22.3 holder=0
+[toast] Shook!
+t= 5.5 live=true await=false poss=0 shotc=22.0 holder=0
+t= 5.8 live=true await=false poss=0 shotc=21.7 holder=0
+t= 6.0 live=true await=false poss=0 shotc=21.3 holder=0
+[toast] Shook!
+t= 6.3 live=true await=false poss=0 shotc=21.0 holder=0
+t= 6.5 live=true await=false poss=0 shotc=20.7 holder=0
+[toast] Shook!
+t= 6.8 live=true await=false poss=0 shotc=20.3 holder=0
+t= 7.0 live=true await=false poss=0 shotc=20.0 holder=0
+t= 7.3 live=true await=false poss=0 shotc=19.7 holder=0
+t= 7.5 live=true await=false poss=0 shotc=19.3 holder=0
+t= 7.8 live=true await=false poss=0 shotc=19.0 holder=0
+t= 8.0 live=true await=false poss=0 shotc=18.7 holder=0
+[toast] Shook!
+t= 8.3 live=true await=false poss=0 shotc=18.3 holder=0
+t= 8.5 live=true await=false poss=0 shotc=18.0 holder=0
+t= 8.8 live=true await=false poss=0 shotc=17.7 holder=0
+t= 9.0 live=true await=false poss=0 shotc=17.3 holder=0
+t= 9.3 live=true await=false poss=0 shotc=17.0 holder=0
+[toast] Shook!
+t= 9.5 live=true await=false poss=0 shotc=16.7 holder=0
+t= 9.8 live=true await=false poss=0 shotc=16.4 holder=0
+t=10.0 live=true await=false poss=0 shotc=16.1 holder=0
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2284)
+ERROR: 3 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:604)
+OK: tools/SceneSmoke.tscn
+=== SMOKE: tools/MatchTest.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+ROLES t0 [[2, "2T"], [3, ""], [4, ""], [5, ""], [5, ""]] t1 [[2, "2R"], [3, ""], [4, ""], [5, ""], [5, ""]]
+MODE full  teams 10  fixture false
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:106)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:106)
+t= 1.0 live=false poss=0 clock=120.0 score=[0, 0]
+t= 2.0 live=false poss=0 clock=120.0 score=[0, 0]
+[toast] GO!
+t= 3.0 live=false poss=0 clock=120.0 score=[0, 0]
+[toast] JUMP BALL  ·  RAV
+[toast] Consegna dentro, 2 palleggi, esci: dal SETTORE LATERALE vale 3!
+t= 4.0 live=true poss=0 clock=119.5 score=[0, 0]
+t= 5.0 live=true poss=0 clock=118.5 score=[0, 0]
+t= 6.0 live=true poss=0 clock=117.5 score=[0, 0]
+[toast] Loose ball!
+[toast] Prima volta? REGOLE (in alto a sinistra) spiega tutto.
+t= 7.0 live=true poss=0 clock=116.5 score=[0, 0]
+t= 8.0 live=true poss=0 clock=115.5 score=[0, 0]
+t= 9.0 live=true poss=0 clock=114.5 score=[0, 0]
+t=10.0 live=true poss=0 clock=113.5 score=[0, 0]
+[toast] Loose ball!
+t=11.0 live=true poss=0 clock=112.5 score=[3, 0]
+[toast] Inbound
+t=12.0 live=false poss=1 clock=112.2 score=[3, 0]
+[toast] Shook!
+t=13.0 live=true poss=1 clock=111.4 score=[3, 0]
+t=14.0 live=true poss=1 clock=110.4 score=[3, 0]
+t=15.0 live=true poss=1 clock=109.4 score=[3, 0]
+t=16.0 live=true poss=1 clock=108.4 score=[3, 0]
+t=17.0 live=true poss=1 clock=107.4 score=[3, 0]
+t=18.0 live=true poss=1 clock=106.4 score=[3, 0]
+t=19.0 live=true poss=1 clock=105.4 score=[3, 0]
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2284)
+ERROR: 10 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:604)
+OK: tools/MatchTest.tscn
+=== SMOKE: src/scenes/MainMenu.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2284)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:604)
+OK: src/scenes/MainMenu.tscn
+=== SMOKE: src/scenes/RolePicker.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+OK: src/scenes/RolePicker.tscn
+=== SMOKE: src/scenes/KitPicker.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+SCRIPT ERROR: Invalid call. Nonexistent function 'club_rotation' in base 'Node (GameData.gd)'.
+          at: _opponents (res://src/scenes/KitPicker.gd:47)
+SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array')
+          at: _ready (res://src/scenes/KitPicker.gd:26)
+!!! SCRIPT ERRORS in src/scenes/KitPicker.tscn:
+SCRIPT ERROR: Invalid call. Nonexistent function 'club_rotation' in base 'Node (GameData.gd)'.
+SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array')
+=== SMOKE: src/scenes/SettingsScene.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+OK: src/scenes/SettingsScene.tscn
+=== SMOKE: src/scenes/RulesScene.tscn ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+WARNING: The draw_rect() "width" argument has no effect when "filled" is "true".
+     at: draw_rect (scene/main/canvas_item.cpp:709)
+WARNING: The draw_rect() "width" argument has no effect when "filled" is "true".
+     at: draw_rect (scene/main/canvas_item.cpp:709)
+OK: src/scenes/RulesScene.tscn
+=== MARATONA: partita completa ===
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:106)
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:106)
+SCRIPT ERROR: Invalid call. Nonexistent function 'advance_rotation' in base 'Node (GameData.gd)'.
+          at: Court._finish (res://src/match/Court.gd:1059)
+MARATHON t=158.700000000002 quarter=5 finished=true score=[22, 13] attempts=16 makes=13
+  ok: quattro tempi raggiunti (o partita finita)
+  ok: il gioco e' rimasto vivo
+  ok: momenti morti mai dominanti (niente blocco)
+  ok: punti segnati
+  ok: tiri tentati
+  FAIL: girone avanzato alla sirena (prossimo avversario valido)
+  FAIL: casa/trasferta alternata
+MARATHON OK=false
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2284)
+ERROR: 4 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:604)
+!!! SCRIPT ERRORS nella maratona
+!!! MARATONA FALLITA (assert)
+!!! MARATONA muta: manca MARATHON OK=true (probe morto senza stampare)
