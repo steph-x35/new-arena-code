@@ -68,7 +68,7 @@ func _ready() -> void:
 	check("momenti morti mai dominanti (niente blocco)", dead_frames < live_frames * 3)
 	check("punti segnati", int(c.score[0]) + int(c.score[1]) > 0)
 	check("tiri tentati", int(c.total_attempts) > 10)
-	print("MARATHON OK=", fails == 0)
+	print("MARATHON OK=" + str(fails == 0))
 	get_tree().quit()
 
 func _answer_quiz_if_open() -> void:

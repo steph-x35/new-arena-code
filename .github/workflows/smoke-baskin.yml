@@ -62,6 +62,13 @@ jobs:
             echo "!!! MARATONA FALLITA (assert)" | tee -a /tmp/smoke_all.log
             ERR=1
           fi
+          # Il positivo, non solo l'assenza di false: se il probe muore in
+          # silenzio (hang, crash secco) senza stampare nulla, la run deve
+          # diventare ROSSA, non passare per difetto.
+          if ! grep -q "MARATHON OK=true" /tmp/marathon.log; then
+            echo "!!! MARATONA muta: manca MARATHON OK=true (probe morto senza stampare)" | tee -a /tmp/smoke_all.log
+            ERR=1
+          fi
           if [ "$ERR" = "1" ]; then
             cp /tmp/smoke_all.log $GITHUB_WORKSPACE/baskin_smoke_errors.log
             cd $GITHUB_WORKSPACE
