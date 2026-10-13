@@ -206,23 +206,30 @@
   </footer>
 
   <script>
-    // La pagina si aggiorna da sola: legge l'ultima release di Hoop City
-    // dal repository GitHub (le APK vengono pubblicate lì a ogni versione).
+    // La pagina si aggiorna da sola: legge le release di Hoop City dal
+    // repository GitHub e sceglie quella con il NUMERO DI VERSIONE PIU'
+    // ALTO. L'ordine dell'API non e' affidabile (release ricreate su tag
+    // esistenti riportano date vecchie e affondano in fondo alla lista),
+    // quindi non si prende la prima: si confrontano i numeri.
     // Se il fetch non riesce, resta la versione scritta sopra: il bottone
     // funziona comunque.
     (function () {
-      fetch('https://api.github.com/repos/steph-x35/new-arena-code/releases?per_page=20')
+      fetch('https://api.github.com/repos/steph-x35/new-arena-code/releases?per_page=100')
         .then(function (r) { return r.json(); })
         .then(function (rs) {
           if (!Array.isArray(rs)) return;
-          var rel = null, asset = null;
+          var rel = null, asset = null, bestKey = -1;
           for (var i = 0; i < rs.length; i++) {
             var r = rs[i];
-            if (!/^v\d/.test(r.tag_name || '')) continue;
+            var m = /^v(\d+)\.(\d+)\.(\d+)$/.exec(r.tag_name || '');
+            if (!m) continue;
+            var key = parseInt(m[1], 10) * 1000000 + parseInt(m[2], 10) * 1000 + parseInt(m[3], 10);
             for (var j = 0; j < (r.assets || []).length; j++) {
-              if ((r.assets[j].name || '').indexOf('HoopCity') === 0) { rel = r; asset = r.assets[j]; break; }
+              if ((r.assets[j].name || '').indexOf('HoopCity') === 0) {
+                if (key > bestKey) { bestKey = key; rel = r; asset = r.assets[j]; }
+                break;
+              }
             }
-            if (rel) break;
           }
           if (!rel || !asset) return;
           var a = document.getElementById('dl');
