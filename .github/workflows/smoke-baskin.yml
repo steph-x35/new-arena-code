@@ -48,6 +48,20 @@ jobs:
               echo "OK: $SC" | tee -a /tmp/smoke_all.log
             fi
           done
+          # LA MARATONA: una partita 5v5 COMPLETA (4 tempi, quiz, palle a
+          # due) accelerata 3x headless. I test corti fermano tutto al
+          # primo minuto: questa vede cosa succede dopo.
+          echo "=== MARATONA: partita completa ===" | tee -a /tmp/smoke_all.log
+          timeout 300 godot --headless "res://tools/MarathonProbe.tscn" > /tmp/marathon.log 2>&1 || true
+          cat /tmp/marathon.log | tee -a /tmp/smoke_all.log
+          if grep -E "SCRIPT ERROR|Parse Error" /tmp/marathon.log; then
+            echo "!!! SCRIPT ERRORS nella maratona" | tee -a /tmp/smoke_all.log
+            ERR=1
+          fi
+          if grep -q "MARATHON OK=false" /tmp/marathon.log; then
+            echo "!!! MARATONA FALLITA (assert)" | tee -a /tmp/smoke_all.log
+            ERR=1
+          fi
           if [ "$ERR" = "1" ]; then
             cp /tmp/smoke_all.log $GITHUB_WORKSPACE/baskin_smoke_errors.log
             cd $GITHUB_WORKSPACE

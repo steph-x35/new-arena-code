@@ -1,3 +1,23 @@
+# Baskin Academy — v1.21.3: il pack robustezza
+
+Data: 13 ottobre 2026 • Motore: Godot 4.3 stable
+
+- VIBRAZIONI RIPRISTINATE: il permesso VIBRATE non era dichiarato
+  nell'export Android — sul telefono i fischi e i feedback tattili erano
+  muti dal primo giorno. Ora ci sono.
+- TASTO INDIETRO DI ANDROID: durante la partita non chiude piu' l'app di
+  colpo, perdendo tutto: apre la conferma del bottone ESCI. Nei menu
+  (impostazioni, regole, scelta ruolo e maglia) il tasto indietro torna
+  indietro, come il bottone sullo schermo.
+- LA MARATONA IN CI: a ogni push la CI simula una partita 5v5 COMPLETA
+  — quattro tempi, quiz dell'allenatore, palle a due, rimesse —
+  accelerata e senza interfaccia. I test corti fermavano tutto al primo
+  minuto: i blocchi a meta' partita restavano invisibili.
+
+v1.21.3 / versionCode 32.
+
+---
+
 # Baskin Academy — v1.21.2: la partita non parte piu' sotto i consigli
 
 Data: 12 ottobre 2026 • Motore: Godot 4.3 stable

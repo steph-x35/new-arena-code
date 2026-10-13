@@ -1512,6 +1512,14 @@ func _on_finished(res: Dictionary) -> void:
 	panel.result = res
 	hud.add_child(panel)
 
+func _unhandled_input(e: InputEvent) -> void:
+	## Il tasto INDIETRO di Android non ammazza la partita: apre la stessa
+	## conferma del bottone ESCI. Un pannello aperto (regole, quiz) se lo
+	## prende prima lui e si chiude da solo.
+	if e.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		_confirm_exit()
+
 func _confirm_exit() -> void:
 	## Walking out mid-game abandons it, so ask first rather than dumping the
 	## player back to the menu on a mis-tap.

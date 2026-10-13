@@ -190,3 +190,10 @@ func _refresh() -> void:
 			float(Settings.get_v("joystick_sensitivity", 1.0)),
 			float(Settings.get_v("sfx", 1.0)) * 100.0,
 			float(Settings.get_v("music", 0.7)) * 100.0]
+
+func _unhandled_input(e: InputEvent) -> void:
+	## Il tasto INDIETRO di Android fa la stessa cosa del bottone sullo
+	## schermo: niente app chiusa di colpo per sbaglio.
+	if e.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		SceneRouter.goto(SceneRouter.MENU)

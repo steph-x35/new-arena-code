@@ -134,3 +134,10 @@ func _start() -> void:
 	Game.profile["baskin_role"] = selected
 	Game.profile["next_match_mode"] = "full"
 	SceneRouter.goto("res://src/match/MatchScene.tscn")
+
+func _unhandled_input(e: InputEvent) -> void:
+	## Il tasto INDIETRO di Android fa la stessa cosa del bottone sullo
+	## schermo: niente app chiusa di colpo per sbaglio.
+	if e.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		SceneRouter.goto("res://src/scenes/KitPicker.tscn")

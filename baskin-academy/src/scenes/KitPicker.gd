@@ -153,3 +153,10 @@ func _start() -> void:
 	if not bool(Game.profile.get("baskin_onboarded", false)):
 		Game.profile["baskin_onboarding"] = true
 	SceneRouter.goto("res://src/scenes/RolePicker.tscn")
+
+func _unhandled_input(e: InputEvent) -> void:
+	## Il tasto INDIETRO di Android fa la stessa cosa del bottone sullo
+	## schermo: niente app chiusa di colpo per sbaglio.
+	if e.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		SceneRouter.goto(SceneRouter.MENU)

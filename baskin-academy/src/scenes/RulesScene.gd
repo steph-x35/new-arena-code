@@ -180,3 +180,10 @@ func _draw_motif(m: Control) -> void:
 	var sz := m.size
 	m.draw_arc(Vector2(sz.x * 0.5, sz.y * 1.55), 560, 0, TAU, 64,
 		Color(0.949, 0.420, 0.114, 0.07), 3.0)
+
+func _unhandled_input(e: InputEvent) -> void:
+	## Il tasto INDIETRO di Android fa la stessa cosa del bottone sullo
+	## schermo: niente app chiusa di colpo per sbaglio.
+	if e.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		SceneRouter.goto(SceneRouter.MENU)
