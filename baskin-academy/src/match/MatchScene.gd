@@ -52,6 +52,8 @@ var _rule_t := 0.0
 var _viol_counts := {}                     # fischi del tempo corrente (riepilogo)
 var onboard_banner: Label                  # obiettivi della prima partita
 var _tip_step := -1                        # -1 = niente; 0..4 = consigli onboarding
+var _tip_auto := 0.0                       # rete di sicurezza: senza tocchi la card avanza da sola
+var _tip_tap_ms := -9999                   # debounce: un tocco vero avanza una card sola
 var _tip_panel: Control
 var role_panel: Control
 var _role_pending := true
@@ -142,6 +144,12 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	var u := court.user
 	if u == null or stamina_bar == null: return
+	# Lo stick reclama tocchi SOLO a gioco vivo: durante i consigli del
+	# benvenuto, i quiz, la scelta del pivot e ogni pausa il pollice sinistro
+	# non deve "possedere" il mouse emulato (su Android lo genera solo il
+	# tocco 0), o ogni altro tocco a schermo muore invisibile.
+	if joystick != null:
+		joystick.enabled = court.play_live
 	if _role_pending:
 		return
 	_update_rule_card(delta)
@@ -154,8 +162,12 @@ func _process(delta: float) -> void:
 			_intro_done()
 		return
 	# ---- ONBOARDING: i consigli del primo avvio aspettano il tocco; il
-	#      3-2-1 parte solo quando sono finiti.
+	#      3-2-1 parte solo quando sono finiti. Rete di sicurezza: senza
+	#      tocchi la card avanza da sola — il gioco non resta mai bloccato.
 	if _tip_step >= 0:
+		_tip_auto -= delta
+		if _tip_auto <= 0.0:
+			_tip_next()
 		return
 	# ---- between-quarters: cheerleaders dance on the court for 10 seconds,
 	#      then the 3-2-1 countdown brings the next quarter in.
@@ -1092,6 +1104,22 @@ var _spin_tap_ms := -100000
 var _last_touch_ms := -100000
 
 func _input(e: InputEvent) -> void:
+	# LA CARD BENVENUTO ha la precedenza su tutto: mentre e' aperta, ogni
+	# pressione ovunque la avanza (niente gui_input ne' mouse emulato: su
+	# Android solo il tocco 0 emula il mouse, e il pollice poggiato sullo
+	# stick faceva morire invisibile l'altro dito). Il doppio tap SPIN non
+	# deve scattare sotto la card.
+	if _tip_step >= 0:
+		var tip_press: bool = (e is InputEventScreenTouch and e.pressed) \
+			or (e is InputEventMouseButton and e.pressed \
+				and e.button_index == MOUSE_BUTTON_LEFT)
+		if tip_press:
+			var tnow := int(Time.get_ticks_msec())
+			if tnow - _tip_tap_ms >= 250:
+				_tip_tap_ms = tnow
+				get_viewport().set_input_as_handled()
+				_tip_next()
+		return
 	# _input (non _unhandled_input): i tocchi vengono osservati PRIMA della
 	# GUI, cosi' il doppio tap funziona anche sopra SHOOT/TRICK e non puo'
 	# piu' essere mangiato da nessun Control. Non consumiamo l'evento.
@@ -1898,6 +1926,7 @@ func _show_tip() -> void:
 	var hint: Label = _tip_panel.get_meta("hint")
 	txt.text = Loc.t("onboard.t%d" % _tip_step)
 	hint.text = Loc.t("onboard.tap")
+	_tip_auto = 9.0
 
 func _tip_next() -> void:
 	_tip_step += 1
@@ -1910,6 +1939,13 @@ func _tip_next() -> void:
 		tip_left = 3.0
 		court.countdown_hold = tip_left + 0.5
 		Sfx.play("go", -6.0)
+		# I consigli, una volta letti, non tornano piu': nemmeno uscendo
+		# dalla partita prima di finire gli obiettivi in campo (prima il
+		# flag si metteva solo completando il terzo obiettivo, e chi
+		# usciva prima si rivedeva tutte e cinque le card ogni partita).
+		if not bool(Game.profile.get("baskin_onboarded", false)):
+			Game.profile["baskin_onboarded"] = true
+			SaveSystem.save_game()
 		return
 	_show_tip()
 

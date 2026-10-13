@@ -69,6 +69,24 @@ jobs:
             echo "!!! MARATONA muta: manca MARATHON OK=true (probe morto senza stampare)" | tee -a /tmp/smoke_all.log
             ERR=1
           fi
+          # IL TOCCO: la card BENVENUTO della prima partita deve avanzare al
+          # tocco in tutti gli scenari — anche col pollice sinistro tenuto
+          # sull'area dello stick (su Android solo il tocco 0 emula il mouse).
+          echo "=== TAP: la card benvenuto risponde al tocco ===" | tee -a /tmp/smoke_all.log
+          timeout 120 godot --headless "res://tools/TipTapProbe.tscn" > /tmp/taptap.log 2>&1 || true
+          cat /tmp/taptap.log | tee -a /tmp/smoke_all.log
+          if grep -E "SCRIPT ERROR|Parse Error" /tmp/taptap.log; then
+            echo "!!! SCRIPT ERRORS nel probe tocchi" | tee -a /tmp/smoke_all.log
+            ERR=1
+          fi
+          if grep -q "TAPTAP OK=false" /tmp/taptap.log; then
+            echo "!!! PROBE TOCCHI FALLITO (assert)" | tee -a /tmp/smoke_all.log
+            ERR=1
+          fi
+          if ! grep -q "TAPTAP OK=true" /tmp/taptap.log; then
+            echo "!!! PROBE TOCCHI muto: manca TAPTAP OK=true" | tee -a /tmp/smoke_all.log
+            ERR=1
+          fi
           if [ "$ERR" = "1" ]; then
             cp /tmp/smoke_all.log $GITHUB_WORKSPACE/baskin_smoke_errors.log
             cd $GITHUB_WORKSPACE

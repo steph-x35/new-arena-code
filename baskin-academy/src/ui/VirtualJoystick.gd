@@ -19,6 +19,18 @@ var origin := Vector2.ZERO
 var knob := Vector2.ZERO
 var output := Vector2.ZERO
 
+## Reclama tocchi solo a gioco VIVO. Su Android il mouse emulato nasce dal
+## tocco 0 e da nessun altro: con il pollice poggiato sull'area dello stick
+## durante una card, un quiz o una pausa, quel tocco "possedeva" il mouse e
+## ogni altro dito sullo schermo non generava NESSUN evento — la card
+## BENVENUTO restava ferma e la partita non partiva piu'. La scena partita
+## abbassa questa bandiera quando il gioco non e' vivo.
+var enabled := true:
+	set(v):
+		enabled = v
+		if not v and touch_index != -1:
+			_end()   # niente move_input rimasto attaccato all'ultimo vettore
+
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_process_input(true)
@@ -28,6 +40,8 @@ func _hit(p: Vector2) -> bool:
 
 func _input(event: InputEvent) -> void:
 	if not is_visible_in_tree():
+		return
+	if not enabled:
 		return
 	if event is InputEventScreenTouch:
 		if event.pressed:

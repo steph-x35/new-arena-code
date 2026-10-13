@@ -1,3 +1,44 @@
+# Baskin Academy — v1.22.1: la schermata benvenuto non blocca piu' il gioco
+
+Data: 13 ottobre 2026 • Motore: Godot 4.3 stable
+
+Bug segnalato dall'utente sul telefono: la schermata BENVENUTO della prima
+partita resta sopra e non cambia al tocco — e la partita non parte.
+
+CAUSA RADICE. La card avanzava solo sul RILASCIO del mouse emulato
+(gui_input). Su Android il mouse emulato nasce SOLO dal tocco 0: bastava
+avere il pollice sinistro poggiato sull'area dello stick (proprio mentre
+la card stessa parla dello stick) perché quell'altro dito non generasse
+NESSUN evento mouse. La card restava ferma per sempre e, dalla v1.21.2 in
+poi (che giustamente non fa partire il gioco sotto i consigli), la
+partita restava in attesa infinita. Non a caso tutto il resto del gioco
+(bottoni del pad, stick) usa _input multi-touch safe: la card era l'unica
+eccezione rimasta su gui_input.
+
+1. LA CARD AVANZA CON QUALSIASI PRESSIONE, OVUNQUE — via _input, come
+   tutto il resto: niente dipendenza dal mouse emulato, niente zona
+   morta, debounce 250 ms perché un tocco avanzi una card sola.
+2. LO STICK NON RECLAMA TOCCHI A GIOCO FERMO — durante la card, i quiz,
+   la scelta del pivot e ogni pausa il pollice sinistro non "possiede"
+   più il mouse emulato: ogni altro tocco a schermo vive.
+3. RETE DI SICUREZZA — senza alcun tocco, la card avanza da sola dopo 9
+   secondi: il gioco non puo' piu' restare bloccato su questa schermata,
+   per nessuna ragione.
+4. LE CARD NON TORNANO PIU' — il flag "prima partita vista" si scrive
+   alla fine dei consigli, non solo completando il terzo obiettivo in
+   campo: chi usciva a meta' partita si rivedeva tutte e cinque le card
+   a ogni partita successiva.
+
+Nuovo probe in CI (TipTapProbe): inietta input vero nei tre scenari —
+tocco centrale, pollice tenuto sullo stick + tap dell'altro dito, tocco
+sulla vecchia zona morta — e verifica avanzamento, auto-avanzamento,
+ripartenza del 3-2-1, stick riattivato e flag salvato. La run è verde
+solo se la card risponde in tutti e tre.
+
+v1.22.1 / versionCode 34.
+
+---
+
 # Baskin Academy — v1.22.0: il girone
 
 Data: 13 ottobre 2026 • Motore: Godot 4.3 stable
