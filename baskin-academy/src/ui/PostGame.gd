@@ -128,7 +128,7 @@ func _ready() -> void:
 	card.offset_top = -need.y * 0.5
 	card.offset_bottom = need.y * 0.5
 	var vp: Vector2 = get_viewport_rect().size
-	var k: float = minf(1.0, vp.x * 0.94 / need.x, vp.y * 0.94 / need.y)
+	var k: float = minf(1.0, minf(vp.x * 0.94 / need.x, vp.y * 0.94 / need.y))
 	if k < 1.0:
 		card.pivot_offset = need * 0.5
 		card.scale = Vector2(k, k)
