@@ -1017,6 +1017,9 @@ func _end_quarter() -> void:
 	Events.toast.emit("T%d" % quarter)
 
 func _finish() -> void:
+	if finished:
+		return   # doppia sirena (orologio e azione nella stessa frame): la
+		         # partita e' gia' chiusa, e il girone non deve avanzare due volte
 	if _clutch_slowmo:
 		_clutch_slowmo = false
 		Engine.time_scale = 1.0
@@ -1048,6 +1051,15 @@ func _finish() -> void:
 	res["opp"] = String(Game.profile.get("next_opponent", ""))
 	res["home"] = bool(Game.profile.get("next_home", true))
 	res["arena"] = Game.scrim_arena()
+	# IL GIRONE: la partita completata fa avanzare il prossimo avversario
+	# (e si gira casa/trasferta) PRIMA del save e dell'emit, cosi' il
+	# salvataggio e la scheda post-partita mostrano gia' la prossima sfida.
+	# Uscire a meta' partita non ruota nulla: solo le partite giocate fino
+	# alla sirena contano.
+	var nxt: Dictionary = Game.advance_rotation()
+	res["next_opp"] = nxt.get("opp", "")
+	res["next_home"] = nxt.get("home", true)
+	res["next_arena"] = nxt.get("arena", "")
 	# The profile (kits, opponent, settings) is saved on the final buzzer so
 	# the pre-match screen reopens exactly as it was left.
 	SaveSystem.save_game()

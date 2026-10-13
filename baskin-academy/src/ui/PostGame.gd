@@ -93,6 +93,16 @@ func _ready() -> void:
 		int(100.0 * result.get("fgm",0) / maxf(fga, 1)), result.get("tpm",0), result.get("tpa",0)],
 		24, Color(0.965, 0.949, 0.906, 0.75))
 
+	# What's next: the schedule moved on the final buzzer (Court calls
+	# Game.advance_rotation). Saying it here makes the girone visible —
+	# jumping straight to another game would hide who is coming.
+	if result.has("next_opp") and String(result["next_opp"]) != "":
+		var nh: bool = bool(result.get("next_home", true))
+		_l(v, Loc.t("post.next") % [String(result["next_opp"]),
+			"%s  ·  %s" % [Loc.t("setup.home_short" if nh else "setup.away_short"),
+				String(result.get("next_arena", ""))]],
+			22, Color(1.0, 0.86, 0.48))
+
 	var b := Button.new()
 	b.text = Loc.t("post.menu")
 	b.custom_minimum_size = Vector2(520, 96)

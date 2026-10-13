@@ -41,7 +41,10 @@ func _ready() -> void:
 	_build()
 
 func _opponents() -> Array:
-	return Game.CLUBS.filter(func(t): return t != Game.club_my_team())
+	## Il girone progressivo di GameData (non l'ordine della lista CLUBS):
+	## il primo avversario di un profilo nuovo resta comunque il primo club
+	## del girone.
+	return Game.club_rotation()
 
 func _build() -> void:
 	for c in root.get_children():

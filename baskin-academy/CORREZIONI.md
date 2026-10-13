@@ -1,3 +1,40 @@
+# Baskin Academy — v1.22.0: il girone
+
+Data: 13 ottobre 2026 • Motore: Godot 4.3 stable
+
+Prima di questa versione si giocava SEMPRE contro la stessa squadra, sempre
+in casa, nello stesso impianto: il profilo non cambiava mai il prossimo
+avversario e le otto squadre — con stili, arene e nomi diversi — restavano
+sette su otto invisibili. La "carriera" segnata nel codice (reputazione,
+livelli) non si muoveva mai: la partita numero uno era identica alla
+partita numero venti.
+
+- IL GIRONE: alla sirena finale il prossimo avversario avanza nel girone
+  delle sette squadre e casa/trasferta si alterna. Il riepilogo prepartita
+  (che mostrava gia' avversario e impianto) e la scheda post-partita (che
+  ora dice PROSSIMA PARTITA) rendono il tutto visibile senza nuova
+  interfaccia.
+- L'ORDINE NON E' UN CASO: si parte dagli stili piu' leggibili per chi
+  comincia — gioco interno e ritmo — e i club "lock" (difesa attiva, palle
+  rubate) arrivano per ultimi, quando le regole sono padroneggiate. Poi il
+  girone ricomincia. Nessun numero nascosto: e' l'ordine del calendario,
+  scritto e visibile.
+- SOLO LE PARTITE GIOCATE CONTANO: uscire a meta' partita (dal bottone
+  ESCI o dal tasto Indietro, con conferma) non ruota nulla. La rotazione
+  avviene sulla sirena, prima del salvataggio: il profilo salvato riapre
+  la prossima sfida gia' pronta.
+- La difficolta' resta quella scelta in Impostazioni e vale per tutti,
+  come prima: il girone non tocca i numeri del gioco.
+
+Scelte esplicite di questa versione: NESSUNA progressione numerica (niente
+punti-carriera che salgono: Baskin resta strumento didattico, non gioco di
+ritenzione) e difficolta' di default invariata (NORMALE, visibile e
+modificabile in Impostazioni).
+
+v1.22.0 / versionCode 33.
+
+---
+
 # Baskin Academy — v1.21.3: il pack robustezza
 
 Data: 13 ottobre 2026 • Motore: Godot 4.3 stable

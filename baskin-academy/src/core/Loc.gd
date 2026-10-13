@@ -311,6 +311,7 @@ const STR := {
 	"post.win":       ["WIN", "VITTORIA"],
 	"post.loss":      ["LOSS", "SCONFITTA"],
 	"post.grade":     ["Grade: %s", "Voto: %s"],
+	"post.next":      ["NEXT GAME  ·  vs %s  ·  %s", "PROSSIMA PARTITA  ·  vs %s  ·  %s"],
 	"post.city":      ["BACK TO THE CITY", "TORNA IN CITTÀ"],
 	"post.phone":     ["OPEN PHONE (check the feed)", "APRI IL PHONE (guarda il feed)"],
 	# ---- broadcast pass (v2.1.0): intro card, commentary, jumbo, post card

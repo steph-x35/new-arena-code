@@ -68,6 +68,14 @@ func _ready() -> void:
 	check("momenti morti mai dominanti (niente blocco)", dead_frames < live_frames * 3)
 	check("punti segnati", int(c.score[0]) + int(c.score[1]) > 0)
 	check("tiri tentati", int(c.total_attempts) > 10)
+	# IL GIRONE: la sirena finale ha ruotato il calendario. Il probe parte
+	# contro Eastport Dockers in casa: partita completata = prossimo club
+	# del girone, in trasferta.
+	if bool(c.finished):
+		var nxt: String = String(Game.profile.get("next_opponent", ""))
+		check("girone avanzato alla sirena (prossimo avversario valido)",
+			nxt != "Eastport Dockers" and Game.club_rotation().has(nxt))
+		check("casa/trasferta alternata", not bool(Game.profile.get("next_home", true)))
 	print("MARATHON OK=" + str(fails == 0))
 	get_tree().quit()
 
