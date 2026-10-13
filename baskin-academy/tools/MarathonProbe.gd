@@ -43,6 +43,19 @@ func _ready() -> void:
 		var c: Node = ms.get_node_or_null("Court")
 		if c == null:
 			break
+		# Il cambio del ruolo 5 a 3 tiri passa il controllo a un nuovo
+		# giocatore: in questa simulazione IA-contro-IA serve un cervello
+		# anche su di lui, altrimenti resta fermo in campo.
+		var cu: Node = c.get("user")
+		if cu != null and bool(cu.get("is_user")):
+			var has_brain := false
+			for ch in cu.get_children():
+				if ch is AIBrain:
+					has_brain = true
+			if not has_brain:
+				var nb: Node = load("res://src/match/AIBrain.gd").new()
+				cu.add_child(nb)
+				nb.setup(cu, c)
 		if c.awaiting_check:
 			c.confirm_check()
 		max_quarter = maxi(max_quarter, int(c.quarter))

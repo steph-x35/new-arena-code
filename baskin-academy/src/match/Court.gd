@@ -22,8 +22,10 @@ const FIBA_CENTRE_R := 112.0     # 1.8 m centre circle
 ## FIBA three-point distance in feet (NBA is 23.75). Defined in ShotSystem,
 ## which is node-free and unit-testable; re-exported here for convenience.
 const THREE_FT := ShotSystem.THREE_FT
-const SIDE_RIM_HIGH := 136.0    # canestro laterale ALTO: 2,20 m (reg. 2,00-2,20) — ruolo 2
-const SIDE_RIM_LOW := 74.0     # canestro laterale BASSO: 1,20 m (reg. 1,00-1,20) — ruolo 1
+const SIDE_RIM_HIGH := 104.0    # canestro laterale ALTO (~1,70 m; reg. 2,20):
+                                # playtest — troppo alto per giocarci, abbassato
+const SIDE_RIM_LOW := 58.0     # canestro laterale BASSO (~0,95 m; reg. 1,20):
+                                # playtest — abbassato: prima il gioco si impantanava
 const SIDE_AREA_R := 150.0        # side-area semicircle on the sideline (r = 3 m)
 const SIDE_DASH_R := 185.0        # DASHED arc 0,7 m beyond the area (r = 3,70 m):
                                   # the 2R and the role-3 free throws shoot from behind it
@@ -130,9 +132,10 @@ var benched_time := 0.0
 var eval_t := 0.0
 var bench_request := false          # waiting for a safe moment to sub out
 var unbench_request := false
+var user5_sub_pending := false      # Rev.19: ruolo 5 a 3 tiri → cambio (controllo all'utente)
 var timeouts_left := [2, 2]
-var script_idx := 0                    # guaranteed rotation: the coach ALWAYS
-var script_plan := []                  # rests you at least twice per game
+var script_idx := 0                    # rotazione programmata: DISATTIVATA dal
+var script_plan := []                  # playtest (il coach non tocca piu' la panchina)
 var timeout_active := 0.0           # real seconds of the stoppage
 var timeout_team := 0
 const USER_SEAT := 0                # the user's bench seat index (team 0)
@@ -207,13 +210,11 @@ func _ready() -> void:
 	if is_fixture:
 		_build_bench_roster()
 		_refresh_bench_vis()
-		var qs := quarter_len
-		script_plan = [
-			{"t": qs + 6.0, "a": 0},        # early Q2: planned rest
-			{"t": qs + 61.0, "a": 1},       # back in before the half
-			{"t": qs * 2.0 + 50.0, "a": 0}, # mid Q3 breath
-			{"t": qs * 2.0 + 92.0, "a": 1}, # in for the stretch run
-		]
+		# PLAYTEST: la rotazione programmata ("almeno due riposi a partita")
+		# e' TOLTA: con il ruolo 5 l'utente finiva in panchina di continuo e
+		# non poteva giocare. Il coach ruota solo per vera necessita' (stamina
+		# a fondo) e richiama subito — vedi _coach_eval.
+		script_plan = []
 	_tipoff()
 
 var _refs: Array = []
@@ -1094,6 +1095,14 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 			_violation(shooter, bk)
 			return
 	shooter.period_shots += 1
+	# Rev.19, RUOLO 5: tre tiri per tempo. Per l'utente il limite non e' un
+	# muro (v_lim5): al terzo tiro arriva il cambio — un altro ruolo 5 entra
+	# e il CONTROLLO resta all'utente, come gia' avviene per il cambio del
+	# pivot. Il cambio parte al primo momento sicuro (palla libera dal
+	# tiratore, niente liberi in corso).
+	if not one_on_one and shooter.is_user and shooter.role == 5 \
+	and shooter.period_shots >= 3:
+		user5_sub_pending = true
 	var dist_px := shooter.global_position.distance_to(hoop)
 	var dist_ft := px_to_ft(dist_px)
 	var contest := pressure_on(shooter)
@@ -2467,8 +2476,9 @@ func is_side_hoop(h: Vector2) -> bool:
 	return absf(h.y) > COURT_H * 0.25
 
 func rim_height_of(h: Vector2, role := 0) -> float:
-	# DOPPIO CANESTRO LATERALE (regolamento): il ruolo 1 tira in quello BASSO
-	# (1,20 m), il ruolo 2 in quello ALTO (2,20 m). Gli altri: 3,05 m.
+	# DOPPIO CANESTRO LATERALE: il ruolo 1 tira in quello BASSO, il ruolo 2
+	# in quello ALTO (altezze abbassate dal playtest, vedi le costanti).
+	# Gli altri ruoli: canestro classico.
 	if is_side_hoop(h):
 		return SIDE_RIM_LOW if role == 1 else SIDE_RIM_HIGH
 	return RIM_HEIGHT
@@ -3066,6 +3076,41 @@ func _substitute_pivot(out: BallPlayer) -> void:
 	Events.toast.emit(Loc.t("rule.r1_sub"))
 	Events.rule.emit("r1_sub")
 
+## Rev.19: il ruolo 5 ha 3 TIRI per tempo. Al terzo tiro l'utente non resta
+## in campo paralizzato (non potrebbe piu' tirare): esce ed entra subito un
+## altro RUOLO 5 — e il controllo passa a lui, identico al cambio del pivot.
+## Il cambio e' spiegato (toast + card della regola).
+func _substitute_user5() -> void:
+	user5_sub_pending = false
+	var out: BallPlayer = user
+	if out == null or not is_instance_valid(out) or finished:
+		return
+	out.is_user = false
+	out.has_ball = false
+	_strip_brain(out)
+	var inn: BallPlayer = preload("res://src/match/Player.gd").new()
+	inn.team = 0
+	add_child(inn)
+	_randomize_npc(inn, 0)
+	inn.role = 5
+	_apply_role_kit(inn)
+	inn.is_user = true
+	inn.hair_style_v = Game.hair_style()
+	inn.setup_from_profile()
+	inn.jersey_num = 5
+	players.erase(out)
+	players.append(inn)
+	user = inn
+	out.visible = false
+	out.set_physics_process(false)
+	inn.visible = true
+	inn.set_physics_process(true)
+	inn.global_position = out.global_position
+	inn.velocity = Vector2.ZERO
+	inn.queue_redraw()
+	Events.toast.emit(Loc.t("rule.r5_sub"))
+	Events.rule.emit("r5_sub")
+
 func px_to_ft(px: float) -> float:
 	return px / PX_PER_FT
 
@@ -3363,17 +3408,17 @@ func impact_grade() -> float:
 func _coach_eval() -> void:
 	if finished:
 		return
-	var grade := impact_grade()
+	# PLAYTEST: l'utente deve poter GIOCARE. Panchina solo per vera bonifica
+	# di stamina (prima bastava stamina 30 e 40 secondi: con il ruolo 5, che
+	# corre piu' di tutti, era quasi ogni tempo) e mai per "impatto basso".
+	# Il rientro e' rapido: massimo ~25 secondi, prima se il fiato torna.
 	if user_on_court:
-		if user.stamina < 30.0 and played_time > 40.0:
+		if user.stamina < 18.0 and played_time > 60.0:
 			Events.toast.emit(Loc.tx("Coach: you are running on fumes -- rest!"))
-			bench_user()
-		elif played_time > 75.0 and grade < 1.2:
-			Events.toast.emit(Loc.tx("Coach: to the bench! Make an impact out there"))
 			bench_user()
 	else:
 		var deficit: int = int(score[1]) - int(score[0])
-		if benched_time > 65.0 or deficit >= 8 or (user.stamina > 88.0 and benched_time > 30.0):
+		if benched_time > 25.0 or deficit >= 10 or (user.stamina > 60.0 and benched_time > 12.0):
 			Events.toast.emit(Loc.tx("Coach: you are back in -- make it count!"))
 			unbench_user()
 
@@ -3778,8 +3823,20 @@ func _process_bench_and_timeouts(delta: float) -> void:
 		bench_user()
 	if unbench_request and not user_on_court:
 		unbench_user()
-	# Scripted rotation: whatever the stats say, the coach rests you at least
-	# twice a game and sends you back in -- minutes are earned, not given.
+	# Il cambio del ruolo 5 a 3 tiri: parte al primo momento sicuro — non
+	# mentre il tiratore ha ancora la palla in mano o il tiro e' in volo.
+	if user5_sub_pending:
+		if not user_on_court:
+			user5_sub_pending = false
+		else:
+			var u5: BallPlayer = user
+			if u5 == null or not is_instance_valid(u5):
+				user5_sub_pending = false
+			elif not ft_active and not _reserved_for_inbound(u5) \
+			and not u5.has_ball and not (ball != null and ball.live and ball.shooter == u5):
+				_substitute_user5()
+	# Rotazione programmata: il piano e' vuoto dal playtest (l'utente deve
+	# poter giocare) — resta qui per un eventuale futuro riutilizzo.
 	if script_idx < script_plan.size():
 		var elapsed: float = (quarter - 1) * quarter_len + (quarter_len - game_clock)
 		while script_idx < script_plan.size() and elapsed >= float(script_plan[script_idx]["t"]):

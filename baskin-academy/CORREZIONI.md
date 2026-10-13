@@ -1,3 +1,39 @@
+# Baskin Academy — v1.23.0: il pack del playtest
+
+Data: 13 ottobre 2026 • Motore: Godot 4.3 stable
+
+Sette correzioni dal primo playtest vero sul telefono:
+
+1. TIRO A CASO DOPO LA RIMESSA — la carica del tiro sopravviveva alla fine
+   del possesso: se il rilascio del dito andava perso, la rete di sicurezza
+   (che spara il tiro a carica piena) scattava quando la palla TORNAVA in
+   mano dopo la rimessa — il classico tiro lanciato a meta' campo senza
+   aver toccato niente. Ora la carica vive solo con la palla in mano.
+2. DIFESA AL TOCCO — la posizione difensiva partiva solo quando eri gia'
+   davanti all'uomo da marcare: sembrava che il bottone non rispondesse.
+   Ora parte dal tocco del bottone DIFESA (l'assist continua a portarti
+   davanti al tuo uomo).
+3. CARROZZINE DEI PIVOT RIDISEGNATE — come le vere: ruote grandi con
+   campanatura, pneumatico spesso, cerchione di spinta arancio, raggi,
+   ruotini anteriori con forcella, telaio tubolare e poggiapiedi centrale.
+4. MENO PANCHINA — tolta la rotazione programmata ("almeno due riposi a
+   partita") e la panchina per "impatto basso": il coach manda in panchina
+   solo per vera bonifica di stamina (sotto 18, dopo almeno un minuto in
+   campo) e richiama entro ~25 secondi. Con il ruolo 5 si gioca.
+5. CANESTRI LATERALI PIU' BASSI — l'alto da 2,20 a ~1,70 m, il basso da
+   1,20 a ~0,95 m (scelta di giocabilita' dal playtest: prima il gioco si
+   impantanava sui tiri laterali).
+6. SCHEDA FINE PARTITA MAI PIU' TAGLIATA — la card prende l'altezza giusta
+   per il suo contenuto e si rimpicciolisce se lo schermo e' piu' basso.
+7. RUOLO 5: TRE TIRI, CAMBIO SPIEGATO E CONTROLLO CHE RESTA — al terzo tiro
+   del tempo il ruolo 5 esce ed entra un altro ruolo 5 CHE CONTROLLI SEMPRE
+   TU (come gia' avveniva per il cambio del pivot), con toast e card della
+   regola. Prima il limite era solo un muro (infrazione al quarto tiro).
+
+v1.23.0 / versionCode 35.
+
+---
+
 # Baskin Academy — v1.22.1: la schermata benvenuto non blocca piu' il gioco
 
 Data: 13 ottobre 2026 • Motore: Godot 4.3 stable

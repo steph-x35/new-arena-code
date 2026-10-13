@@ -117,6 +117,22 @@ func _ready() -> void:
 	again.pressed.connect(func(): SceneRouter.goto("res://src/scenes/KitPicker.tscn"))
 	v.add_child(again)
 
+	# PLAYTEST: sul telefono la scheda era tagliata sopra e sotto (il contenuto
+	# e' piu' alto della card fissa, e i telefoni hanno bordi/notch). La card
+	# ora prende l'altezza GIUSTA per il suo contenuto e si RIMPICCIOLISCE se
+	# lo schermo e' piu' basso — mai piu' tagliata, su nessun telefono.
+	await get_tree().process_frame
+	var need: Vector2 = v.get_combined_minimum_size() + Vector2(68.0, 44.0)
+	card.offset_left = -need.x * 0.5
+	card.offset_right = need.x * 0.5
+	card.offset_top = -need.y * 0.5
+	card.offset_bottom = need.y * 0.5
+	var vp: Vector2 = get_viewport_rect().size
+	var k: float = minf(1.0, vp.x * 0.94 / need.x, vp.y * 0.94 / need.y)
+	if k < 1.0:
+		card.pivot_offset = need * 0.5
+		card.scale = Vector2(k, k)
+
 func _l(parent: Node, t: String, size: int, col: Color) -> void:
 	var l := Label.new()
 	l.text = t

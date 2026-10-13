@@ -272,7 +272,11 @@ func _physics_process(delta: float) -> void:
 					+ (own_hoop - tgt.global_position).normalized() * 46.0
 				var gd: Vector2 = gp - global_position
 				wish = gd.normalized() if gd.length() > 9.0 else Vector2.ZERO
-				stance = gd.length() < 95.0
+				# Playtest: la posizione difensiva parte dal tocco del
+				# bottone DIFESA, non solo quando sei gia' davanti
+				# all'uomo — il giocatore vede subito che il comando ha
+				# preso. L'assist continua a portarti davanti al tuo uomo.
+				stance = true
 			elif court.ball != null and court.ball.holder != null \
 					and court.ball.holder.team != team:
 				# NESSUN UOMO LEGALE: aiuto, senza addosso a nessuno.
@@ -281,7 +285,7 @@ func _physics_process(delta: float) -> void:
 				var help: Vector2 = mine.lerp(bp, 0.58)
 				var hd: Vector2 = help - global_position
 				wish = hd.normalized() if hd.length() > 24.0 else Vector2.ZERO
-				stance = hd.length() < 140.0
+				stance = true
 			else:
 				guarding = false
 	# REGOLA DEI PASSI: con la palla raccolta dopo la finta muoversi
@@ -365,7 +369,15 @@ func _physics_process(delta: float) -> void:
 		# Senza palla non sei "marcato addosso": il timer deve scadere, non
 		# restare appeso al valore dell'ultima azione.
 		_press_t = maxf(0.0, _press_t - delta)
-	if shot_charge >= 0.0:
+	if shot_charge >= 0.0 and not has_ball:
+		# La carica vive solo con la palla in mano. Se il possesso e' finito
+		# (palla persa, rimessa avversaria, tiro gia' partito) la carica si
+		# annulla: cosi' la rete di sicurezza del MAX_CHARGE non puo' piu'
+		# sparare un "tiro a caso" quando la palla torna in mano dopo la
+		# rimessa (bug segnalato al telefono).
+		shot_charge = -1.0
+		dunk_held = false
+	elif shot_charge >= 0.0:
 		shot_charge += delta
 		# SAFETY: if the finger's release event was lost (multi-touch on Android
 		# drops it often), never let the charge hang forever. Auto-fire as a very

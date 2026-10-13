@@ -505,36 +505,60 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	var tuck: float = (lift / maxf(h, 1.0)) * h * 0.16 + leg_tuck
 	var stepping: bool = walking and (kind == RUN or kind == DRIBBLE) and not chair
 	if chair:
-		# CARROZZINA DA BASKIN: due ruote grandi (Ø ~0,60 m come le vere),
-		# cerchione con raggi, telaio, schienale, poggiapiedi e gambe raccolte.
+		# CARROZZINA DA BASKIN, come le vere: ruote posteriori grandi con
+		# CAMPANATURA (la parte alta piegata verso il corpo — e' il tratto
+		# che le fa riconoscere subito), pneumatico spesso, cerchio, cerchione
+		# di SPINTA colorato, raggi sottili; ruotini anteriori con forcella;
+		# telaio tubolare con schienale; poggiapiedi centrale con i piedi sopra.
 		var wcx: float = base.x + lean
 		var wr: float = h * 0.30
 		var wcy: float = floor_y - wr
-		var wheel_col := Color(0.14, 0.15, 0.19)
-		var hub_col := Color(0.32, 0.34, 0.40)
+		var tire_col := Color(0.07, 0.08, 0.10)
+		var rim_col := Color(0.34, 0.36, 0.42)
+		var push_col := Color(1.0, 0.58, 0.16)
+		var hub_col := Color(0.22, 0.24, 0.29)
 		for sx in [-1.0, 1.0]:
-			var wc := Vector2(wcx + sx * hip_w * 0.95, wcy)
-			c.draw_arc(wc, wr, 0.0, TAU, 26, wheel_col, maxf(lw * 0.9, 3.0))
-			c.draw_arc(wc, wr * 0.62, 0.0, TAU, 20, hub_col, 2.0)
-			c.draw_line(wc + Vector2(-wr * 0.62, 0.0), wc + Vector2(wr * 0.62, 0.0), hub_col, 1.5)
-			c.draw_line(wc + Vector2(0.0, -wr * 0.62), wc + Vector2(0.0, wr * 0.62), hub_col, 1.5)
-		var seat_y: float = floor_y - h * 0.34
-		var frame_col := Color(0.38, 0.40, 0.46)
-		c.draw_line(Vector2(wcx - hip_w * 1.05, seat_y), Vector2(wcx + hip_w * 1.05, seat_y), frame_col, 3.5)
-		c.draw_line(Vector2(wcx - hip_w * 1.0, seat_y), Vector2(wcx - hip_w * 1.0, seat_y - h * 0.30), frame_col, 3.5)
-		c.draw_line(Vector2(wcx - hip_w * 1.15, seat_y - h * 0.32),
-			Vector2(wcx + hip_w * 0.55, seat_y - h * 0.32), Color(0.20, 0.22, 0.27), maxf(lw, 3.0))
-		c.draw_line(Vector2(wcx - hip_w * 0.2, seat_y), Vector2(wcx - hip_w * 0.2, floor_y - h * 0.06), frame_col, 2.5)
-		c.draw_line(Vector2(wcx - hip_w * 0.75, floor_y - h * 0.05),
-			Vector2(wcx + hip_w * 0.45, floor_y - h * 0.05), frame_col, 2.5)
-		# gambe raccolte: cosce in avanti, piedi sul poggiapiedi
+			# campanatura ~8 gradi: la sommita' della ruota piega verso il corpo
+			c.draw_set_transform(Vector2(wcx + sx * hip_w * 0.98, wcy), -sx * 0.14, Vector2.ONE)
+			c.draw_arc(Vector2.ZERO, wr, 0.0, TAU, 32, tire_col, maxf(lw * 1.35, 5.5))
+			c.draw_arc(Vector2.ZERO, wr * 0.88, 0.0, TAU, 28, rim_col, 2.0)
+			c.draw_arc(Vector2.ZERO, wr * 0.76, 0.0, TAU, 26, push_col, 2.6)
+			for k in 6:
+				var an := TAU * float(k) / 6.0 + 0.26
+				c.draw_line(Vector2.ZERO, Vector2(cos(an), sin(an)) * wr * 0.86, rim_col, 1.2)
+			c.draw_circle(Vector2.ZERO, maxf(lw * 0.45, 2.6), hub_col)
+			c.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		# ruotini anteriori con forcella, uno per lato del poggiapiedi
+		var cr: float = h * 0.055
 		for sx in [-1.0, 1.0]:
-			var hp2 := Vector2(base.x + sx * hip_w * 0.5 + lean, hip_y)
-			var kn2 := Vector2(hp2.x + sx * h * 0.05, hp2.y + h * 0.14)
-			var ft2 := Vector2(hp2.x + sx * h * 0.10, floor_y - h * 0.10)
+			var cc := Vector2(wcx + sx * hip_w * 0.72, floor_y - cr)
+			c.draw_line(cc + Vector2(0, -h * 0.15), cc, Color(0.30, 0.32, 0.38), 2.5)
+			c.draw_arc(cc, cr, 0.0, TAU, 18, tire_col, 3.2)
+			c.draw_circle(cc, 1.8, hub_col)
+		# telaio: binario della seduta, montante e barra dello schienale,
+		# tubi anteriori che scendono ai ruotini
+		var seat_y: float = floor_y - h * 0.36
+		var frame_col := Color(0.36, 0.38, 0.45)
+		var back_col := Color(0.15, 0.17, 0.22)
+		c.draw_line(Vector2(wcx - hip_w * 0.95, seat_y), Vector2(wcx + hip_w * 0.95, seat_y), frame_col, 3.5)
+		c.draw_line(Vector2(wcx - hip_w * 1.0, seat_y), Vector2(wcx - hip_w * 1.0, seat_y - h * 0.28), frame_col, 3.5)
+		c.draw_line(Vector2(wcx - hip_w * 0.92, seat_y - h * 0.30),
+			Vector2(wcx + hip_w * 0.55, seat_y - h * 0.30), back_col, maxf(lw, 4.0))
+		for sx in [-1.0, 1.0]:
+			c.draw_line(Vector2(wcx + sx * hip_w * 0.72, seat_y),
+				Vector2(wcx + sx * hip_w * 0.72, floor_y - h * 0.15), frame_col, 2.5)
+		# poggiapiedi centrale con i piedi sopra
+		var fp_y: float = floor_y - h * 0.075
+		c.draw_line(Vector2(wcx - hip_w * 0.30, seat_y), Vector2(wcx - hip_w * 0.10, fp_y), frame_col, 2.5)
+		c.draw_rect(Rect2(wcx - hip_w * 0.42, fp_y - 3.0, hip_w * 0.84, 5.0), frame_col)
+		# gambe raccolte: cosce in avanti sul sedile, piedi sul poggiapiedi
+		for sx in [-1.0, 1.0]:
+			var hp2 := Vector2(base.x + sx * hip_w * 0.42 + lean, hip_y)
+			var kn2 := Vector2(hp2.x + sx * h * 0.05, hp2.y + h * 0.12)
+			var ft2 := Vector2(hp2.x + sx * h * 0.10, fp_y - 2.0)
 			c.draw_line(hp2, kn2, skin, lw * 0.95)
 			c.draw_line(kn2, ft2, skin, lw * 0.85)
-			c.draw_rect(Rect2(ft2.x - h * 0.07, ft2.y - h * 0.02, h * 0.14, h * 0.055), shoes)
+			c.draw_rect(Rect2(ft2.x - h * 0.065, ft2.y - h * 0.02, h * 0.13, h * 0.05), shoes)
 	else:
 		for sx in [-1.0, 1.0]:
 			var gait: float = 0.0
