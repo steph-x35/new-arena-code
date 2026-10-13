@@ -407,6 +407,41 @@ func club_style(team: String) -> String:
 func club_roster(team: String) -> Array:
 	return _club_meta(team)["names"]
 
+## IL GIRONE: dopo ogni partita completata il prossimo avversario avanza in
+## questo ordine, e casa/trasferta si alternano. L'ordine non e' un caso:
+## si parte dagli stili piu' leggibili per chi comincia (gioco interno,
+## ritmo) e i club "lock" — difesa attiva e palle rubate — arrivano per
+## ultimi, quando le regole sono padroneggiate. Poi il girone ricomincia.
+const CLUB_ROTATION := [
+	"Eastport Dockers",        # inside: gioco interno, nessun extra difensivo
+	"Bayview Tide",            # run: ritmo alto
+	"Lakeside Current",        # run
+	"Foundry Hill Kings",      # grit: rimbalzi e stoppate
+	"Cedar Park Rangers",      # grit
+	"Northgate Wolves",        # lock: difesa e rubate, il piu' tosto
+	"Old Mill Saints",         # lock
+]
+
+func club_rotation() -> Array:
+	## Il girone senza la propria squadra (difensivo: il profilo di default
+	## non cambia mai squadra, ma un salvataggio puo' dire qualsiasi cosa).
+	return CLUB_ROTATION.filter(func(t): return t != club_my_team())
+
+func advance_rotation() -> Dictionary:
+	## Chiamata da Court sulla sirena finale: la partita completata vale,
+	## il prossimo avversario avanza nel girone e si gira casa/trasferta.
+	## Rimanda la prossima sfida cosi' la scheda post-partita la mostra.
+	var rot := club_rotation()
+	if rot.is_empty():
+		return {}
+	var idx := rot.find(String(profile.get("next_opponent", "")))
+	# idx -1 (avversario mai visto o fuori girone) ricade su rot[0]: il
+	# girone riparte dal primo club, che e' anche il piu' morbido.
+	profile["next_opponent"] = rot[(idx + 1) % rot.size()]
+	profile["next_home"] = not bool(profile.get("next_home", true))
+	return {"opp": profile["next_opponent"], "home": profile["next_home"],
+		"arena": scrim_arena()}
+
 ## The kit a club wears. Our side wears the picked kit; the opponent wears
 ## club colours unless they clash, then the first different kit wins.
 func club_kit(team: String) -> String:
