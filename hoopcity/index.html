@@ -38,7 +38,7 @@
     .wrap { max-width: 560px; margin: 0 auto; padding: 0 20px; }
     .wrap-wide { max-width: 720px; margin: 0 auto; padding: 0 20px; }
 
-    /* ---------- etichette di sezione (stile "ABOUT / ROADMAP") ---------- */
+    /* ---------- etichette di sezione ---------- */
     .sec-label {
       display: inline-flex; align-items: center; gap: 10px;
       font-size: 13px; font-weight: 800; letter-spacing: .18em;
@@ -54,17 +54,15 @@
     p.body strong { color: var(--ink); }
     p.body + p.body { margin-top: 10px; }
 
-    /* ---------- HERO: il campo ---------- */
+    /* ---------- HERO ---------- */
     .hero { position: relative; text-align: center; padding: 58px 0 42px; overflow: hidden; }
     .hero::before {
-      /* parquet */
       content: ""; position: absolute; inset: 0;
       background:
         radial-gradient(ellipse 130% 90% at 50% -30%, rgba(249,115,22,.13), transparent 60%),
         repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0 2px, transparent 2px 46px);
     }
     .hero::after {
-      /* arco dei tre punti */
       content: ""; position: absolute; left: 50%; bottom: -300px;
       width: 560px; height: 560px; transform: translateX(-50%);
       border: 2px solid rgba(249, 115, 22, .16); border-radius: 50%;
@@ -113,7 +111,7 @@
     .meta { margin-top: 12px; text-align: center; color: var(--muted); font-size: 13.5px; }
     .ok-line { margin-top: 8px; text-align: center; color: var(--ok); font-size: 13.5px; font-weight: 600; }
 
-    /* ---------- LA SFIDA DI OGGI ---------- */
+    /* ---------- SFIDA DI OGGI ---------- */
     .challenge {
       background: linear-gradient(160deg, rgba(249,115,22,.16), rgba(249,115,22,.05));
       border: 1px solid rgba(249, 115, 22, .4); border-radius: 20px;
@@ -127,20 +125,44 @@
     .challenge .timer { margin-top: 14px; color: var(--muted); font-size: 13px; font-weight: 600; }
     .challenge .timer b { color: var(--ink); font-variant-numeric: tabular-nums; }
 
-    /* ---------- GALLERIA ---------- */
+    /* ---------- GALLERIA / CAROSELLO ---------- */
+    .carousel { position: relative; }
     .gallery-scroll {
       display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
       padding: 4px 20px 14px; margin: 0 -20px;
-      scrollbar-width: none;
+      scrollbar-width: none; -webkit-overflow-scrolling: touch;
+      cursor: grab;
     }
+    .gallery-scroll.dragging { cursor: grabbing; scroll-snap-type: none; }
     .gallery-scroll::-webkit-scrollbar { display: none; }
     .shot { flex: 0 0 84%; scroll-snap-align: center; }
     .shot .frame {
       border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
       background: var(--bg2); aspect-ratio: 16 / 10;
+      pointer-events: none;   /* il trascinamento lo gestisce il contenitore */
     }
     .shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
     .shot figcaption { text-align: center; font-size: 13.5px; color: var(--muted); margin-top: 8px; font-weight: 600; }
+
+    .car-nav {
+      position: absolute; top: 42%; transform: translateY(-50%);
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 1px solid var(--line); background: rgba(18, 21, 28, .88);
+      color: var(--ink); font-size: 20px; font-weight: 900; line-height: 1;
+      display: grid; place-items: center; cursor: pointer; z-index: 2;
+      transition: border-color .15s ease, color .15s ease;
+    }
+    .car-nav:hover { border-color: var(--accent); color: var(--accent-2); }
+    .car-prev { left: 10px; }
+    .car-next { right: 10px; }
+
+    .dots { display: flex; justify-content: center; gap: 8px; margin-top: 4px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--line); cursor: pointer; padding: 0; border: none;
+      transition: background .2s ease, transform .2s ease;
+    }
+    .dot.on { background: var(--accent); transform: scale(1.25); }
 
     /* ---------- STORIA + NUMERI ---------- */
     .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
@@ -217,13 +239,6 @@
     details .a strong { color: var(--ink); }
     details .a a { color: var(--accent-2); font-weight: 700; text-decoration: none; }
 
-    .note {
-      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-      padding: 18px; font-size: 14.5px; color: var(--muted);
-    }
-    .note strong { color: var(--ink); }
-    .note a { color: var(--accent-2); font-weight: 700; text-decoration: none; }
-
     section { padding: 34px 0; }
     section + section { border-top: 1px solid var(--line); }
 
@@ -234,6 +249,63 @@
     footer strong { color: var(--ink); }
     footer .links { display: flex; justify-content: center; gap: 8px 18px; flex-wrap: wrap; margin-bottom: 10px; }
     footer a { color: var(--ink); font-weight: 700; text-decoration: none; }
+
+    /* =====================================================
+       DESKTOP: layout orizzontale, stile tinyhoopers.
+       Il telefono resta verticale com'era.
+       ===================================================== */
+    @media (min-width: 960px) {
+      .wrap, .wrap-wide { max-width: 1080px; padding: 0 32px; }
+
+      /* hero: piu' grande, CTA affiancate */
+      .hero { padding: 84px 0 64px; }
+      .hero h1 { font-size: 64px; }
+      .tag { font-size: 19px; }
+      .ball-svg { width: 84px; height: 84px; }
+      .hero .cta { max-width: 640px; margin: 38px auto 0; }
+      .cta-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
+      .cta .btn.ghost { margin-top: 0; }
+      .meta, .ok-line { text-align: center; }
+      .scroll-hint { margin-top: 46px; }
+
+      /* sfida: fascia centrata, non tutta larghezza */
+      .challenge-wrap { max-width: 640px; margin: 0 auto; }
+
+      /* galleria: slide larghe, frecce sempre visibili */
+      .gallery-scroll { padding: 4px 32px 14px; margin: 0 -32px; gap: 20px; }
+      .shot { flex-basis: 640px; }
+      .car-prev { left: 26px; }
+      .car-next { right: 26px; }
+
+      /* storia: testo a sinistra, numeri a destra */
+      .split { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; }
+      .stats { margin-top: 0; }
+      .stat .n { font-size: 32px; }
+
+      /* feature: due colonne */
+      ul.feats { grid-template-columns: 1fr 1fr; gap: 12px; }
+      ul.feats li { font-size: 15.5px; padding: 18px 20px; }
+
+      /* roadmap: griglia 3x2 con la linea in alto */
+      .road { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px 26px; }
+      .road li { padding: 22px 0 0; border-top: 2px solid var(--line); }
+      .road li::before {
+        top: -8px; left: 0; width: 14px; height: 14px;
+      }
+      .road li::after { display: none; }
+      .road li.next { border-top-style: dashed; border-top-color: rgba(251,146,60,.55); }
+      .road .what { font-size: 18px; margin-top: 6px; }
+      .road .how { font-size: 14.5px; }
+
+      /* installazione + FAQ affiancate */
+      .duo { display: grid; grid-template-columns: .9fr 1.1fr; gap: 48px; align-items: start; }
+      .duo > div > h3.sub { margin-top: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ball-svg, .scroll-hint { animation: none; }
+      html { scroll-behavior: auto; }
+    }
   </style>
 </head>
 <body>
@@ -243,7 +315,6 @@
     <div class="wrap">
       <div class="badge">Gratis · Solo Android · In aggiornamento</div>
 
-      <!-- pallone disegnato (niente emoji: reso uguale ovunque) -->
       <svg class="ball-svg" viewBox="0 0 64 64" aria-hidden="true">
         <circle cx="32" cy="32" r="29" fill="#e8711f" stroke="#7a3708" stroke-width="2.5"/>
         <path d="M4 26 Q32 44 60 26" fill="none" stroke="#7a3708" stroke-width="2.5"/>
@@ -256,15 +327,18 @@
       <p class="tag">Il basket del campetto, in 2D. <strong>Gratis, senza pubblicità nel gioco.</strong></p>
 
       <div class="cta">
-        <a class="btn" id="dl"
-           href="https://github.com/steph-x35/new-arena-code/releases/download/v2.44.2/HoopCity-v2.44.2.apk"
-           rel="noopener">
-          Scarica l'APK gratuita
-          <small id="dl-sub">Versione 2.44.2 · 58,9 MB</small>
-        </a>
-        <a class="btn ghost" href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">
-          Canale Telegram · avvisi delle nuove versioni
-        </a>
+        <div class="cta-row">
+          <a class="btn" id="dl"
+             href="https://github.com/steph-x35/new-arena-code/releases/download/v2.44.2/HoopCity-v2.44.2.apk"
+             rel="noopener">
+            Scarica l'APK gratuita
+            <small id="dl-sub">Versione 2.44.2 · 58,9 MB</small>
+          </a>
+          <a class="btn ghost" href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">
+            Canale Telegram
+            <small style="display:block;font-size:12px;font-weight:700;opacity:.7;margin-top:3px">avvisi delle nuove versioni</small>
+          </a>
+        </div>
         <p class="meta" id="dl-meta">Ultima versione · aggiornata di recente</p>
         <p class="ok-line">Nessun account. Nessun acquisto dentro l'app.</p>
       </div>
@@ -276,67 +350,76 @@
   <!-- ======================= SFIDA DI OGGI ======================= -->
   <section>
     <div class="wrap">
-      <span class="sec-label">La sfida di oggi</span>
-      <div class="challenge">
-        <div class="k">Oggi al campetto</div>
-        <div class="txt" id="ch-txt">Tre green release di fila dal palleggio</div>
-        <div class="timer">Cambia ogni giorno · prossima tra <b id="ch-timer">--:--:--</b></div>
+      <div class="challenge-wrap">
+        <span class="sec-label">La sfida di oggi</span>
+        <div class="challenge">
+          <div class="k">Oggi al campetto</div>
+          <div class="txt" id="ch-txt">Tre green release di fila dal palleggio</div>
+          <div class="timer">Cambia ogni giorno · prossima tra <b id="ch-timer">--:--:--</b></div>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- ========================= GALLERIA ========================= -->
   <section>
-    <div class="wrap-wide">
+    <div class="wrap">
       <span class="sec-label">Dentro il gioco</span>
       <h3 class="sub">Com'è, <em>davvero</em></h3>
-      <p class="body" style="margin-bottom:18px">Niente render di presentazione: schermate vere del gioco.</p>
+      <p class="body" style="margin-bottom:18px">Niente render di presentazione: schermate vere del gioco. Scorrono da sole — trascinale, o usa le frecce.</p>
     </div>
-    <div class="wrap-wide" style="padding:0">
-      <div class="gallery-scroll">
-        <figure class="shot">
-          <div class="frame"><img src="assets/screens/campetto.jpg" alt="Il campetto sul telefono" loading="lazy" /></div>
-          <figcaption>Il campetto, com'è sul telefono</figcaption>
-        </figure>
-        <figure class="shot">
-          <div class="frame"><img src="assets/screens/windmill.png" alt="Schiacciata windmill" loading="lazy" /></div>
-          <figcaption>Windmill a mezz'aria</figcaption>
-        </figure>
-        <figure class="shot">
-          <div class="frame"><img src="assets/screens/metro.png" alt="Il metro del tiro" loading="lazy" /></div>
-          <figcaption>Il metro del tiro: verde = canestro pulito</figcaption>
-        </figure>
-        <figure class="shot">
-          <div class="frame"><img src="assets/screens/spin360.png" alt="Schiacciata con giro di 360 gradi" loading="lazy" /></div>
-          <figcaption>Giro di 360°, poi il ferro</figcaption>
-        </figure>
-        <figure class="shot">
-          <div class="frame"><img src="assets/screens/partita.png" alt="Partita al campetto" loading="lazy" /></div>
-          <figcaption>Partita al campetto, con i compagni</figcaption>
-        </figure>
-        <figure class="shot">
-          <div class="frame"><img src="assets/screens/menu.png" alt="Menu principale" loading="lazy" /></div>
-          <figcaption>Entri e giochi: niente attese</figcaption>
-        </figure>
+    <div class="wrap">
+      <div class="carousel">
+        <button class="car-nav car-prev" id="car-prev" aria-label="Precedente">‹</button>
+        <div class="gallery-scroll" id="gallery">
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/campetto.jpg" alt="Il campetto sul telefono" loading="lazy" /></div>
+            <figcaption>Il campetto, com'è sul telefono</figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/windmill.png" alt="Schiacciata windmill" loading="lazy" /></div>
+            <figcaption>Windmill a mezz'aria</figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/metro.png" alt="Il metro del tiro" loading="lazy" /></div>
+            <figcaption>Il metro del tiro: verde = canestro pulito</figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/spin360.png" alt="Schiacciata con giro di 360 gradi" loading="lazy" /></div>
+            <figcaption>Giro di 360°, poi il ferro</figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/partita.png" alt="Partita al campetto" loading="lazy" /></div>
+            <figcaption>Partita al campetto, con i compagni</figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/menu.png" alt="Menu principale" loading="lazy" /></div>
+            <figcaption>Entri e giochi: niente attese</figcaption>
+          </figure>
+        </div>
+        <button class="car-nav car-next" id="car-next" aria-label="Successiva">›</button>
       </div>
+      <div class="dots" id="car-dots"></div>
     </div>
   </section>
 
   <!-- ========================== STORIA ========================== -->
   <section>
-    <div class="wrap">
-      <span class="sec-label">La storia</span>
-      <h3 class="sub">Nato al campetto, <em>non in ufficio</em></h3>
-      <p class="body">
-        Il campetto del quartiere: il ferro senza retina, l'asfalto che scotta, il tiro in punta di dita
-        che devi prendere al volo. <strong>Hoop City Life nasce per portare nel telefono quel basket lì</strong> —
-        non quello delle supercar e dei contratti milioni.
-      </p>
-      <p class="body">
-        È un progetto indipendente: si aggiorna in continuazione, una versione dopo l'altra, e cresce
-        insieme a chi lo gioca. Le idee migliori arrivano dai video e dai commenti su TikTok:
-        <strong>se hai qualcosa da dire, dillo lì</strong>.
-      </p>
+    <div class="wrap split">
+      <div>
+        <span class="sec-label">La storia</span>
+        <h3 class="sub">Nato al campetto, <em>non in ufficio</em></h3>
+        <p class="body">
+          Il campetto del quartiere: il ferro senza retina, l'asfalto che scotta, il tiro in punta di dita
+          che devi prendere al volo. <strong>Hoop City Life nasce per portare nel telefono quel basket lì</strong> —
+          non quello delle supercar e dei contratti milioni.
+        </p>
+        <p class="body">
+          È un progetto indipendente: si aggiorna in continuazione, una versione dopo l'altra, e cresce
+          insieme a chi lo gioca. Le idee migliori arrivano dai video e dai commenti su TikTok:
+          <strong>se hai qualcosa da dire, dillo lì</strong>.
+        </p>
+      </div>
       <div class="stats">
         <div class="stat"><div class="n">209K</div><div class="l">Follower su TikTok</div></div>
         <div class="stat"><div class="n">50K+</div><div class="l">Due reel oltre 50 mila</div></div>
@@ -402,55 +485,53 @@
     </div>
   </section>
 
-  <!-- ====================== INSTALLAZIONE ====================== -->
+  <!-- ================ INSTALLAZIONE + FAQ (affiancate) ================ -->
   <section>
-    <div class="wrap">
-      <span class="sec-label">Installazione</span>
-      <h3 class="sub">Tre tocchi e <em>sei dentro</em></h3>
-      <div class="steps" style="margin-top:14px">
-        <div class="step"><div class="n">1</div>
-          <p><strong>Tocca “Scarica l'APK”</strong> e aspetta che il download finisca.</p>
-        </div>
-        <div class="step"><div class="n">2</div>
-          <p><strong>Apri il file scaricato.</strong> <span>Se Android chiede il permesso, consenti “installare app da origini sconosciute”. Si fa una volta sola.</span></p>
-        </div>
-        <div class="step"><div class="n">3</div>
-          <p><strong>Installa e gioca.</strong> <span>Hai già una versione precedente? La nuova si installa sopra: non perdi niente.</span></p>
+    <div class="wrap duo">
+      <div>
+        <span class="sec-label">Installazione</span>
+        <h3 class="sub">Tre tocchi e <em>sei dentro</em></h3>
+        <div class="steps" style="margin-top:14px">
+          <div class="step"><div class="n">1</div>
+            <p><strong>Tocca “Scarica l'APK”</strong> e aspetta che il download finisca.</p>
+          </div>
+          <div class="step"><div class="n">2</div>
+            <p><strong>Apri il file scaricato.</strong> <span>Se Android chiede il permesso, consenti “installare app da origini sconosciute”. Si fa una volta sola.</span></p>
+          </div>
+          <div class="step"><div class="n">3</div>
+            <p><strong>Installa e gioca.</strong> <span>Hai già una versione precedente? La nuova si installa sopra: non perdi niente.</span></p>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- =========================== FAQ =========================== -->
-  <section>
-    <div class="wrap">
-      <span class="sec-label">Domande</span>
-      <h3 class="sub">Le cose che <em>ci si chiede</em></h3>
-      <div class="faq" style="margin-top:14px">
-        <details>
-          <summary>È gratis davvero?</summary>
-          <div class="a">Sì: l'APK è gratuita, <strong>non ci sono acquisti dentro l'app né pubblicità nel gioco</strong>. Nessun account da creare.</div>
-        </details>
-        <details>
-          <summary>Serve internet per giocare?</summary>
-          <div class="a">No: <strong>si gioca offline</strong>. Internet serve solo per scaricare gli aggiornamenti — e per il campo condiviso, che funziona in WiFi locale o via hotspot, senza internet.</div>
-        </details>
-        <details>
-          <summary>C'è anche per iPhone?</summary>
-          <div class="a">No, al momento <strong>solo Android</strong>.</div>
-        </details>
-        <details>
-          <summary>Ci si gioca in due?</summary>
-          <div class="a">Sì: <strong>il campo condiviso</strong> mette due telefoni Android sullo stesso campetto, in WiFi locale o con l'hotspot di uno dei due. Non è gioco online: serve stare vicini, come al campetto vero.</div>
-        </details>
-        <details>
-          <summary>Come faccio a sapere quando esce una versione nuova?</summary>
-          <div class="a">Questa pagina <strong>punta sempre all'ultima versione</strong>: salvala nei preferiti. Oppure segui il <a href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">canale Telegram</a> per gli avvisi.</div>
-        </details>
-        <details>
-          <summary>Posso sostenerlo?</summary>
-          <div class="a">Certo, e non costa niente: <strong>giocalo, parlane, mandalo a chi ama il basket</strong>. È il modo in cui questo progetto cresce.</div>
-        </details>
+      <div>
+        <span class="sec-label">Domande</span>
+        <h3 class="sub">Le cose che <em>ci si chiede</em></h3>
+        <div class="faq" style="margin-top:14px">
+          <details>
+            <summary>È gratis davvero?</summary>
+            <div class="a">Sì: l'APK è gratuita, <strong>non ci sono acquisti dentro l'app né pubblicità nel gioco</strong>. Nessun account da creare.</div>
+          </details>
+          <details>
+            <summary>Serve internet per giocare?</summary>
+            <div class="a">No: <strong>si gioca offline</strong>. Internet serve solo per scaricare gli aggiornamenti — e per il campo condiviso, che funziona in WiFi locale o via hotspot, senza internet.</div>
+          </details>
+          <details>
+            <summary>C'è anche per iPhone?</summary>
+            <div class="a">No, al momento <strong>solo Android</strong>.</div>
+          </details>
+          <details>
+            <summary>Ci si gioca in due?</summary>
+            <div class="a">Sì: <strong>il campo condiviso</strong> mette due telefoni Android sullo stesso campetto, in WiFi locale o con l'hotspot di uno dei due. Non è gioco online: serve stare vicini, come al campetto vero.</div>
+          </details>
+          <details>
+            <summary>Come faccio a sapere quando esce una versione nuova?</summary>
+            <div class="a">Questa pagina <strong>punta sempre all'ultima versione</strong>: salvala nei preferiti. Oppure segui il <a href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">canale Telegram</a> per gli avvisi.</div>
+          </details>
+          <details>
+            <summary>Posso sostenerlo?</summary>
+            <div class="a">Certo, e non costa niente: <strong>giocalo, parlane, mandalo a chi ama il basket</strong>. È il modo in cui questo progetto cresce.</div>
+          </details>
+        </div>
       </div>
     </div>
   </section>
@@ -549,6 +630,93 @@
       }
       tick();
       setInterval(tick, 1000);
+    })();
+
+    // ================================================================
+    // IL FLUSSO DELLE SCHERMATE: scorre da solo, si trascina col dito o
+    // col mouse, frecce e pallini. Quando lo tocchi si ferma, quando lo
+    // lasci riparte. Rispetta prefers-reduced-motion (niente auto-scroll).
+    // ================================================================
+    (function () {
+      var gal = document.getElementById('gallery');
+      if (!gal) return;
+      var shots = gal.querySelectorAll('.shot');
+      var dotsBox = document.getElementById('car-dots');
+      var prevB = document.getElementById('car-prev');
+      var nextB = document.getElementById('car-next');
+      var dots = [];
+      var cur = 0;
+      var pauseUntil = 0;          // timestamp: nessun auto-avanzamento prima
+      var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      for (var i = 0; i < shots.length; i++) {
+        var d = document.createElement('button');
+        d.className = 'dot' + (i === 0 ? ' on' : '');
+        d.setAttribute('aria-label', 'Schermata ' + (i + 1));
+        (function (idx) {
+          d.addEventListener('click', function () { goTo(idx); pauseFor(6000); });
+        })(i);
+        dotsBox.appendChild(d);
+        dots.push(d);
+      }
+
+      function slideW() { return shots.length ? shots[0].getBoundingClientRect().width + 20 : 1; }
+
+      function goTo(idx, instant) {
+        cur = ((idx % shots.length) + shots.length) % shots.length;
+        gal.scrollTo({ left: cur * slideW(), behavior: instant ? 'auto' : 'smooth' });
+        for (var k = 0; k < dots.length; k++) dots[k].className = 'dot' + (k === cur ? ' on' : '');
+      }
+
+      function pauseFor(ms) { pauseUntil = Date.now() + ms; }
+
+      // dove siamo davvero (dopo swipe e trascinamenti liberi)
+      function syncFromScroll() {
+        var idx = Math.round(gal.scrollLeft / slideW());
+        if (idx !== cur && idx >= 0 && idx < shots.length) {
+          cur = idx;
+          for (var k = 0; k < dots.length; k++) dots[k].className = 'dot' + (k === cur ? ' on' : '');
+        }
+      }
+      gal.addEventListener('scroll', function () {
+        window.clearTimeout(gal._t);
+        gal._t = window.setTimeout(syncFromScroll, 120);
+      });
+
+      // il flusso automatico
+      var TIMER = 4000;
+      setInterval(function () {
+        if (reduced) return;
+        if (Date.now() < pauseUntil) return;
+        if (document.hidden) return;
+        goTo(cur + 1 >= shots.length ? 0 : cur + 1);
+      }, TIMER);
+
+      // interazione = pausa
+      gal.addEventListener('pointerdown', function () { pauseFor(6000); gal.classList.add('dragging'); });
+      window.addEventListener('pointerup', function () { gal.classList.remove('dragging'); });
+      gal.addEventListener('mouseenter', function () { pauseFor(3600000); });
+      gal.addEventListener('mouseleave', function () { pauseFor(2000); });
+      gal.addEventListener('touchstart', function () { pauseFor(8000); }, { passive: true });
+
+      // frecce
+      prevB.addEventListener('click', function () { goTo(cur - 1); pauseFor(6000); });
+      nextB.addEventListener('click', function () { goTo(cur + 1); pauseFor(6000); });
+
+      // trascinamento col mouse (sul telefono il dito funziona gia')
+      var down = false, startX = 0, startL = 0;
+      gal.addEventListener('mousedown', function (e) {
+        down = true; startX = e.pageX; startL = gal.scrollLeft;
+        e.preventDefault();
+      });
+      window.addEventListener('mousemove', function (e) {
+        if (!down) return;
+        gal.scrollLeft = startL - (e.pageX - startX);
+      });
+      window.addEventListener('mouseup', function () { down = false; });
+
+      // al ridimensionamento si resta sulla slide corrente
+      window.addEventListener('resize', function () { goTo(cur, true); });
     })();
   </script>
 </body>
