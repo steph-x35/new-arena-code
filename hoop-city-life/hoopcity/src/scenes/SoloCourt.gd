@@ -74,12 +74,11 @@ var ball_rattled := false       # ferro gia' suonato su questo tiro
 var prev_pos := Vector2.ZERO
 var prev_h := 0.0
 
-# RIMBALZO VIVO (v2.45.2): l'errore resta sul campo — la palla rimbalza
-# sul ferro e a terra, e la riprendi cammandoci sopra. Poi si esce dalla
-# linea dei tre, che LAMPEGGIA finche' non esci. (Fuori dalla Sfida
-# Meta Campo, che resta com'e'.)
+# RIMBALZO VIVO: l'errore resta sul campo — la palla rimbalza sul ferro
+# e a terra, e la riprendi cammandoci sopra. TOTALE LIBERTA': nessuna
+# regola, nessuna linea da rispettare, si riprende e si ritira da dove
+# si vuole. (Fuori dalla Sfida Meta Campo, che resta com'e'.)
 var solo_loose := false
-var must_clear := false
 var _pick_ok := false
 var _flash_far_t := 0.0
 
@@ -483,11 +482,7 @@ func _process(delta: float) -> void:
 				_pickup_loose(true)
 		else:
 			_flash_far_t = 0.0
-	# USCITA DALLA LINEA: oltre l'arco la linea smette di lampeggiare.
-	if must_clear and _distance_ft() > Court.THREE_FT + 0.25:
-		must_clear = false
-		Events.popup.emit("OK — ORA TIRA!", player_pos + Vector2(0, -70),
-			Color(0.4, 1.0, 0.5), false)
+
 
 	# PIEGA DEL FERRO: lo Street Court appendi al ferro destro -> court_art
 	court_art.solo_hang = (dunk_phase == "hang")
@@ -655,7 +650,7 @@ func _distance_ft() -> float:
 	return player_pos.distance_to(RIM) / Court.PX_PER_FT
 
 func _post_tap() -> void:
-	if session_over or must_clear or solo_loose or charging or dunk_phase != "" or ball_live:
+	if session_over or solo_loose or charging or dunk_phase != "" or ball_live:
 		return
 	posting = not posting
 	if posting:
@@ -669,7 +664,7 @@ func _post_tap() -> void:
 			Events.toast.emit("POST: TIRA = fade · TRICK = drop step")
 
 func _do_trick() -> void:
-	if session_over or must_clear or solo_loose or charging or dunk_phase != "" or ball_live or euro_t > 0.0:
+	if session_over or solo_loose or charging or dunk_phase != "" or ball_live or euro_t > 0.0:
 		return
 	# EUROSTEP: corri verso il ferro entro 14 ft e TRICK diventa il passo
 	# laterale a due tempi (con chiusura a schiacciata/layup automatica).
@@ -769,7 +764,7 @@ func _input(e: InputEvent) -> void:
 func _try_spin() -> void:
 	# Stessa famiglia dei trick da pulsante: giro su se stessi, palla che
 	# avvolge il corpo (Avatar pose "spin"), scatto in avanti.
-	if session_over or must_clear or solo_loose or charging or dunk_phase != "" or ball_live or trick_t > 0.0:
+	if session_over or solo_loose or charging or dunk_phase != "" or ball_live or trick_t > 0.0:
 		return
 	trick_kind = "spin"
 	trick_t = 0.45
@@ -820,7 +815,6 @@ func _toggle_hc() -> void:
 	ball_ghost_rim = false
 	through_rim = false
 	solo_loose = false
-	must_clear = false
 	_pick_ok = false
 	lbl_mid.text = ""
 	session_left = HC_SECONDS
@@ -862,7 +856,6 @@ func _pickup_loose(auto := false) -> void:
 	through_rim = false
 	_pick_ok = false
 	_flash_far_t = 0.0
-	must_clear = true
 	if not auto:
 		Events.popup.emit("PALLA!", player_pos + Vector2(0, -70),
 			Color(1.0, 0.82, 0.35), false)
@@ -871,10 +864,7 @@ func _pickup_loose(auto := false) -> void:
 func _shoot_down() -> void:
 	if shot_anim > 0.0 or dunk_phase != "":
 		return
-	if solo_loose or must_clear:
-		if must_clear:
-			lbl_mid.text = "PRIMA ESCI DALLA LINEA!"
-			lbl_mid.modulate = Color(1.0, 0.75, 0.2)
+	if solo_loose:
 		return
 	if can_dunk() and not posting:
 		_start_dunk()

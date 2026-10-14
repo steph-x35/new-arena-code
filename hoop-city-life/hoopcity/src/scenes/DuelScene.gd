@@ -139,6 +139,10 @@ var _def_held := false        # DIFENDI premuto: braccia su, contest se vicino
 var _base_pw := 0.0           # finestra del metro senza contest (per restringerla live)
 var _base_gw := 0.0
 var _contested := false       # il difensore e' addosso mentre carico
+var _blocked := false         # SALTO dell'altro a pochi passi: stoppata
+var _jump_t := 0.0            # il mio SALTO (braccia alte in aria)
+var ball_holder := -1         # LIBERO: di chi e' la palla (0 io, 1 lui, -1 a terra)
+var btn_guard: TouchButton
 
 
 func _ready() -> void:
@@ -172,6 +176,9 @@ func _ready() -> void:
 	if not _net_ok:
 		lbl_mid.text = Loc.t("duel.nolink")
 		return
+	# NEL LIBERO la palla e' UNA e di chi la prende: parte in mano a chi
+	# ospita il campo (stesso valore su tutti e due i telefoni).
+	ball_holder = 0 if NetLayer.role == "host" else 1
 	# scambio aspetto: l'altro ti deve vedere COME SEI
 	NetLayer.rpc("rpc_duel_look", _my_look())
 
@@ -235,13 +242,19 @@ func _build_hud() -> void:
 	lbl_mid.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	root.add_child(lbl_mid)
 
+	# IL PAD DEL 1V1 INDORE, STESSE CASELLE: primario in basso, TRICK a
+	# sinistra, POST (attacco) o DIFENDI (difesa) a destra. Il primario
+	# cambia con la fase: TIRA, SALTO (in difesa), PRENDI PALLA (libero).
+	var slot_primary := Vector2(-196.0, -152.0)
+	var slot_left := Vector2(-292.0, -258.0)
+	var slot_right := Vector2(-128.0, -258.0)
 	btn_shoot = TouchButton.new()
 	btn_shoot.text = "SHOOT"
 	btn_shoot.hold_mode = true
 	btn_shoot.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	btn_shoot.position = Vector2(-210, -230)
-	btn_shoot.custom_minimum_size = Vector2(190, 190)
-	btn_shoot.size = Vector2(190, 190)
+	btn_shoot.position = slot_primary
+	btn_shoot.custom_minimum_size = Vector2(128, 128)
+	btn_shoot.size = Vector2(128, 128)
 	btn_shoot.pressed_down.connect(_shoot_down)
 	btn_shoot.released.connect(_shoot_up)
 	root.add_child(btn_shoot)
@@ -249,9 +262,9 @@ func _build_hud() -> void:
 	btn_trick = TouchButton.new()
 	btn_trick.text = "TRICK"
 	btn_trick.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	btn_trick.position = Vector2(-416, -172)
-	btn_trick.custom_minimum_size = Vector2(118, 118)
-	btn_trick.size = Vector2(118, 118)
+	btn_trick.position = slot_left
+	btn_trick.custom_minimum_size = Vector2(108, 108)
+	btn_trick.size = Vector2(108, 108)
 	btn_trick.pressed_down.connect(_do_trick)
 	root.add_child(btn_trick)
 
@@ -259,11 +272,26 @@ func _build_hud() -> void:
 	btn_post.text = "POST"
 	btn_post.accent = Color(0.980, 0.780, 0.260)
 	btn_post.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	btn_post.position = Vector2(-416, -320)
-	btn_post.custom_minimum_size = Vector2(118, 118)
-	btn_post.size = Vector2(118, 118)
+	btn_post.position = slot_right
+	btn_post.custom_minimum_size = Vector2(108, 108)
+	btn_post.size = Vector2(108, 108)
 	btn_post.pressed_down.connect(_post_tap)
 	root.add_child(btn_post)
+
+	# DIFENDI: stessa casella del POST, ma in difesa — come l'indoor, dove
+	# attacco e difesa si scambiano le stesse tre caselle.
+	btn_guard = TouchButton.new()
+	btn_guard.text = Loc.t("duel.def")
+	btn_guard.hold_mode = true
+	btn_guard.accent = Color(0.870, 0.290, 0.260)
+	btn_guard.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	btn_guard.position = slot_right
+	btn_guard.custom_minimum_size = Vector2(108, 108)
+	btn_guard.size = Vector2(108, 108)
+	btn_guard.pressed_down.connect(_guard_down)
+	btn_guard.released.connect(_guard_up)
+	btn_guard.visible = false
+	root.add_child(btn_guard)
 
 	meter = ShotMeter.new()
 	meter.set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -325,6 +353,7 @@ func _process(delta: float) -> void:
 	dust_t = maxf(0.0, dust_t - delta)
 	shot_anim = maxf(0.0, shot_anim - delta * 4.5)
 	trick_t = maxf(0.0, trick_t - delta)
+	_jump_t = maxf(0.0, _jump_t - delta)
 	if _msg_t > 0.0:
 		_msg_t -= delta
 		if _msg_t <= 0.0:
@@ -388,7 +417,9 @@ func _process(delta: float) -> void:
 	if btn_shoot:
 		var want: String = "SHOOT"
 		if duel_on and duel_phase == "live" and not i_attack and not ball_loose:
-			want = Loc.t("duel.def")
+			want = Loc.t("duel.jump")
+		elif not duel_on and not _pad_holding() and not ball_live:
+			want = Loc.t("duel.grab")
 		elif dunk_phase == "hang":
 			want = "LET GO"
 		elif dunk_phase == "rise":
@@ -470,10 +501,13 @@ func _charge_flow(delta: float) -> void:
 			# CONTEST: il difensore con le braccia alzate addosso al tiratore
 			# restringe la finestra IN DIRETTA — difendersi serve davvero.
 			if duel_on:
-				_contested = bool(foe.get("ct", false)) \
-				and (foe["pos"] as Vector2).distance_to(player_pos) < 150.0
-				meter.perfect_window = _base_pw * (0.68 if _contested else 1.0)
-				meter.good_window = _base_gw * (0.85 if _contested else 1.0)
+				var fpos2: Vector2 = foe["pos"] as Vector2
+				var near: bool = fpos2.distance_to(player_pos) < 150.0
+				_contested = bool(foe.get("ct", false)) and near
+				_blocked = bool(foe.get("jm", false)) and near
+				var mult: float = 0.50 if _blocked else (0.68 if _contested else 1.0)
+				meter.perfect_window = _base_pw * mult
+				meter.good_window = _base_gw * (0.70 if _blocked else (0.85 if _contested else 1.0))
 
 
 func _dunk_flow(delta: float) -> void:
@@ -507,7 +541,7 @@ func _dunk_flow(delta: float) -> void:
 func _do_trick() -> void:
 	## TRICK come nel campetto solo: verso il ferro diventa EUROSTEP,
 	## dal post e' un DROP STEP, altrimenti la mossa la decide il joystick.
-	if duel_on and (not _i_have_ball() or must_clear):
+	if not _i_have_ball() or (duel_on and must_clear):
 		return
 	if trick_t > 0.0 or dunk_phase != "" or ball_live or charging or euro_t > 0.0:
 		return
@@ -564,7 +598,7 @@ func _do_trick() -> void:
 
 func _post_tap() -> void:
 	## POST UP: spalle al canestro. TIRA = fade/hook, TRICK = drop step.
-	if duel_on and not _i_have_ball():
+	if not _i_have_ball():
 		return
 	if charging or dunk_phase != "" or ball_live or euro_t > 0.0:
 		return
@@ -595,12 +629,56 @@ func _camera(delta: float) -> void:
 func _i_have_ball() -> bool:
 	if duel_on and (duel_phase != "live" or not i_attack or ball_loose):
 		return false
+	if not duel_on and (ball_holder != 0 or ball_loose):
+		return false
 	return not ball_live and dunk_phase == ""
+
+
+func _pad_holding() -> bool:
+	## Ho la palla in mano (per i tasti): nel 1v1 quando attacco, nel
+	## libero quando la palla e' mia.
+	if duel_on:
+		return duel_phase == "live" and i_attack and not ball_loose and not ball_live
+	return _net_ok and ball_holder == 0 and not ball_loose and not ball_live
+
+
+func _do_jump() -> void:
+	## SALTO: come la stoppata dell'indoor — scatti con le braccia alte.
+	## Se sei addosso al tiratore mentre carica, la sua finestra si stringe
+	## forte e i suoi gialli finiscono coperti.
+	if _jump_t > 0.0:
+		return
+	_jump_t = 0.45
+	Sfx.haptic(20)
+
+
+func _guard_down() -> void:
+	_def_held = true
+
+
+func _guard_up() -> void:
+	_def_held = false
+
+
+func _try_grab_ball() -> void:
+	## PRENDI PALLA: la presa del rimbalzo col bottone (raggio piu' largo
+	## di quello del camminarci sopra).
+	if not ball_loose:
+		return
+	if my_rebound and ball_live and _pick_ok and ball_h < 110.0 \
+	and player_pos.distance_to(ball_pos) < 130.0:
+		_take_ball(true, true)
+	elif not my_rebound and fb_live and _fb_pick_ok and fb_h < 110.0 \
+	and player_pos.distance_to(fb_pos) < 130.0:
+		_take_ball(false, true)
 
 
 func _shoot_down() -> void:
 	if duel_on and duel_phase == "live" and not i_attack and not ball_loose:
-		_def_held = true     # niente palla? il bottone e' tuo: DIFENDI
+		_do_jump()           # in difesa il primario e' SALTO, come indoor
+		return
+	if not duel_on and not _pad_holding():
+		_try_grab_ball()     # libero senza palla: PRENDI PALLA
 		return
 	if not _net_ok or not _i_have_ball():
 		if duel_on and i_attack and must_clear:
@@ -655,6 +733,8 @@ func _dunk_throw() -> void:
 	if duel_on:
 		my_score += 2
 		_duel_scored()
+	else:
+		ball_holder = 0
 
 
 func _drop_from_rim() -> void:
@@ -722,7 +802,12 @@ func _shoot_up() -> void:
 	if zone == "green":
 		made = true
 	elif zone == "yellow":
-		made = randf() < (0.30 if _contested else 0.5)
+		if _blocked:
+			made = false
+			Events.popup.emit(Loc.t("duel.blocked"), player_pos + Vector2(0, -110),
+				Color(0.87, 0.29, 0.26), true)
+		else:
+			made = randf() < (0.30 if _contested else 0.5)
 	else:
 		made = false
 	var ft: float = _distance_ft()
@@ -740,15 +825,18 @@ func _shoot_up() -> void:
 	else:
 		hot = false
 		streak = 0
-	if duel_on:
-		if made:
+	if made:
+		if duel_on:
 			my_score += pts
 			_duel_scored()
 		else:
-			ball_loose = true
-			my_rebound = true
-			_loose_t = 0.0
-			_pick_ok = false
+			ball_holder = 0    # libero: canestro, la palla resta a chi ha tirato
+	else:
+		ball_loose = true
+		my_rebound = true
+		_loose_t = 0.0
+		_pick_ok = false
+		ball_holder = -1
 	# traiettoria coerente con il verdetto (stessa regola del campetto solo)
 	var aim: Vector2
 	if zone == "green":
@@ -801,7 +889,7 @@ func _step_ball(delta: float) -> void:
 		_collide_backboard()
 		_collide_floor()
 	ball_spin += ball_vel.x * 0.0004
-	if not (duel_on and ball_loose):
+	if not ball_loose:
 		if ball_pos.x < -1300.0 or ball_pos.x > 1300.0 \
 		or ball_pos.y < -Court.COURT_H or ball_pos.y > Court.COURT_H:
 			ball_live = false
@@ -916,6 +1004,7 @@ func _send(delta: float) -> void:
 		"tk": trick_kind if trick_t > 0.0 else "",
 		"ta": trick_t / 0.45,
 		"ct": _def_held,
+		"jm": _jump_t > 0.05,
 	}
 	NetLayer.rpc("rpc_duel_me", d)
 
@@ -927,9 +1016,13 @@ func _my_kind() -> String:
 		return Avatar.DUNK
 	if shot_anim > 0.0 or pump_t > 0.0 or charging:
 		return Avatar.SHOOT
-	if duel_on and (not i_attack or ball_loose) and duel_phase != "over":
-		if (not i_attack and not ball_loose and _def_held) \
-		or (foe["pos"] as Vector2).distance_to(player_pos) < 300.0:
+	if _jump_t > 0.09:
+		return Avatar.REACH
+	var no_ball: bool = (duel_on and (not i_attack or ball_loose) and duel_phase != "over") \
+		or (not duel_on and (ball_holder != 0 or ball_loose))
+	if no_ball:
+		if duel_on and not ball_loose and not i_attack \
+		and (_def_held or (foe["pos"] as Vector2).distance_to(player_pos) < 300.0):
 			return Avatar.DEFEND
 		return Avatar.RUN if _my_walking() else Avatar.IDLE
 	return Avatar.DRIBBLE
@@ -986,6 +1079,7 @@ func _on_foe_state(d: Dictionary) -> void:
 	foe["tk"] = d.get("tk", "")
 	foe["ta"] = d.get("ta", 0.0)
 	foe["ct"] = d.get("ct", false)
+	foe["jm"] = d.get("jm", false)
 	foe["live"] = true
 	# (la palla dell'altro non viaggia nello stato: la simula il suo tiro)
 
@@ -1004,6 +1098,8 @@ func _on_foe_shot(d: Dictionary) -> void:
 		if duel_on:
 			foe_score += 2
 			_duel_foe_scored()
+		else:
+			ball_holder = 1
 		return
 	var zone: String = String(d.get("zone", ""))
 	if zone == "green":
@@ -1013,15 +1109,18 @@ func _on_foe_shot(d: Dictionary) -> void:
 			Color(1.0, 0.82, 0.35), true)
 	else:
 		Events.popup.emit("MISS!", fpos + Vector2(0, -80), Color(1.0, 0.45, 0.38), false)
-	if duel_on:
-		if bool(d.get("made", false)):
+	if bool(d.get("made", false)):
+		if duel_on:
 			foe_score += int(d.get("pts", 2))
 			_duel_foe_scored()
 		else:
-			ball_loose = true
-			my_rebound = false
-			_loose_t = 0.0
-			_fb_pick_ok = false
+			ball_holder = 1      # libero: la palla resta a chi ha segnato
+	else:
+		ball_loose = true
+		my_rebound = false
+		_loose_t = 0.0
+		_fb_pick_ok = false
+		ball_holder = -1
 	_foe_launch(d.get("from", fpos), d.get("aim", RIM), zone == "green")
 
 
@@ -1069,14 +1168,30 @@ func _duel_tick(delta: float) -> void:
 		btn_sfida.visible = _net_ok and bool(foe.get("seen", false)) and not duel_on
 	if btn_end != null:
 		btn_end.visible = duel_on and duel_phase != "over"
-	# In difesa i tasti dell'attacco SPARISCONO: resta il movimento e il
-	# bottone grande, che diventa DIFENDI (tenere premuto = braccia su).
+	# Il pad come l'indoor: in attacco TIRA/TRICK/POST, in difesa
+	# SALTO (primario) e DIFENDI (destra). Nel libero, senza palla,
+	# il primario diventa PRENDI PALLA.
 	var defending := duel_on and duel_phase == "live" and not i_attack and not ball_loose
+	var holding := _pad_holding()
 	if btn_trick != null:
-		btn_trick.visible = not defending
+		btn_trick.visible = holding
 	if btn_post != null:
-		btn_post.visible = not defending
+		btn_post.visible = holding
+	if btn_guard != null:
+		btn_guard.visible = defending
 	if not duel_on:
+		# CAMPO LIBERO: la palla e' UNA — il rimbalzo a terra e' di tutti
+		# e due, chi ci arriva prima se la prende (e l'altro la vede sparire).
+		if ball_loose:
+			_loose_t += delta
+			if my_rebound and ball_live and _pick_ok and ball_h < 90.0 \
+			and player_pos.distance_to(ball_pos) < 70.0:
+				_take_ball(true, true)
+			elif not my_rebound and fb_live and _fb_pick_ok and fb_h < 90.0 \
+			and player_pos.distance_to(fb_pos) < 70.0:
+				_take_ball(false, true)
+			elif _loose_t > 8.0:
+				_take_ball(true, true)
 		return
 	if duel_phase == "count":
 		_count_t -= delta
@@ -1172,18 +1287,24 @@ func _duel_foe_scored() -> void:
 		_duel_end(false)
 
 
-func _take_ball(off: bool) -> void:
+func _take_ball(off: bool, free := false) -> void:
 	## Ho preso il rimbalzo. off = rimbalzo OFFENSIVO (il mio tiro
 	## sbagliato): posso rimettere subito; in difesa, prima esco dalla linea.
+	## free = nel campo libero: nessuna regola, la palla e' mia e via.
 	ball_loose = false
 	ball_live = false
 	fb_live = false
-	i_attack = true
-	must_clear = not off
 	_pick_ok = false
 	_fb_pick_ok = false
 	_loose_t = 0.0
 	_took_at = int(Time.get_ticks_msec())
+	if free:
+		ball_holder = 0
+		_say(Loc.t("duel.takefree"), 1.2)
+		NetLayer.rpc("rpc_duel_ev", {"ev": "take", "free": true})
+		return
+	i_attack = true
+	must_clear = not off
 	_duel_update_top()
 	_say(Loc.t("duel.takeoff") if off else Loc.t("duel.takedef"), 1.5)
 	NetLayer.rpc("rpc_duel_ev", {"ev": "take", "off": off})
@@ -1221,9 +1342,13 @@ func _on_foe_ev(d: Dictionary) -> void:
 			ball_loose = false
 			ball_live = false
 			fb_live = false
+			_loose_t = 0.0
+			if bool(d.get("free", false)):
+				ball_holder = 1
+				_say(Loc.t("duel.takefoe"), 1.2)
+				return
 			i_attack = false
 			must_clear = false
-			_loose_t = 0.0
 			_duel_update_top()
 			_say(Loc.t("duel.takefoe"), 1.5)
 		"rematch":
@@ -1256,6 +1381,7 @@ func _duel_free() -> void:
 	_pick_ok = false
 	_fb_pick_ok = false
 	_loose_t = 0.0
+	ball_holder = 0 if NetLayer.role == "host" else 1
 	if meter != null:
 		meter.visible = false
 	lbl_top.text = "%s  ·  %s" % [Loc.t("duel.you"), String(foe.get("name", "?"))]
@@ -1443,6 +1569,9 @@ func _draw_ball_at(p: Vector2, r: float, spin := 0.0) -> void:
 ## pose, stesse proporzioni, camminata e trick compresi.
 func _draw_char(mine: bool) -> void:
 	var world: Vector2 = player_pos if mine else (foe["pos"] as Vector2)
+	if mine and _jump_t > 0.0:
+		# il SALTO: stacco da terra a arco, come la stoppata dell'indoor
+		world.y -= 90.0 * sin(PI * (1.0 - _jump_t / 0.45))
 	var f: float = facing if mine else float(foe.get("facing", -1.0))
 	var kind: String = _my_kind() if mine else String(foe.get("kind", Avatar.DRIBBLE))
 	var amount: float = _my_amount() if mine else float(foe.get("amount", 0.0))
@@ -1467,10 +1596,12 @@ func _draw_char(mine: bool) -> void:
 	var hold_ball: bool
 	if mine:
 		hold_ball = not ball_live and dp == "" and trick_t <= 0.0 \
-			and (not duel_on or (i_attack and not ball_loose and duel_phase != "over"))
+			and ((not duel_on and ball_holder == 0 and not ball_loose) \
+			or (duel_on and i_attack and not ball_loose and duel_phase != "over"))
 	else:
 		hold_ball = not fb_live and dp == "" and tk == "" \
-			and (not duel_on or ((not i_attack) and not ball_loose and duel_phase != "over"))
+			and ((not duel_on and ball_holder == 1 and not ball_loose) \
+			or (duel_on and (not i_attack) and not ball_loose and duel_phase != "over"))
 
 	var po: Dictionary = Avatar.pose(kind, phase, amount, tk, walking)
 	po["hand"] = -1.0 if hand_left else 1.0
@@ -1697,7 +1828,7 @@ func _step_foe_ball(delta: float) -> void:
 		_foe_ball_backboard()
 		_foe_ball_floor()
 	fb_spin += fb_vel.x * 0.0004
-	if not (duel_on and ball_loose):
+	if not ball_loose:
 		if fb_pos.x < -1300.0 or fb_pos.x > 1300.0 \
 		or fb_pos.y < -Court.COURT_H or fb_pos.y > Court.COURT_H:
 			fb_live = false

@@ -119,29 +119,42 @@ func _maybe_perf_check() -> void:
 
 ## 1v1 DI CARRIERA: la regola dell'uscita dalla linea dei tre esiste gia'
 ## (take it back past the arc) — la linea LAMPEGGIA finche' chi ha preso
-## palla non e' uscito, cosi' si vede cosa resta da fare.
+## palla non e' uscito. Line2D con z_index ALTO: il pavimento disegnato
+## dal CourtVisual e' un FIGLIO del MatchScene, quindi coprirebbe
+## qualsiasi cosa il padre disegni — la linea vive in un nodo suo, sopra
+## a tutto.
 var _flash_t := 0.0
+var _flash_line: Line2D = null
 
 
-func _draw() -> void:
-	if court == null or not court.one_on_one or not court.must_clear:
+func _flash_tick() -> void:
+	if court == null:
 		return
-	if not court.play_live or court.restarting or court.awaiting_check:
+	var on: bool = court.one_on_one and court.must_clear \
+		and court.play_live and not court.restarting and not court.awaiting_check
+	if _flash_line == null:
+		_flash_line = Line2D.new()
+		_flash_line.z_index = 40
+		_flash_line.width = 9.0
+		add_child(_flash_line)
+	if not on:
+		_flash_line.visible = false
 		return
 	var hoop: Vector2 = court.hoop_for(court.possession)
 	var radius: float = 22.0 * Court.PX_PER_FT
-	var col: Color = Color(1.0, 0.62, 0.20, 0.40 + 0.45 * absf(sin(_flash_t * 5.0)))
 	var pts: PackedVector2Array = []
 	var n := 40
 	for i in range(n + 1):
 		var a: float = PI * 0.5 + PI * float(i) / float(n)
 		pts.append(CourtStage.m_project(hoop + Vector2(cos(a), sin(a)) * radius, Court.COURT_H))
-	draw_polyline(pts, col, 7.0, true)
+	_flash_line.points = pts
+	_flash_line.default_color = Color(1.0, 0.62, 0.20, 0.45 + 0.5 * absf(sin(_flash_t * 5.0)))
+	_flash_line.visible = true
 
 
 func _process(delta: float) -> void:
 	_flash_t += delta
-	queue_redraw()
+	_flash_tick()
 	_maybe_perf_check()
 	var u := court.user
 	if u == null or stamina_bar == null: return
