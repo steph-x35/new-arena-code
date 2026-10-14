@@ -74,13 +74,13 @@ var ball_rattled := false       # ferro gia' suonato su questo tiro
 var prev_pos := Vector2.ZERO
 var prev_h := 0.0
 
-# RIMBALZO VIVO: l'errore resta sul campo — la palla rimbalza sul ferro
-# e a terra, e la riprendi cammandoci sopra. TOTALE LIBERTA': nessuna
-# regola, nessuna linea da rispettare, si riprende e si ritira da dove
-# si vuole. (Fuori dalla Sfida Meta Campo, che resta com'e'.)
+# RIMBALZO VIVO: dopo OGNI tiro (canestro compreso) la palla cade o
+# rimbalza in un punto del campo e RESTA LI ad aspettare: e' il giocatore
+# che se la deve andare a prendere. TOTALE LIBERTA': nessuna regola, si
+# riprende e si ritira da dove si vuole. (Fuori dalla Sfida Meta Campo,
+# che resta com'e'.)
 var solo_loose := false
 var _pick_ok := false
-var _flash_far_t := 0.0
 
 # session
 const SESSION_SECONDS := 120.0
@@ -469,19 +469,21 @@ func _process(delta: float) -> void:
 			# HALF-COURT: ogni tentativo finito = nuovo spot oltre la metà.
 			if hc_mode and not session_over:
 				_hc_teleport()
-	# RIMBALZO VIVO: la palla sbagliata e' a terra — la riprendi andandoci
-	# sopra; se finisce dove non arrivi, dopo un attimo torna in mano.
+	# RIMBALZO VIVO: la palla RESTA LI e aspetta il giocatore — la riprendi
+	# cammandoci sopra. Se si ferma fuori dalla zona raggiungibile, rotola
+	# piano dentro (cosi' non ce n'e' mai una impossibile da prendere).
 	if solo_loose:
 		if ball_live and _pick_ok and ball_h < 90.0 \
 		and player_pos.distance_to(ball_pos) < 85.0:
 			_pickup_loose()
-		elif ball_live and player_pos.distance_to(ball_pos) > 120.0 \
-		and (ball_settled > 0.6 or absf(ball_pos.x) > Court.COURT_W * 0.5 + 60.0):
-			_flash_far_t += delta
-			if _flash_far_t > 2.5:
-				_pickup_loose(true)
-		else:
-			_flash_far_t = 0.0
+		elif ball_live and ball_settled > 0.8 \
+		and (absf(ball_pos.x) > Court.COURT_W * 0.5 - 80.0 \
+		or absf(ball_pos.y) > Court.COURT_H * 0.5 - 80.0):
+			ball_pos = Vector2(
+				clampf(ball_pos.x, -(Court.COURT_W * 0.5 - 80.0), Court.COURT_W * 0.5 - 80.0),
+				clampf(ball_pos.y, -(Court.COURT_H * 0.5 - 80.0), Court.COURT_H * 0.5 - 80.0))
+			ball_vel = Vector2.ZERO
+			ball_vh = 0.0
 
 
 	# PIEGA DEL FERRO: lo Street Court appendi al ferro destro -> court_art
@@ -577,6 +579,19 @@ func _process(delta: float) -> void:
 			dust_big = true
 			dust_t = 0.70
 			Sfx.play("body", -6.0, randf_range(0.90, 1.0))
+			# ANCHE LA SCHIACCIATA LASCIA LA PALLA A TERRA: cade da sotto il
+			# ferro e aspetta, come ogni altro tiro.
+			if not hc_mode:
+				solo_loose = true
+				_pick_ok = false
+				ball_pos = RIM + Vector2(randf_range(-50.0, 50.0), randf_range(0.0, 60.0))
+				ball_h = 70.0
+				ball_vel = Vector2(randf_range(-90.0, 90.0), randf_range(-40.0, 40.0))
+				ball_vh = -30.0
+				ball_settled = 0.0
+				ball_ghost_rim = false
+				through_rim = false
+				ball_live = true
 
 	var ft: float = _distance_ft()
 	var tag: String = "  ·  DUNK READY" if (can_dunk() and dunk_phase == "") else ""
@@ -657,6 +672,10 @@ func _post_tap() -> void:
 		var hx: float = RIM.x - player_pos.x
 		if absf(hx) > 1.0:
 			facing = -signf(hx)
+		# BACK DOWN: si entra nel post con un passo di spalle, verso il ferro
+		player_pos += (RIM - player_pos).normalized() * 34.0
+		player_pos.x = clampf(player_pos.x, -Court.COURT_W * 0.5 + 40.0, Court.COURT_W * 0.5 - 40.0)
+		player_pos.y = clampf(player_pos.y, -Court.COURT_H * 0.5 + 40.0, Court.COURT_H * 0.5 - 40.0)
 		lbl_mid.text = "POST"
 		lbl_mid.modulate = Color(0.98, 0.78, 0.26)
 		if not bool(Game.profile.get("post_hint_solo", false)):
@@ -847,18 +866,16 @@ func _hc_teleport() -> void:
 	ball_ghost_rim = false
 	through_rim = false
 
-func _pickup_loose(auto := false) -> void:
-	## Ho ripreso la palla da terra: ora si esce dalla linea dei tre.
+func _pickup_loose() -> void:
+	## Ho ripreso la palla da terra: si riparte, e si tira da dove voglio.
 	solo_loose = false
 	ball_live = false
 	ball_settled = 0.0
 	ball_ghost_rim = false
 	through_rim = false
 	_pick_ok = false
-	_flash_far_t = 0.0
-	if not auto:
-		Events.popup.emit("PALLA!", player_pos + Vector2(0, -70),
-			Color(1.0, 0.82, 0.35), false)
+	Events.popup.emit("PALLA!", player_pos + Vector2(0, -70),
+		Color(1.0, 0.82, 0.35), false)
 
 
 func _shoot_down() -> void:
@@ -1026,12 +1043,11 @@ func _shoot_up() -> void:
 			Events.popup.emit("COLD", player_pos, Color(0.7, 0.75, 0.85), false)
 		streak = 0
 		lbl_mid.text = ""
-	# RIMBALZO VIVO: l'errore (fuori dalla Sfida Meta Campo) non torna in
-	# mano da solo — resta sul campo: la riprendi cammandoci sopra.
-	if not shot_made and not hc_mode:
+	# RIMBALZO VIVO: dopo OGNI tiro (canestro o errore, fuori dalla Sfida
+	# Meta Campo) la palla finisce a terra e aspetta il giocatore.
+	if not hc_mode:
 		solo_loose = true
 		_pick_ok = false
-		_flash_far_t = 0.0
 	# HALF-COURT CHALLENGE: conta SOLO il green da oltre la linea.
 	if hc_mode:
 		if zone == "green" and ft >= HC_MIN_FT:
@@ -1549,6 +1565,11 @@ func _draw_player() -> void:
 		kind = Avatar.DRIBBLE
 		phase = dribble_t * 1.9
 		amount = trick_t / 0.45
+	elif posting:
+		# POST UP VERO: spalle al canestro, gambe piegate, braccia larghe
+		# a tenere la posizione — non si palleggia, si spalleggia.
+		kind = Avatar.DEFEND
+		lift = -7.0
 	elif joystick.output.length() > 0.06:
 		kind = Avatar.DRIBBLE
 		phase = dribble_t

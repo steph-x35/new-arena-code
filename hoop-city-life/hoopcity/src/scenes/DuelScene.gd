@@ -141,8 +141,13 @@ var _base_gw := 0.0
 var _contested := false       # il difensore e' addosso mentre carico
 var _blocked := false         # SALTO dell'altro a pochi passi: stoppata
 var _jump_t := 0.0            # il mio SALTO (braccia alte in aria)
-var ball_holder := -1         # LIBERO: di chi e' la palla (0 io, 1 lui, -1 a terra)
+var i_hold := true            # LIBERO: ho una palla in mano (la mia o la sua)
 var btn_guard: TouchButton
+var btn_steal: TouchButton
+var btn_check: Button
+var _steal_cd := 0.0
+var _steal_t := 0.0
+var _jump_dir := Vector2.ZERO
 
 
 func _ready() -> void:
@@ -176,9 +181,8 @@ func _ready() -> void:
 	if not _net_ok:
 		lbl_mid.text = Loc.t("duel.nolink")
 		return
-	# NEL LIBERO la palla e' UNA e di chi la prende: parte in mano a chi
-	# ospita il campo (stesso valore su tutti e due i telefoni).
-	ball_holder = 0 if NetLayer.role == "host" else 1
+	# NEL LIBERO le palle sono DUE, una a testa: ognuno parte con la sua.
+	i_hold = true
 	# scambio aspetto: l'altro ti deve vedere COME SEI
 	NetLayer.rpc("rpc_duel_look", _my_look())
 
@@ -293,6 +297,31 @@ func _build_hud() -> void:
 	btn_guard.visible = false
 	root.add_child(btn_guard)
 
+	# RUBATA: la casella sinistra in difesa, come lo STEAL dell'indoor.
+	btn_steal = TouchButton.new()
+	btn_steal.text = Loc.t("duel.steal")
+	btn_steal.accent = Color(0.870, 0.290, 0.260)
+	btn_steal.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	btn_steal.position = slot_left
+	btn_steal.custom_minimum_size = Vector2(108, 108)
+	btn_steal.size = Vector2(108, 108)
+	btn_steal.pressed_down.connect(_try_steal)
+	btn_steal.visible = false
+	root.add_child(btn_steal)
+
+	# CHECK: sopra il pad, come il 1v1 indoor — la palla parte solo quando
+	# chi attacca da il via.
+	btn_check = Button.new()
+	btn_check.text = Loc.t("duel.check")
+	btn_check.modulate = Color(0.98, 0.78, 0.26)
+	btn_check.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	btn_check.position = Vector2(-214.0, -500.0)
+	btn_check.custom_minimum_size = Vector2(128, 128)
+	btn_check.add_theme_font_size_override("font_size", 24)
+	btn_check.pressed.connect(_do_check)
+	btn_check.visible = false
+	root.add_child(btn_check)
+
 	meter = ShotMeter.new()
 	meter.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	meter.position = Vector2(0, 0)
@@ -354,6 +383,13 @@ func _process(delta: float) -> void:
 	shot_anim = maxf(0.0, shot_anim - delta * 4.5)
 	trick_t = maxf(0.0, trick_t - delta)
 	_jump_t = maxf(0.0, _jump_t - delta)
+	_steal_cd = maxf(0.0, _steal_cd - delta)
+	_steal_t = maxf(0.0, _steal_t - delta)
+	if _jump_t > 0.10:
+		# lo scatto del SALTO: verso chi ha la palla, come la stoppata
+		# dell'indoor (il salto ATTACCA il tiratore)
+		player_pos += _jump_dir * 240.0 * delta
+		_clamp_me()
 	if _msg_t > 0.0:
 		_msg_t -= delta
 		if _msg_t <= 0.0:
@@ -418,7 +454,7 @@ func _process(delta: float) -> void:
 		var want: String = "SHOOT"
 		if duel_on and duel_phase == "live" and not i_attack and not ball_loose:
 			want = Loc.t("duel.jump")
-		elif not duel_on and not _pad_holding() and not ball_live:
+		elif not duel_on and not _pad_holding():
 			want = Loc.t("duel.grab")
 		elif dunk_phase == "hang":
 			want = "LET GO"
@@ -525,6 +561,21 @@ func _dunk_flow(delta: float) -> void:
 			dust_big = true
 			dust_t = 0.70
 			Sfx.play("body", -6.0, randf_range(0.90, 1.0))
+			# LIBERO: anche la schiacciata lascia la palla a terra, che
+			# cade da sotto il ferro e aspetta.
+			if not duel_on:
+				ball_loose = true
+				my_rebound = true
+				_loose_t = 0.0
+				_pick_ok = false
+				ball_pos = RIM + Vector2(randf_range(-50.0, 50.0), randf_range(0.0, 60.0))
+				ball_h = 70.0
+				ball_vel = Vector2(randf_range(-90.0, 90.0), randf_range(-40.0, 40.0))
+				ball_vh = -30.0
+				ball_settled = 0.0
+				ball_ghost_rim = false
+				through_rim = false
+				ball_live = true
 	if dunk_phase == "rise" and dunk_anim >= dunk_rise_t:
 		_dunk_throw()
 		# La rete canta ESATTAMENTE una volta: al momento della schiacciata.
@@ -629,7 +680,7 @@ func _camera(delta: float) -> void:
 func _i_have_ball() -> bool:
 	if duel_on and (duel_phase != "live" or not i_attack or ball_loose):
 		return false
-	if not duel_on and (ball_holder != 0 or ball_loose):
+	if not duel_on and not i_hold:
 		return false
 	return not ball_live and dunk_phase == ""
 
@@ -639,17 +690,79 @@ func _pad_holding() -> bool:
 	## libero quando la palla e' mia.
 	if duel_on:
 		return duel_phase == "live" and i_attack and not ball_loose and not ball_live
-	return _net_ok and ball_holder == 0 and not ball_loose and not ball_live
+	return _net_ok and i_hold and not ball_live
 
 
 func _do_jump() -> void:
-	## SALTO: come la stoppata dell'indoor — scatti con le braccia alte.
-	## Se sei addosso al tiratore mentre carica, la sua finestra si stringe
-	## forte e i suoi gialli finiscono coperti.
+	## SALTO come la STOPPATA dell'indoor: scatto VERSO chi ha la palla,
+	## con le braccia alte. Sopra una palla a terra, invece di saltare,
+	## la prendi al volo.
+	if duel_on and duel_phase != "live":
+		return
+	if duel_on and ball_loose:
+		if my_rebound and ball_live and _pick_ok and ball_h < 110.0 \
+		and player_pos.distance_to(ball_pos) < 130.0:
+			_take_ball(true)
+			return
+		elif not my_rebound and fb_live and _fb_pick_ok and fb_h < 110.0 \
+		and player_pos.distance_to(fb_pos) < 130.0:
+			_take_ball(false)
+			return
 	if _jump_t > 0.0:
 		return
 	_jump_t = 0.45
+	var to: Vector2 = (foe["pos"] as Vector2) - player_pos
+	_jump_dir = to.normalized() if to.length() > 1.0 else Vector2(facing, 0.0)
 	Sfx.haptic(20)
+
+
+func _try_steal() -> void:
+	## RUBATA come nell'indoor: scatto verso chi ha la palla e, se ci
+	## arrivi con le mani vicine, la possibilita' di portargliela via.
+	if _steal_cd > 0.0:
+		return
+	_steal_cd = 1.15
+	_steal_t = 0.38
+	Sfx.squeak()
+	if not (duel_on and duel_phase == "live"):
+		return
+	if i_attack or ball_loose:
+		return
+	var to: Vector2 = (foe["pos"] as Vector2) - player_pos
+	if to.length() < 1.0:
+		return
+	player_pos += to.normalized() * minf(to.length() * 0.35, 46.0)
+	_clamp_me()
+	if to.length() > 90.0:
+		return
+	if randf() < 0.30 * lerpf(1.05, 0.5, to.length() / 90.0):
+		# portata via! palla a chi ha rubato — e si esce dalla linea
+		i_attack = true
+		must_clear = true
+		ball_loose = false
+		ball_live = false
+		fb_live = false
+		_duel_update_top()
+		Events.popup.emit(Loc.t("duel.stealwon"), player_pos + Vector2(0, -100),
+			Color(1.0, 0.82, 0.35), true)
+		Sfx.play("steal", -1.0)
+		Sfx.haptic(40)
+		NetLayer.rpc("rpc_duel_ev", {"ev": "steal"})
+
+
+func _do_check() -> void:
+	if not (duel_on and duel_phase == "check" and i_attack):
+		return
+	NetLayer.rpc("rpc_duel_ev", {"ev": "checked"})
+	_go_live()
+
+
+func _go_live() -> void:
+	duel_phase = "live"
+	_duel_update_top()
+	_say(Loc.t("duel.go"), 0.9)
+	Sfx.play("go")
+	Sfx.haptic(30)
 
 
 func _guard_down() -> void:
@@ -661,16 +774,40 @@ func _guard_up() -> void:
 
 
 func _try_grab_ball() -> void:
-	## PRENDI PALLA: la presa del rimbalzo col bottone (raggio piu' largo
-	## di quello del camminarci sopra).
-	if not ball_loose:
+	## PRENDI PALLA: la presa col bottone (raggio piu' largo del
+	## camminarci sopra). Nel libero vale per entrambe le palle a terra;
+	## nel 1v1 per il rimbalzo vivo.
+	if not duel_on:
+		if i_hold:
+			return
+		if ball_loose and ball_live and _pick_ok and ball_h < 110.0 \
+		and player_pos.distance_to(ball_pos) < 130.0:
+			_free_pick(true)
+		elif fb_live and _fb_pick_ok and fb_h < 110.0 \
+		and player_pos.distance_to(fb_pos) < 130.0:
+			_free_pick(false)
 		return
-	if my_rebound and ball_live and _pick_ok and ball_h < 110.0 \
-	and player_pos.distance_to(ball_pos) < 130.0:
-		_take_ball(true, true)
-	elif not my_rebound and fb_live and _fb_pick_ok and fb_h < 110.0 \
-	and player_pos.distance_to(fb_pos) < 130.0:
-		_take_ball(false, true)
+	if ball_loose:
+		if my_rebound and ball_live and _pick_ok and ball_h < 110.0 \
+		and player_pos.distance_to(ball_pos) < 130.0:
+			_take_ball(true)
+		elif not my_rebound and fb_live and _fb_pick_ok and fb_h < 110.0 \
+		and player_pos.distance_to(fb_pos) < 130.0:
+			_take_ball(false)
+
+
+func _free_pick(mine: bool) -> void:
+	## LIBERO: raccolgo una palla da terra — la mia o quella dell'altro.
+	i_hold = true
+	if mine:
+		ball_loose = false
+		ball_live = false
+		NetLayer.rpc("rpc_duel_ev", {"ev": "pick_mine"})
+	else:
+		fb_live = false
+		NetLayer.rpc("rpc_duel_ev", {"ev": "pick_yours"})
+	Events.popup.emit(Loc.t("duel.takefree"), player_pos + Vector2(0, -70),
+		Color(1.0, 0.82, 0.35), false)
 
 
 func _shoot_down() -> void:
@@ -734,7 +871,7 @@ func _dunk_throw() -> void:
 		my_score += 2
 		_duel_scored()
 	else:
-		ball_holder = 0
+		i_hold = false
 
 
 func _drop_from_rim() -> void:
@@ -825,18 +962,16 @@ func _shoot_up() -> void:
 	else:
 		hot = false
 		streak = 0
-	if made:
-		if duel_on:
-			my_score += pts
-			_duel_scored()
-		else:
-			ball_holder = 0    # libero: canestro, la palla resta a chi ha tirato
+	if made and duel_on:
+		my_score += pts
+		_duel_scored()
 	else:
+		# tiro sbagliato nel 1v1, o QUALSIASI tiro nel libero: la palla
+		# finisce a terra e aspetta chi ha le mani libere
 		ball_loose = true
 		my_rebound = true
 		_loose_t = 0.0
 		_pick_ok = false
-		ball_holder = -1
 	# traiettoria coerente con il verdetto (stessa regola del campetto solo)
 	var aim: Vector2
 	if zone == "green":
@@ -852,6 +987,8 @@ func _shoot_up() -> void:
 		else:
 			aim = RIM + Vector2(away * randf_range(50.0, 90.0), -40.0)
 	ball_ghost = (zone == "green")
+	if not duel_on:
+		i_hold = false
 	_launch_ball(player_pos, aim)
 	NetLayer.rpc("rpc_duel_shot", {"dunk": false, "made": made, "pts": pts,
 		"zone": zone, "from": player_pos, "aim": aim})
@@ -1005,6 +1142,8 @@ func _send(delta: float) -> void:
 		"ta": trick_t / 0.45,
 		"ct": _def_held,
 		"jm": _jump_t > 0.05,
+		"hd": i_hold,
+		"st": _steal_t > 0.05,
 	}
 	NetLayer.rpc("rpc_duel_me", d)
 
@@ -1016,10 +1155,12 @@ func _my_kind() -> String:
 		return Avatar.DUNK
 	if shot_anim > 0.0 or pump_t > 0.0 or charging:
 		return Avatar.SHOOT
+	if _steal_t > 0.05:
+		return Avatar.STEAL
 	if _jump_t > 0.09:
 		return Avatar.REACH
 	var no_ball: bool = (duel_on and (not i_attack or ball_loose) and duel_phase != "over") \
-		or (not duel_on and (ball_holder != 0 or ball_loose))
+		or (not duel_on and not i_hold)
 	if no_ball:
 		if duel_on and not ball_loose and not i_attack \
 		and (_def_held or (foe["pos"] as Vector2).distance_to(player_pos) < 300.0):
@@ -1080,6 +1221,8 @@ func _on_foe_state(d: Dictionary) -> void:
 	foe["ta"] = d.get("ta", 0.0)
 	foe["ct"] = d.get("ct", false)
 	foe["jm"] = d.get("jm", false)
+	foe["hd"] = d.get("hd", true)
+	foe["st"] = d.get("st", false)
 	foe["live"] = true
 	# (la palla dell'altro non viaggia nello stato: la simula il suo tiro)
 
@@ -1099,7 +1242,17 @@ func _on_foe_shot(d: Dictionary) -> void:
 			foe_score += 2
 			_duel_foe_scored()
 		else:
-			ball_holder = 1
+			# la sua schiacciata: la palla cade da sotto il ferro e aspetta
+			fb_pos = RIM + Vector2(randf_range(-50.0, 50.0), randf_range(0.0, 60.0))
+			fb_h = 70.0
+			fb_vel = Vector2(randf_range(-90.0, 90.0), randf_range(-40.0, 40.0))
+			fb_vh = -30.0
+			fb_settled = 0.0
+			fb_live = true
+			_fb_pick_ok = false
+			_loose_t = 0.0
+			ball_loose = true
+			my_rebound = false
 		return
 	var zone: String = String(d.get("zone", ""))
 	if zone == "green":
@@ -1109,18 +1262,16 @@ func _on_foe_shot(d: Dictionary) -> void:
 			Color(1.0, 0.82, 0.35), true)
 	else:
 		Events.popup.emit("MISS!", fpos + Vector2(0, -80), Color(1.0, 0.45, 0.38), false)
-	if bool(d.get("made", false)):
-		if duel_on:
-			foe_score += int(d.get("pts", 2))
-			_duel_foe_scored()
-		else:
-			ball_holder = 1      # libero: la palla resta a chi ha segnato
+	if bool(d.get("made", false)) and duel_on:
+		foe_score += int(d.get("pts", 2))
+		_duel_foe_scored()
 	else:
+		# il suo tiro sbagliato nel 1v1, o QUALSIASI suo tiro nel libero:
+		# la palla (che simulo io) finisce a terra e aspetta
 		ball_loose = true
 		my_rebound = false
 		_loose_t = 0.0
 		_fb_pick_ok = false
-		ball_holder = -1
 	_foe_launch(d.get("from", fpos), d.get("aim", RIM), zone == "green")
 
 
@@ -1173,36 +1324,66 @@ func _duel_tick(delta: float) -> void:
 	# il primario diventa PRENDI PALLA.
 	var defending := duel_on and duel_phase == "live" and not i_attack and not ball_loose
 	var holding := _pad_holding()
+	var checking := duel_on and duel_phase == "check"
 	if btn_trick != null:
-		btn_trick.visible = holding
+		btn_trick.visible = holding and not checking
 	if btn_post != null:
-		btn_post.visible = holding
+		btn_post.visible = holding and not checking
 	if btn_guard != null:
 		btn_guard.visible = defending
+	if btn_steal != null:
+		btn_steal.visible = defending
+	if btn_check != null:
+		btn_check.visible = checking and i_attack
+	if btn_shoot != null:
+		btn_shoot.visible = not (checking and i_attack)
 	if not duel_on:
-		# CAMPO LIBERO: la palla e' UNA — il rimbalzo a terra e' di tutti
-		# e due, chi ci arriva prima se la prende (e l'altro la vede sparire).
-		if ball_loose:
-			_loose_t += delta
-			if my_rebound and ball_live and _pick_ok and ball_h < 90.0 \
+		# CAMPO LIBERO: DUE PALLE, una a testa. Dopo ogni tiro la palla
+		# finisce a terra e RESTA: se la riprende chi ha le mani libere,
+		# andandoci sopra — la propria o quella dell'altro, chi c'e' arriva
+		# prima. Nessun recupero automatico: la palla aspetta.
+		if not i_hold:
+			if ball_loose and ball_live and _pick_ok and ball_h < 90.0 \
 			and player_pos.distance_to(ball_pos) < 70.0:
-				_take_ball(true, true)
-			elif not my_rebound and fb_live and _fb_pick_ok and fb_h < 90.0 \
+				_free_pick(true)
+			elif fb_live and _fb_pick_ok and fb_h < 90.0 \
 			and player_pos.distance_to(fb_pos) < 70.0:
-				_take_ball(false, true)
-			elif _loose_t > 8.0:
-				_take_ball(true, true)
+				_free_pick(false)
+		# se una palla si ferma fuori dalla zona raggiungibile, rotola dentro
+		if ball_loose and ball_live and ball_settled > 0.8 \
+		and (absf(ball_pos.x) > Court.COURT_W * 0.5 - 80.0 \
+		or absf(ball_pos.y) > Court.COURT_H * 0.5 - 80.0):
+			ball_pos = Vector2(
+				clampf(ball_pos.x, -(Court.COURT_W * 0.5 - 80.0), Court.COURT_W * 0.5 - 80.0),
+				clampf(ball_pos.y, -(Court.COURT_H * 0.5 - 80.0), Court.COURT_H * 0.5 - 80.0))
+			ball_vel = Vector2.ZERO
+		if fb_live and fb_settled > 0.8 \
+		and (absf(fb_pos.x) > Court.COURT_W * 0.5 - 80.0 \
+		or absf(fb_pos.y) > Court.COURT_H * 0.5 - 80.0):
+			fb_pos = Vector2(
+				clampf(fb_pos.x, -(Court.COURT_W * 0.5 - 80.0), Court.COURT_W * 0.5 - 80.0),
+				clampf(fb_pos.y, -(Court.COURT_H * 0.5 - 80.0), Court.COURT_H * 0.5 - 80.0))
+			fb_vel = Vector2.ZERO
 		return
 	if duel_phase == "count":
 		_count_t -= delta
 		if _count_t <= 0.0:
-			duel_phase = "live"
+			# COME IL 1V1 INDOOR: il countdown porta al CHECK — la palla
+			# parte solo quando chi attacca da il via.
+			duel_phase = "check"
+			var atk := Vector2(RIM.x - 420.0, 0.0)
+			var dfn := Vector2(RIM.x - 300.0, 0.0)
+			player_pos = atk if i_attack else dfn
+			facing = 1.0 if i_attack else -1.0
+			foe["pos"] = dfn if i_attack else atk
+			foe["t_pos"] = foe["pos"]
 			_duel_update_top()
-			_say(Loc.t("duel.go"), 0.9)
-			Sfx.haptic(30)
+			_say(Loc.t("duel.checkgo") if i_attack else Loc.t("duel.checkwait"), 4.0)
 		else:
 			lbl_mid.text = str(clampi(int(ceil(_count_t)), 1, 3))
 			_msg_t = 0.0
+		return
+	if duel_phase == "check":
 		return
 	if duel_phase != "live":
 		return
@@ -1287,10 +1468,9 @@ func _duel_foe_scored() -> void:
 		_duel_end(false)
 
 
-func _take_ball(off: bool, free := false) -> void:
-	## Ho preso il rimbalzo. off = rimbalzo OFFENSIVO (il mio tiro
+func _take_ball(off: bool) -> void:
+	## Ho preso il rimbalzo nel 1v1. off = rimbalzo OFFENSIVO (il mio tiro
 	## sbagliato): posso rimettere subito; in difesa, prima esco dalla linea.
-	## free = nel campo libero: nessuna regola, la palla e' mia e via.
 	ball_loose = false
 	ball_live = false
 	fb_live = false
@@ -1298,11 +1478,6 @@ func _take_ball(off: bool, free := false) -> void:
 	_fb_pick_ok = false
 	_loose_t = 0.0
 	_took_at = int(Time.get_ticks_msec())
-	if free:
-		ball_holder = 0
-		_say(Loc.t("duel.takefree"), 1.2)
-		NetLayer.rpc("rpc_duel_ev", {"ev": "take", "free": true})
-		return
 	i_attack = true
 	must_clear = not off
 	_duel_update_top()
@@ -1343,14 +1518,32 @@ func _on_foe_ev(d: Dictionary) -> void:
 			ball_live = false
 			fb_live = false
 			_loose_t = 0.0
-			if bool(d.get("free", false)):
-				ball_holder = 1
-				_say(Loc.t("duel.takefoe"), 1.2)
-				return
 			i_attack = false
 			must_clear = false
 			_duel_update_top()
 			_say(Loc.t("duel.takefoe"), 1.5)
+		"pick_mine":
+			# ha raccolto da terra la SUA palla: la mia sim di essa si spegne
+			fb_live = false
+		"pick_yours":
+			# ha raccolto da terra la MIA palla: sparisce dal mio campo
+			ball_loose = false
+			ball_live = false
+		"checked":
+			if duel_phase == "check":
+				_go_live()
+		"steal":
+			if not (duel_on and duel_phase == "live"):
+				return
+			if i_attack:
+				i_attack = false
+				must_clear = false
+				ball_loose = false
+				ball_live = false
+				fb_live = false
+				_duel_update_top()
+				Events.popup.emit(Loc.t("duel.stolen"), player_pos + Vector2(0, -100),
+					Color(1.0, 0.45, 0.38), true)
 		"rematch":
 			if duel_phase != "over":
 				return
@@ -1381,7 +1574,7 @@ func _duel_free() -> void:
 	_pick_ok = false
 	_fb_pick_ok = false
 	_loose_t = 0.0
-	ball_holder = 0 if NetLayer.role == "host" else 1
+	i_hold = true
 	if meter != null:
 		meter.visible = false
 	lbl_top.text = "%s  ·  %s" % [Loc.t("duel.you"), String(foe.get("name", "?"))]
@@ -1596,11 +1789,11 @@ func _draw_char(mine: bool) -> void:
 	var hold_ball: bool
 	if mine:
 		hold_ball = not ball_live and dp == "" and trick_t <= 0.0 \
-			and ((not duel_on and ball_holder == 0 and not ball_loose) \
+			and ((not duel_on and i_hold) \
 			or (duel_on and i_attack and not ball_loose and duel_phase != "over"))
 	else:
 		hold_ball = not fb_live and dp == "" and tk == "" \
-			and ((not duel_on and ball_holder == 1 and not ball_loose) \
+			and ((not duel_on and bool(foe.get("hd", true))) \
 			or (duel_on and (not i_attack) and not ball_loose and duel_phase != "over"))
 
 	var po: Dictionary = Avatar.pose(kind, phase, amount, tk, walking)

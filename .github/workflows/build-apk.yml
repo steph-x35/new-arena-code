@@ -165,8 +165,8 @@ jobs:
           echo "Importing project assets in headless mode..."
           godot -v --headless --import 2>&1 | tee /tmp/import.log || true
           echo "Exporting Android APK..."
-          godot -v --headless --export-release "Android" build/HoopCity-v2.46.0.apk 2>&1 | tee /tmp/export.log || true
-          if [ ! -f "build/HoopCity-v2.46.0.apk" ]; then
+          godot -v --headless --export-release "Android" build/HoopCity-v2.47.0.apk 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/HoopCity-v2.47.0.apk" ]; then
             echo "=== EXPORT FAILED! Printing log: ==="
             cat /tmp/export.log | tail -n 80
             cp /tmp/export.log $GITHUB_WORKSPACE/build_error.log
@@ -183,15 +183,15 @@ jobs:
             --ks-pass pass:android \
             --ks-key-alias androiddebugkey \
             --key-pass pass:android \
-            build/HoopCity-v2.46.0.apk
+            build/HoopCity-v2.47.0.apk
           echo "Verifying APK signature..."
-          apksigner verify --verbose build/HoopCity-v2.46.0.apk
+          apksigner verify --verbose build/HoopCity-v2.47.0.apk
           echo "Checking APK launcher icons..."
-          unzip -l build/HoopCity-v2.46.0.apk | grep -i "mipmap" | head -n 20
-          ls -lh build/HoopCity-v2.46.0.apk
+          unzip -l build/HoopCity-v2.47.0.apk | grep -i "mipmap" | head -n 20
+          ls -lh build/HoopCity-v2.47.0.apk
           echo "Verifica permessi APK (la stanza WiFi li richiede)..."
-          aapt dump permissions build/HoopCity-v2.46.0.apk
-          if ! aapt dump permissions build/HoopCity-v2.46.0.apk | grep -q "android.permission.INTERNET"; then
+          aapt dump permissions build/HoopCity-v2.47.0.apk
+          if ! aapt dump permissions build/HoopCity-v2.47.0.apk | grep -q "android.permission.INTERNET"; then
             echo "!!! MANCA android.permission.INTERNET: la stanza condivisa non può aprirsi"
             exit 1
           fi
@@ -200,20 +200,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp hoop-city-life/hoopcity/build/HoopCity-v2.46.0.apk /tmp/HoopCity-v2.46.0.apk
-          gh release delete v2.46.0 -y --cleanup-tag || true
+          cp hoop-city-life/hoopcity/build/HoopCity-v2.47.0.apk /tmp/HoopCity-v2.47.0.apk
+          gh release delete v2.47.0 -y --cleanup-tag || true
           # TAG ORFANO: se la create e' morta a meta' (tag creato, release no),
           # --cleanup-tag non lo rimuove perche' la release non esiste — e ogni
           # tentativo dopo fallisce con "tag already exists". Via il tag a mano.
-          git push origin --delete v2.46.0 || true
+          git push origin --delete v2.47.0 || true
           sleep 5
           # L'API delle release ogni tanto perde colpi (race delete/create):
           # tre tentativi prima di arrendersi.
           ok=0
           for i in 1 2 3; do
-            if gh release create v2.46.0 /tmp/HoopCity-v2.46.0.apk \
-              --title "Hoop City Life v2.46.0" \
-              --notes "Aggiornamento v2.46.0 🏀 Il pad del 1v1 online e' QUELLO DELL'INDOOR: in difesa il primario diventa SALTO (stoppata: scatti con le braccia alte e vicino al tiratore i suoi gialli finiscono coperti) e a destra c'e' DIFENDI. La palla online ora e' UNA, anche nei tiri liberi: il rimbalzo a terra e' di chi ci arriva primo — se la prende l'altro, la vedi sparire e riapparire nelle sue mani. Nel 1v1 di carriera la linea dei tre ora si VEDE lampeggiare quando devi uscire. Il campetto da solo resta libero: palla a terra da raccogliere, nessuna regola."
+            if gh release create v2.47.0 /tmp/HoopCity-v2.47.0.apk \
+              --title "Hoop City Life v2.47.0" \
+              --notes "Aggiornamento v2.47.0 🏀 ONLINE: le palle sono DUE, una a testa — dopo ogni tiro la palla cade e RESTA a terra, e se la riprende chi ha le mani libere andandoci sopra (anche quella dell'altro!). Il 1v1 online ora e' IDENTICO a quello del Team Court: countdown, pulsante CHECK per dare il via, e in difesa SALTO (stoppata con scatto verso il tiratore), RUBATA e DIFENDI. CAMPETTO DA SOLO: dopo QUALSIASI tiro (canestro compreso) la palla finisce a terra e aspetta che sia tu ad andarla a prendere; il POST UP e' credibile: passo di spalle verso il ferro e posa da spalle al canestro con gambe piegate e braccia larghe."
               --target arena/01a0cac8-new-arena-code; then
               ok=1
               break
@@ -225,8 +225,8 @@ jobs:
             # RACE API: la create puo' riuscire lato server e tornare comunque
             # errore; i tentativi dopo falliscono perche' la release esiste gia'.
             # Se la release c'e' (con l'APK), e' andata bene.
-            if gh release view v2.46.0 > /dev/null 2>&1 \
-            && gh release view v2.46.0 --json assets -q '.assets | length' | grep -q -v "^0$"; then
+            if gh release view v2.47.0 > /dev/null 2>&1 \
+            && gh release view v2.47.0 --json assets -q '.assets | length' | grep -q -v "^0$"; then
               echo "Release creata (il primo tentativo era riuscito lato server)."
             else
               echo "!!! IMPOSSIBILE CREARE LA RELEASE"
