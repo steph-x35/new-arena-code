@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hoop City Life — Scarica il gioco gratis (Android)</title>
-  <meta name="description" content="Hoop City Life: il gioco di basket 2D gratuito per Android. Schiacciate, green release e il campetto di quartiere. Scarica l'APK in un tocco." />
-  <meta property="og:title" content="Hoop City Life — gratis, solo Android" />
-  <meta property="og:description" content="Il gioco di basket 2D del campetto. Scarica l'APK gratuita." />
+  <title>Hoop City Life — Il basket del campetto, gratis su Android</title>
+  <meta name="description" content="Hoop City Life: il gioco di basket 2D del campetto per Android. Green release, schiacciate, il metro del tiro e il campo condiviso in WiFi. Gratis, senza pubblicità nel gioco." />
+  <meta property="og:title" content="Hoop City Life — il basket del campetto, gratis" />
+  <meta property="og:description" content="Green release, schiacciate, il campo condiviso in WiFi col telefono dell'amico. Gratis, solo Android." />
+  <meta property="og:image" content="https://steph-x35.github.io/new-arena-code/hoopcity/assets/screens/windmill.png" />
   <meta name="theme-color" content="#12151c" />
+  <link rel="icon" href="assets/icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
@@ -16,6 +18,7 @@
       --ink: #f4f1ea;
       --muted: #9aa3b2;
       --bg: #12151c;
+      --bg2: #171b24;
       --card: #1a1f2a;
       --line: #2a3140;
       --accent: #f97316;
@@ -23,130 +26,235 @@
       --ok: #4ade80;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { -webkit-text-size-adjust: 100%; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
     body {
       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
       color: var(--ink);
       line-height: 1.5;
       min-height: 100vh;
+      overflow-x: hidden;
     }
-    .wrap { max-width: 520px; margin: 0 auto; padding: 0 20px; }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 0 20px; }
+    .wrap-wide { max-width: 720px; margin: 0 auto; padding: 0 20px; }
 
-    /* hero con mezzo campo disegnato: cerchio di centro + linee */
-    .hero {
-      position: relative;
-      text-align: center;
-      padding: 56px 0 30px;
-      overflow: hidden;
-      border-bottom: 1px solid var(--line);
+    /* ---------- etichette di sezione (stile "ABOUT / ROADMAP") ---------- */
+    .sec-label {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 800; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--accent-2);
+      margin-bottom: 18px;
     }
+    .sec-label::before {
+      content: ""; width: 22px; height: 2px; background: var(--accent); border-radius: 2px;
+    }
+    h3.sub { font-size: 24px; font-weight: 900; letter-spacing: -.01em; margin-bottom: 12px; }
+    h3.sub em { font-style: normal; color: var(--accent-2); }
+    p.body { font-size: 15.5px; color: var(--muted); }
+    p.body strong { color: var(--ink); }
+    p.body + p.body { margin-top: 10px; }
+
+    /* ---------- HERO: il campo ---------- */
+    .hero { position: relative; text-align: center; padding: 58px 0 42px; overflow: hidden; }
     .hero::before {
-      content: "";
-      position: absolute;
-      left: 50%; top: -190px;
-      width: 380px; height: 380px;
-      transform: translateX(-50%);
-      border: 2px solid rgba(249, 115, 22, .14);
-      border-radius: 50%;
+      /* parquet */
+      content: ""; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 130% 90% at 50% -30%, rgba(249,115,22,.13), transparent 60%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0 2px, transparent 2px 46px);
     }
     .hero::after {
-      content: "";
-      position: absolute;
-      left: 50%; top: 0; bottom: 0;
-      width: 2px;
-      background: rgba(249, 115, 22, .14);
+      /* arco dei tre punti */
+      content: ""; position: absolute; left: 50%; bottom: -300px;
+      width: 560px; height: 560px; transform: translateX(-50%);
+      border: 2px solid rgba(249, 115, 22, .16); border-radius: 50%;
     }
-    .hero > * { position: relative; z-index: 1; }
-    .ball { font-size: 44px; line-height: 1; }
-    h1 { font-size: 34px; font-weight: 900; letter-spacing: -.02em; margin: 10px 0 4px; }
-    h1 em { font-style: normal; color: var(--accent-2); }
-    .tag { color: var(--muted); font-size: 16px; font-weight: 600; }
+    .hero > .wrap { position: relative; z-index: 1; }
+    .badge {
+      display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--accent-2);
+      border: 1px solid rgba(249, 115, 22, .45); border-radius: 999px;
+      padding: 7px 14px; background: rgba(249, 115, 22, .08);
+      margin-bottom: 20px;
+    }
+    .hero h1 { font-size: 40px; font-weight: 900; letter-spacing: -.03em; line-height: 1.05; }
+    .hero h1 em { font-style: normal; color: var(--accent-2); }
+    .tag { color: var(--muted); font-size: 16.5px; font-weight: 600; margin-top: 10px; }
     .tag strong { color: var(--ink); }
 
-    .cta { padding: 30px 0 8px; }
+    .ball-svg { width: 64px; height: 64px; margin: 0 auto 6px; animation: bounce 2.6s ease-in-out infinite; }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
+    }
+    .scroll-hint {
+      margin-top: 34px; font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--muted); opacity: .7; animation: pulse 2.2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: .45; } 50% { opacity: .9; } }
+
+    .cta { padding: 30px 0 6px; }
     .btn {
-      display: block;
-      width: 100%;
+      display: block; width: 100%;
       background: linear-gradient(180deg, var(--accent-2), var(--accent));
-      color: #1a1005;
-      font: 800 19px/1.2 'Inter', sans-serif;
-      text-align: center;
-      text-decoration: none;
-      border-radius: 16px;
-      padding: 19px 16px;
+      color: #1a1005; font: 800 19px/1.2 'Inter', sans-serif; text-align: center;
+      text-decoration: none; border-radius: 16px; padding: 19px 16px;
       box-shadow: 0 10px 30px rgba(249, 115, 22, .35);
       transition: transform .12s ease, box-shadow .12s ease;
     }
     .btn:active { transform: scale(.98); box-shadow: 0 6px 18px rgba(249, 115, 22, .3); }
     .btn small { display: block; font-size: 13px; font-weight: 700; opacity: .75; margin-top: 4px; }
+    .btn.ghost {
+      background: transparent; color: var(--ink);
+      border: 1px solid var(--line); box-shadow: none; margin-top: 10px;
+      font-size: 16px; padding: 14px 16px;
+    }
+    .btn.ghost:active { background: rgba(255,255,255,.04); }
     .meta { margin-top: 12px; text-align: center; color: var(--muted); font-size: 13.5px; }
-    .meta .dot { margin: 0 6px; opacity: .5; }
-    .ok-line { margin-top: 10px; text-align: center; color: var(--ok); font-size: 13.5px; font-weight: 600; }
+    .ok-line { margin-top: 8px; text-align: center; color: var(--ok); font-size: 13.5px; font-weight: 600; }
 
-    section { padding: 26px 0; }
-    h2 { font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--accent-2); margin-bottom: 14px; }
+    /* ---------- LA SFIDA DI OGGI ---------- */
+    .challenge {
+      background: linear-gradient(160deg, rgba(249,115,22,.16), rgba(249,115,22,.05));
+      border: 1px solid rgba(249, 115, 22, .4); border-radius: 20px;
+      padding: 24px 22px; text-align: center;
+    }
+    .challenge .k {
+      font-size: 12px; font-weight: 800; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--accent-2); margin-bottom: 10px;
+    }
+    .challenge .txt { font-size: 21px; font-weight: 800; line-height: 1.3; }
+    .challenge .timer { margin-top: 14px; color: var(--muted); font-size: 13px; font-weight: 600; }
+    .challenge .timer b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+    /* ---------- GALLERIA ---------- */
+    .gallery-scroll {
+      display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
+      padding: 4px 20px 14px; margin: 0 -20px;
+      scrollbar-width: none;
+    }
+    .gallery-scroll::-webkit-scrollbar { display: none; }
+    .shot { flex: 0 0 84%; scroll-snap-align: center; }
+    .shot .frame {
+      border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+      background: var(--bg2); aspect-ratio: 16 / 10;
+    }
+    .shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .shot figcaption { text-align: center; font-size: 13.5px; color: var(--muted); margin-top: 8px; font-weight: 600; }
+
+    /* ---------- STORIA + NUMERI ---------- */
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+    .stat {
+      background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+      padding: 16px 14px; text-align: center;
+    }
+    .stat .n { font-size: 26px; font-weight: 900; color: var(--accent-2); letter-spacing: -.02em; }
+    .stat .l { font-size: 12px; color: var(--muted); font-weight: 700; margin-top: 2px; }
+
+    /* ---------- FEATURE ---------- */
+    ul.feats { list-style: none; display: grid; gap: 10px; }
+    ul.feats li {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      padding: 14px 16px; font-size: 15px; display: flex; gap: 12px; align-items: baseline;
+    }
+    ul.feats li::before {
+      content: ""; flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); position: relative; top: -1px;
+    }
+    ul.feats li strong { font-weight: 700; }
+
+    /* ---------- ROADMAP ---------- */
+    .road { list-style: none; margin-top: 6px; }
+    .road li { position: relative; padding: 0 0 26px 30px; }
+    .road li::before {
+      content: ""; position: absolute; left: 0; top: 4px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 0 4px rgba(249,115,22,.18);
+    }
+    .road li::after {
+      content: ""; position: absolute; left: 6.5px; top: 22px; bottom: 2px;
+      width: 1.5px; background: var(--line);
+    }
+    .road li:last-child::after { display: none; }
+    .road li.next::before {
+      background: transparent; border: 2px dashed var(--accent-2);
+      box-shadow: none; width: 10px; height: 10px;
+    }
+    .road .when { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-2); }
+    .road .what { font-size: 16px; font-weight: 800; margin: 2px 0; }
+    .road .how { font-size: 14px; color: var(--muted); }
+
+    /* ---------- INSTALLAZIONE ---------- */
     .steps { display: grid; gap: 12px; }
     .step {
       display: flex; gap: 14px; align-items: flex-start;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 16px;
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: 14px; padding: 16px;
     }
     .n {
-      flex: 0 0 30px; height: 30px;
-      display: grid; place-items: center;
-      background: rgba(249, 115, 22, .15);
-      color: var(--accent-2);
-      font-weight: 800; font-size: 15px;
-      border-radius: 50%;
+      flex: 0 0 30px; height: 30px; display: grid; place-items: center;
+      background: rgba(249, 115, 22, .15); color: var(--accent-2);
+      font-weight: 800; font-size: 15px; border-radius: 50%;
     }
-    .step p { font-size: 15px; color: var(--ink); }
+    .step p { font-size: 15px; }
     .step p strong { font-weight: 700; }
     .step p span { color: var(--muted); }
 
+    /* ---------- FAQ ---------- */
+    .faq { display: grid; gap: 10px; }
+    details {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      padding: 0 18px; overflow: hidden;
+    }
+    details summary {
+      cursor: pointer; list-style: none; padding: 16px 0;
+      font-size: 15.5px; font-weight: 700; display: flex; justify-content: space-between; gap: 14px;
+    }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::after { content: "+"; color: var(--accent-2); font-weight: 900; font-size: 18px; }
+    details[open] summary::after { content: "–"; }
+    details .a { padding: 0 0 16px; font-size: 14.5px; color: var(--muted); }
+    details .a strong { color: var(--ink); }
+    details .a a { color: var(--accent-2); font-weight: 700; text-decoration: none; }
+
     .note {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 18px;
-      font-size: 14.5px;
-      color: var(--muted);
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      padding: 18px; font-size: 14.5px; color: var(--muted);
     }
     .note strong { color: var(--ink); }
     .note a { color: var(--accent-2); font-weight: 700; text-decoration: none; }
-    .note a:active { opacity: .7; }
 
-    ul.feats { list-style: none; display: grid; gap: 10px; }
-    ul.feats li {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px 16px;
-      font-size: 15px;
-      display: flex; gap: 10px; align-items: baseline;
-    }
-    ul.feats li::before { content: "🏀"; font-size: 14px; }
+    section { padding: 34px 0; }
+    section + section { border-top: 1px solid var(--line); }
 
     footer {
-      border-top: 1px solid var(--line);
-      margin-top: 8px;
-      padding: 22px 0 34px;
-      color: var(--muted);
-      font-size: 13px;
-      text-align: center;
+      border-top: 1px solid var(--line); margin-top: 8px; padding: 26px 0 40px;
+      color: var(--muted); font-size: 13px; text-align: center;
     }
     footer strong { color: var(--ink); }
+    footer .links { display: flex; justify-content: center; gap: 8px 18px; flex-wrap: wrap; margin-bottom: 10px; }
+    footer a { color: var(--ink); font-weight: 700; text-decoration: none; }
   </style>
 </head>
 <body>
 
+  <!-- ============================ HERO ============================ -->
   <header class="hero">
     <div class="wrap">
-      <div class="ball">🏀</div>
+      <div class="badge">Gratis · Solo Android · In aggiornamento</div>
+
+      <!-- pallone disegnato (niente emoji: reso uguale ovunque) -->
+      <svg class="ball-svg" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="29" fill="#e8711f" stroke="#7a3708" stroke-width="2.5"/>
+        <path d="M4 26 Q32 44 60 26" fill="none" stroke="#7a3708" stroke-width="2.5"/>
+        <path d="M4 38 Q32 20 60 38" fill="none" stroke="#7a3708" stroke-width="2.5"/>
+        <path d="M32 3 Q20 32 32 61" fill="none" stroke="#7a3708" stroke-width="2.5"/>
+        <path d="M32 3 Q44 32 32 61" fill="none" stroke="#7a3708" stroke-width="2.5"/>
+      </svg>
+
       <h1>Hoop City <em>Life</em></h1>
-      <p class="tag">Il basket del campetto, in 2D. <strong>Gratis, solo Android.</strong></p>
+      <p class="tag">Il basket del campetto, in 2D. <strong>Gratis, senza pubblicità nel gioco.</strong></p>
+
       <div class="cta">
         <a class="btn" id="dl"
            href="https://github.com/steph-x35/new-arena-code/releases/download/v2.44.2/HoopCity-v2.44.2.apk"
@@ -154,17 +262,152 @@
           Scarica l'APK gratuita
           <small id="dl-sub">Versione 2.44.2 · 58,9 MB</small>
         </a>
+        <a class="btn ghost" href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">
+          Canale Telegram · avvisi delle nuove versioni
+        </a>
         <p class="meta" id="dl-meta">Ultima versione · aggiornata di recente</p>
         <p class="ok-line">Nessun account. Nessun acquisto dentro l'app.</p>
       </div>
+
+      <p class="scroll-hint">Scorri</p>
     </div>
   </header>
 
-  <main class="wrap">
+  <!-- ======================= SFIDA DI OGGI ======================= -->
+  <section>
+    <div class="wrap">
+      <span class="sec-label">La sfida di oggi</span>
+      <div class="challenge">
+        <div class="k">Oggi al campetto</div>
+        <div class="txt" id="ch-txt">Tre green release di fila dal palleggio</div>
+        <div class="timer">Cambia ogni giorno · prossima tra <b id="ch-timer">--:--:--</b></div>
+      </div>
+    </div>
+  </section>
 
-    <section>
-      <h2>Come si installa</h2>
-      <div class="steps">
+  <!-- ========================= GALLERIA ========================= -->
+  <section>
+    <div class="wrap-wide">
+      <span class="sec-label">Dentro il gioco</span>
+      <h3 class="sub">Com'è, <em>davvero</em></h3>
+      <p class="body" style="margin-bottom:18px">Niente render di presentazione: schermate vere del gioco.</p>
+    </div>
+    <div class="wrap-wide" style="padding:0">
+      <div class="gallery-scroll">
+        <figure class="shot">
+          <div class="frame"><img src="assets/screens/campetto.jpg" alt="Il campetto sul telefono" loading="lazy" /></div>
+          <figcaption>Il campetto, com'è sul telefono</figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="frame"><img src="assets/screens/windmill.png" alt="Schiacciata windmill" loading="lazy" /></div>
+          <figcaption>Windmill a mezz'aria</figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="frame"><img src="assets/screens/metro.png" alt="Il metro del tiro" loading="lazy" /></div>
+          <figcaption>Il metro del tiro: verde = canestro pulito</figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="frame"><img src="assets/screens/spin360.png" alt="Schiacciata con giro di 360 gradi" loading="lazy" /></div>
+          <figcaption>Giro di 360°, poi il ferro</figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="frame"><img src="assets/screens/partita.png" alt="Partita al campetto" loading="lazy" /></div>
+          <figcaption>Partita al campetto, con i compagni</figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="frame"><img src="assets/screens/menu.png" alt="Menu principale" loading="lazy" /></div>
+          <figcaption>Entri e giochi: niente attese</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== STORIA ========================== -->
+  <section>
+    <div class="wrap">
+      <span class="sec-label">La storia</span>
+      <h3 class="sub">Nato al campetto, <em>non in ufficio</em></h3>
+      <p class="body">
+        Il campetto del quartiere: il ferro senza retina, l'asfalto che scotta, il tiro in punta di dita
+        che devi prendere al volo. <strong>Hoop City Life nasce per portare nel telefono quel basket lì</strong> —
+        non quello delle supercar e dei contratti milioni.
+      </p>
+      <p class="body">
+        È un progetto indipendente: si aggiorna in continuazione, una versione dopo l'altra, e cresce
+        insieme a chi lo gioca. Le idee migliori arrivano dai video e dai commenti su TikTok:
+        <strong>se hai qualcosa da dire, dillo lì</strong>.
+      </p>
+      <div class="stats">
+        <div class="stat"><div class="n">209K</div><div class="l">Follower su TikTok</div></div>
+        <div class="stat"><div class="n">50K+</div><div class="l">Due reel oltre 50 mila</div></div>
+        <div class="stat"><div class="n" id="rel-count">42</div><div class="l">Aggiornamenti rilasciati</div></div>
+        <div class="stat"><div class="n">0&nbsp;€</div><div class="l">Per giocare, per sempre</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== COSA C'È NEL GIOCO ====================== -->
+  <section>
+    <div class="wrap">
+      <span class="sec-label">Il gioco</span>
+      <h3 class="sub">Tiro, timing <em>e ferro</em></h3>
+      <ul class="feats" style="margin-top:14px">
+        <li><strong>Il metro del tiro:</strong> rilascia sul verde e il canestro è pulito. Giallo, metà e metà. Rosso, mai.</li>
+        <li><strong>Schiacciate vere:</strong> windmill, giro di 360°, tomahawk — e ti ci puoi appendere al ferro.</li>
+        <li><strong>Le mosse del campetto:</strong> eurostep, fadeaway, stepback, cambio mano. Ognuna col suo peso.</li>
+        <li><strong>La Sfida Metà Campo:</strong> il campetto da solo, con i record da battere.</li>
+        <li><strong>Il campo condiviso:</strong> due telefoni Android, WiFi o hotspot, lo stesso campetto in tempo reale.</li>
+        <li><strong>Entri e giochi:</strong> niente account, niente attese, niente pubblicità dentro il gioco.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ========================= ROADMAP ========================= -->
+  <section>
+    <div class="wrap">
+      <span class="sec-label">La strada</span>
+      <h3 class="sub">Da dove veniamo, <em>dove andiamo</em></h3>
+      <ul class="road" style="margin-top:18px">
+        <li>
+          <div class="when">Fatto</div>
+          <div class="what">Il campetto</div>
+          <div class="how">Il gioco da soli: palleggio, tiro, la Sfida Metà Campo e i record personali.</div>
+        </li>
+        <li>
+          <div class="when">Fatto</div>
+          <div class="what">Il metro e le schiacciate</div>
+          <div class="how">Green release, windmill, 360°, tomahawk e la presa del ferro.</div>
+        </li>
+        <li>
+          <div class="when">Fatto</div>
+          <div class="what">Le mosse scolpite</div>
+          <div class="how">Eurostep, fadeaway, stepback, scivolo: ognuna cambia davvero il tiro.</div>
+        </li>
+        <li>
+          <div class="when">Fatto</div>
+          <div class="what">Il campo condiviso</div>
+          <div class="how">Due telefoni Android sulla stessa rete WiFi o via hotspot: stesso campetto, in tempo reale.</div>
+        </li>
+        <li>
+          <div class="when">Fatto</div>
+          <div class="what">La finestra delle novità</div>
+          <div class="how">A ogni versione il gioco racconta cosa è cambiato, dentro il gioco.</div>
+        </li>
+        <li class="next">
+          <div class="when">Prossimo passo</div>
+          <div class="what">Il 1v1 a punti</div>
+          <div class="how">Le regole del campetto, ma col punteggio in mano: vincere o perdere conta.</div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ====================== INSTALLAZIONE ====================== -->
+  <section>
+    <div class="wrap">
+      <span class="sec-label">Installazione</span>
+      <h3 class="sub">Tre tocchi e <em>sei dentro</em></h3>
+      <div class="steps" style="margin-top:14px">
         <div class="step"><div class="n">1</div>
           <p><strong>Tocca “Scarica l'APK”</strong> e aspetta che il download finisca.</p>
         </div>
@@ -175,50 +418,72 @@
           <p><strong>Installa e gioca.</strong> <span>Hai già una versione precedente? La nuova si installa sopra: non perdi niente.</span></p>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section>
-      <h2>Aggiornamenti</h2>
-      <div class="note">
-        <strong>Questa pagina punta sempre all'ultima versione.</strong> Salvala nei preferiti:
-        quando esce un aggiornamento, la trovi già qui.<br /><br />
-        Vuoi gli avvisi delle nuove versioni? <a href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">Segui il canale Telegram</a> — ma non serve per scaricare.
+  <!-- =========================== FAQ =========================== -->
+  <section>
+    <div class="wrap">
+      <span class="sec-label">Domande</span>
+      <h3 class="sub">Le cose che <em>ci si chiede</em></h3>
+      <div class="faq" style="margin-top:14px">
+        <details>
+          <summary>È gratis davvero?</summary>
+          <div class="a">Sì: l'APK è gratuita, <strong>non ci sono acquisti dentro l'app né pubblicità nel gioco</strong>. Nessun account da creare.</div>
+        </details>
+        <details>
+          <summary>Serve internet per giocare?</summary>
+          <div class="a">No: <strong>si gioca offline</strong>. Internet serve solo per scaricare gli aggiornamenti — e per il campo condiviso, che funziona in WiFi locale o via hotspot, senza internet.</div>
+        </details>
+        <details>
+          <summary>C'è anche per iPhone?</summary>
+          <div class="a">No, al momento <strong>solo Android</strong>.</div>
+        </details>
+        <details>
+          <summary>Ci si gioca in due?</summary>
+          <div class="a">Sì: <strong>il campo condiviso</strong> mette due telefoni Android sullo stesso campetto, in WiFi locale o con l'hotspot di uno dei due. Non è gioco online: serve stare vicini, come al campetto vero.</div>
+        </details>
+        <details>
+          <summary>Come faccio a sapere quando esce una versione nuova?</summary>
+          <div class="a">Questa pagina <strong>punta sempre all'ultima versione</strong>: salvala nei preferiti. Oppure segui il <a href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">canale Telegram</a> per gli avvisi.</div>
+        </details>
+        <details>
+          <summary>Posso sostenerlo?</summary>
+          <div class="a">Certo, e non costa niente: <strong>giocalo, parlane, mandalo a chi ama il basket</strong>. È il modo in cui questo progetto cresce.</div>
+        </details>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section>
-      <h2>Dentro il gioco</h2>
-      <ul class="feats">
-        <li>Schacciate con green release: timing perfetto, canestro pulito.</li>
-        <li>Il campetto di quartiere: la Sfida Metà Campo e record da battere.</li>
-        <li>Partite vere, con compagni e avversari che sanno giocare.</li>
-        <li>Entri e giochi: niente introduzioni forzate.</li>
-      </ul>
-    </section>
-
-  </main>
-
+  <!-- ========================== FOOTER ========================== -->
   <footer>
     <div class="wrap">
-      <strong>Hoop City Life</strong> · gioco gratuito, nessun acquisto in app<br />
-      Serve Android. Su iPhone non è disponibile.
+      <div class="links">
+        <a href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">Telegram</a>
+        <a href="https://github.com/steph-x35/new-arena-code/releases" rel="noopener">Tutte le versioni</a>
+      </div>
+      <strong>Hoop City Life</strong> · gioco gratuito, nessun acquisto in app, nessuna pubblicità nel gioco<br />
+      Solo Android · fatto a mano, un aggiornamento alla volta
     </div>
   </footer>
 
   <script>
-    // La pagina si aggiorna da sola: legge le release di Hoop City dal
+    // ================================================================
+    // LA PAGINA SI AGGIORNA DA SOLA: legge le release di Hoop City dal
     // repository GitHub e sceglie quella con il NUMERO DI VERSIONE PIU'
     // ALTO. L'ordine dell'API non e' affidabile (release ricreate su tag
     // esistenti riportano date vecchie e affondano in fondo alla lista),
     // quindi non si prende la prima: si confrontano i numeri.
-    // Se il fetch non riesce, resta la versione scritta sopra: il bottone
+    // Dallo stesso giro: il contatore degli aggiornamenti rilasciati.
+    // Se il fetch non riesce, restano i valori scritti sopra: il bottone
     // funziona comunque.
+    // ================================================================
     (function () {
       fetch('https://api.github.com/repos/steph-x35/new-arena-code/releases?per_page=100')
         .then(function (r) { return r.json(); })
         .then(function (rs) {
           if (!Array.isArray(rs)) return;
-          var rel = null, asset = null, bestKey = -1;
+          var rel = null, asset = null, bestKey = -1, count = 0;
           for (var i = 0; i < rs.length; i++) {
             var r = rs[i];
             var m = /^v(\d+)\.(\d+)\.(\d+)$/.exec(r.tag_name || '');
@@ -226,24 +491,64 @@
             var key = parseInt(m[1], 10) * 1000000 + parseInt(m[2], 10) * 1000 + parseInt(m[3], 10);
             for (var j = 0; j < (r.assets || []).length; j++) {
               if ((r.assets[j].name || '').indexOf('HoopCity') === 0) {
+                count++;
                 if (key > bestKey) { bestKey = key; rel = r; asset = r.assets[j]; }
                 break;
               }
             }
           }
-          if (!rel || !asset) return;
-          var a = document.getElementById('dl');
-          var sub = document.getElementById('dl-sub');
-          var meta = document.getElementById('dl-meta');
-          var v = (rel.tag_name || '').replace(/^v/, '');
-          var mb = Math.round(asset.size / 104857.6) / 10;
-          a.href = asset.browser_download_url;
-          sub.textContent = 'Versione ' + v + ' · ' + mb.toString().replace('.', ',') + ' MB';
-          var d = rel.published_at ? new Date(rel.published_at) : null;
-          var when = d ? 'pubblicata il ' + d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' }) : 'ultima versione';
-          meta.textContent = 'Ultima versione · ' + when;
+          if (rel && asset) {
+            var a = document.getElementById('dl');
+            var sub = document.getElementById('dl-sub');
+            var meta = document.getElementById('dl-meta');
+            var v = (rel.tag_name || '').replace(/^v/, '');
+            var mb = Math.round(asset.size / 104857.6) / 10;
+            a.href = asset.browser_download_url;
+            sub.textContent = 'Versione ' + v + ' · ' + mb.toString().replace('.', ',') + ' MB';
+            var d = rel.published_at ? new Date(rel.published_at) : null;
+            var when = d ? 'pubblicata il ' + d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' }) : 'ultima versione';
+            meta.textContent = 'Ultima versione · ' + when;
+          }
+          if (count > 0) {
+            var rc = document.getElementById('rel-count');
+            if (rc) rc.textContent = String(count);
+          }
         })
         .catch(function () { /* fallback: resta la versione statica */ });
+    })();
+
+    // ================================================================
+    // LA SFIDA DI OGGI: una per giorno, ruotano per data. Nessun server,
+    // nessun salvataggio: e' solo un motivo per tornare al campetto.
+    // ================================================================
+    (function () {
+      var challenges = [
+        'Tre green release di fila dal palleggio',
+        'Una windmill, e restare appesi al ferro',
+        'Schiacciata con giro di 360°',
+        'Cinque canestri di fila dallo stesso punto',
+        'Eurostep e canestro nello stesso possesso',
+        'Schiacciata tomahawk in corsa',
+        'Una partita intera senza toccare il ferro',
+        'Chiudi la Sfida Metà Campo senza sbagliare un tiro'
+      ];
+      var now = new Date();
+      var start = new Date(now.getFullYear(), 0, 0);
+      var doy = Math.floor((now - start) / 86400000);
+      var el = document.getElementById('ch-txt');
+      if (el) el.textContent = challenges[doy % challenges.length];
+
+      var t = document.getElementById('ch-timer');
+      function tick() {
+        var n = new Date();
+        var mid = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1, 0, 0, 0);
+        var s = Math.max(0, Math.floor((mid - n) / 1000));
+        var hh = Math.floor(s / 3600), mm = Math.floor((s % 3600) / 60), ss = s % 60;
+        var p = function (x) { return (x < 10 ? '0' : '') + x; };
+        if (t) t.textContent = p(hh) + ':' + p(mm) + ':' + p(ss);
+      }
+      tick();
+      setInterval(tick, 1000);
     })();
   </script>
 </body>
