@@ -462,7 +462,7 @@ func _process(delta: float) -> void:
 		var want: String = "SHOOT"
 		if duel_on and duel_phase == "live" and not i_attack and not ball_loose:
 			want = Loc.t("duel.jump")
-		elif not duel_on and not _pad_holding():
+		elif not duel_on and not _pad_holding() and not ball_recall and not fb_recall:
 			want = Loc.t("duel.grab")
 		elif dunk_phase == "hang":
 			want = "LET GO"
@@ -824,6 +824,7 @@ func _free_recall_start() -> void:
 		_fb_recall_from = fb_pos
 		_fb_recall_h = fb_h
 		i_hold = true
+		ball_loose = false
 		NetLayer.rpc("rpc_duel_ev", {"ev": "pick_yours"})
 
 
