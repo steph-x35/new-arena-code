@@ -78,6 +78,10 @@ func _ready() -> void:
 	while waited < 10.0 and not bool(ms.get_node("Court").play_live):
 		await get_tree().create_timer(0.2).timeout
 		waited += 0.2
+	# un frame di grazia: il play_live puo' alzarsi in fisica un istante prima
+	# che _process sincronizzi lo stick — il prodotto e' a posto, il check
+	# deve leggere lo stato assestato
+	await get_tree().process_frame
 	var c: Node = ms.get_node_or_null("Court")
 	check("partita viva dopo la card (GO! arrivato)",
 		c != null and bool(c.play_live))
