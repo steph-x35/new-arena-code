@@ -402,16 +402,11 @@ func _physics_process(delta: float) -> void:
 			Sfx.squeak()
 		if euro_t <= 0.0 and euro_finish:
 			euro_finish = false
-			# BASKIN: la chiusura automatica vale solo per chi puo' tirare in
-			# movimento (ruolo 5): per gli altri la regola fischierebbe.
-			if has_ball and court != null and shot_charge < 0.0 \
-			and (role >= 5 or court.one_on_one):
-				var dft2: float = court.px_to_ft(global_position.distance_to(court.attack_hoop_for(self)))
-				if dft2 < 9.0 and can_dunk():
-					do_dunk()
-				elif has_ball:
-					court.attempt_shot(self, randf_range(0.0, 0.55))
-					shot_anim = FOLLOW_U
+			# PLAYTEST (tre segnalazioni di fila): NESSUN tiro automatico.
+			# L'eurostep resta un movimento a due tempi: il tiro parte solo
+			# se premi TIRA. Prima la sequenza chiudeva DA SOLA con un tiro
+			# da qualunque distanza (i "tiri a caso"), e con lo stick verso
+			# canestro scattava in continuazione.
 	# POST UP: mentre sei di spalle al canestro il facing resta SUL FERRO
 	# (spalle), qualunque direzione di stick; senza palla o troppo lontano
 	# la post svanisce da sola.

@@ -272,7 +272,7 @@ func _physics_process(delta: float) -> void:
 		else:
 			var side := 22.0 * (1.0 if holder.facing >= 0 else -1.0)
 			global_position = holder.global_position + Vector2(side, 0)
-			h = 33.0 + abs(sin(Time.get_ticks_msec() / 130.0)) * 44.0 * holder.dribble_intensity
+			h = 40.0 + abs(sin(Time.get_ticks_msec() / 130.0)) * 50.0 * holder.dribble_intensity
 		# Thud exactly at the bottom of the dribble arc. The holder controls
 		# h directly (no physics), so we watch the sign change of the height.
 		if _dribble_falling and h >= prev_h:

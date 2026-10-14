@@ -1,3 +1,32 @@
+# Baskin Academy — v1.24.1: il terzo playtest
+
+Data: 14 ottobre 2026 • Motore: Godot 4.3 stable
+
+1. I TIRI A CASO — TROVATO IL VERO COLPEVOLE: l'EUROSTEP. La sequenza
+   chiudeva DA SOLA con un tiro automatico da qualunque distanza, e con
+   lo stick verso canestro (la direzione piu' comune quando si guida)
+   scattava in continuazione: ecco i "tiri a caso" segnalati tre volte,
+   incluso quello "dopo la rimessa". Ora l'eurostep e' SOLO un movimento
+   a due tempi: il tiro parte esclusivamente premendo TIRA. (Le due reti
+   della 1.24.0 restano: carica morta a gioco fermo + mezzo secondo di
+   grazia alla ricezione.)
+2. AUDIT COMPLETO DELLE REGOLE — verificata una a una ogni chiave testo
+   usata da card, fischi, riepilogo, quiz e pannello REGOLE: nessuna
+   chiave raggiungibile manca. Comunque tutte le letture ora sono a prova
+   di chiave mancante (mai piu' scritte grezze tipo "rule.xxx.body" a
+   schermo: se manca una traduzione, la card non appare) e aggiunti i due
+   testi mancanti (corpo di "3 secondi" e "5 secondi").
+3. CARROZZINA: tolte le ruotine anteriori che in 2D leggevano come
+   QUATTRO ruote — restano solo le due ruote grandi in basso.
+4. PALLEGGIO ancora un po' piu' alto.
+5. QUIZ DELL'ALLENATORE: l'intervallo fra i tempi NON CORRE piu' finche'
+   la domanda e' aperta — il quarto ripartiva sotto il pannello mentre
+   si stava ancora leggendo. Ora il gioco aspetta la risposta.
+
+v1.24.1 / versionCode 37.
+
+---
+
 # Baskin Academy — v1.24.0: il secondo playtest
 
 Data: 14 ottobre 2026 • Motore: Godot 4.3 stable

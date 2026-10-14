@@ -165,6 +165,13 @@ func _process(delta: float) -> void:
 	# ---- between-quarters: cheerleaders dance on the court for 10 seconds,
 	#      then the 3-2-1 countdown brings the next quarter in.
 	if intermission_left > 0.0:
+		# PLAYTEST: il quiz dell'allenatore aspetta la RISPOSTA — l'intervallo
+		# non corre finche' la domanda e' aperta (prima il quarto ripartiva
+		# sotto il pannello mentre stavi ancora leggendo).
+		if _quiz_panel != null and not _quiz_answered:
+			lbl_countdown.text = ""
+			lbl_countdown.modulate.a = 0.0
+			return
 		intermission_left -= delta
 		# The cheerleaders are the show here: hide the big countdown so it
 		# cannot sit on top of the dancers.
@@ -1239,7 +1246,10 @@ func _on_quarter_ended(q: int) -> void:
 		var keys := _viol_counts.keys()
 		keys.sort()
 		for k in keys:
-			parts.append("%d× %s" % [int(_viol_counts[k]), Loc.t("rule." + k, k)])
+			# niente chiavi grezze nel riepilogo: solo fischi tradotti
+			var nm: String = Loc.t("rule." + k, "")
+			if nm != "":
+				parts.append("%d× %s" % [int(_viol_counts[k]), nm])
 		rule_title.text = Loc.t("rules.whistle_h") % maxi(1, q - 1)
 		rule_body.text = " · ".join(parts) + "\n" + Loc.t("rules.whistle_hint")
 		rule_panel.visible = true
@@ -1508,7 +1518,12 @@ func _build_rule_card() -> void:
 func _on_rule(key: String) -> void:
 	if rule_title == null:
 		return
-	rule_title.text = Loc.t("rule." + key, key)
+	# PLAYTEST: mai stampare chiavi grezze ("rule.xxx.body" e simili) — se
+	# una regola non ha traduzione, la card non appare proprio.
+	var rtitle: String = Loc.t("rule." + key, "")
+	if rtitle == "":
+		return
+	rule_title.text = rtitle
 	rule_body.text = Loc.t("rule." + key + ".body", "")
 	rule_panel.visible = true
 	rule_panel.modulate.a = 1.0
@@ -1853,14 +1868,14 @@ func _quiz_answer(qd: Dictionary, idx: int, btn: Button, fb: Label) -> void:
 		Sfx.play("go", -2.0)
 		Sfx.haptic(60)
 		fb.modulate = Color(0.55, 1.0, 0.6)
-		fb.text = Loc.t("quiz.right") + " " + Loc.t(String(qd["w"]))
+		fb.text = Loc.t("quiz.right") + " " + Loc.t(String(qd["w"]), "")
 	else:
 		Sfx.haptic(35)
 		btn.modulate = Color(1, 1, 1, 0.45)
 		var opts: PackedStringArray = Loc.t(String(qd["k"]) + ".a").split("|")
 		fb.modulate = Color(1.0, 0.62, 0.5)
 		fb.text = Loc.t("quiz.wrong") % String(opts[int(qd["ok"])]) \
-			+ " " + Loc.t(String(qd["w"]))
+			+ " " + Loc.t(String(qd["w"]), "")
 	var p := _quiz_panel
 	get_tree().create_timer(5.0).timeout.connect(func():
 		if p != null and is_instance_valid(p):

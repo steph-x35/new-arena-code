@@ -508,7 +508,7 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 		# CARROZZINA DA BASKIN, come le vere: ruote posteriori grandi con
 		# CAMPANATURA (la parte alta piegata verso il corpo — e' il tratto
 		# che le fa riconoscere subito), pneumatico spesso, cerchio, cerchione
-		# di SPINTA colorato, raggi sottili; ruotini anteriori con forcella;
+		# di SPINTA colorato, raggi sottili; telaio tubolare con schienale;
 		# telaio tubolare con schienale; poggiapiedi centrale con i piedi sopra.
 		var wcx: float = base.x + lean
 		var wr: float = h * 0.30
@@ -529,15 +529,9 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 				var an := TAU * float(k) / 6.0 + 0.26
 				c.draw_line(wc, wc + Vector2(cos(an), sin(an)) * wr * 0.86, rim_col, 1.2)
 			c.draw_circle(wc, maxf(lw * 0.45, 2.6), hub_col)
-		# ruotini anteriori con forcella, uno per lato del poggiapiedi
-		var cr: float = h * 0.055
-		for sx in [-1.0, 1.0]:
-			var cc := Vector2(wcx + sx * hip_w * 0.72, floor_y - cr)
-			c.draw_line(cc + Vector2(0, -h * 0.15), cc, Color(0.30, 0.32, 0.38), 2.5)
-			c.draw_arc(cc, cr, 0.0, TAU, 18, tire_col, 3.2)
-			c.draw_circle(cc, 1.8, hub_col)
-		# telaio: binario della seduta, montante e barra dello schienale,
-		# tubi anteriori che scendono ai ruotini
+		# PLAYTEST: in 2D le ruotini anteriori leggevano come QUATTRO ruote:
+		# restano solo le due ruote grandi (quelle in basso).
+		# telaio: binario della seduta, montante e barra dello schienale
 		var seat_y: float = floor_y - h * 0.36
 		var frame_col := Color(0.36, 0.38, 0.45)
 		var back_col := Color(0.15, 0.17, 0.22)
@@ -545,9 +539,6 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 		c.draw_line(Vector2(wcx - hip_w * 1.0, seat_y), Vector2(wcx - hip_w * 1.0, seat_y - h * 0.28), frame_col, 3.5)
 		c.draw_line(Vector2(wcx - hip_w * 0.92, seat_y - h * 0.30),
 			Vector2(wcx + hip_w * 0.55, seat_y - h * 0.30), back_col, maxf(lw, 4.0))
-		for sx in [-1.0, 1.0]:
-			c.draw_line(Vector2(wcx + sx * hip_w * 0.72, seat_y),
-				Vector2(wcx + sx * hip_w * 0.72, floor_y - h * 0.15), frame_col, 2.5)
 		# poggiapiedi centrale con i piedi sopra
 		var fp_y: float = floor_y - h * 0.075
 		c.draw_line(Vector2(wcx - hip_w * 0.30, seat_y), Vector2(wcx - hip_w * 0.10, fp_y), frame_col, 2.5)
