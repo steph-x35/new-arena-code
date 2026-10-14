@@ -74,19 +74,26 @@ func _ready() -> void:
 	check("flag prima-partita salvato (le card non tornano piu')",
 		bool(Game.profile.get("baskin_onboarded", false)))
 	# Il 3-2-1 conta fino a GO e il gioco diventa vivo: si puo' giocare.
+	# POLLING (non istante fisso): sulla transizione GO! il play_live si
+	# alza in fisica e lo stick viene riabilitato da _process nel frame
+	# dopo — campionare un istante preciso beccava la transizione e
+	# falliva a caso. Si aspetta di VEDERE un frame vivo con stick attivo.
+	var went_live := false
+	var live_and_on := false
 	var waited := 0.0
-	while waited < 10.0 and not bool(ms.get_node("Court").play_live):
+	while waited < 12.0:
 		await get_tree().create_timer(0.2).timeout
 		waited += 0.2
-	# un frame di grazia: il play_live puo' alzarsi in fisica un istante prima
-	# che _process sincronizzi lo stick — il prodotto e' a posto, il check
-	# deve leggere lo stato assestato
-	await get_tree().process_frame
-	var c: Node = ms.get_node_or_null("Court")
-	check("partita viva dopo la card (GO! arrivato)",
-		c != null and bool(c.play_live))
-	check("stick riattivato a gioco vivo",
-		ms.joystick != null and bool(ms.joystick.enabled))
+		var cc: Node = ms.get_node_or_null("Court")
+		if cc == null:
+			break
+		if bool(cc.play_live):
+			went_live = true
+			if ms.joystick != null and bool(ms.joystick.enabled):
+				live_and_on = true
+				break
+	check("partita viva dopo la card (GO! arrivato)", went_live)
+	check("stick riattivato a gioco vivo", live_and_on)
 	_end()
 
 func _end() -> void:
