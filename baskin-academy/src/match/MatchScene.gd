@@ -204,6 +204,11 @@ func _process(delta: float) -> void:
 					court.start_quarter_inbound()
 				else:
 					court.play_live = true
+					# il GO! abilita lo stick NELLO STESSO frame: la sincronizzazione
+					# in cima a _process e' gia' passata col valore vecchio (gara
+					# beccata dal probe CI)
+					if joystick != null:
+						joystick.enabled = court.play_live
 			lbl_countdown.text = "GO!" if not court.one_on_one else "CHECK"
 			var tw := create_tween()
 			tw.tween_interval(0.7)
