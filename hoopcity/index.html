@@ -55,7 +55,11 @@
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
     }
     .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
-    .nav-logo img { width: 34px; height: 34px; border-radius: 9px; box-shadow: 0 4px 14px rgba(0,0,0,.4); }
+    .nav-logo img {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: #fff; /* il logo e' nero: sul menu scuro serve fondo bianco */
+      box-shadow: 0 4px 14px rgba(0,0,0,.4);
+    }
     .nav-logo b { font-size: 16px; font-weight: 900; letter-spacing: -.01em; }
     .nav-logo b em { font-style: normal; color: var(--accent-2); }
     .nav-links { display: none; align-items: center; gap: 26px; }
