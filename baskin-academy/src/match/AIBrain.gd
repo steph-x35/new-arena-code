@@ -496,7 +496,7 @@ func _attack_on_ball(delta: float) -> void:
 				# to spam crossovers at 112 px, so a drive spent its whole life
 				# inside a move animation and crawled up the floor.
 				move = ["crossover", "behind", "crossover"].pick_random()
-			elif (role == "mid" or role == "three") and at_spot and ndist < 92.0 and randf() < 0.55:
+			elif (role == "mid" or role == "three") and at_spot and ndist < 92.0 and randf() < 0.40:
 				move = "stepback"
 			elif ndist < 140.0 and randf() < 0.10:
 				move = "hesi"

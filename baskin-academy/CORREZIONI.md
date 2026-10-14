@@ -1,3 +1,45 @@
+# Baskin Academy — v1.24.0: il secondo playtest
+
+Data: 14 ottobre 2026 • Motore: Godot 4.3 stable
+
+Dieci correzioni dal secondo playtest sul telefono:
+
+1. DIFESA — lontano dal proprio uomo si insegue in posizione normale (piu'
+   veloce); la posizione difensiva scatta quando gli si e' davanti. Il
+   tocco del bottone porta subito dall'uomo giusto.
+2. TIRO DOPO LA RIMESSA — doppia rete: la carica del tiro si annulla anche
+   quando il gioco si ferma per una rimessa, e per mezzo secondo dalla
+   ricezione il bottone TIRA non parte (il tap della rimessa che finiva
+   sul bottone lanciava il tiro da meta' campo).
+3. PIVOT INVISIBILE — le ruote della carrozzina usavano un transform che
+   interferiva con la proiezione del campo: il pivot ruolo 1 spariva dallo
+   schermo (la CI headless non esegue il disegno, quindi non lo vedeva).
+   Riscritte in coordinate assolute: ruota con pneumatico, cerchio,
+   cerchione di spinta arancio, raggi e mozzo.
+4. MAGLIE — sulla divisa solo il numero del RUOLO, per tutti: anche i
+   cambi che entrano (prima i ricambi portavano numeri a caso del roster,
+   e il cambio dell'utente addirittura ruolo 0, cioe' nessuna regola).
+5. PALLEGGIO leggermente piu' alto.
+6. SQUEAK dei tacchini ridotto: meno frequenti (rata globale piu' che
+   dimezzata) e piu' piano; l'IA tenta meno stepback.
+7. 3 SECONDI — ogni infrazione ora diventa una RIMESSA per gli avversari
+   dal punto laterale piu' vicino (prima il possesso cambiava a caldo nel
+   mezzo dell'azione e sembrava casuale). L'avviso "3 secondi · R5" vale
+   per tutti gli attaccanti, non solo per l'utente: quando arriva il
+   fischio si capisce da chi e perche'.
+8. TASTO CAMBIO RIMOSSO — i cambi sono automatici (coach) e coerenti col
+   gioco: niente piu' pannello IN CAMPO/PANCHINA.
+9. CARD DELLE REGOLE — tolta la terza riga "il perche'" (fouls, 3 secondi
+   e tutte le altre): resta titolo + regola.
+10. STEPBACK — l'asse orizzontale e' ora relativo al canestro che si
+    attacca: dopo il cambio di campo a meta' partita, indicare il ferro
+    nuovo non fa piu' lo stepback al contrario. Le altre mosse non
+    cambiano.
+
+v1.24.0 / versionCode 36.
+
+---
+
 # Baskin Academy — v1.23.0: il pack del playtest
 
 Data: 13 ottobre 2026 • Motore: Godot 4.3 stable

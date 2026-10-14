@@ -47,7 +47,6 @@ var stamina_bar: ProgressBar
 var rule_panel: PanelContainer
 var rule_title: Label
 var rule_body: Label
-var rule_why: Label                        # la terza riga: IL PERCHE'
 var _rule_t := 0.0
 var _viol_counts := {}                     # fischi del tempo corrente (riepilogo)
 var onboard_banner: Label                  # obiettivi della prima partita
@@ -60,12 +59,6 @@ var _role_pending := true
 var rules_btn: Button
 var pivot_chip: Label                 # "SETTORE CENTRALE · 2 PUNTI" for the user pivot
 var _chip_last := "" 
-var btn_sub: Button                  # il tasto CAMBIO (sostituzioni dal vivo)
-var sub_panel: PanelContainer        # pannello IN CAMPO / PANCHINA
-var sub_court_box: VBoxContainer     # chi e' in campo (si ricostruisce all'apertura)
-var sub_bench_box: VBoxContainer     # chi e' in panchina
-var sub_hint: Label
-var _sub_pick: BallPlayer = null     # chi hai scelto di togliere
 var rules_panel: PanelContainer
 var _rules_open := false
 ## Broadcast pass: intro card, commentator line, jumbotron hook.
@@ -331,10 +324,6 @@ func _process(delta: float) -> void:
 			joystick.visible = false
 	elif joystick != null and not joystick.visible:
 		joystick.visible = true
-	if btn_sub:
-		btn_sub.visible = court.is_fixture and not court.one_on_one \
-			and not court.finished and not court.ft_active \
-			and sub_panel != null and not sub_panel.visible
 	if btn_timeout:
 		btn_timeout.visible = not court.one_on_one and not court.finished
 		var tl: String = Loc.t("match.timeout") + " (%d)" % court.timeouts_left[0]
@@ -639,14 +628,6 @@ func _build_hud() -> void:
 	hud.add_child(btn_timeout)
 
 	# SOSTITUZIONI DAL VIVO: il tasto apre la panchina (solo 5v5).
-	btn_sub = Button.new()
-	btn_sub.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	btn_sub.position = Vector2(-206, 70)
-	btn_sub.custom_minimum_size = Vector2(188, 46)
-	btn_sub.add_theme_font_size_override("font_size", 17)
-	btn_sub.text = Loc.t("match.sub")
-	btn_sub.pressed.connect(_open_subs)
-	hud.add_child(btn_sub)
 
 	# Bench overlay: shown while the coach has you on the pine.
 	bench_panel = PanelContainer.new()
@@ -695,66 +676,6 @@ func _build_hud() -> void:
 	hud.add_child(bench_panel)
 
 	# SOSTITUZIONI: pannello con le due liste (in campo / panchina).
-	sub_panel = PanelContainer.new()
-	sub_panel.set_anchors_preset(Control.PRESET_CENTER)
-	sub_panel.offset_left = -430
-	sub_panel.offset_right = 430
-	sub_panel.offset_top = -230
-	sub_panel.offset_bottom = 230
-	var ss := StyleBoxFlat.new()
-	ss.bg_color = Color(0.06, 0.07, 0.10, 0.95)
-	ss.set_corner_radius_all(16)
-	ss.set_border_width_all(2)
-	ss.border_color = Color(0.949, 0.420, 0.114, 0.55)
-	ss.content_margin_left = 18; ss.content_margin_right = 18
-	ss.content_margin_top = 12; ss.content_margin_bottom = 12
-	sub_panel.add_theme_stylebox_override("panel", ss)
-	var sv := VBoxContainer.new()
-	sv.add_theme_constant_override("separation", 8)
-	sub_panel.add_child(sv)
-	var st := Label.new()
-	st.text = Loc.t("match.sub.title")
-	st.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	st.add_theme_font_size_override("font_size", 24)
-	sv.add_child(st)
-	sub_hint = Label.new()
-	sub_hint.text = Loc.t("match.sub.hint")
-	sub_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sub_hint.add_theme_font_size_override("font_size", 15)
-	sub_hint.modulate = Color(1, 1, 1, 0.78)
-	sv.add_child(sub_hint)
-	var sh := HBoxContainer.new()
-	sh.alignment = BoxContainer.ALIGNMENT_CENTER
-	sh.add_theme_constant_override("separation", 26)
-	sv.add_child(sh)
-	var col_a := VBoxContainer.new()
-	col_a.add_theme_constant_override("separation", 6)
-	sh.add_child(col_a)
-	var la := Label.new()
-	la.text = Loc.t("match.sub.oncourt")
-	la.add_theme_font_size_override("font_size", 17)
-	col_a.add_child(la)
-	sub_court_box = VBoxContainer.new()
-	sub_court_box.add_theme_constant_override("separation", 6)
-	col_a.add_child(sub_court_box)
-	var col_b := VBoxContainer.new()
-	col_b.add_theme_constant_override("separation", 6)
-	sh.add_child(col_b)
-	var lb := Label.new()
-	lb.text = Loc.t("match.sub.bench")
-	lb.add_theme_font_size_override("font_size", 17)
-	col_b.add_child(lb)
-	sub_bench_box = VBoxContainer.new()
-	sub_bench_box.add_theme_constant_override("separation", 6)
-	col_b.add_child(sub_bench_box)
-	var scl := Button.new()
-	scl.text = Loc.t("match.sub.close")
-	scl.custom_minimum_size = Vector2(0, 48)
-	scl.pressed.connect(func(): sub_panel.visible = false)
-	sv.add_child(scl)
-	sub_panel.visible = false
-	hud.add_child(sub_panel)
 
 	stamina_bar = ProgressBar.new()
 	stamina_bar.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
@@ -939,6 +860,11 @@ func _shoot_down() -> void:
 		else:
 			u.chase(h.global_position)
 		return
+	# RETE ANTI TIRO-RIMBAMBITO: un tocco arrivato insieme alla ricezione (il
+	# tap della rimessa che finisce sul bottone TIRA) non parte piu' come
+	# tiro da meta' campo — mezzo secondo di grazia dalla presa.
+	if u.catch_guard_t > 0.0:
+		return
 	# COMBO PULL-UP (da Hoop City): un TRICK seguito da TIRA entro mezzo
 	# secondo = tiro in slancio (popup visibile, timing leggermente severo).
 	u.combo_pullup = u.has_ball and Time.get_ticks_msec() - _last_move_ms < 500 \
@@ -1030,65 +956,6 @@ func _pass() -> void:
 ## Il pannello dei cambi: a sinistra chi e' in campo, a destra chi aspetta in
 ## panchina. Scegli chi esce, poi chi entra: il cambio si esegue alla prima
 ## palla morta, con i due che si incrociano a piedi.
-func _open_subs() -> void:
-	if court == null or court.finished:
-		return
-	if court.available_sub_seats().is_empty() and _sub_pick == null:
-		Events.toast.emit(Loc.t("t.sub.none"))
-		return
-	if rules_panel != null and rules_panel.visible:
-		rules_panel.visible = false
-		_rules_open = false
-	_sub_pick = null
-	_fill_subs()
-	sub_panel.visible = true
-
-func _fill_subs() -> void:
-	for b in sub_court_box.get_children():
-		b.queue_free()
-	for b in sub_bench_box.get_children():
-		b.queue_free()
-	if court == null:
-		return
-	for p in court.players:
-		if p.team != 0:
-			continue
-		var b := Button.new()
-		b.custom_minimum_size = Vector2(250, 46)
-		b.add_theme_font_size_override("font_size", 16)
-		b.text = "R%d  #%d  %s   %d%%" % [p.role, p.jersey_num,
-			p.display_name, int(round(p.stamina))]
-		if p.is_user:
-			b.text += "  (you)"
-		var who: BallPlayer = p
-		b.pressed.connect(func():
-			_sub_pick = who
-			sub_hint.text = Loc.t("match.sub.hint2") % who.jersey_num)
-		sub_court_box.add_child(b)
-	var seats: Array = court.available_sub_seats()
-	if seats.is_empty():
-		var l := Label.new()
-		l.text = Loc.t("t.sub.none")
-		l.add_theme_font_size_override("font_size", 15)
-		sub_bench_box.add_child(l)
-	for seat in seats:
-		var r: Dictionary = court.bench_roster[0][seat]
-		var b := Button.new()
-		b.custom_minimum_size = Vector2(210, 46)
-		b.add_theme_font_size_override("font_size", 16)
-		b.text = "#%d  %s" % [int(r["jersey"]), String(r["name"])]
-		var sd: int = int(seat)
-		b.pressed.connect(func():
-			if _sub_pick == null:
-				sub_hint.text = Loc.t("match.sub.pick")
-				return
-			if court.request_sub(_sub_pick, sd):
-				sub_panel.visible = false
-			else:
-				sub_hint.text = Loc.t("t.sub.none"))
-		sub_bench_box.add_child(b)
-	sub_hint.text = Loc.t("match.sub.hint")
-
 func _guard_down() -> void:
 	## DIFESA works WHILE HELD: press to stick to your man, release to drop it.
 	var u := court.user
@@ -1171,9 +1038,9 @@ func _dribble_move() -> void:
 		# lo stesso bottone non ripete sempre lo stesso gesto:
 		#   still        -> CROSSOVER / TRA LE GAMBE (a rotazione)
 		#   stick DOWN   -> hand switch
-		#   stick LEFT   -> stepback (hops AWAY from the rim)
 		#   stick UP     -> behind the back
-		#   otherwise    -> crossover
+		#   LONTANO dal canestro che attacchi -> stepback
+		#   VERSO il canestro che attacchi    -> eurostep
 		var mi: Vector2 = u.move_input
 		var kind := "crossover"
 		if mi.length() < 0.25:
@@ -1181,12 +1048,19 @@ func _dribble_move() -> void:
 			kind = "crossover" if _neutral_trick_i % 2 == 0 else "between"
 		elif mi.y > 0.35:
 			kind = "hand_switch"
-		elif mi.x < -0.35:
-			kind = "stepback"
-		elif mi.y < -0.35:
-			kind = "behind"
-		elif mi.x > 0.35:
-			kind = "euro"      # EUROSTEP a due tempi (da Hoop City)
+		else:
+			# Playtest: dopo il cambio di campo a meta' partita lo stepback
+			# restava agganciato alla sinistra ASSOLUTA — indicare il NUOVO
+			# canestro faceva uno stepback al contrario. L'asse orizzontale
+			# ora e' relativo al ferro che attacchi: lontano = stepback,
+			# verso = euro. Le altre mosse non cambiano.
+			var hoop_x2: float = signf(court.attack_hoop_for(u).x)
+			if mi.x * -hoop_x2 > 0.35:
+				kind = "stepback"
+			elif mi.y < -0.35:
+				kind = "behind"
+			elif mi.x * hoop_x2 > 0.35:
+				kind = "euro"      # EUROSTEP a due tempi (da Hoop City)
 		if u.do_move(kind):
 			_last_move_ms = Time.get_ticks_msec()
 			Events.toast.emit({
@@ -1368,8 +1242,6 @@ func _on_quarter_ended(q: int) -> void:
 			parts.append("%d× %s" % [int(_viol_counts[k]), Loc.t("rule." + k, k)])
 		rule_title.text = Loc.t("rules.whistle_h") % maxi(1, q - 1)
 		rule_body.text = " · ".join(parts) + "\n" + Loc.t("rules.whistle_hint")
-		if rule_why != null:
-			rule_why.text = ""
 		rule_panel.visible = true
 		rule_panel.modulate.a = 1.0
 		_rule_t = 9.0
@@ -1629,15 +1501,6 @@ func _build_rule_card() -> void:
 	rule_body.custom_minimum_size = Vector2(356, 0)
 	rule_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vb.add_child(rule_body)
-	# IL PERCHE' della regola (didattica): piu' piccolo, color sabbia, e
-	# invisibile quando la regola non ha un perche' scritto.
-	rule_why = Label.new()
-	rule_why.add_theme_font_size_override("font_size", 14)
-	rule_why.add_theme_color_override("font_color", Color(1.0, 0.72, 0.45, 0.95))
-	rule_why.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	rule_why.custom_minimum_size = Vector2(356, 0)
-	rule_why.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vb.add_child(rule_why)
 	rule_panel.visible = false
 	rule_panel.modulate.a = 0.0
 	hud.add_child(rule_panel)
@@ -1647,8 +1510,6 @@ func _on_rule(key: String) -> void:
 		return
 	rule_title.text = Loc.t("rule." + key, key)
 	rule_body.text = Loc.t("rule." + key + ".body", "")
-	if rule_why != null:
-		rule_why.text = Loc.t("rule." + key + ".why", "")
 	rule_panel.visible = true
 	rule_panel.modulate.a = 1.0
 	_rule_t = 6.5

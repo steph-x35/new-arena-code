@@ -518,16 +518,17 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 		var push_col := Color(1.0, 0.58, 0.16)
 		var hub_col := Color(0.22, 0.24, 0.29)
 		for sx in [-1.0, 1.0]:
-			# campanatura ~8 gradi: la sommita' della ruota piega verso il corpo
-			c.draw_set_transform(Vector2(wcx + sx * hip_w * 0.98, wcy), -sx * 0.14, Vector2.ONE)
-			c.draw_arc(Vector2.ZERO, wr, 0.0, TAU, 32, tire_col, maxf(lw * 1.35, 5.5))
-			c.draw_arc(Vector2.ZERO, wr * 0.88, 0.0, TAU, 28, rim_col, 2.0)
-			c.draw_arc(Vector2.ZERO, wr * 0.76, 0.0, TAU, 26, push_col, 2.6)
+			# TUTTE le primitive in coordinate assolute (niente draw_set_transform:
+			# tocca il transform di proiezione del chiamante e il pivot spariva
+			# dallo schermo — la CI headless non esegue _draw e non lo vedeva).
+			var wc := Vector2(wcx + sx * hip_w * 0.98, wcy)
+			c.draw_arc(wc, wr, 0.0, TAU, 32, tire_col, maxf(lw * 1.35, 5.5))
+			c.draw_arc(wc, wr * 0.88, 0.0, TAU, 28, rim_col, 2.0)
+			c.draw_arc(wc, wr * 0.76, 0.0, TAU, 26, push_col, 2.6)
 			for k in 6:
 				var an := TAU * float(k) / 6.0 + 0.26
-				c.draw_line(Vector2.ZERO, Vector2(cos(an), sin(an)) * wr * 0.86, rim_col, 1.2)
-			c.draw_circle(Vector2.ZERO, maxf(lw * 0.45, 2.6), hub_col)
-			c.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+				c.draw_line(wc, wc + Vector2(cos(an), sin(an)) * wr * 0.86, rim_col, 1.2)
+			c.draw_circle(wc, maxf(lw * 0.45, 2.6), hub_col)
 		# ruotini anteriori con forcella, uno per lato del poggiapiedi
 		var cr: float = h * 0.055
 		for sx in [-1.0, 1.0]:

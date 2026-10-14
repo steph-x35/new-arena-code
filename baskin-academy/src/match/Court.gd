@@ -502,6 +502,9 @@ func give_ball(p: BallPlayer) -> void:
 	for q in players: q.has_ball = false
 	p.has_ball = true
 	ball.attach(p)
+	# Mezzo secondo di grazia: un tap che arriva insieme alla palla (il tocco
+	# della rimessa finito sul bottone TIRA) non parte come tiro.
+	p.catch_guard_t = 0.35
 	possession = p.team
 	# In 1v1 a change of possession means you must take it back past the arc.
 	# 1v1: you MUST take it past the arc after any new touch (make, miss,
@@ -2738,9 +2741,11 @@ func _time_infractions(delta: float) -> void:
 			continue
 		var t: float = float(_key_time.get(p.get_instance_id(), 0.0)) + delta
 		_key_time[p.get_instance_id()] = t
-		if t > 2.0 and t < 3.0 and _key_warn_cd <= 0.0 and p.is_user:
+		if t > 2.0 and t < 3.0 and _key_warn_cd <= 0.0:
 			_key_warn_cd = 1.0
-			Events.toast.emit(Loc.t("t.three_sec_warn"))
+			# L'avviso vale per TUTTI (non solo l'utente): quando il fischio
+			# arriva, si capisce da chi e perche'.
+			Events.toast.emit(Loc.t("t.three_sec_warn") + "  ·  R" + str(p.role))
 		if t >= 3.0:
 			_key_time.clear()
 			_violation(p, "v_3sec")
@@ -2773,7 +2778,10 @@ func _violation(p: BallPlayer, key: String) -> void:
 	Sfx.play("whistle_short")
 	Events.toast.emit(Loc.t("rule." + key))
 	Events.rule.emit(key)
-	_turnover_to(1 - p.team)
+	# Playtest: la palla non cambia possessore "a caldo" nel mezzo dell'azione
+	# (sembrava casuale) — ogni infrazione diventa una RIMESSA per gli
+	# avversari dal punto laterale piu' vicino, come nel basket vero.
+	_inbound(1 - p.team, _side_near_ball())
 
 func _baskin_clocks(delta: float) -> void:
 	if one_on_one or finished:
@@ -3509,7 +3517,6 @@ func _start_sub(out_p: BallPlayer, seat: int) -> void:
 	inn.variant = out_p.variant
 	_apply_role_kit(inn)
 	var r: Dictionary = bench_roster[team][seat]
-	inn.jersey_num = int(r["jersey"])
 	inn.display_name = String(r["name"])
 	inn.global_position = seat_world(team, seat)
 	inn.entering = true
@@ -3654,7 +3661,11 @@ func bench_user() -> void:
 	add_child(sub)
 	_randomize_npc(sub, 0)
 	var r: Dictionary = bench_roster[0][PARTNER_SEAT]
-	sub.jersey_num = int(r["jersey"])
+	# Playtest: la maglia porta SOLO il numero del ruolo, e il cambio che
+	# entra per l'utente gioca il suo stesso ruolo (prima: numero a caso
+	# del roster e ruolo 0, cioe' nessuna regola addosso).
+	sub.role = user.role
+	_apply_role_kit(sub)
 	sub.display_name = String(r["name"])
 	sub.global_position = seat_world(0, PARTNER_SEAT)
 	sub.entering = true

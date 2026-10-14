@@ -51,6 +51,7 @@ var tutor: BallPlayer = null            # the mate who just handed the pivot the
 var area_loiter_t := 0.0               # seconds spent inside a small side area (roles 3-5)
 var stun := 0.0                       # contact / crossover recovery lock
 var shot_charge := -1.0               # >=0 while holding the shot button
+var catch_guard_t := 0.0              # grazia alla ricezione: nessun tiro per 0.35s
 var shot_ideal := 0.6
 const MAX_CHARGE := 1.4               # hard ceiling; see _physics_process safety
 var move_input := Vector2.ZERO
@@ -272,11 +273,10 @@ func _physics_process(delta: float) -> void:
 					+ (own_hoop - tgt.global_position).normalized() * 46.0
 				var gd: Vector2 = gp - global_position
 				wish = gd.normalized() if gd.length() > 9.0 else Vector2.ZERO
-				# Playtest: la posizione difensiva parte dal tocco del
-				# bottone DIFESA, non solo quando sei gia' davanti
-				# all'uomo — il giocatore vede subito che il comando ha
-				# preso. L'assist continua a portarti davanti al tuo uomo.
-				stance = true
+				# Playtest: lontano dal proprio uomo si INSEGUE in posizione
+				# normale (piu' veloce); la posizione difensiva scatta solo
+				# quando gli si e' davanti.
+				stance = gd.length() < 95.0
 			elif court.ball != null and court.ball.holder != null \
 					and court.ball.holder.team != team:
 				# NESSUN UOMO LEGALE: aiuto, senza addosso a nessuno.
@@ -285,7 +285,7 @@ func _physics_process(delta: float) -> void:
 				var help: Vector2 = mine.lerp(bp, 0.58)
 				var hd: Vector2 = help - global_position
 				wish = hd.normalized() if hd.length() > 24.0 else Vector2.ZERO
-				stance = true
+				stance = hd.length() < 140.0
 			else:
 				guarding = false
 	# REGOLA DEI PASSI: con la palla raccolta dopo la finta muoversi
@@ -369,12 +369,15 @@ func _physics_process(delta: float) -> void:
 		# Senza palla non sei "marcato addosso": il timer deve scadere, non
 		# restare appeso al valore dell'ultima azione.
 		_press_t = maxf(0.0, _press_t - delta)
-	if shot_charge >= 0.0 and not has_ball:
-		# La carica vive solo con la palla in mano. Se il possesso e' finito
-		# (palla persa, rimessa avversaria, tiro gia' partito) la carica si
-		# annulla: cosi' la rete di sicurezza del MAX_CHARGE non puo' piu'
-		# sparare un "tiro a caso" quando la palla torna in mano dopo la
-		# rimessa (bug segnalato al telefono).
+	catch_guard_t = maxf(0.0, catch_guard_t - delta)
+	if shot_charge >= 0.0 and (not has_ball or (court != null
+			and (court.restarting or court.inbound_wait > 0.0))):
+		# La carica vive solo con la palla in mano A GIOCO VIVO. Se il
+		# possesso e' finito (palla persa, rimessa, tiro partito) o il gioco
+		# e' fermo per una rimessa, la carica si annulla: la rete di
+		# sicurezza del MAX_CHARGE non puo' piu' sparare un "tiro a caso"
+		# quando la palla torna in mano (bug segnalato al telefono, due
+		# giri di playtest).
 		shot_charge = -1.0
 		dunk_held = false
 	elif shot_charge >= 0.0:

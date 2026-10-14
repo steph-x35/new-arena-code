@@ -319,9 +319,9 @@ func squeak() -> void:
 	# pitch leggermente variabile, resta raro e discreto come da regola.
 	if _squeak_cd > 0.0:
 		return
-	_squeak_cd = 0.32
+	_squeak_cd = 0.65
 	_sq_i += 1
-	play("squeak%d" % (1 + (_sq_i % 3)), -2.0, randf_range(0.95, 1.12))
+	play("squeak%d" % (1 + (_sq_i % 3)), -4.0, randf_range(0.95, 1.12))
 
 ## On-court shout from a team-mate ("defense", "ball", ...). Loaded only when
 ## the voice clips exist; a silent no-op otherwise (solo courts never call it).
