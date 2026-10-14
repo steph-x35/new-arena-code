@@ -1,9 +1,10 @@
 extends Node2D
 ## SFIDA UN AMICO — il campetto condiviso (passo 2, versione "tiri insieme").
 ##
-## Due telefoni, un campetto, palla ciascuno: si cammina, si palleggia, si
-## tira insieme. Niente punteggio, niente possesso: e' il riscaldamento
-## a due del campetto. L'1v1 coi punti e' il passo dopo.
+## Due telefoni, un campetto: si gioca libero, palla ciascuno — e dalla
+## v2.45.0 c'e' anche la SFIDA 1V1: una palla sola, canestri da 2 e da 3
+## dietro la linea, chi subisce riparte in attacco, rimbalzo libero con
+## uscita dalla linea, a 11/15/21 come lo scelgono i due che giocano.
 ## Ogni telefono e' padrone del PROPRIO giocatore e della PROPRIA palla:
 ## il tiro lo decidi tu, sul tuo orologio (il verde non soffre di rete),
 ## e la palla dell'altro la vedi arrivare a 30 Hz.
@@ -108,6 +109,29 @@ var _msg_t := 0.0
 var _look_t := 0.0   # invia l'aspetto ogni 1,2 s: se arriva mentre l'altro
                       # sta ancora caricando la scena, il prossimo passa
 
+# ---- SFIDA 1V1 (v2.45.0): una palla sola, punteggio e possesso.
+# Il gioco libero resta esattamente com'e': il 1v1 vive dietro duel_on, e
+# ogni decisione la prende chi la vive (come i tiri) e la spedisce con
+# gli eventi reliable — nessun arbitro, la rete fa da testimone.
+var duel_on := false             # partita in corso
+var duel_phase := ""             # "" | count | live | over
+var duel_target := 11            # a quanti punti si vince
+var my_score := 0
+var foe_score := 0
+var i_attack := false            # la palla e' mia (o tocca a me ripartire)
+var ball_loose := false          # palla viva a terra: rimbalzo di chi la prende
+var my_rebound := false          # il tiro sbagliato e' il mio (fisica ball_*)
+var must_clear := false          # devo uscire dalla linea prima di tirare
+var _win := false
+var _count_t := 0.0
+var _loose_t := 0.0
+var _pick_ok := false            # la mia palla ha toccato ferro/terra: si puo' prendere
+var _fb_pick_ok := false         # idem per la palla dell'altro
+var _took_at := 0                # quando ho preso l'ultimo rimbalzo (gara di contemporaneita')
+var _pending_target := 11        # target della sfida ricevuta, in attesa di risposta
+var btn_sfida: Button
+var _panel: CanvasLayer = null
+
 
 func _ready() -> void:
 	Sfx.stop_music()
@@ -134,6 +158,7 @@ func _ready() -> void:
 		or (NetLayer.role == "host" and NetLayer._has_peer)
 	NetLayer.duel_state.connect(_on_foe_state)
 	NetLayer.duel_shot_rx.connect(_on_foe_shot)
+	NetLayer.duel_ev_rx.connect(_on_foe_ev)
 	NetLayer.duel_look_rx.connect(_on_foe_look)
 	NetLayer.disconnected.connect(_on_net_lost)
 	if not _net_ok:
@@ -148,6 +173,8 @@ func _exit_tree() -> void:
 		NetLayer.duel_state.disconnect(_on_foe_state)
 	if NetLayer.duel_shot_rx.is_connected(_on_foe_shot):
 		NetLayer.duel_shot_rx.disconnect(_on_foe_shot)
+	if NetLayer.duel_ev_rx.is_connected(_on_foe_ev):
+		NetLayer.duel_ev_rx.disconnect(_on_foe_ev)
 	if NetLayer.duel_look_rx.is_connected(_on_foe_look):
 		NetLayer.duel_look_rx.disconnect(_on_foe_look)
 	if NetLayer.disconnected.is_connected(_on_net_lost):
@@ -249,6 +276,19 @@ func _build_hud() -> void:
 	leave.pressed.connect(_leave)
 	root.add_child(leave)
 
+	# SFIDA 1V1: visibile solo quando c'e' l'amico sul campo (e nessuna
+	# partita in corso) — lo decide _duel_tick a ogni frame.
+	var sfida := Button.new()
+	sfida.text = Loc.t("duel.sfida")
+	sfida.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	sfida.position = Vector2(-110, 22)
+	sfida.custom_minimum_size = Vector2(220, 56)
+	sfida.add_theme_font_size_override("font_size", 22)
+	sfida.pressed.connect(_sfida_panel)
+	sfida.visible = false
+	root.add_child(sfida)
+	btn_sfida = sfida
+
 
 func _say(msg: String, t := 2.2) -> void:
 	lbl_mid.text = msg
@@ -311,6 +351,7 @@ func _process(delta: float) -> void:
 			NetLayer.rpc("rpc_duel_look", _my_look())
 	_camera(delta)
 	_send(delta)
+	_duel_tick(delta)
 	# METRO DEL TIRO: come nel campetto — vive SOPRA la testa del tiratore,
 	# segue il salto, e dopo il rilascio resta congelato un attimo col
 	# verdetto (e' cosi' che si impara il timing).
@@ -436,6 +477,8 @@ func _dunk_flow(delta: float) -> void:
 func _do_trick() -> void:
 	## TRICK come nel campetto solo: verso il ferro diventa EUROSTEP,
 	## dal post e' un DROP STEP, altrimenti la mossa la decide il joystick.
+	if duel_on and (not _i_have_ball() or must_clear):
+		return
 	if trick_t > 0.0 or dunk_phase != "" or ball_live or charging or euro_t > 0.0:
 		return
 	# EUROSTEP: corri verso il ferro entro 14 ft e TRICK diventa il passo
@@ -491,6 +534,8 @@ func _do_trick() -> void:
 
 func _post_tap() -> void:
 	## POST UP: spalle al canestro. TIRA = fade/hook, TRICK = drop step.
+	if duel_on and not _i_have_ball():
+		return
 	if charging or dunk_phase != "" or ball_live or euro_t > 0.0:
 		return
 	posting = not posting
@@ -518,11 +563,18 @@ func _camera(delta: float) -> void:
 
 # ------------------------------------------------------------------ tiro
 func _i_have_ball() -> bool:
+	if duel_on and (duel_phase != "live" or not i_attack or ball_loose):
+		return false
 	return not ball_live and dunk_phase == ""
 
 
 func _shoot_down() -> void:
 	if not _net_ok or not _i_have_ball():
+		if duel_on and i_attack and must_clear:
+			_say(Loc.t("duel.clear"), 1.1)
+		return
+	if duel_on and must_clear:
+		_say(Loc.t("duel.clear"), 1.1)
 		return
 	if _can_dunk():
 		_start_dunk()
@@ -564,6 +616,9 @@ func _dunk_throw() -> void:
 		Events.popup.emit("ON FIRE!", player_pos, Color(1.0, 0.55, 0.15), true)
 	NetLayer.rpc("rpc_duel_shot", {"dunk": true, "made": true, "pts": 2,
 		"style": dunk_style, "from": RIM})
+	if duel_on:
+		my_score += 2
+		_duel_scored()
 
 
 func _drop_from_rim() -> void:
@@ -648,6 +703,15 @@ func _shoot_up() -> void:
 	else:
 		hot = false
 		streak = 0
+	if duel_on:
+		if made:
+			my_score += pts
+			_duel_scored()
+		else:
+			ball_loose = true
+			my_rebound = true
+			_loose_t = 0.0
+			_pick_ok = false
 	# traiettoria coerente con il verdetto (stessa regola del campetto solo)
 	var aim: Vector2
 	if zone == "green":
@@ -700,17 +764,19 @@ func _step_ball(delta: float) -> void:
 		_collide_backboard()
 		_collide_floor()
 	ball_spin += ball_vel.x * 0.0004
-	if ball_pos.x < -1300.0 or ball_pos.x > 1300.0 \
-	or ball_pos.y < -Court.COURT_H or ball_pos.y > Court.COURT_H:
-		ball_live = false
-	if ball_settled > 0.6:
-		ball_live = false
+	if not (duel_on and ball_loose):
+		if ball_pos.x < -1300.0 or ball_pos.x > 1300.0 \
+		or ball_pos.y < -Court.COURT_H or ball_pos.y > Court.COURT_H:
+			ball_live = false
+		if ball_settled > 0.6:
+			ball_live = false
 
 
 func _collide_rim() -> void:
 	## Stessa fisica del campetto solo: il punto esatto in cui la palla
 	## attraversa l'altezza del ferro decide swish, rattle o ferro e poi.
 	if ball_h <= RIM_HEIGHT and prev_h >= RIM_HEIGHT and ball_vh < 0.0:
+		_pick_ok = true
 		var span: float = prev_h - ball_h
 		var f: float = 0.0 if span <= 0.0 else (prev_h - RIM_HEIGHT) / span
 		var cx: float = lerpf(prev_pos.x, ball_pos.x, clampf(f, 0.0, 1.0))
@@ -789,6 +855,7 @@ func _collide_backboard() -> void:
 func _collide_floor() -> void:
 	if ball_h < 0.0:
 		ball_h = 0.0
+		_pick_ok = true
 		if absf(ball_vh) > 90.0:
 			ball_vh = -ball_vh * 0.45
 			ball_vel *= 0.72
@@ -822,6 +889,10 @@ func _my_kind() -> String:
 		return Avatar.DUNK
 	if shot_anim > 0.0 or pump_t > 0.0 or charging:
 		return Avatar.SHOOT
+	if duel_on and (not i_attack or ball_loose) and duel_phase != "over":
+		if (foe["pos"] as Vector2).distance_to(player_pos) < 300.0:
+			return Avatar.DEFEND
+		return Avatar.RUN if _my_walking() else Avatar.IDLE
 	return Avatar.DRIBBLE
 
 
@@ -890,6 +961,9 @@ func _on_foe_shot(d: Dictionary) -> void:
 			court_art.net_bump(1, 1.0)
 		Sfx.play("swish", -1.0, randf_range(0.84, 0.90))
 		Events.popup.emit("GREEN!", fpos + Vector2(0, -95), Color(0.3, 1.0, 0.45), true)
+		if duel_on:
+			foe_score += 2
+			_duel_foe_scored()
 		return
 	var zone: String = String(d.get("zone", ""))
 	if zone == "green":
@@ -899,6 +973,15 @@ func _on_foe_shot(d: Dictionary) -> void:
 			Color(1.0, 0.82, 0.35), true)
 	else:
 		Events.popup.emit("MISS!", fpos + Vector2(0, -80), Color(1.0, 0.45, 0.38), false)
+	if duel_on:
+		if bool(d.get("made", false)):
+			foe_score += int(d.get("pts", 2))
+			_duel_foe_scored()
+		else:
+			ball_loose = true
+			my_rebound = false
+			_loose_t = 0.0
+			_fb_pick_ok = false
 	_foe_launch(d.get("from", fpos), d.get("aim", RIM), zone == "green")
 
 
@@ -917,7 +1000,10 @@ func _on_foe_look(d: Dictionary) -> void:
 		"kit": false,
 		"trim": Color(0.95, 0.95, 0.97),
 	}
-	lbl_top.text = "%s  ·  %s" % [Loc.t("duel.you"), foe["name"]]
+	if duel_on:
+		_duel_update_top()
+	else:
+		lbl_top.text = "%s  ·  %s" % [Loc.t("duel.you"), foe["name"]]
 
 
 func _on_net_lost() -> void:
@@ -929,6 +1015,283 @@ func _on_net_lost() -> void:
 func _leave() -> void:
 	NetLayer.close()
 	SceneRouter.goto("res://src/scenes/MainMenu.tscn")
+
+
+# ------------------------------------------------------------------ 1v1
+## La SFIDA 1V1: tutto quello che accade lo decide chi lo vive (come i
+## tiri) e viaggia sui soliti eventi reliable — la rete fa da testimone.
+## Una palla sola: canestri da 2, da 3 dietro la linea, chi subisce
+## riparte in attacco. Errore = rimbalzo libero: chi lo prende attacca,
+## e se prendeva in difesa prima deve uscire dalla linea.
+
+func _duel_tick(delta: float) -> void:
+	if btn_sfida != null:
+		btn_sfida.visible = _net_ok and bool(foe.get("seen", false)) and not duel_on
+	if not duel_on:
+		return
+	if duel_phase == "count":
+		_count_t -= delta
+		if _count_t <= 0.0:
+			duel_phase = "live"
+			_duel_update_top()
+			_say(Loc.t("duel.go"), 0.9)
+			Sfx.haptic(30)
+		else:
+			lbl_mid.text = str(clampi(int(ceil(_count_t)), 1, 3))
+			_msg_t = 0.0
+		return
+	if duel_phase != "live":
+		return
+	if i_attack and must_clear and _distance_ft() > Court.THREE_FT + 0.25:
+		must_clear = false
+		_duel_update_top()
+		_say(Loc.t("duel.cleared"), 1.3)
+	if ball_loose:
+		_loose_t += delta
+		if my_rebound and ball_live and _pick_ok and ball_h < 90.0 \
+		and player_pos.distance_to(ball_pos) < 56.0:
+			_take_ball(true)
+		elif not my_rebound and fb_live and _fb_pick_ok and fb_h < 90.0 \
+		and player_pos.distance_to(fb_pos) < 56.0:
+			_take_ball(false)
+		elif _loose_t > 8.0 and not i_attack:
+			_take_ball(false)
+
+
+func _duel_start(target: int, first_role: String) -> void:
+	_hide_panels()
+	duel_on = true
+	duel_phase = "count"
+	duel_target = target
+	my_score = 0
+	foe_score = 0
+	hot = false
+	streak = 0
+	charging = false
+	charge = 0.0
+	posting = false
+	euro_t = 0.0
+	fade_t = 0.0
+	trick_t = 0.0
+	ball_loose = false
+	ball_live = false
+	fb_live = false
+	must_clear = false
+	_pick_ok = false
+	_fb_pick_ok = false
+	_loose_t = 0.0
+	_count_t = 3.0
+	i_attack = (NetLayer.role == first_role)
+	var atk := Vector2(RIM.x - 500.0, -240.0)
+	var dfn := Vector2(RIM.x - 180.0, -60.0)
+	player_pos = atk if i_attack else dfn
+	facing = 1.0
+	foe["pos"] = dfn if i_attack else atk
+	foe["t_pos"] = foe["pos"]
+	if meter != null:
+		meter.visible = false
+	_duel_update_top()
+
+
+func _duel_update_top() -> void:
+	if not duel_on:
+		return
+	lbl_top.text = "%s %d · %d %s   ·   a %d" % [
+		Loc.t("duel.you"), my_score, foe_score,
+		String(foe.get("name", "?")), duel_target]
+	if duel_phase == "live":
+		lbl_top.text += "   ·   " + (Loc.t("duel.mine") if i_attack else Loc.t("duel.def"))
+
+
+func _duel_scored() -> void:
+	## Ho segnato io: cambio palla (chi subisce attacca) e se serve e' finita.
+	i_attack = false
+	must_clear = false
+	ball_loose = false
+	_duel_update_top()
+	if my_score >= duel_target:
+		_duel_end(true)
+
+
+func _duel_foe_scored() -> void:
+	## Ha segnato lui: palla mia, ma prima devo uscire dalla linea.
+	i_attack = true
+	must_clear = true
+	ball_loose = false
+	_duel_update_top()
+	if foe_score >= duel_target:
+		_duel_end(false)
+
+
+func _take_ball(off: bool) -> void:
+	## Ho preso il rimbalzo. off = rimbalzo OFFENSIVO (il mio tiro
+	## sbagliato): posso rimettere subito; in difesa, prima esco dalla linea.
+	ball_loose = false
+	ball_live = false
+	fb_live = false
+	i_attack = true
+	must_clear = not off
+	_pick_ok = false
+	_fb_pick_ok = false
+	_loose_t = 0.0
+	_took_at = int(Time.get_ticks_msec())
+	_duel_update_top()
+	_say(Loc.t("duel.takeoff") if off else Loc.t("duel.takedef"), 1.5)
+	NetLayer.rpc("rpc_duel_ev", {"ev": "take", "off": off})
+
+
+func _duel_end(win: bool) -> void:
+	duel_phase = "over"
+	_win = win
+	charging = false
+	ball_loose = false
+	if meter != null:
+		meter.visible = false
+	_duel_update_top()
+	_show_end()
+	Sfx.haptic(60 if win else 30)
+
+
+func _on_foe_ev(d: Dictionary) -> void:
+	match String(d.get("ev", "")):
+		"challenge":
+			_pending_target = int(d.get("target", 11))
+			_show_accept()
+		"decline":
+			_hide_panels()
+			_say(Loc.t("duel.declined"), 2.0)
+		"start":
+			_duel_start(int(d.get("target", 11)), String(d.get("first", "host")))
+		"take":
+			if not ball_loose and int(Time.get_ticks_msec()) - _took_at < 400:
+				return   # due prese nello stesso istante: vale la prima arrivata
+			ball_loose = false
+			ball_live = false
+			fb_live = false
+			i_attack = false
+			must_clear = false
+			_loose_t = 0.0
+			_duel_update_top()
+			_say(Loc.t("duel.takefoe"), 1.5)
+		"rematch":
+			if duel_phase != "over":
+				return
+			_duel_start(int(d.get("target", duel_target)), String(d.get("role", "host")))
+
+
+# ------------------------------------------------------------------ 1v1 UI
+func _panel_layer(dim: bool) -> VBoxContainer:
+	_hide_panels()
+	_panel = CanvasLayer.new()
+	_panel.layer = 40
+	add_child(_panel)
+	if dim:
+		var cr := ColorRect.new()
+		cr.color = Color(0, 0, 0, 0.45)
+		cr.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_panel.add_child(cr)
+	var pc := PanelContainer.new()
+	pc.set_anchors_preset(Control.PRESET_CENTER)
+	pc.custom_minimum_size = Vector2(620, 0)
+	_panel.add_child(pc)
+	var vb := VBoxContainer.new()
+	vb.add_theme_constant_override("separation", 18)
+	pc.add_child(vb)
+	return vb
+
+
+func _panel_text(vb: VBoxContainer, txt: String, size := 26, col := Color.WHITE) -> void:
+	var l := Label.new()
+	l.text = txt
+	l.add_theme_font_size_override("font_size", size)
+	l.add_theme_color_override("font_color", col)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vb.add_child(l)
+
+
+func _panel_btn(parent: Container, txt: String, cb: Callable, accent := false) -> Button:
+	var b := Button.new()
+	b.text = txt
+	b.custom_minimum_size = Vector2(0, 68)
+	b.add_theme_font_size_override("font_size", 22)
+	if accent:
+		b.modulate = Color(1.0, 0.75, 0.35)
+	parent.add_child(b)
+	b.pressed.connect(cb)
+	return b
+
+
+func _hide_panels() -> void:
+	if _panel != null:
+		_panel.queue_free()
+		_panel = null
+
+
+func _sfida_panel() -> void:
+	if not _net_ok or duel_on:
+		return
+	var vb := _panel_layer(false)
+	_panel_text(vb, Loc.t("duel.pick"), 27, Color(1.0, 0.82, 0.35))
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 14)
+	hb.alignment = BoxContainer.ALIGNMENT_CENTER
+	vb.add_child(hb)
+	for t in [11, 15, 21]:
+		var b := _panel_btn(hb, "A %d" % t, _send_challenge.bind(t), true)
+		b.custom_minimum_size = Vector2(150, 72)
+	_panel_btn(vb, Loc.t("common.back"), _hide_panels)
+
+
+func _send_challenge(t: int) -> void:
+	_hide_panels()
+	NetLayer.rpc("rpc_duel_ev", {"ev": "challenge", "target": t})
+	_say(Loc.t("duel.sent"), 2.5)
+
+
+func _show_accept() -> void:
+	if duel_on:
+		return
+	var vb := _panel_layer(true)
+	_panel_text(vb, "%s  %s  %d" % [
+		String(foe.get("name", "?")), Loc.t("duel.wants"), _pending_target], 27)
+	_panel_text(vb, Loc.t("duel.rules"), 17, Color(1, 1, 1, 0.65))
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 14)
+	hb.alignment = BoxContainer.ALIGNMENT_CENTER
+	vb.add_child(hb)
+	_panel_btn(hb, Loc.t("duel.accept"), _accept_challenge, true)
+	_panel_btn(hb, Loc.t("duel.decline"), _decline_challenge)
+
+
+func _accept_challenge() -> void:
+	_hide_panels()
+	var first := "host" if randf() < 0.5 else "client"
+	NetLayer.rpc("rpc_duel_ev", {"ev": "start", "target": _pending_target, "first": first})
+	_duel_start(_pending_target, first)
+
+
+func _decline_challenge() -> void:
+	_hide_panels()
+	NetLayer.rpc("rpc_duel_ev", {"ev": "decline"})
+
+
+func _show_end() -> void:
+	var vb := _panel_layer(true)
+	_panel_text(vb, Loc.t("duel.win") if _win else Loc.t("duel.lose"), 46,
+		Color(0.45, 1.0, 0.5) if _win else Color(1.0, 0.55, 0.45))
+	_panel_text(vb, "%d  ·  %d" % [my_score, foe_score], 34, Color(1, 1, 1, 0.8))
+	if _win:
+		_panel_text(vb, Loc.t("duel.waitrematch"), 16, Color(1, 1, 1, 0.5))
+	else:
+		_panel_text(vb, Loc.t("duel.rematch.hint"), 16, Color(1, 1, 1, 0.5))
+		_panel_btn(vb, Loc.t("duel.rematch"), _rematch, true)
+	_panel_btn(vb, Loc.t("duel.leave"), _leave)
+
+
+func _rematch() -> void:
+	NetLayer.rpc("rpc_duel_ev", {"ev": "rematch", "role": NetLayer.role,
+		"target": duel_target})
+	_duel_start(duel_target, NetLayer.role)
 
 
 # ------------------------------------------------------------------ disegno
@@ -1018,9 +1381,11 @@ func _draw_char(mine: bool) -> void:
 
 	var hold_ball: bool
 	if mine:
-		hold_ball = not ball_live and dp == "" and trick_t <= 0.0
+		hold_ball = not ball_live and dp == "" and trick_t <= 0.0 \
+			and (not duel_on or (i_attack and not ball_loose and duel_phase != "over"))
 	else:
-		hold_ball = not fb_live and dp == "" and tk == ""
+		hold_ball = not fb_live and dp == "" and tk == "" \
+			and (not duel_on or ((not i_attack) and not ball_loose and duel_phase != "over"))
 
 	var po: Dictionary = Avatar.pose(kind, phase, amount, tk, walking)
 	po["hand"] = -1.0 if hand_left else 1.0
@@ -1232,16 +1597,18 @@ func _step_foe_ball(delta: float) -> void:
 		_foe_ball_backboard()
 		_foe_ball_floor()
 	fb_spin += fb_vel.x * 0.0004
-	if fb_pos.x < -1300.0 or fb_pos.x > 1300.0 \
-	or fb_pos.y < -Court.COURT_H or fb_pos.y > Court.COURT_H:
-		fb_live = false
-	if fb_settled > 0.6:
-		fb_live = false
+	if not (duel_on and ball_loose):
+		if fb_pos.x < -1300.0 or fb_pos.x > 1300.0 \
+		or fb_pos.y < -Court.COURT_H or fb_pos.y > Court.COURT_H:
+			fb_live = false
+		if fb_settled > 0.6:
+			fb_live = false
 
 func _foe_ball_rim() -> void:
 	## L'attraversamento della retina della SUA palla, coi miei occhi:
 	## swish, rattle e ferro — tutto quello che vedo del mio tiro.
 	if fb_h <= RIM_HEIGHT and fb_prev_h >= RIM_HEIGHT and fb_vh < 0.0:
+		_fb_pick_ok = true
 		var span: float = fb_prev_h - fb_h
 		var f: float = 0.0 if span <= 0.0 else (fb_prev_h - RIM_HEIGHT) / span
 		var cx: float = lerpf(fb_prev_pos.x, fb_pos.x, clampf(f, 0.0, 1.0))
@@ -1312,6 +1679,7 @@ func _foe_ball_backboard() -> void:
 func _foe_ball_floor() -> void:
 	if fb_h < 0.0:
 		fb_h = 0.0
+		_fb_pick_ok = true
 		if absf(fb_vh) > 90.0:
 			fb_vh = -fb_vh * 0.45
 			fb_vel *= 0.72

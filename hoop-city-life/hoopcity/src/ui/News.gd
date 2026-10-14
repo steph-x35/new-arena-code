@@ -24,6 +24,9 @@ static func maybe_show(host_tree: SceneTree) -> void:
 	p.add_text("%s  ·  v%s" % [Loc.t("news.range"), Game.VERSION], 16,
 		Color(1, 1, 1, 0.5))
 	p.add_text("")
+	p.add_text(Loc.t("news.duel"), 26, Color(1.0, 0.82, 0.35))
+	p.add_text(Loc.t("news.duel.body"), 19, Color(1, 1, 1, 0.92))
+	p.add_text("")
 	p.add_text(Loc.t("news.hero"), 26, Color(1.0, 0.82, 0.35))
 	p.add_text(Loc.t("news.hero.body"), 19, Color(1, 1, 1, 0.92))
 	p.add_text("")
