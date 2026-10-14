@@ -130,7 +130,9 @@ var _fb_pick_ok := false         # idem per la palla dell'altro
 var _took_at := 0                # quando ho preso l'ultimo rimbalzo (gara di contemporaneita')
 var _pending_target := 11        # target della sfida ricevuta, in attesa di risposta
 var btn_sfida: Button
+var btn_end: Button
 var _panel: CanvasLayer = null
+var _free_sent_at := 0        # quando ho chiuso la partita (le gare di click non contano)
 
 
 func _ready() -> void:
@@ -288,6 +290,19 @@ func _build_hud() -> void:
 	sfida.visible = false
 	root.add_child(sfida)
 	btn_sfida = sfida
+
+	# FINE PARTITA (solo mentre il 1v1 e' in corso): si chiude e si torna
+	# a tirare insieme, senza lasciare il campo.
+	var fine := Button.new()
+	fine.text = Loc.t("duel.end")
+	fine.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	fine.position = Vector2(-110, 22)
+	fine.custom_minimum_size = Vector2(220, 56)
+	fine.add_theme_font_size_override("font_size", 22)
+	fine.pressed.connect(_end_match)
+	fine.visible = false
+	root.add_child(fine)
+	btn_end = fine
 
 
 func _say(msg: String, t := 2.2) -> void:
@@ -1027,6 +1042,8 @@ func _leave() -> void:
 func _duel_tick(delta: float) -> void:
 	if btn_sfida != null:
 		btn_sfida.visible = _net_ok and bool(foe.get("seen", false)) and not duel_on
+	if btn_end != null:
+		btn_end.visible = duel_on and duel_phase != "over"
 	if not duel_on:
 		return
 	if duel_phase == "count":
@@ -1161,6 +1178,10 @@ func _on_foe_ev(d: Dictionary) -> void:
 			_hide_panels()
 			_say(Loc.t("duel.declined"), 2.0)
 		"start":
+			if duel_on and duel_phase != "over":
+				return
+			if int(Time.get_ticks_msec()) - _free_sent_at < 1200:
+				return   # ho appena chiuso: vince il ritorno ai tiri liberi
 			_duel_start(int(d.get("target", 11)), String(d.get("first", "host")))
 		"take":
 			if not ball_loose and int(Time.get_ticks_msec()) - _took_at < 400:
@@ -1177,6 +1198,36 @@ func _on_foe_ev(d: Dictionary) -> void:
 			if duel_phase != "over":
 				return
 			_duel_start(int(d.get("target", duel_target)), String(d.get("role", "host")))
+		"free":
+			if not duel_on:
+				return
+			_duel_free()
+
+
+func _end_match() -> void:
+	## Chiudo la partita e torno ai tiri liberi — lo dico anche all'altro,
+	## cosi' entrambi si ritrovano a tirare insieme sullo stesso campo.
+	_free_sent_at = int(Time.get_ticks_msec())
+	NetLayer.rpc("rpc_duel_ev", {"ev": "free"})
+	_duel_free()
+
+
+func _duel_free() -> void:
+	## Si torna a tirare insieme, come sempre: campo condiviso libero.
+	duel_on = false
+	duel_phase = ""
+	ball_loose = false
+	ball_live = false
+	fb_live = false
+	must_clear = false
+	charging = false
+	_pick_ok = false
+	_fb_pick_ok = false
+	_loose_t = 0.0
+	if meter != null:
+		meter.visible = false
+	lbl_top.text = "%s  ·  %s" % [Loc.t("duel.you"), String(foe.get("name", "?"))]
+	_say(Loc.t("duel.freeon"), 2.5)
 
 
 # ------------------------------------------------------------------ 1v1 UI
@@ -1285,6 +1336,7 @@ func _show_end() -> void:
 	else:
 		_panel_text(vb, Loc.t("duel.rematch.hint"), 16, Color(1, 1, 1, 0.5))
 		_panel_btn(vb, Loc.t("duel.rematch"), _rematch, true)
+	_panel_btn(vb, Loc.t("duel.free"), _end_match)
 	_panel_btn(vb, Loc.t("duel.leave"), _leave)
 
 
