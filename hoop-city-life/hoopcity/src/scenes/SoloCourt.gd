@@ -81,6 +81,11 @@ var prev_h := 0.0
 # che resta com'e'.)
 var solo_loose := false
 var _pick_ok := false
+var _shot_ms := 0
+var ball_recall := false
+var _recall_t := 0.0
+var _recall_from := Vector2.ZERO
+var _recall_h := 0.0
 
 # session
 const SESSION_SECONDS := 120.0
@@ -472,7 +477,7 @@ func _process(delta: float) -> void:
 	# RIMBALZO VIVO: la palla RESTA LI e aspetta il giocatore — la riprendi
 	# cammandoci sopra. Se si ferma fuori dalla zona raggiungibile, rotola
 	# piano dentro (cosi' non ce n'e' mai una impossibile da prendere).
-	if solo_loose:
+	if solo_loose and not ball_recall:
 		if ball_live and _pick_ok and ball_h < 90.0 \
 		and player_pos.distance_to(ball_pos) < 85.0:
 			_pickup_loose()
@@ -486,6 +491,19 @@ func _process(delta: float) -> void:
 			ball_vh = 0.0
 
 
+	# PRENDI: la palla vola da sola nelle mani del giocatore.
+	if ball_recall:
+		_recall_t += delta / 0.38
+		var tt: float = clampf(_recall_t, 0.0, 1.0)
+		ball_pos = _recall_from.lerp(player_pos, tt)
+		ball_h = lerpf(_recall_h, 46.0, tt) + 34.0 * sin(PI * tt)
+		if _recall_t >= 1.0:
+			ball_recall = false
+			ball_live = false
+			solo_loose = false
+			_pick_ok = false
+			Events.popup.emit("PALLA!", player_pos + Vector2(0, -70),
+				Color(1.0, 0.82, 0.35), false)
 	# PIEGA DEL FERRO: lo Street Court appendi al ferro destro -> court_art
 	court_art.solo_hang = (dunk_phase == "hang")
 	# EUROSTEP: due tempi — laterale, poi esplosione verso il ferro — e
@@ -584,6 +602,7 @@ func _process(delta: float) -> void:
 			if not hc_mode:
 				solo_loose = true
 				_pick_ok = false
+				_shot_ms = int(Time.get_ticks_msec())
 				ball_pos = RIM + Vector2(randf_range(-50.0, 50.0), randf_range(0.0, 60.0))
 				ball_h = 70.0
 				ball_vel = Vector2(randf_range(-90.0, 90.0), randf_range(-40.0, 40.0))
@@ -605,7 +624,9 @@ func _process(delta: float) -> void:
 	lbl_top.modulate = Color(1, 0.45, 0.4) if session_left <= 15.0 else Color(1, 1, 1)
 	if btn_shoot:
 		var want: String = "SHOOT"
-		if dunk_phase == "hang":
+		if solo_loose and int(Time.get_ticks_msec()) - _shot_ms > 2000:
+			want = Loc.t("solo.get")
+		elif dunk_phase == "hang":
 			want = "LET GO"
 		elif dunk_phase == "rise":
 			want = "DUNK!"
@@ -834,6 +855,7 @@ func _toggle_hc() -> void:
 	ball_ghost_rim = false
 	through_rim = false
 	solo_loose = false
+	ball_recall = false
 	_pick_ok = false
 	lbl_mid.text = ""
 	session_left = HC_SECONDS
@@ -866,6 +888,17 @@ func _hc_teleport() -> void:
 	ball_ghost_rim = false
 	through_rim = false
 
+func _recall_ball() -> void:
+	## PRENDI: la palla vola da sola nelle mani — niente corsa a recuperarla.
+	if not ball_live:
+		_pickup_loose()
+		return
+	ball_recall = true
+	_recall_t = 0.0
+	_recall_from = ball_pos
+	_recall_h = ball_h
+
+
 func _pickup_loose() -> void:
 	## Ho ripreso la palla da terra: si riparte, e si tira da dove voglio.
 	solo_loose = false
@@ -882,6 +915,8 @@ func _shoot_down() -> void:
 	if shot_anim > 0.0 or dunk_phase != "":
 		return
 	if solo_loose:
+		if int(Time.get_ticks_msec()) - _shot_ms > 2000:
+			_recall_ball()
 		return
 	if can_dunk() and not posting:
 		_start_dunk()
@@ -1048,6 +1083,7 @@ func _shoot_up() -> void:
 	if not hc_mode:
 		solo_loose = true
 		_pick_ok = false
+		_shot_ms = int(Time.get_ticks_msec())
 	# HALF-COURT CHALLENGE: conta SOLO il green da oltre la linea.
 	if hc_mode:
 		if zone == "green" and ft >= HC_MIN_FT:
@@ -1115,7 +1151,7 @@ func _launch_ball(from: Vector2, aim: Vector2) -> void:
 	ball_spin = -signf(dist.x) * 7.0
 
 func _step_ball(delta: float) -> void:
-	if not ball_live:
+	if not ball_live or ball_recall:
 		return
 	var steps := 4
 	var h: float = delta / float(steps)
@@ -1565,11 +1601,14 @@ func _draw_player() -> void:
 		kind = Avatar.DRIBBLE
 		phase = dribble_t * 1.9
 		amount = trick_t / 0.45
+	elif solo_loose or ball_live:
+		# SENZA PALLA: come in citta' — si corre, o si sta fermi in piedi.
+		# Niente gesto del palleggio a vuoto con la palla distante.
+		kind = Avatar.RUN if joystick.output.length() > 0.06 else Avatar.IDLE
 	elif posting:
-		# POST UP VERO: spalle al canestro, gambe piegate, braccia larghe
-		# a tenere la posizione — non si palleggia, si spalleggia.
-		kind = Avatar.DEFEND
-		lift = -7.0
+		# POST UP: braccia normali come nel palleggio classico; il corpo
+		# cambia davvero — gambe piegate e schiena curva (xform al draw).
+		kind = Avatar.DRIBBLE
 	elif joystick.output.length() > 0.06:
 		kind = Avatar.DRIBBLE
 		phase = dribble_t
@@ -1610,7 +1649,7 @@ func _draw_player() -> void:
 		draw_colored_polygon(pts, Color(0, 0, 0, 0.40))
 	# SCIA PALLA in volo (stessa del match): fantasmi che svaniscono.
 	# Scia rimossa su richiesta utente.
-	var hold_ball: bool = carry and not ball_live and trick_t <= 0.0
+	var hold_ball: bool = carry and not ball_live and not solo_loose and trick_t <= 0.0
 	var walking: bool = joystick.output.length() > 0.12 and dunk_phase == "" and shot_anim <= 0.0 and not charging
 	var dunk_trick := dunk_style if dunk_phase != "" else (trick_kind if trick_t > 0.0 else "")
 	var po: Dictionary = Avatar.pose(kind, phase, amount, dunk_trick, walking)
@@ -1620,6 +1659,7 @@ func _draw_player() -> void:
 		po["hang"] = true
 		po["hang_one"] = hang_one
 	po["hand"] = -1.0 if hand_left else 1.0
+	po["yell"] = dunk_phase != ""
 	# SPIN MOVE: la rotazione del corpo come in partita (passa di schiena
 	# alla telecamera mentre gira, come lo yaw dei giocatori del match).
 	if trick_t > 0.0 and trick_kind == "spin":
@@ -1645,8 +1685,15 @@ func _draw_player() -> void:
 			Avatar.colours(true), false, false, true, BALL_R)
 		draw_set_transform_matrix(Transform2D())
 	else:
+		var xf := Transform2D()
+		if posting:
+			# POST: leggero accorciamento (gambe piegate) e piccola
+			# inclinazione avanti (schiena un po' curva sul pallone).
+			xf = Transform2D(0.0, Vector2.ONE, 0.0, screen) \
+				* Transform2D(0.09 * facing, Vector2(1.0, 0.93)) \
+				* Transform2D(0.0, Vector2.ONE, 0.0, -screen)
 		Avatar.draw_body(self, screen, h, facing, po, Avatar.colours(true), hold_ball,
-			dunk_phase == "", true, BALL_R)
+			dunk_phase == "", true, BALL_R, xf)
 	# HEAT CHECK: stesse lingue di fuoco del match (helper condiviso).
 	if hot and not bool(Settings.get_v("lowgfx", false)):
 		Avatar.draw_flames(self, screen + Vector2(0.0, -h * 1.16), Time.get_ticks_msec() / 1000.0)

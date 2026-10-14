@@ -1000,6 +1000,7 @@ func _draw() -> void:
 	var walking: bool = velocity.length() > 14.0 or move_input.length() > 0.12
 	var dunk_trick := dunk_style if (dunking or hanging) else trick
 	var po: Dictionary = Avatar.pose(kind, phase, amount, dunk_trick, walking)
+	po["yell"] = dunking or hanging
 	po["hand"] = hand_side
 	if fade_t > 0.0:
 		po["lean_back"] = clampf(fade_t / 0.75, 0.0, 1.0)

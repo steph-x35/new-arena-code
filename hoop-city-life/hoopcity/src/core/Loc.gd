@@ -101,6 +101,7 @@ const STR := {
 	"duel.free":      ["BACK TO FREE SHOOTING", "TORNA A TIRARE"],
 	"duel.freeon":    ["Free shooting — SFIDA 1V1 whenever you want", "Tiri liberi — SFIDA 1V1 quando vuoi"],
 	"duel.jump":      ["JUMP", "SALTO"],
+	"solo.get":       ["GET", "PRENDI"],
 	"duel.steal":     ["STEAL", "RUBATA"],
 	"duel.check":     ["CHECK", "CHECK"],
 	"duel.checkgo":   ["YOUR CHECK — tap CHECK to start", "TOCCA A TE: dai il CHECK"],

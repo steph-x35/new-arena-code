@@ -713,6 +713,7 @@
             var r = rs[i];
             var m = /^v(\d+)\.(\d+)\.(\d+)$/.exec(r.tag_name || '');
             if (!m) continue;
+            if (r.prerelease) continue;   // le versioni di prova non si offrono
             var key = parseInt(m[1], 10) * 1000000 + parseInt(m[2], 10) * 1000 + parseInt(m[3], 10);
             for (var j = 0; j < (r.assets || []).length; j++) {
               if ((r.assets[j].name || '').indexOf('HoopCity') === 0) {

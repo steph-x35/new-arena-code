@@ -142,6 +142,14 @@ var _contested := false       # il difensore e' addosso mentre carico
 var _blocked := false         # SALTO dell'altro a pochi passi: stoppata
 var _jump_t := 0.0            # il mio SALTO (braccia alte in aria)
 var i_hold := true            # LIBERO: ho una palla in mano (la mia o la sua)
+var ball_recall := false      # PRENDI a distanza: la mia palla vola in mano
+var _recall_t := 0.0
+var _recall_from := Vector2.ZERO
+var _recall_h := 0.0
+var fb_recall := false        # idem, per la palla dell'altro
+var _fb_recall_t := 0.0
+var _fb_recall_from := Vector2.ZERO
+var _fb_recall_h := 0.0
 var btn_guard: TouchButton
 var btn_steal: TouchButton
 var btn_check: Button
@@ -780,6 +788,9 @@ func _try_grab_ball() -> void:
 	if not duel_on:
 		if i_hold:
 			return
+		if _loose_t > 2.0:
+			_free_recall_start()
+			return
 		if ball_loose and ball_live and _pick_ok and ball_h < 110.0 \
 		and player_pos.distance_to(ball_pos) < 130.0:
 			_free_pick(true)
@@ -794,6 +805,26 @@ func _try_grab_ball() -> void:
 		elif not my_rebound and fb_live and _fb_pick_ok and fb_h < 110.0 \
 		and player_pos.distance_to(fb_pos) < 130.0:
 			_take_ball(false)
+
+
+func _free_recall_start() -> void:
+	## PRENDI a distanza (dopo 2 secondi dal tiro): la palla vola da sola
+	## nelle mie mani — la mia o quella dell'altro, quella che e' a terra.
+	if ball_loose and ball_live:
+		ball_recall = true
+		_recall_t = 0.0
+		_recall_from = ball_pos
+		_recall_h = ball_h
+		i_hold = true
+		ball_loose = false
+		NetLayer.rpc("rpc_duel_ev", {"ev": "pick_mine"})
+	elif fb_live:
+		fb_recall = true
+		_fb_recall_t = 0.0
+		_fb_recall_from = fb_pos
+		_fb_recall_h = fb_h
+		i_hold = true
+		NetLayer.rpc("rpc_duel_ev", {"ev": "pick_yours"})
 
 
 func _free_pick(mine: bool) -> void:
@@ -1012,7 +1043,7 @@ func _launch_ball(from: Vector2, aim: Vector2) -> void:
 
 
 func _step_ball(delta: float) -> void:
-	if not ball_live:
+	if not ball_live or ball_recall:
 		return
 	var steps := 4
 	var h: float = delta / float(steps)
@@ -1339,9 +1370,27 @@ func _duel_tick(delta: float) -> void:
 		btn_shoot.visible = not (checking and i_attack)
 	if not duel_on:
 		# CAMPO LIBERO: DUE PALLE, una a testa. Dopo ogni tiro la palla
-		# finisce a terra e RESTA: se la riprende chi ha le mani libere,
-		# andandoci sopra — la propria o quella dell'altro, chi c'e' arriva
-		# prima. Nessun recupero automatico: la palla aspetta.
+		# finisce a terra e RESTA: si riprende andandoci sopra — o dopo
+		# 2 secondi col tasto PRENDI, e la palla vola da sola nelle mani.
+		if ball_recall:
+			_recall_t += delta / 0.38
+			var tt: float = clampf(_recall_t, 0.0, 1.0)
+			ball_pos = _recall_from.lerp(player_pos, tt)
+			ball_h = lerpf(_recall_h, 46.0, tt) + 34.0 * sin(PI * tt)
+			if _recall_t >= 1.0:
+				ball_recall = false
+				ball_live = false
+			return
+		if fb_recall:
+			_fb_recall_t += delta / 0.38
+			var ft: float = clampf(_fb_recall_t, 0.0, 1.0)
+			fb_pos = _fb_recall_from.lerp(player_pos, ft)
+			fb_h = lerpf(_fb_recall_h, 46.0, ft) + 34.0 * sin(PI * ft)
+			if _fb_recall_t >= 1.0:
+				fb_recall = false
+				fb_live = false
+				ball_loose = false
+			return
 		if not i_hold:
 			if ball_loose and ball_live and _pick_ok and ball_h < 90.0 \
 			and player_pos.distance_to(ball_pos) < 70.0:
@@ -1798,6 +1847,7 @@ func _draw_char(mine: bool) -> void:
 
 	var po: Dictionary = Avatar.pose(kind, phase, amount, tk, walking)
 	po["hand"] = -1.0 if hand_left else 1.0
+	po["yell"] = (dunk_phase != "") if mine else (String(foe.get("dp", "")) != "")
 	var lift := 0.0
 	var draw_base := world
 	var slam: Dictionary = {}
@@ -2007,7 +2057,7 @@ func _foe_launch(from: Vector2, aim: Vector2, ghost: bool) -> void:
 	fb_prev_pos = fb_pos
 
 func _step_foe_ball(delta: float) -> void:
-	if not fb_live:
+	if not fb_live or fb_recall:
 		return
 	var steps := 4
 	var hstep: float = delta / float(steps)

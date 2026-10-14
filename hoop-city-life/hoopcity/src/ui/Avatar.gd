@@ -584,11 +584,16 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			c.draw_line(Vector2(head_c.x, nose_y - head_r * 0.10),
 				Vector2(head_c.x, nose_y + head_r * 0.08),
 				skin.darkened(0.35), maxf(1.0, head_r * 0.10))
-		# mouth -- a short, friendly line below the nose
+		# mouth -- a short, friendly line below the nose; YELL (schiacciata):
+		# bocca APERTA, un cerchio nero che urla
 		var mouth_y: float = head_y + head_r * 0.48
 		var mx: float = head_c.x + sdir * head_r * (0.34 if turn > 0.5 else 0.0)
-		c.draw_line(Vector2(mx - head_r * 0.18, mouth_y), Vector2(mx + head_r * 0.18, mouth_y),
-			Color(0.30, 0.13, 0.13), maxf(1.0, head_r * 0.08))
+		if bool(p.get("yell", false)):
+			c.draw_circle(Vector2(mx, mouth_y + head_r * 0.04),
+				maxf(head_r * 0.14, 1.6), Color(0.07, 0.05, 0.05))
+		else:
+			c.draw_line(Vector2(mx - head_r * 0.18, mouth_y), Vector2(mx + head_r * 0.18, mouth_y),
+				Color(0.30, 0.13, 0.13), maxf(1.0, head_r * 0.08))
 
 	# --- equipped hat & glasses, over the hair and eyes
 	if acc:
