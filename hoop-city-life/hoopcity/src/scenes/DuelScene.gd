@@ -131,8 +131,14 @@ var _took_at := 0                # quando ho preso l'ultimo rimbalzo (gara di co
 var _pending_target := 11        # target della sfida ricevuta, in attesa di risposta
 var btn_sfida: Button
 var btn_end: Button
+var btn_trick: TouchButton
+var btn_post: TouchButton
 var _panel: CanvasLayer = null
 var _free_sent_at := 0        # quando ho chiuso la partita (le gare di click non contano)
+var _def_held := false        # DIFENDI premuto: braccia su, contest se vicino
+var _base_pw := 0.0           # finestra del metro senza contest (per restringerla live)
+var _base_gw := 0.0
+var _contested := false       # il difensore e' addosso mentre carico
 
 
 func _ready() -> void:
@@ -240,7 +246,7 @@ func _build_hud() -> void:
 	btn_shoot.released.connect(_shoot_up)
 	root.add_child(btn_shoot)
 
-	var btn_trick := TouchButton.new()
+	btn_trick = TouchButton.new()
 	btn_trick.text = "TRICK"
 	btn_trick.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	btn_trick.position = Vector2(-416, -172)
@@ -249,7 +255,7 @@ func _build_hud() -> void:
 	btn_trick.pressed_down.connect(_do_trick)
 	root.add_child(btn_trick)
 
-	var btn_post := TouchButton.new()
+	btn_post = TouchButton.new()
 	btn_post.text = "POST"
 	btn_post.accent = Color(0.980, 0.780, 0.260)
 	btn_post.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -381,7 +387,9 @@ func _process(delta: float) -> void:
 		_place_meter()
 	if btn_shoot:
 		var want: String = "SHOOT"
-		if dunk_phase == "hang":
+		if duel_on and duel_phase == "live" and not i_attack and not ball_loose:
+			want = Loc.t("duel.def")
+		elif dunk_phase == "hang":
 			want = "LET GO"
 		elif dunk_phase == "rise":
 			want = "DUNK!"
@@ -459,6 +467,13 @@ func _charge_flow(delta: float) -> void:
 		charge += delta
 		if meter:
 			meter.charge = clampf(charge / maxf(ideal, 0.01), 0.0, 1.15)
+			# CONTEST: il difensore con le braccia alzate addosso al tiratore
+			# restringe la finestra IN DIRETTA — difendersi serve davvero.
+			if duel_on:
+				_contested = bool(foe.get("ct", false)) \
+				and (foe["pos"] as Vector2).distance_to(player_pos) < 150.0
+				meter.perfect_window = _base_pw * (0.68 if _contested else 1.0)
+				meter.good_window = _base_gw * (0.85 if _contested else 1.0)
 
 
 func _dunk_flow(delta: float) -> void:
@@ -584,6 +599,9 @@ func _i_have_ball() -> bool:
 
 
 func _shoot_down() -> void:
+	if duel_on and duel_phase == "live" and not i_attack and not ball_loose:
+		_def_held = true     # niente palla? il bottone e' tuo: DIFENDI
+		return
 	if not _net_ok or not _i_have_ball():
 		if duel_on and i_attack and must_clear:
 			_say(Loc.t("duel.clear"), 1.1)
@@ -609,6 +627,9 @@ func _shoot_down() -> void:
 		fade_pending = true
 		meter.perfect_window *= 0.72
 		meter.good_window *= 0.85
+	_base_pw = meter.perfect_window
+	_base_gw = meter.good_window
+	_contested = false
 
 
 func _start_dunk() -> void:
@@ -644,6 +665,7 @@ func _drop_from_rim() -> void:
 
 
 func _shoot_up() -> void:
+	_def_held = false
 	if dunk_phase == "rise":
 		return
 	if dunk_phase == "hang":
@@ -700,7 +722,7 @@ func _shoot_up() -> void:
 	if zone == "green":
 		made = true
 	elif zone == "yellow":
-		made = randf() < 0.5
+		made = randf() < (0.30 if _contested else 0.5)
 	else:
 		made = false
 	var ft: float = _distance_ft()
@@ -893,6 +915,7 @@ func _send(delta: float) -> void:
 		"dbt": dunk_ball_t, "hot": hot,
 		"tk": trick_kind if trick_t > 0.0 else "",
 		"ta": trick_t / 0.45,
+		"ct": _def_held,
 	}
 	NetLayer.rpc("rpc_duel_me", d)
 
@@ -905,7 +928,8 @@ func _my_kind() -> String:
 	if shot_anim > 0.0 or pump_t > 0.0 or charging:
 		return Avatar.SHOOT
 	if duel_on and (not i_attack or ball_loose) and duel_phase != "over":
-		if (foe["pos"] as Vector2).distance_to(player_pos) < 300.0:
+		if (not i_attack and not ball_loose and _def_held) \
+		or (foe["pos"] as Vector2).distance_to(player_pos) < 300.0:
 			return Avatar.DEFEND
 		return Avatar.RUN if _my_walking() else Avatar.IDLE
 	return Avatar.DRIBBLE
@@ -961,6 +985,7 @@ func _on_foe_state(d: Dictionary) -> void:
 	foe["hot"] = d.get("hot", false)
 	foe["tk"] = d.get("tk", "")
 	foe["ta"] = d.get("ta", 0.0)
+	foe["ct"] = d.get("ct", false)
 	foe["live"] = true
 	# (la palla dell'altro non viaggia nello stato: la simula il suo tiro)
 
@@ -1044,6 +1069,13 @@ func _duel_tick(delta: float) -> void:
 		btn_sfida.visible = _net_ok and bool(foe.get("seen", false)) and not duel_on
 	if btn_end != null:
 		btn_end.visible = duel_on and duel_phase != "over"
+	# In difesa i tasti dell'attacco SPARISCONO: resta il movimento e il
+	# bottone grande, che diventa DIFENDI (tenere premuto = braccia su).
+	var defending := duel_on and duel_phase == "live" and not i_attack and not ball_loose
+	if btn_trick != null:
+		btn_trick.visible = not defending
+	if btn_post != null:
+		btn_post.visible = not defending
 	if not duel_on:
 		return
 	if duel_phase == "count":
@@ -1360,6 +1392,7 @@ func _distance_ft() -> float:
 
 
 func _draw() -> void:
+	_draw_three_flash()
 	_draw_npcs()
 	_draw_char(true)
 	if foe["seen"] or foe["live"]:
@@ -1591,6 +1624,21 @@ func _update_npcs(delta: float) -> void:
 					n["t"] = randf_range(2.0, 5.0)
 				else:
 					n["pos"] += to.normalized() * 95.0 * delta
+
+func _draw_three_flash() -> void:
+	## La linea dei tre LAMPEGGIA finche' chi ha subito canestro non e'
+	## uscito: si capisce al volo cosa bisogna fare.
+	if not (duel_on and duel_phase == "live" and i_attack and must_clear):
+		return
+	var radius: float = Court.THREE_FT * Court.PX_PER_FT
+	var col: Color = Color(1.0, 0.62, 0.20, 0.40 + 0.45 * absf(sin(net_t * 5.0)))
+	var pts: PackedVector2Array = []
+	var n := 40
+	for i in range(n + 1):
+		var a: float = PI * 0.5 + PI * float(i) / float(n)
+		pts.append(CourtStage.m_project(RIM + Vector2(cos(a), sin(a)) * radius, Court.COURT_H))
+	draw_polyline(pts, col, 7.0, true)
+
 
 func _draw_npcs() -> void:
 	for n in npcs:

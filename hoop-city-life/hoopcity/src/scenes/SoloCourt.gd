@@ -74,6 +74,16 @@ var ball_rattled := false       # ferro gia' suonato su questo tiro
 var prev_pos := Vector2.ZERO
 var prev_h := 0.0
 
+# RIMBALZO VIVO (v2.45.2): l'errore resta sul campo — la palla rimbalza
+# sul ferro e a terra, e la riprendi cammandoci sopra. Poi si esce dalla
+# linea dei tre, che LAMPEGGIA finche' non esci. (Fuori dalla Sfida
+# Meta Campo, che resta com'e'.)
+var solo_loose := false
+var must_clear := false
+var _pick_ok := false
+var _flash_far_t := 0.0
+var _flash_t := 0.0
+
 # session
 const SESSION_SECONDS := 120.0
 const RESET_DELAY := 2.0
@@ -448,6 +458,7 @@ func _process(delta: float) -> void:
 			session_left = 0.0
 			_end_session()
 
+	_flash_t += delta
 	var was_live: bool = ball_live
 	_step_ball(delta)
 	if was_live and not ball_live:
@@ -461,6 +472,24 @@ func _process(delta: float) -> void:
 			# HALF-COURT: ogni tentativo finito = nuovo spot oltre la metà.
 			if hc_mode and not session_over:
 				_hc_teleport()
+	# RIMBALZO VIVO: la palla sbagliata e' a terra — la riprendi andandoci
+	# sopra; se finisce dove non arrivi, dopo un attimo torna in mano.
+	if solo_loose:
+		if ball_live and _pick_ok and ball_h < 90.0 \
+		and player_pos.distance_to(ball_pos) < 85.0:
+			_pickup_loose()
+		elif ball_live and player_pos.distance_to(ball_pos) > 120.0 \
+		and (ball_settled > 0.6 or absf(ball_pos.x) > Court.COURT_W * 0.5 + 60.0):
+			_flash_far_t += delta
+			if _flash_far_t > 2.5:
+				_pickup_loose(true)
+		else:
+			_flash_far_t = 0.0
+	# USCITA DALLA LINEA: oltre l'arco la linea smette di lampeggiare.
+	if must_clear and _distance_ft() > Court.THREE_FT + 0.25:
+		must_clear = false
+		Events.popup.emit("OK — ORA TIRA!", player_pos + Vector2(0, -70),
+			Color(0.4, 1.0, 0.5), false)
 
 	# PIEGA DEL FERRO: lo Street Court appendi al ferro destro -> court_art
 	court_art.solo_hang = (dunk_phase == "hang")
@@ -628,7 +657,7 @@ func _distance_ft() -> float:
 	return player_pos.distance_to(RIM) / Court.PX_PER_FT
 
 func _post_tap() -> void:
-	if session_over or charging or dunk_phase != "" or ball_live:
+	if session_over or must_clear or solo_loose or charging or dunk_phase != "" or ball_live:
 		return
 	posting = not posting
 	if posting:
@@ -642,7 +671,7 @@ func _post_tap() -> void:
 			Events.toast.emit("POST: TIRA = fade · TRICK = drop step")
 
 func _do_trick() -> void:
-	if session_over or charging or dunk_phase != "" or ball_live or euro_t > 0.0:
+	if session_over or must_clear or solo_loose or charging or dunk_phase != "" or ball_live or euro_t > 0.0:
 		return
 	# EUROSTEP: corri verso il ferro entro 14 ft e TRICK diventa il passo
 	# laterale a due tempi (con chiusura a schiacciata/layup automatica).
@@ -742,7 +771,7 @@ func _input(e: InputEvent) -> void:
 func _try_spin() -> void:
 	# Stessa famiglia dei trick da pulsante: giro su se stessi, palla che
 	# avvolge il corpo (Avatar pose "spin"), scatto in avanti.
-	if session_over or charging or dunk_phase != "" or ball_live or trick_t > 0.0:
+	if session_over or must_clear or solo_loose or charging or dunk_phase != "" or ball_live or trick_t > 0.0:
 		return
 	trick_kind = "spin"
 	trick_t = 0.45
@@ -792,6 +821,9 @@ func _toggle_hc() -> void:
 	ball_settled = 0.0
 	ball_ghost_rim = false
 	through_rim = false
+	solo_loose = false
+	must_clear = false
+	_pick_ok = false
 	lbl_mid.text = ""
 	session_left = HC_SECONDS
 	Events.toast.emit("SFIDA METÀ CAMPO: 60 secondi, contano solo i GREEN")
@@ -823,8 +855,28 @@ func _hc_teleport() -> void:
 	ball_ghost_rim = false
 	through_rim = false
 
+func _pickup_loose(auto := false) -> void:
+	## Ho ripreso la palla da terra: ora si esce dalla linea dei tre.
+	solo_loose = false
+	ball_live = false
+	ball_settled = 0.0
+	ball_ghost_rim = false
+	through_rim = false
+	_pick_ok = false
+	_flash_far_t = 0.0
+	must_clear = true
+	if not auto:
+		Events.popup.emit("PALLA!", player_pos + Vector2(0, -70),
+			Color(1.0, 0.82, 0.35), false)
+
+
 func _shoot_down() -> void:
 	if shot_anim > 0.0 or dunk_phase != "":
+		return
+	if solo_loose or must_clear:
+		if must_clear:
+			lbl_mid.text = "PRIMA ESCI DALLA LINEA!"
+			lbl_mid.modulate = Color(1.0, 0.75, 0.2)
 		return
 	if can_dunk() and not posting:
 		_start_dunk()
@@ -986,6 +1038,12 @@ func _shoot_up() -> void:
 			Events.popup.emit("COLD", player_pos, Color(0.7, 0.75, 0.85), false)
 		streak = 0
 		lbl_mid.text = ""
+	# RIMBALZO VIVO: l'errore (fuori dalla Sfida Meta Campo) non torna in
+	# mano da solo — resta sul campo: la riprendi cammandoci sopra.
+	if not shot_made and not hc_mode:
+		solo_loose = true
+		_pick_ok = false
+		_flash_far_t = 0.0
 	# HALF-COURT CHALLENGE: conta SOLO il green da oltre la linea.
 	if hc_mode:
 		if zone == "green" and ft >= HC_MIN_FT:
@@ -1068,17 +1126,19 @@ func _step_ball(delta: float) -> void:
 		_collide_floor()
 	ball_spin += ball_vel.x * 0.0004
 
-	if ball_pos.x < -1300.0 or ball_pos.x > 1300.0 \
-	or ball_pos.y < -Court.COURT_H or ball_pos.y > Court.COURT_H:
-		ball_live = false
-	if ball_settled > 1.1:
-		ball_live = false
+	if not solo_loose:
+		if ball_pos.x < -1300.0 or ball_pos.x > 1300.0 \
+		or ball_pos.y < -Court.COURT_H or ball_pos.y > Court.COURT_H:
+			ball_live = false
+		if ball_settled > 1.1:
+			ball_live = false
 
 ## The ring is a circle in the court plane at rim height. Crossing down
 ## through its middle scores; clipping its edge clangs the iron and snaps the
 ## net without scoring.
 func _collide_rim() -> void:
 	if ball_h <= RIM_HEIGHT and prev_h >= RIM_HEIGHT and ball_vh < 0.0:
+		_pick_ok = true
 		var span: float = prev_h - ball_h
 		var f: float = 0.0 if span <= 0.0 else (prev_h - RIM_HEIGHT) / span
 		var cx: float = lerpf(prev_pos.x, ball_pos.x, clampf(f, 0.0, 1.0))
@@ -1154,6 +1214,7 @@ func _collide_backboard() -> void:
 func _collide_floor() -> void:
 	if ball_h <= 0.0:
 		ball_h = 0.0
+		_pick_ok = true
 		if absf(ball_vh) > 60.0:
 			ball_vh = -absf(ball_vh) * 0.58
 			ball_vel *= 0.86
@@ -1227,6 +1288,7 @@ func _end_session() -> void:
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
 	_draw_graffiti()
+	_draw_three_flash()
 	_draw_npcs()
 	_draw_player()
 	if outdoor:
@@ -1239,6 +1301,21 @@ func _draw() -> void:
 const GRAF_FILL := Color(0.92, 0.92, 0.90)    # BIANCO sporco: vernice sbiadita
 const GRAF_LINE := Color(0.06, 0.06, 0.07)    # NERO: contorno consumato
 const GRAF_OVERLAP := 0.78                    # le lettere si SOPRAPPPONGONO
+
+func _draw_three_flash() -> void:
+	## La linea dei tre LAMPEGGIA finche' chi ha la palla non e' uscito:
+	## si capisce al volo cosa resta da fare.
+	if not must_clear:
+		return
+	var radius: float = Court.THREE_FT * Court.PX_PER_FT
+	var col: Color = Color(1.0, 0.62, 0.20, 0.40 + 0.45 * absf(sin(_flash_t * 5.0)))
+	var pts: PackedVector2Array = []
+	var n := 40
+	for i in range(n + 1):
+		var a: float = PI * 0.5 + PI * float(i) / float(n)
+		pts.append(CourtStage.m_project(RIM + Vector2(cos(a), sin(a)) * radius, Court.COURT_H))
+	draw_polyline(pts, col, 7.0, true)
+
 
 func _draw_graffiti() -> void:
 	if not outdoor:
