@@ -1,6 +1,6 @@
 extends Node
 
-const VERSION := "2.45.2"
+const VERSION := "2.45.3"
 
 ## Difficoltà scelta nelle impostazioni: 0 Facile, 1 Normale, 2 Duro, 3 Incubo.
 ## Moltiplica la skill dell'AI e alza il suo MINIMO: con "Duro" anche i

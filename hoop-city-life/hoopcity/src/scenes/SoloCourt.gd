@@ -82,7 +82,6 @@ var solo_loose := false
 var must_clear := false
 var _pick_ok := false
 var _flash_far_t := 0.0
-var _flash_t := 0.0
 
 # session
 const SESSION_SECONDS := 120.0
@@ -458,7 +457,6 @@ func _process(delta: float) -> void:
 			session_left = 0.0
 			_end_session()
 
-	_flash_t += delta
 	var was_live: bool = ball_live
 	_step_ball(delta)
 	if was_live and not ball_live:
@@ -1288,7 +1286,6 @@ func _end_session() -> void:
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
 	_draw_graffiti()
-	_draw_three_flash()
 	_draw_npcs()
 	_draw_player()
 	if outdoor:
@@ -1301,21 +1298,6 @@ func _draw() -> void:
 const GRAF_FILL := Color(0.92, 0.92, 0.90)    # BIANCO sporco: vernice sbiadita
 const GRAF_LINE := Color(0.06, 0.06, 0.07)    # NERO: contorno consumato
 const GRAF_OVERLAP := 0.78                    # le lettere si SOPRAPPPONGONO
-
-func _draw_three_flash() -> void:
-	## La linea dei tre LAMPEGGIA finche' chi ha la palla non e' uscito:
-	## si capisce al volo cosa resta da fare.
-	if not must_clear:
-		return
-	var radius: float = Court.THREE_FT * Court.PX_PER_FT
-	var col: Color = Color(1.0, 0.62, 0.20, 0.40 + 0.45 * absf(sin(_flash_t * 5.0)))
-	var pts: PackedVector2Array = []
-	var n := 40
-	for i in range(n + 1):
-		var a: float = PI * 0.5 + PI * float(i) / float(n)
-		pts.append(CourtStage.m_project(RIM + Vector2(cos(a), sin(a)) * radius, Court.COURT_H))
-	draw_polyline(pts, col, 7.0, true)
-
 
 func _draw_graffiti() -> void:
 	if not outdoor:
