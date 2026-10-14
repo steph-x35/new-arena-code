@@ -573,7 +573,7 @@ func _dunk_flow(delta: float) -> void:
 				ball_vel = Vector2(randf_range(-90.0, 90.0), randf_range(-40.0, 40.0))
 				ball_vh = -30.0
 				ball_settled = 0.0
-				ball_ghost_rim = false
+				ball_ghost = false
 				through_rim = false
 				ball_live = true
 	if dunk_phase == "rise" and dunk_anim >= dunk_rise_t:
