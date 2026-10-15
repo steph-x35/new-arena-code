@@ -421,3 +421,39 @@ resta nell'altra → specchia se serve. Le scritte stanno sopra, al sicuro.
 ### Orario
 18:30-20:30 IT. Prima ora: rispondere a tutti.
 
+---
+
+## KIT POST-PUBBLICAZIONE LF (reel "8 ore e te ne pagano 6?" — pronto)
+
+### Prima ora: template di risposta ai commenti (copia-incolla veloce)
+Lo scopo della prima ora e' far salire i commenti: risposte veloci, ogni
+risposta e' un segnale per l'algoritmo. I "quanto prendo?" NON si risolvono
+a testo: sono esche per le video-risposte di domani.
+
+| Se scrivono... | Rispondi... |
+|---|---|
+| "io quanto prendo?" / "con X anni?" | "Dipende da contratto e anzianita' — te lo calcolo nel prossimo video 👀 dimmi il tuo contratto" |
+| "truffa / esagerato / fake" | "Tutto verificabile: la demo gratuita e' nel sito in bio, i calcoli li vedi da solo" |
+| "vale per commessi/operai/infermieri?" | "Si', cambia il contratto ma il metodo e' identico — dimmi il tuo CCNL e lo faccio" |
+| "come vedo i miei errori?" | "Sito in bio → demo gratuita, 2 minuti" |
+| "ho già controllo la busta, io sto sereno" | "Allora sei tra i pochi 👏 ma il 90% non sa dove guardare" (tono alleato, mai polemico) |
+| hater puro | niente risposta: solo like agli altri commenti e si va avanti |
+
+Regola: MAI litigare, MAI promettere soldi ("avrai X indietro" = no; "puoi
+verificare tu stesso" = si').
+
+### VIDEO-RISPOSTA "20 ANNI" (pronta da registrare, trigger: "con 20 anni quanto prendo?")
+Numeri (gia' calcolati): **26.939 € lordi/anno → 20.704 € netti** (dif. 6.235 €).
+
+- **0-2s HOOK:** commento ingrandito a schermo + voce: "Me lo chiedete in tanti: con 20 anni di anzianita', quanto si prende DAVVERO?"
+- **2-8s:** cedolino a schermo (stesso stile bolla del reel): "26.939 € lordi" → freccia → "20.704 € netti" → "6.235 € l'anno che non arrivano a casa"
+- **8-15s:** "E piu' anni fai, piu' la forbice si allarga: l'anzianita' ti spetta, ma il grosso se lo prendono le voci che nessuno ti spiega."
+- **15-20s CTA:** "Vuoi vedere se anche la tua busta ha il buco? Demo gratuita, sito in bio." + sovrimpressione finale: "Guida completa 2,90 € — coupon PRIMO10"
+- Montaggio: bolla scura numeri grandi come il reel di stasera, ma MUSICA CALMA (la video-risposta spiega, non urla — contrasto col reel di rabbia).
+- Pubblicarla come RISPOSTA al commento vero (non come reel autonomo): TikTok spinge le video-risposte e il commentatore riceve la notifica → spesso risponde di nuovo → altro engagement.
+
+### REGOLA EXPORT (vale da stasera)
+Quando esporti il reel da CapCut, salva anche la versione **SENZA filigrana
+TikTok**: domani vale per YouTube Shorts (stesso video, canale nuovo, zero
+lavoro in piu'). YouTube declassa i video col watermark TikTok.
+
