@@ -282,7 +282,15 @@ Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) �
 
 ---
 
-## 🎬 REEL LAVOROFACILE #next — «Lavori da 10 anni nella stessa azienda?» (episodio 2 della serie da 209k)
+## 📋 PUBBLICATI (registere aggiornata al 2026-10-15)
+
+- ✅ LAVOROFACILE: «Lavori da 5 anni...» (209k) → «Lavori da 10 anni nella stessa azienda?» (pubblicato) → **«36 anni di lavoro...» (ULTIMO)**
+- ✅ HOOP CITY: dev update → half-court → ... → **POV «resti appeso al ferro» (ULTIMO)**
+- ⚠️ La serie «Quanto hai davvero?» ha gia' bruciato 5, 10 e 36 anni: il prossimo episodio della serie e' **20 anni** (26.939€ lordi → 20.704€ netti), MA prima vengono le video-risposte ai commenti del 36 anni (formula Vincenzo 8.3k).
+
+---
+
+## 🎬 REEL LAVOROFACILE #next — «Lavori da 10 anni nella stessa azienda?» (episodio 2 della serie da 209k) — ✅ GIÀ PUBBLICATO
 
 > L'obiettivo adesso è GUADAGNARE: questo reel ha il funnel completo (video che dice
 > "in bio" + fissato col prodotto + coupon). Numeri gia' verificati col tool.
