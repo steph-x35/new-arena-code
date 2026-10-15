@@ -457,3 +457,17 @@ Quando esporti il reel da CapCut, salva anche la versione **SENZA filigrana
 TikTok**: domani vale per YouTube Shorts (stesso video, canale nuovo, zero
 lavoro in piu'). YouTube declassa i video col watermark TikTok.
 
+### PUBBLICAZIONE REEL "8 ORE / 6 PAGATE" (2026-10-15)
+**TikTok 19:00** — caption: "Le fai 8 ore, te ne pagano 6. Il problema? Sulla
+busta paga NON si vede — se non sai dove guardare. Demo gratuita nel sito in
+bio 🔍 #bustapaga #stipendio #dirittodelavoro #lavoro #consiglilavorativ"
+Fissato: "Demo gratuita, 2 minuti, senza registrazione: sito in bio 🔍 Guida
+completa 2,90€ — coupon PRIMO10 solo per chi arriva da TikTok"
+
+**YouTube Shorts (+1 giorno, versione SENZA filigrana)** — titolo (formato
+ricerca): "8 ore lavorate, 6 pagate: dove lo vedi in busta paga".
+Descrizione: link demo busta-paga-esempio.html + link guida kbpxY +
+#bustapaga #stipendio #dirittodelavoro #shorts #lavoro.
+NB: coupon PRIMO10 NON si menziona su YouTube (misura l'origine TikTok).
+
+
