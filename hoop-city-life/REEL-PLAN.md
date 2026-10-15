@@ -282,11 +282,19 @@ Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) �
 
 ---
 
-## 📋 PUBBLICATI (registere aggiornata al 2026-10-15)
+## 📋 PUBBLICATI + RISULTATI a 48h (aggiornato al 2026-10-15)
 
-- ✅ LAVOROFACILE: «Lavori da 5 anni...» (209k) → «Lavori da 10 anni nella stessa azienda?» (pubblicato) → **«36 anni di lavoro...» (ULTIMO)**
-- ✅ HOOP CITY: dev update → half-court → ... → **POV «resti appeso al ferro» (ULTIMO)**
-- ⚠️ La serie «Quanto hai davvero?» ha gia' bruciato 5, 10 e 36 anni: il prossimo episodio della serie e' **20 anni** (26.939€ lordi → 20.704€ netti), MA prima vengono le video-risposte ai commenti del 36 anni (formula Vincenzo 8.3k).
+| Reel | Views | Lettura |
+|---|---|---|
+| LF «5 anni» | 209k | formula vincente: domanda-identita' + numero |
+| LF «10 anni» | pubblicato | — |
+| LF «36 anni» (ultimo) | **1.389** | serie in flessiona: 3 episodi stesso format, i follower l'hanno gia' visto. Banda 1-5k = cambia soggetto/formato, non solo l'hook |
+| HCL POV «appeso al ferro» (ultimo) | **790 CON boost gratis** | organico reale piu' basso: le views sponsorizzate sono pubblico freddo, non misurano il video. Il boost non si usa per TESTARE ma per SPINGERE un video che cammina da solo |
+
+**Decisioni da questi numeri:**
+- LF: la serie «quanti anni» TIRA IL FIOATO → si cambia arma: formato RABBIA+GIUSTIZIA (Pietro, part-time) che vende la Busta Paga Decodificata. Le video-risposte restano priorita' SOLO se arrivano commenti con anni+stipendio.
+- HCL: prossimo = «DUE TELEFONI, UN SOLO CAMPO» (gia' pianificato, organico). I crediti gratis restanti si usano SOLO su un video che mostra gia' gambe organiche (>5k), mai prima.
+- Mai cancellare i video sotto-performanti; la costanza 4-5/settimana alle 19-21 e' parte dell'algoritmo.
 
 ---
 
@@ -320,7 +328,36 @@ Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) �
 ### Regole
 - Ore 19-21. Prima ora: rispondere a TUTTI (ogni "anni + stipendio" = un video-risposta pronto).
 - Mai prezzo negli altri commenti: solo qui nel fissato + a chi chiede con intento.
-- Coda prossimi: 1) video-risposta al primo commento con piu' like (formula Vincenzo 8.3k) 2) Pietro part-time (vende la Busta Paga Decodificata 2,90€) 3) episodio «20 anni» (26.939€ lordi → 20.704€ netti).
+
+---
+
+## 🎬 REEL LAVOROFACILE #next — «FAI 8 ORE E TE NE PAGANO 6?» (Pietro, formato rabbia+giustizia)
+
+> Cambio d'arma dopo il 1.389: la curiosita' (quanto TFR hai?) ha faticato 3 volte di fila.
+> Questo e' il formato DOLORE: un'ingiustizia subita + una legge che ridiscende giustizia +
+> un prodotto da 2,90€ che risolve. VENDE la Busta Paga Decodificata (Payhip kbpxY).
+> VERO E VERIFICABILE: le differenze retributive si possono chiedere fino a 5 anni indietro
+> (prescrizione quinquennale). NESSUN numero inventato: il video non promette cifre.
+
+### Registrazione (3 min, schermo)
+1. Aprire la pagina di esempio busta paga del sito (busta-paga-esempio.html) o una busta
+   paga vera con dati sensibili coperti
+2. Zoom lento sulla riga delle ORE RETRIBUITE
+
+### Struttura (22-26s)
+| Tempo | Azione | Testo a schermo |
+|---|---|---|
+| 0-2s | fermo sulla busta paga | **Fai 8 ore e te ne PAGANO 6?** (bold, grande) |
+| 2-12s | zoom sulla riga ore retribuite, poi ti fermi | **Guarda bene la riga "ore retribuite"** |
+| 12-19s | fermo, nessun movimento | **Quei soldi sono tuoi. Fino a 5 ANNI indietro** |
+| 19-26s | scroll lento verso il totale | **La busta paga te lo sta dicendo. Impara a leggerla 🔍** |
+| ultimo frame | — | **Busta Paga Decodificata in bio 🔗** |
+
+### Caption
+> Se nel part-time fai 8 ore ma te ne pagano 6, quei soldi sono TUOI fino a 5 anni indietro — e la prova e' nella busta paga che hai gia' in casa. Quante ore fai e quante te ne pagano? Scrivilo 👇 #bustapaga #lavoro #parttime #dirittidelavoro #stipendio
+
+### Commento fissato (qui si vende)
+> Ho spiegato riga per riga come leggere la busta paga e trovare le ore (e i soldi) che ti spettano: Busta Paga Decodificata, in bio (2,90€ — con il coupon PRIMO10 solo per TikTok) 🔗 Voi: quante ore fate e quante ve ne pagano? 👇
 
 ---
 
