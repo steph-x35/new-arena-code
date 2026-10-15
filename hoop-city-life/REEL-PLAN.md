@@ -339,19 +339,24 @@ Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) �
 > VERO E VERIFICABILE: le differenze retributive si possono chiedere fino a 5 anni indietro
 > (prescrizione quinquennale). NESSUN numero inventato: il video non promette cifre.
 
-### Registrazione (3 min, schermo)
-1. Aprire la pagina di esempio busta paga del sito (busta-paga-esempio.html) o una busta
-   paga vera con dati sensibili coperti
-2. Zoom lento sulla riga delle ORE RETRIBUITE
+### Registrazione (3 min, schermo) — si usa la pagina DEL SITO, gia' pronta:
+### /busta-paga-esempio.html (cedolino demo col Conto ore 152 vs 148 e il bottone "Mostra i 3 errori")
+1. Aprire la pagina (si puo' mettere il link nei preferiti del telefono prima di registrare)
+2. La sequenza e' quella della tabella: zoom → TAP sul bottone arancione in basso "🔍 Mostra i 3 errori" → scroll
+3. Niente dati sensibili: la pagina e' un documento dimostrativo con dati inventati (scritto in cima)
 
-### Struttura (22-26s)
+### Struttura (24-28s)
 | Tempo | Azione | Testo a schermo |
 |---|---|---|
-| 0-2s | fermo sulla busta paga | **Fai 8 ore e te ne PAGANO 6?** (bold, grande) |
-| 2-12s | zoom sulla riga ore retribuite, poi ti fermi | **Guarda bene la riga "ore retribuite"** |
-| 12-19s | fermo, nessun movimento | **Quei soldi sono tuoi. Fino a 5 ANNI indietro** |
-| 19-26s | scroll lento verso il totale | **La busta paga te lo sta dicendo. Impara a leggerla 🔍** |
-| ultimo frame | — | **Busta Paga Decodificata in bio 🔗** |
+| 0-2s | fermo sul "Conto ore" | **Ti pagano TUTTE le ore che fai?** (bold) |
+| 2-10s | zoom lento: riga "Ore contrattuali 152" → riga evidenziata "Ore retribuite 148" | **Contrattuali: 152. Pagate: 148.** |
+| 10-14s | TAP sul bottone "🔍 Mostra i 3 errori" → la riga si ACCENDE e appare la nota | **4 ore sparite ogni mese** |
+| 14-20s | scroll lento: gli altri errori (trattenute varie, ferie) fino al box CTA | **= 480€ l'anno. E non e' l'unico errore** |
+| 20-26s | fermo sul bottone arancione "La Busta Paga Decodificata 2,90€" | **Fino a 5 ANNI indietro. Impara a leggerla 🔍** |
+| ultimo frame | — | **In bio 🔗** |
+
+(152/148/480/1.000€ sono i numeri del documento DIMOSTRATIVO, dichiarati finti in pagina: si puo' citarli.
+"5 anni indietro" = prescrizione quinquennale, vero.)
 
 ### Caption
 > Se nel part-time fai 8 ore ma te ne pagano 6, quei soldi sono TUOI fino a 5 anni indietro — e la prova e' nella busta paga che hai gia' in casa. Quante ore fai e quante te ne pagano? Scrivilo 👇 #bustapaga #lavoro #parttime #dirittidelavoro #stipendio
