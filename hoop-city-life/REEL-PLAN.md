@@ -279,3 +279,77 @@ Sequenze da catturare (in ordine di montaggio, nessuna voce, solo overlay):
 Testo on-screen: 2-3 frasi brevi max (stile già approvato), CTA "Gratis, solo Android, in bio".
 
 Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) — la piega a mensola si vede meglio.
+
+---
+
+## 🎬 REEL LAVOROFACILE #next — «Lavori da 10 anni nella stessa azienda?» (episodio 2 della serie da 209k)
+
+> L'obiettivo adesso è GUADAGNARE: questo reel ha il funnel completo (video che dice
+> "in bio" + fissato col prodotto + coupon). Numeri gia' verificati col tool.
+
+### Setup (3 min)
+1. Registrazione schermo sul telefono, sito in bio → calcolatore TFR
+2. Non disturbare ON, luminosita' alta
+
+### Struttura (22-28s)
+| Tempo | Azione | Testo a schermo |
+|---|---|---|
+| 0-2s | fermo sul calcolatore vuoto | **Lavori da 10 anni nella stessa azienda?** (grande, bold) |
+| 2-14s | digiti: 1.500 € lordi/mese → sincronizzo RAL → 10 anni | nessuno (il click della sincronizzazione e' il momento bello) |
+| 14-24s | appare il risultato → zoom sul numero | **13.469 € lordi** poi, dopo 1s, **→ 10.352 € NETTI in mano** |
+| 24-28s | fermo sul numero | **E tu? Scrivi anni + stipendio 👇** |
+| ultimo frame | — | **Calcolatore gratis in bio 🔗** |
+
+- Voce: nessuna (il numero e' il climax). Se serve voce: solo Terry di TikTok, mai la propria.
+- Audio: suono trend a volume basso, o il tic del calcolatore.
+
+### Caption
+> 10 anni nella stessa azienda = questi soldi che ti spettano e quasi nessuno sa di avere 👀 (1.500€ lordi/mese). A te quanto verrebbe? Scrivi anni + stipendio e lo calcolo 👇 Calcolatore gratis in bio 🔗 #tfr #liquidazione #lavoro #stipendio #soldi
+
+### Commento fissato (il funnel dei soldi)
+> Se stai pensando di andartene: le lettere di dimissioni GIA' SCRITTE + guida TFR sono in bio (3,90€, con coupon PRIMO10 solo per chi viene da TikTok) 🔗 Per tutti gli altri: scrivete anni + stipendio e vi calcolo il vostro 👇
+
+### Regole
+- Ore 19-21. Prima ora: rispondere a TUTTI (ogni "anni + stipendio" = un video-risposta pronto).
+- Mai prezzo negli altri commenti: solo qui nel fissato + a chi chiede con intento.
+- Coda prossimi: 1) video-risposta al primo commento con piu' like (formula Vincenzo 8.3k) 2) Pietro part-time (vende la Busta Paga Decodificata 2,90€) 3) episodio «20 anni» (26.939€ lordi → 20.704€ netti).
+
+---
+
+## 🎬 REEL HOOP CITY #next — «DUE TELEFONI, UN CAMPO» (il campo condiviso, v2.44.2 pubblica)
+
+> Si gira sulla PUBBLICA v2.44.2: https://github.com/steph-x35/new-arena-code/releases/download/v2.44.2/HoopCity-v2.44.2.apk
+> ⚠️ NON mostrare 1v1/check/rubata/salto: sono ancora in prova e NON sono nella versione pubblica.
+
+### Setup (10 min)
+1. DUE telefoni Android con v2.44.2 installata, stesso WiFi (o hotspot di uno)
+2. Non disturbare su ENTRAMBI, registratore schermo sul telefono dell'OSPITE
+   (chi cerca il campo: e' lui che vive la "magia" del ritrovamento)
+3. Warm-up 5 min a tiro da solo per trovare i green
+
+### Shot list (in ordine di montaggio)
+| # | Take | Note |
+|---|------|------|
+| 1 | **HERO**: i due telefoni affiancati sul tavolo, stesso campo, i due giocatori si vedono | e' il primo secondo: si capisce SUBITO che e' in due |
+| 2 | Telefono 1: PLAY CON UN AMICO → APRI IL CAMPO | mostrare che basta un tap |
+| 3 | Telefono 2: CERCA UN CAMPO → il campo appare nell'elenco → tap | il momento "magico" |
+| 4 |CONNECTED: i nomi sopra le teste, l'altro si muove in diretta | |
+| 5 | Tiri alternati: lui tira e la SUA palla vola col verdetto (GREEN!/MISS) | l'audio: swish vero |
+| 6 | Una schiacciata a testa (meglio se appesi al ferro) | spettacolo |
+| 7 | Chiusura: canestro green insieme | freeze |
+
+### Scritte (una alla volta, letterbox, max 6 parole)
+1. **DUE TELEFONI. UN SOLO CAMPO 📱📱**
+2. **Il WiFi di casa. O l'HOTSPOT di uno 📶**
+3. **I suoi tiri li vedi VOLARE 🟢**
+4. **GRATIS. SOLO ANDROID 🔗 IN BIO**
+
+### Caption
+> Il campetto adesso e' in due: il telefono del tuo amico diventa lo STESSO campo, in WiFi o hotspot, senza internet. Gratis, solo Android, in bio 🔗 #basket #streetball #gamingitalia #gamedev #nba2k
+
+### Commento fissato (corto)
+> Due telefoni, stesso WiFi: siete sullo stesso campo 📱📱 App in bio 🔗 (se Android chiede "origini sconosciute" e' normale, e' un APK)
+
+### Orario
+18:30-20:30 IT. Prima ora: rispondere a tutti.
+
