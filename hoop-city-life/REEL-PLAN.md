@@ -366,22 +366,40 @@ Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) �
 > Si gira sulla PUBBLICA v2.44.2: https://github.com/steph-x35/new-arena-code/releases/download/v2.44.2/HoopCity-v2.44.2.apk
 > ⚠️ NON mostrare 1v1/check/rubata/salto: sono ancora in prova e NON sono nella versione pubblica.
 
-### Setup (10 min)
+### Setup (10 min) — si registra su ENTRAMBI i telefoni
 1. DUE telefoni Android con v2.44.2 installata, stesso WiFi (o hotspot di uno)
-2. Non disturbare su ENTRAMBI, registratore schermo sul telefono dell'OSPITE
-   (chi cerca il campo: e' lui che vive la "magia" del ritrovamento)
-3. Warm-up 5 min a tiro da solo per trovare i green
+2. Registratore schermo attivo su ENTRAMBI, audio dispositivo ON, Non Disturbare ON
+   → si ottengono DUE VIDEO della stessa partita: VIDEO A (chi apre il campo)
+   e VIDEO B (chi cerca e si collega). Il montaggio alterna i due punti di vista.
+3. ⚠️ CONTROLLO VERSIONE (prima di girare): nella 2.44.2 NON esiste il bottone
+   "SFIDA 1V1" in alto. Se nei video si vede, state registrando sulla versione
+   di prova → reinstallare la 2.44.2 pubblica e rigirare.
+4. Warm-up 5 min a tiro da solo per trovare i green.
 
-### Shot list (in ordine di montaggio)
-| # | Take | Note |
-|---|------|------|
-| 1 | **HERO**: i due telefoni affiancati sul tavolo, stesso campo, i due giocatori si vedono | e' il primo secondo: si capisce SUBITO che e' in due |
-| 2 | Telefono 1: PLAY CON UN AMICO → APRI IL CAMPO | mostrare che basta un tap |
-| 3 | Telefono 2: CERCA UN CAMPO → il campo appare nell'elenco → tap | il momento "magico" |
-| 4 |CONNECTED: i nomi sopra le teste, l'altro si muove in diretta | |
-| 5 | Tiri alternati: lui tira e la SUA palla vola col verdetto (GREEN!/MISS) | l'audio: swish vero |
-| 6 | Una schiacciata a testa (meglio se appesi al ferro) | spettacolo |
-| 7 | Chiusura: canestro green insieme | freeze |
+### MONTAGGIO a due sorgenti (CapCut gratis, ~40 min)
+**Il trucco che rende il montaggio perfetto:** scegliere UN tiro con lo swish
+ben udibile e allineare i due video su QUEL suono (su entrambi i telefoni lo
+swish si sente) → da lì in poi ogni azione è sincronizzata e i cross-cut
+cadono da soli.
+
+| # | Tempo | Sorgente | Contenuto |
+|---|-------|----------|-----------|
+| 1 | 0-2s | A+B | **SPLIT SCREEN**: i due video affiancati, lo stesso campo, i due giocatori che si vedono. È il primo secondo: si capisce SUBITO che è in due |
+| 2 | 2-5s | B | CERCA UN CAMPO → il campo appare nell'elenco → tap → CONNECTED (il momento "magico", dal suo punto di vista) |
+| 3 | 5-8s | A | il nome di B spunta sopra la testa, B si muove in diretta sul MIO schermo |
+| 4 | 8-13s | A→B | **CROSS-CUT SULLO STESSO TIRO**: A tira (VIDEO A: la mia palla, GREEN!) → taglio sullo stesso istante in VIDEO B (la palla di A vista da lui, con verdetto). È il pezzo forte |
+| 5 | 13-18s | B→A | il contrario: B tira → A vede la sua palla volare e il verdetto |
+| 6 | 18-23s | A o B | schiacciata con appeso al ferro (la scena del POV che vi è piaciuta) |
+| 7 | 23-26s | A+B | chiusura in split screen sui due canestri → FREEZE |
+
+**Split screen in CapCut:** nuovo progetto → aggiungi i due video su due tracce
+→ Overlay → il video sopra lo restringi su una metà dello schermo, il sotto
+resta nell'altra → specchia se serve. Le scritte stanno sopra, al sicuro.
+
+- Audio: la traccia di UN solo telefono alla volta (mai entrambe insieme:
+  farebbe eco). Si cambia sorgente audio col cross-cut.
+- Tagli SOLO sul rilascio o sullo swish.
+- Export 1080x1920, 30 o 60 fps.
 
 ### Scritte (una alla volta, letterbox, max 6 parole)
 1. **DUE TELEFONI. UN SOLO CAMPO 📱📱**
