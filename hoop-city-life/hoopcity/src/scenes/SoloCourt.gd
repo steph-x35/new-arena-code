@@ -919,6 +919,12 @@ func _shoot_down() -> void:
 		if int(Time.get_ticks_msec()) - _shot_ms > 2000:
 			_recall_ball()
 		return
+	if ball_recall:
+		# PRENDI + ricarica subito: la palla in volo verso le mani arriva
+		# ALL'ISTANTE, cosi' la fine dell'animazione non spegne il tiro
+		# appena partito (e niente popup "PALLA!" a meta' tiro).
+		ball_recall = false
+		ball_live = false
 	if can_dunk() and not posting:
 		_start_dunk()
 		return

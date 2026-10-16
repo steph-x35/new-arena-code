@@ -165,8 +165,8 @@ jobs:
           echo "Importing project assets in headless mode..."
           godot -v --headless --import 2>&1 | tee /tmp/import.log || true
           echo "Exporting Android APK..."
-          godot -v --headless --export-release "Android" build/HoopCity-v2.47.2.apk 2>&1 | tee /tmp/export.log || true
-          if [ ! -f "build/HoopCity-v2.47.2.apk" ]; then
+          godot -v --headless --export-release "Android" build/HoopCity-v2.47.3.apk 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/HoopCity-v2.47.3.apk" ]; then
             echo "=== EXPORT FAILED! Printing log: ==="
             cat /tmp/export.log | tail -n 80
             cp /tmp/export.log $GITHUB_WORKSPACE/build_error.log
@@ -183,15 +183,15 @@ jobs:
             --ks-pass pass:android \
             --ks-key-alias androiddebugkey \
             --key-pass pass:android \
-            build/HoopCity-v2.47.2.apk
+            build/HoopCity-v2.47.3.apk
           echo "Verifying APK signature..."
-          apksigner verify --verbose build/HoopCity-v2.47.2.apk
+          apksigner verify --verbose build/HoopCity-v2.47.3.apk
           echo "Checking APK launcher icons..."
-          unzip -l build/HoopCity-v2.47.2.apk | grep -i "mipmap" | head -n 20
-          ls -lh build/HoopCity-v2.47.2.apk
+          unzip -l build/HoopCity-v2.47.3.apk | grep -i "mipmap" | head -n 20
+          ls -lh build/HoopCity-v2.47.3.apk
           echo "Verifica permessi APK (la stanza WiFi li richiede)..."
-          aapt dump permissions build/HoopCity-v2.47.2.apk
-          if ! aapt dump permissions build/HoopCity-v2.47.2.apk | grep -q "android.permission.INTERNET"; then
+          aapt dump permissions build/HoopCity-v2.47.3.apk
+          if ! aapt dump permissions build/HoopCity-v2.47.3.apk | grep -q "android.permission.INTERNET"; then
             echo "!!! MANCA android.permission.INTERNET: la stanza condivisa non può aprirsi"
             exit 1
           fi
@@ -200,21 +200,21 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp hoop-city-life/hoopcity/build/HoopCity-v2.47.2.apk /tmp/HoopCity-v2.47.2.apk
-          gh release delete v2.47.2 -y --cleanup-tag || true
+          cp hoop-city-life/hoopcity/build/HoopCity-v2.47.3.apk /tmp/HoopCity-v2.47.3.apk
+          gh release delete v2.47.3 -y --cleanup-tag || true
           # TAG ORFANO: se la create e' morta a meta' (tag creato, release no),
           # --cleanup-tag non lo rimuove perche' la release non esiste — e ogni
           # tentativo dopo fallisce con "tag already exists". Via il tag a mano.
-          git push origin --delete v2.47.2 || true
+          git push origin --delete v2.47.3 || true
           sleep 5
           # L'API delle release ogni tanto perde colpi (race delete/create):
           # tre tentativi prima di arrendersi.
           ok=0
           for i in 1 2 3; do
-            if gh release create v2.47.2 /tmp/HoopCity-v2.47.2.apk \
-              --title "Hoop City Life v2.47.2" \
+            if gh release create v2.47.3 /tmp/HoopCity-v2.47.3.apk \
+              --title "Hoop City Life v2.47.3" \
               --prerelease \
-              --notes "Aggiornamento v2.47.2 (prova, non pubblica) 🏀 PRENDI affinato: appena lo premi il tasto torna subito SHOOT — la palla e' tua dal tocco e vola in mano mentre puoi gia' ricaricare il tiro. (Online incluso.)"
+              --notes "Aggiornamento v2.47.3 (prova, non pubblica) 🏀 PRENDI a distanza online sistemato: il timer dei 2 secondi non partiva mai nel campo libero e il richiamo non si attivava; ora si ricarica il tiro anche mentre la palla vola in mano (niente tasto morto, niente tiri cancellati a mezzo volo); la palla dell'altro si richiama SOLO a terra, mai mentre il suo tiro e' in volo."
               --target arena/01a0cac8-new-arena-code; then
               ok=1
               break
@@ -226,8 +226,8 @@ jobs:
             # RACE API: la create puo' riuscire lato server e tornare comunque
             # errore; i tentativi dopo falliscono perche' la release esiste gia'.
             # Se la release c'e' (con l'APK), e' andata bene.
-            if gh release view v2.47.2 > /dev/null 2>&1 \
-            && gh release view v2.47.2 --json assets -q '.assets | length' | grep -q -v "^0$"; then
+            if gh release view v2.47.3 > /dev/null 2>&1 \
+            && gh release view v2.47.3 --json assets -q '.assets | length' | grep -q -v "^0$"; then
               echo "Release creata (il primo tentativo era riuscito lato server)."
             else
               echo "!!! IMPOSSIBILE CREARE LA RELEASE"

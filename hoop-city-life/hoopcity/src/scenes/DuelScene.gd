@@ -818,7 +818,9 @@ func _free_recall_start() -> void:
 		i_hold = true
 		ball_loose = false
 		NetLayer.rpc("rpc_duel_ev", {"ev": "pick_mine"})
-	elif fb_live:
+	elif fb_live and fb_h < 110.0:
+		# solo se la palla dell'altro e' BASSA (a terra): mai togliergliela
+		# mentre il suo tiro e' ancora in volo.
 		fb_recall = true
 		_fb_recall_t = 0.0
 		_fb_recall_from = fb_pos
@@ -831,6 +833,7 @@ func _free_recall_start() -> void:
 func _free_pick(mine: bool) -> void:
 	## LIBERO: raccolgo una palla da terra — la mia o quella dell'altro.
 	i_hold = true
+	_loose_t = 0.0
 	if mine:
 		ball_loose = false
 		ball_live = false
@@ -846,6 +849,16 @@ func _shoot_down() -> void:
 	if duel_on and duel_phase == "live" and not i_attack and not ball_loose:
 		_do_jump()           # in difesa il primario e' SALTO, come indoor
 		return
+	if not duel_on and (ball_recall or fb_recall):
+		# PRENDI + ricarica subito: la palla in volo verso le mani arriva
+		# ALL'ISTANTE. Cosi' il tasto non muore mai mentre la palla vola,
+		# e la fine dell'animazione non puo' spegnere un tiro gia' partito.
+		if ball_recall:
+			ball_recall = false
+			ball_live = false
+		if fb_recall:
+			fb_recall = false
+			fb_live = false
 	if not duel_on and not _pad_holding():
 		_try_grab_ball()     # libero senza palla: PRENDI PALLA
 		return
@@ -1393,6 +1406,10 @@ func _duel_tick(delta: float) -> void:
 				ball_loose = false
 			return
 		if not i_hold:
+			# PRENDI dopo 2 secondi dal tiro: nel libero il timer parte qui,
+			# perche' sotto (ramo 1v1) non ci arriva mai — senza questo il
+			# richiamo a distanza online non si attiverebbe.
+			_loose_t += delta
 			if ball_loose and ball_live and _pick_ok and ball_h < 90.0 \
 			and player_pos.distance_to(ball_pos) < 70.0:
 				_free_pick(true)
@@ -1573,10 +1590,19 @@ func _on_foe_ev(d: Dictionary) -> void:
 			_duel_update_top()
 			_say(Loc.t("duel.takefoe"), 1.5)
 		"pick_mine":
-			# ha raccolto da terra la SUA palla: la mia sim di essa si spegne
+			# ha raccolto da terra la SUA palla: la mia sim di essa si spegne.
+			# Se stavo richiamandola io, il mio richiamo si annulla: la palla
+			# e' arrivata prima a lui.
+			if fb_recall:
+				fb_recall = false
+				i_hold = false
 			fb_live = false
 		"pick_yours":
-			# ha raccolto da terra la MIA palla: sparisce dal mio campo
+			# ha raccolto da terra la MIA palla: sparisce dal mio campo.
+			# Se il mio richiamo la stava portando in mano, si annulla.
+			if ball_recall:
+				ball_recall = false
+				i_hold = false
 			ball_loose = false
 			ball_live = false
 		"checked":
