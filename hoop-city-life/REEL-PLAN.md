@@ -288,8 +288,9 @@ Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) �
 |---|---|---|
 | LF «5 anni» | 209k | formula vincente: domanda-identita' + numero |
 | LF «10 anni» | pubblicato | — |
-| LF «36 anni» (ultimo) | **1.389** | serie in flessiona: 3 episodi stesso format, i follower l'hanno gia' visto. Banda 1-5k = cambia soggetto/formato, non solo l'hook |
-| HCL POV «appeso al ferro» (ultimo) | **790 CON boost gratis** | organico reale piu' basso: le views sponsorizzate sono pubblico freddo, non misurano il video. Il boost non si usa per TESTARE ma per SPINGERE un video che cammina da solo |
+| LF «36 anni» | **1.389** | serie in flessione: 3 episodi stesso format, i follower l'hanno gia' visto. Banda 1-5k = cambia soggetto/formato, non solo l'hook |
+| LF «8 ore / 6 pagate» (rabbia+giustizia) | **967 · 1 like · 1 save · 5,3s tempo medio** | NON e' il formato ad aver fallito: con 5,3s di retention la gente se ne va' DURANTE l'hook → TikTok smette di spingere prima ancora di mostrare il contenuto. Malattia = primi 2 secondi. Istruzione per il prossimo: il NUMERO enorme e' gia' nel primo fotogramma, domanda-identita' come «5 anni», zero introduzione |
+| HCL POV «appeso al ferro» | **790 CON boost gratis** | organico reale piu' basso: le views sponsorizzate sono pubblico freddo, non misurano il video. Il boost non si usa per TESTARE ma per SPINGERE un video che cammina da solo |
 
 **Decisioni da questi numeri:**
 - LF: la serie «quanti anni» TIRA IL FIOATO → si cambia arma: formato RABBIA+GIUSTIZIA (Pietro, part-time) che vende la Busta Paga Decodificata. Le video-risposte restano priorita' SOLO se arrivano commenti con anni+stipendio.
