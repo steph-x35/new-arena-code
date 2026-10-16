@@ -624,7 +624,7 @@ func _process(delta: float) -> void:
 	lbl_top.modulate = Color(1, 0.45, 0.4) if session_left <= 15.0 else Color(1, 1, 1)
 	if btn_shoot:
 		var want: String = "SHOOT"
-		if solo_loose and not ball_recall and int(Time.get_ticks_msec()) - _shot_ms > 2000:
+		if solo_loose and not ball_recall:
 			want = Loc.t("solo.get")
 		elif dunk_phase == "hang":
 			want = "LET GO"
@@ -916,8 +916,7 @@ func _shoot_down() -> void:
 	if shot_anim > 0.0 or dunk_phase != "":
 		return
 	if solo_loose:
-		if int(Time.get_ticks_msec()) - _shot_ms > 2000:
-			_recall_ball()
+		_recall_ball()
 		return
 	if ball_recall:
 		# PRENDI + ricarica subito: la palla in volo verso le mani arriva

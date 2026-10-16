@@ -146,10 +146,6 @@ var ball_recall := false      # PRENDI a distanza: la mia palla vola in mano
 var _recall_t := 0.0
 var _recall_from := Vector2.ZERO
 var _recall_h := 0.0
-var fb_recall := false        # idem, per la palla dell'altro
-var _fb_recall_t := 0.0
-var _fb_recall_from := Vector2.ZERO
-var _fb_recall_h := 0.0
 var btn_guard: TouchButton
 var btn_steal: TouchButton
 var btn_check: Button
@@ -462,7 +458,7 @@ func _process(delta: float) -> void:
 		var want: String = "SHOOT"
 		if duel_on and duel_phase == "live" and not i_attack and not ball_loose:
 			want = Loc.t("duel.jump")
-		elif not duel_on and not _pad_holding() and not ball_recall and not fb_recall:
+		elif not duel_on and not _pad_holding() and not ball_recall:
 			want = Loc.t("duel.grab")
 		elif dunk_phase == "hang":
 			want = "LET GO"
@@ -788,15 +784,17 @@ func _try_grab_ball() -> void:
 	if not duel_on:
 		if i_hold:
 			return
-		if _loose_t > 2.0:
-			_free_recall_start()
-			return
+		# palla a terra a un passo? presa immediata — la mia o la sua.
 		if ball_loose and ball_live and _pick_ok and ball_h < 110.0 \
 		and player_pos.distance_to(ball_pos) < 130.0:
 			_free_pick(true)
 		elif fb_live and _fb_pick_ok and fb_h < 110.0 \
 		and player_pos.distance_to(fb_pos) < 130.0:
 			_free_pick(false)
+		else:
+			# altrimenti la MIA palla vola in mano da dove si trova,
+			# anche mentre e' ancora in volo verso il ferro.
+			_free_recall_start()
 		return
 	if ball_loose:
 		if my_rebound and ball_live and _pick_ok and ball_h < 110.0 \
@@ -808,8 +806,9 @@ func _try_grab_ball() -> void:
 
 
 func _free_recall_start() -> void:
-	## PRENDI a distanza (dopo 2 secondi dal tiro): la palla vola da sola
-	## nelle mie mani — la mia o quella dell'altro, quella che e' a terra.
+	## PRENDI a distanza: la MIA palla vola da sola nelle mie mani, da
+	## qualsiasi punto del campo si trovi. Quella dell'altro no: quella
+	## si prende solo andandoci sopra.
 	if ball_loose and ball_live:
 		ball_recall = true
 		_recall_t = 0.0
@@ -818,16 +817,6 @@ func _free_recall_start() -> void:
 		i_hold = true
 		ball_loose = false
 		NetLayer.rpc("rpc_duel_ev", {"ev": "pick_mine"})
-	elif fb_live and fb_h < 110.0:
-		# solo se la palla dell'altro e' BASSA (a terra): mai togliergliela
-		# mentre il suo tiro e' ancora in volo.
-		fb_recall = true
-		_fb_recall_t = 0.0
-		_fb_recall_from = fb_pos
-		_fb_recall_h = fb_h
-		i_hold = true
-		ball_loose = false
-		NetLayer.rpc("rpc_duel_ev", {"ev": "pick_yours"})
 
 
 func _free_pick(mine: bool) -> void:
@@ -849,16 +838,12 @@ func _shoot_down() -> void:
 	if duel_on and duel_phase == "live" and not i_attack and not ball_loose:
 		_do_jump()           # in difesa il primario e' SALTO, come indoor
 		return
-	if not duel_on and (ball_recall or fb_recall):
+	if not duel_on and ball_recall:
 		# PRENDI + ricarica subito: la palla in volo verso le mani arriva
 		# ALL'ISTANTE. Cosi' il tasto non muore mai mentre la palla vola,
 		# e la fine dell'animazione non puo' spegnere un tiro gia' partito.
-		if ball_recall:
-			ball_recall = false
-			ball_live = false
-		if fb_recall:
-			fb_recall = false
-			fb_live = false
+		ball_recall = false
+		ball_live = false
 	if not duel_on and not _pad_holding():
 		_try_grab_ball()     # libero senza palla: PRENDI PALLA
 		return
@@ -1394,22 +1379,8 @@ func _duel_tick(delta: float) -> void:
 			if _recall_t >= 1.0:
 				ball_recall = false
 				ball_live = false
-			return
-		if fb_recall:
-			_fb_recall_t += delta / 0.38
-			var ft: float = clampf(_fb_recall_t, 0.0, 1.0)
-			fb_pos = _fb_recall_from.lerp(player_pos, ft)
-			fb_h = lerpf(_fb_recall_h, 46.0, ft) + 34.0 * sin(PI * ft)
-			if _fb_recall_t >= 1.0:
-				fb_recall = false
-				fb_live = false
-				ball_loose = false
-			return
+				return
 		if not i_hold:
-			# PRENDI dopo 2 secondi dal tiro: nel libero il timer parte qui,
-			# perche' sotto (ramo 1v1) non ci arriva mai — senza questo il
-			# richiamo a distanza online non si attiverebbe.
-			_loose_t += delta
 			if ball_loose and ball_live and _pick_ok and ball_h < 90.0 \
 			and player_pos.distance_to(ball_pos) < 70.0:
 				_free_pick(true)
@@ -1590,12 +1561,7 @@ func _on_foe_ev(d: Dictionary) -> void:
 			_duel_update_top()
 			_say(Loc.t("duel.takefoe"), 1.5)
 		"pick_mine":
-			# ha raccolto da terra la SUA palla: la mia sim di essa si spegne.
-			# Se stavo richiamandola io, il mio richiamo si annulla: la palla
-			# e' arrivata prima a lui.
-			if fb_recall:
-				fb_recall = false
-				i_hold = false
+			# ha raccolto (o richiamato) la SUA palla: la mia sim di essa si spegne
 			fb_live = false
 		"pick_yours":
 			# ha raccolto da terra la MIA palla: sparisce dal mio campo.
@@ -2084,7 +2050,7 @@ func _foe_launch(from: Vector2, aim: Vector2, ghost: bool) -> void:
 	fb_prev_pos = fb_pos
 
 func _step_foe_ball(delta: float) -> void:
-	if not fb_live or fb_recall:
+	if not fb_live:
 		return
 	var steps := 4
 	var hstep: float = delta / float(steps)
