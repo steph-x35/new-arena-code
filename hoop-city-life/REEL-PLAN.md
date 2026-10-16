@@ -472,4 +472,35 @@ Descrizione: link demo busta-paga-esempio.html + link guida kbpxY +
 #bustapaga #stipendio #dirittodelavoro #shorts #lavoro.
 NB: coupon PRIMO10 NON si menziona su YouTube (misura l'origine TikTok).
 
+---
+
+## 🎬 PROSSIMO REEL LF — «312 ORE FATTE. 130 PAGATE.» (il caso del commento)
+
+Il tipo non ha risposto: pazienza, il suo commento resta il miglior hook
+disponibile. La lezione dei 5,3s ( gente che se ne va' durante l'hook) si
+applica cosi': il NUMERO gigante e' nel PRIMO fotogramma, ed e' un caso
+VERO del pubblico — piu' forte di qualsiasi attore.
+
+**Sequenza (stesso stile del reel "8 ore", 20-25s):**
+- **0-2s HOOK:** screenshot del commento GIGANTE (tagliare lo username: solo
+  il testo e i numeri) + scritta enorme: «312 ORE FATTE. 130 PAGATE.»
+  Bolla scura, numeri bianchi, zero intro, zero musica che sale.
+- **2-8s:** "182 ore sparite. Solo quest'anno. E se non lo vedi in busta
+  paga, per il datore di lavoro NON esistono." (scritta a blocchi)
+- **8-16s:** la demo: busta-paga-esempio.html → Conto ore → il bottone
+  "🔍 Mostra i 3 errori" → i numeri diventano rossi. (screen record veloce)
+- **16-22s CTA:** "Controlla le tue OGGI, gratis, 2 minuti. Sito in bio."
+  + chiusura domanda: "E a te quante ne spariscono? Scrivilo nei commenti."
+  ← questa e' la trappola-per-commenti: ogni risposta e' un futuro reel.
+
+**Caption:** "Lui fa 312 ore. Gliene pagano 130. E a te quante ne spariscono? 👀 Demo gratuita nel sito in bio. #bustapaga #stipendio #dirittodelavoro #lavoro #orelavoro"
+
+**Dopo il reel:** il giorno dopo, YouTube Shorts (file pulito), titolo:
+"312 ore lavorate, 130 pagate: il caso di un commento vero" — descrizione
+con link demo + guida, stessi hashtag dell'ultima volta.
+
+**In coda dopo questo:** episodio «Lavori da 20 anni nella stessa azienda?»
+(script gia' pronto sopra: 26.939 → 20.704) — la serie vincente riparte
+dopo che l'hook nuovo e' stato testato sul caso 312.
+
 
