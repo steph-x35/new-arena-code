@@ -276,6 +276,11 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			crouch = h * 0.03
 			arm_up = 0.22
 			lean = 0.0
+			# in movimento la posa difensiva CAMMINA (passo strisciato):
+			# senza ciclo delle gambe il difensore scivolerebbe sul campo.
+			if walking:
+				swing = sin(ph) * h * 0.09
+				arm_swing = sin(ph + PI) * h * 0.05
 		STEAL:
 			# One of HIS arms reaches for the ball — no extra floating limb.
 			crouch = h * 0.10
@@ -388,7 +393,7 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 
 	# --- legs: opposite stride ONLY while walking. Standing still = planted.
 	var tuck: float = (lift / maxf(h, 1.0)) * h * 0.16 + leg_tuck
-	var stepping: bool = walking and (kind == RUN or kind == DRIBBLE)
+	var stepping: bool = walking and (kind == RUN or kind == DRIBBLE or kind == DEFEND)
 	for sx in [-1.0, 1.0]:
 		var gait: float = 0.0
 		if stepping:

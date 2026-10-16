@@ -484,9 +484,26 @@ func _my_move(delta: float) -> void:
 		_clamp_me()
 		return
 	var mv: Vector2 = joystick.output
+	# DIFENDI, come l'1v1 offline: tenuto premuto, il difensore si aggancia
+	# da solo al portatore e si piazza tra lui e il canestro. Chi difende
+	# deve solo premerlo — e da lì saltare per la stoppata o provare la
+	# rubata, esattamente come in carriera.
+	if _def_held and duel_on and duel_phase == "live" and not i_attack and not ball_loose:
+		var fpos_g: Vector2 = foe["pos"] as Vector2
+		var gp: Vector2 = fpos_g + (RIM - fpos_g).normalized() * 46.0
+		var gd: Vector2 = gp - player_pos
+		if gd.length() > 9.0:
+			mv = gd.normalized() * clampf(gd.length() / 60.0, 0.35, 1.0)
+			if gd.length() < 95.0:
+				mv *= 0.74   # in posizione: passo da difesa, come offline
 	player_pos += mv * (155.0 if posting else MOVE_SPEED) * delta
 	if absf(mv.x) > 0.12 and not posting:
 		facing = signf(mv.x)
+	# in difesa agguantata: guarda sempre l'uomo, non la direzione di marcia
+	if _def_held and duel_on and duel_phase == "live" and not i_attack and not ball_loose:
+		var fx_g: float = signf(((foe["pos"] as Vector2) - player_pos).x)
+		if fx_g != 0.0:
+			facing = fx_g
 	_clamp_me()
 
 
@@ -1192,9 +1209,14 @@ func _my_kind() -> String:
 	var no_ball: bool = (duel_on and (not i_attack or ball_loose) and duel_phase != "over") \
 		or (not duel_on and not i_hold)
 	if no_ball:
-		if duel_on and not ball_loose and not i_attack \
-		and (_def_held or (foe["pos"] as Vector2).distance_to(player_pos) < 300.0):
-			return Avatar.DEFEND
+		if duel_on and not ball_loose and not i_attack and _def_held:
+			# posa difensiva SOLO quando sono in posizione davanti all'uomo
+			# (come lo stance offline): mentre ci arrivo corro, con le gambe
+			# che camminano — prima scivolavo sul campo.
+			var fpos_k: Vector2 = foe["pos"] as Vector2
+			var gp_k: Vector2 = fpos_k + (RIM - fpos_k).normalized() * 46.0
+			if player_pos.distance_to(gp_k) < 95.0:
+				return Avatar.DEFEND
 		return Avatar.RUN if _my_walking() else Avatar.IDLE
 	return Avatar.DRIBBLE
 
@@ -1456,6 +1478,10 @@ func _duel_start(target: int, first_role: String) -> void:
 	euro_t = 0.0
 	fade_t = 0.0
 	trick_t = 0.0
+	dunk_phase = ""
+	shot_anim = 0.0
+	_def_held = false
+	ball_recall = false
 	ball_loose = false
 	ball_live = false
 	fb_live = false
@@ -1606,13 +1632,27 @@ func _end_match() -> void:
 
 func _duel_free() -> void:
 	## Si torna a tirare insieme, come sempre: campo condiviso libero.
+	## RESET COMPLETO: niente deve sopravvivere del 1v1 — né palle in volo,
+	## né schiacciate a metà, né guardia premuta: chi esce con un tasto
+	## tenuto o un'animazione in corso si ritroverebbe i tasti morti.
 	duel_on = false
 	duel_phase = ""
 	ball_loose = false
 	ball_live = false
 	fb_live = false
+	ball_recall = false
 	must_clear = false
 	charging = false
+	dunk_phase = ""
+	shot_anim = 0.0
+	pump_t = 0.0
+	_def_held = false
+	_steal_t = 0.0
+	_jump_t = 0.0
+	my_rebound = false
+	i_attack = false
+	hot = false
+	streak = 0
 	_pick_ok = false
 	_fb_pick_ok = false
 	_loose_t = 0.0
