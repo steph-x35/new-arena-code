@@ -474,30 +474,59 @@ NB: coupon PRIMO10 NON si menziona su YouTube (misura l'origine TikTok).
 
 ---
 
-## 🎬 PROSSIMO REEL LF — «312 ORE FATTE. 130 PAGATE.» (il caso del commento)
+## 📐 REGOLE DEI NUMERI 2026 (dai dati, non dalle leggende)
+- **Completamento = il segnale piu' pesante** (~40-50% del ranking). Soglia
+  virale 2026: ~70% di completamento (era 50% nel 2024). Il nostro "8 ore":
+  5,3s su ~22s = ~24% → morto al Gate 1 (pool di test 100-500 views).
+- **Hook entro 1,5s su TikTok.** 63% dei top video aggancia nei primi 3s;
+  ~65% degli spettatori va via nei primi 3s.
+- **Lunghezza vincente: 11-18 secondi** (piu' completamento + replay).
+  I reel 20-25s sono un handicap: da qui in poi MAX 15s.
+- **Shares e saves valgono piu' dei like** (cambio 2026): la CTA chiede
+  SALVATI e COMMENTA, mai "metti like".
+- **Tagli/zoom ogni 3-5 secondi**, testo a schermo SEMPRE (chi guarda senza
+  audio: +32% completamento). Numeri specifici > generici (+71% hook).
+  Framing negativo > positivo (1,3-1,8x). Inizio a meta' azione, zero intro.
+- **Prima ora = tutto**: il batch iniziale decide ~80% del potenziale.
+  Rispondere a tutti entro 60 minuti, con domande.
+- Metriche da guardare dopo: % oltre 3s (target >50%), tempo medio
+  (target >7s su 13s), salvataggi, condivisioni.
 
-Il tipo non ha risposto: pazienza, il suo commento resta il miglior hook
-disponibile. La lezione dei 5,3s ( gente che se ne va' durante l'hook) si
-applica cosi': il NUMERO gigante e' nel PRIMO fotogramma, ed e' un caso
-VERO del pubblico — piu' forte di qualsiasi attore.
+## 🎬 PROSSIMO REEL LF — «312 ORE FATTE. 130 PAGATE.» v2 (13 secondi)
 
-**Sequenza (stesso stile del reel "8 ore", 20-25s):**
-- **0-2s HOOK:** screenshot del commento GIGANTE (tagliare lo username: solo
-  il testo e i numeri) + scritta enorme: «312 ORE FATTE. 130 PAGATE.»
-  Bolla scura, numeri bianchi, zero intro, zero musica che sale.
-- **2-8s:** "182 ore sparite. Solo quest'anno. E se non lo vedi in busta
-  paga, per il datore di lavoro NON esistono." (scritta a blocchi)
-- **8-16s:** la demo: busta-paga-esempio.html → Conto ore → il bottone
-  "🔍 Mostra i 3 errori" → i numeri diventano rossi. (screen record veloce)
-- **16-22s CTA:** "Controlla le tue OGGI, gratis, 2 minuti. Sito in bio."
-  + chiusura domanda: "E a te quante ne spariscono? Scrivilo nei commenti."
-  ← questa e' la trappola-per-commenti: ogni risposta e' un futuro reel.
+Il tipo non ha risposto: il suo commento resta il miglior hook disponibile.
+v2 = riscritto sui dati qui sopra: 13 secondi (non 22), hook ANIMATO sotto
+1,5s, tagli ogni ~1,5-3s, CTA salva-video, finale che ricongiunge nel
+inizio (loop = rewatch = completamento).
 
-**Caption:** "Lui fa 312 ore. Gliene pagano 130. E a te quante ne spariscono? 👀 Demo gratuita nel sito in bio. #bustapaga #stipendio #dirittodelavoro #lavoro #orelavoro"
+**Sequenza (13s, musica suspense che parte GIA' sul colpo, mai intro che sale):**
+- **0,0-1,5s HOOK IN MOVIMENTO:** sfondo scuro; «312 ORE FATTE.» entra a
+  schermo pieno con zoom/punch (mai statico: la card animata vale +29%),
+  a 0,7s sotto appare «130 PAGATE.» rosso. Zero musica che sale, zero intro.
+- **1,5-4s LA PROVA:** slide-in dello screenshot del commento (username
+  tagliato) + scritta: «Me l'ha scritto un lavoratore vero. 182 ore sparite
+  in un anno.» (formula "un tuo simile": identificazione, 47-54% retention)
+- **4-9s IL VALORE — 3 TAGLI VELOCI sulla demo (mai una schermata ferma):**
+  taglio 1 (1,2s): la riga "Conto ore" evidenziata; taglio 2 (1,2s): il
+  pollice preme «🔍 Mostra i 3 errori»; taglio 3 (1,8s): ZOOM sui numeri
+  che diventano rossi. Testo fisso in sovrimpressione: «È qui che si vede».
+- **9-13s CTA + LOOP:** «Controlla la tua. Gratis, 2 minuti → sito in bio»
+  (1,5s) poi a schermo pieno scuro come l'inizio: «A te quante ne spariscono?»
+  + sotto, piccolo: «Salvati questo video per la prossima busta paga» —
+  il frame finale e' identico allo stile del primo: il loop riparte liscio
+  e ogni rewatch conta come completamento.
+
+**Caption (1 frase hook + 1 CTA + tag, niente articoli):**
+"Lui fa 312 ore. Gliene pagano 130. A te quante ne spariscono? 👀 Demo gratis in bio — salvati il video per la prossima busta paga #bustapaga #stipendio #dirittodelavoro #lavoro"
 
 **Dopo il reel:** il giorno dopo, YouTube Shorts (file pulito), titolo:
 "312 ore lavorate, 130 pagate: il caso di un commento vero" — descrizione
 con link demo + guida, stessi hashtag dell'ultima volta.
+
+**Letture a 48h:** se % >3s sale sopra il 50% ma le views restano basse →
+funziona la presa, cambia il messaggio; se % >3s resta sotto il 40% →
+prossimo hook cambia formula: «Stai leggendo la busta paga SBAGLIATO»
+(formula "lo stai facendo sbagliato", 60-67% retention documentata).
 
 **In coda dopo questo:** episodio «Lavori da 20 anni nella stessa azienda?»
 (script gia' pronto sopra: 26.939 → 20.704) — la serie vincente riparte
