@@ -565,4 +565,32 @@ quante ne spariscono? 👀 Controllo gratis in 2 minuti, in bio #bustapaga
 niente cedolino. Resta valida l'analisi: il veicolo testo+cedolino era
 stato servito 3 volte e aveva esaurito la novita'.)*
 
+### v5 — DEFINITIVA: SI TORNA AL SOLITO, MA CON IL SOGGETTO GIUSTO (TFR)
+Decisione utente: niente robe complicate. Formato = il solito (testo/numeri
+su scuro, bolla, pop), identico a «5 anni» (l'unico mai esploso, 209k).
+Cosa cambia: il SOGGETTO — non piu' ore/cedolino (servito 3 volte) ma il
+TFR con un numero ENORME: dopo 10 anni a 1.500€ netti ≈ 20.000€ maturati
+(TFR = 6,91% del lordo per legge; con rivalutazione ~20-21k. Numero
+calcolato, condizionato allo stipendio: onesto, non inventato).
+Perche' puo' esplodere: stessa formula del 209k (domanda-identita' + soldi
+che ti spettano), numero piu' grosso, curiosity gap PERSONALE ("quanto ho
+IO?" → click al tool gratis, non a una vendita — TikTok lo premia), e i
+commenti si riempiono di numeri = engagement + il prossimo reel pronto.
+Funnel: reel → bio → calcolo-tfr (gratis) → dopo il risultato, prodotti.
+
+**Sequenza (13s, il solito stile):**
+- 0-1,5s: «Lavori da 10 anni?» (pop, gigante)
+- 1,5-4s: «Hai circa 20.000€ che non vedi da 10 anni.»
+- 4-8s: bolla: «Si chiama TFR. Cresce in OGNI busta paga.» + sotto:
+  «1.500€ netti/mese ≈ 2.000€ di TFR all'anno»
+- 8-11s: «Quanti ne hai TU? Calcolo gratis, 2 minuti → bio»
+- 11-13s: «Scrivimi quanto ti è uscito 👇» (loop con lo stacco iniziale)
+
+Caption: "Lavori da 10 anni? Hai circa 20.000€ che non sapevi di avere.
+Calcola i TUOI in 2 minuti, gratis → in bio #tfr #bustapaga #stipendio
+#lavoro #dirittodelavoro"
+YouTube il giorno dopo, titolo: "Lavori da 10 anni? Hai 20.000€ che non
+sapevi di avere (TFR spiegato in 13 secondi)". Il caso 312 resta in coda
+per un eventuale secondo slot settimanale.
+
 
