@@ -532,27 +532,37 @@ prossimo hook cambia formula: «Stai leggendo la busta paga SBAGLIATO»
 (script gia' pronto sopra: 26.939 → 20.704) — la serie vincente riparte
 dopo che l'hook nuovo e' stato testato sul caso 312.
 
-### v3 — FORMATO INDIVINDA + VOCE (decisione dopo analisi "il cedolino annoia")
-Il veicolo testo-su-sfondo-scuro + cedolino e' STATO SERVITO 3 VOLTE e ha
-esaurito la novita' (36 anni 1.389, 8 ore 967: solo «5 anni» 209k l'aveva
-usato da novita'). Il soggetto resta, il VEICOLO cambia: voce del creator
-(storytelling + fiducia, non serve il volto) + meccanica INDOVINA (il
-pubblico punta un numero e resta per la risposta). Durata 13s.
-- 0-1,5s VOCE: "Fa 312 ore in un anno. Indovina quante gliene pagano."
-  / VIDEO: «312 ORE.» gigante + zoom
-- 1,5-4s VOCE: (pausa) "Centotrenta." / VIDEO: «130 PAGATE.» rosso
-- 4-7s VOCE: "Il resto? Sparito. Ed e' tutto scritto nella sua busta
-  paga — solo che nessuno sa dove guardare." / VIDEO: screenshot commento
-  1,5s → dito che cerchia UN numero in rosso (1,5s, UN colpo solo)
-- 7-11s VOCE: "Controlla la tua. Gratis, due minuti, link in bio."
-- 11-13s VOCE: "E dimmi la verita': a te, quante ne spariscono?" /
-  VIDEO: «A TE QUANTE?» uguale allo stacco iniziale (loop)
-Registrazione voce: telefono vicino alla bocca, stanza silenziosa, tono
-da "ti racconto una cosa grossa", 3-4 ciak per frase, musica 20-30%.
-Variante senza voce: solo la struttura indovina («QUANTE GLIENE PAGANO?
-🤔» → stacco → «130.»). Caption v3: "Fa 312 ore in un anno. Indovina
-quante gliene pagano. 👀 (la risposta e' nei commenti... no, e' peggio:
-e' nella tua busta paga) Demo gratis in bio #bustapaga #stipendio
-#dirittodelavoro #lavoro"
+### v4 — FORMATO CARTELLINO + PENNARELLO (definitivo: niente voce, niente cedolino)
+L'utente ha chiuso con voce registrata e cedolino. Veicolo mai usato:
+CARTELLINO delle ore (foglio di carta con le tacche delle ore) + mano +
+pennarello rosso che BARRA le ore non pagate. Tattile, nativo TikTok,
+audio vero del pennarello (satisfying), zero costi, zero schermate.
+Non specificare mai il periodo (il commento non lo diceva: non si inventa).
+MATERIALI (casa): 1 foglio bianco, penna nera (righe di tacche + "312
+ORE" in alto), pennarello rosso, telefono per riprendere, tavolo ben luce.
+CIAK (4 clip, 15 min):
+- CLIP A: la mano SBATTE il foglio sul tavolo e lo gira verso camera
+- CLIP B: il pennarello rosso barra righe intere (2-3 ciak, si sceglie il
+  piu' soddisfacente — il suono conta)
+- CLIP C: zoom sulla zona barrata (2s fermi)
+- CLIP D: la mano scrive/cerchia "130" in grande
+MONTAGGIO (13s):
+- 0-1,5s CLIP A + testo «312 ORE DI LAVORO.» (pop/zoom)
+- 1,5-4s CLIP B accelerato x2 + testo «IN BUSTA PAGA: 130.» rosso
+- 4-7s CLIP C + testo «182 ore cancellate. Mesi regalati.»
+- 7-10s nero + «La tua busta paga lo sta facendo ADESSO.» → «Sapresti
+  dove guardare?»
+- 10-13s «Controlla: 2 minuti, gratis → bio» + finale uguale allo stacco
+  iniziale («A te quante ne spariscono?») per il loop
+- AUDIO: suono del pennarello tenuto alto + musica scura 20-30%.
+  Opzionale: voce TTS di TikTok che legge i testi (dentro l'app, zero
+  registrazione) — solo se la vuole.
+Caption: "Il cartellino dice 312 ore. La busta paga ne paga 130. A te
+quante ne spariscono? 👀 Controllo gratis in 2 minuti, in bio #bustapaga
+#stipendio #dirittodelavoro #lavoro"
+
+*(v3 "voce + indovina" scartata dall'utente: niente voce registrata,
+niente cedolino. Resta valida l'analisi: il veicolo testo+cedolino era
+stato servito 3 volte e aveva esaurito la novita'.)*
 
 
