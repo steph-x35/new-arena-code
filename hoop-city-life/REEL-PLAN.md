@@ -532,4 +532,27 @@ prossimo hook cambia formula: «Stai leggendo la busta paga SBAGLIATO»
 (script gia' pronto sopra: 26.939 → 20.704) — la serie vincente riparte
 dopo che l'hook nuovo e' stato testato sul caso 312.
 
+### v3 — FORMATO INDIVINDA + VOCE (decisione dopo analisi "il cedolino annoia")
+Il veicolo testo-su-sfondo-scuro + cedolino e' STATO SERVITO 3 VOLTE e ha
+esaurito la novita' (36 anni 1.389, 8 ore 967: solo «5 anni» 209k l'aveva
+usato da novita'). Il soggetto resta, il VEICOLO cambia: voce del creator
+(storytelling + fiducia, non serve il volto) + meccanica INDOVINA (il
+pubblico punta un numero e resta per la risposta). Durata 13s.
+- 0-1,5s VOCE: "Fa 312 ore in un anno. Indovina quante gliene pagano."
+  / VIDEO: «312 ORE.» gigante + zoom
+- 1,5-4s VOCE: (pausa) "Centotrenta." / VIDEO: «130 PAGATE.» rosso
+- 4-7s VOCE: "Il resto? Sparito. Ed e' tutto scritto nella sua busta
+  paga — solo che nessuno sa dove guardare." / VIDEO: screenshot commento
+  1,5s → dito che cerchia UN numero in rosso (1,5s, UN colpo solo)
+- 7-11s VOCE: "Controlla la tua. Gratis, due minuti, link in bio."
+- 11-13s VOCE: "E dimmi la verita': a te, quante ne spariscono?" /
+  VIDEO: «A TE QUANTE?» uguale allo stacco iniziale (loop)
+Registrazione voce: telefono vicino alla bocca, stanza silenziosa, tono
+da "ti racconto una cosa grossa", 3-4 ciak per frase, musica 20-30%.
+Variante senza voce: solo la struttura indovina («QUANTE GLIENE PAGANO?
+🤔» → stacco → «130.»). Caption v3: "Fa 312 ore in un anno. Indovina
+quante gliene pagano. 👀 (la risposta e' nei commenti... no, e' peggio:
+e' nella tua busta paga) Demo gratis in bio #bustapaga #stipendio
+#dirittodelavoro #lavoro"
+
 
