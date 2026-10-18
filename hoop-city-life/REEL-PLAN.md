@@ -598,6 +598,25 @@ giorno di ferie indennizzata ≈ 65€ NETTI. 10 giorni non goduti ≈ 650€.
 Le ferie non godute si pagano come indennita' sostitutiva alla fine del
 rapporto ("te le danno quando te ne vai") — dettaglio vero che fa rabbia.
 La riga in busta paga si chiama "ferie residue": funnel sulla demo/guida.
+
+### v7 — FINALE EFFETTIVA: FERIE, ZERO CEDOLINO
+L'utente ha ragione: la clip demo (7-10s della v6-PRO) era IL cedolino,
+l'elemento ripetuto dei due flop. Si toglie. Il cedolino vive nel SITO
+(funnel: bio → demo interattiva), non nel video. Nessuna registrazione:
+5 card di testo, 15 minuti di CapCut.
+Sequenza (13s):
+- 0-1,5s: «Non hai fatto tutte le ferie?» (pop, domanda aperta, musica a 0,0)
+- 1,5-4s: «Ogni giorno che non prendi TI COSTA ~65€.» (framing perdita)
+- 4-7s: «10 giorni saltati = 650€.»
+- 7-10s: «E si sommano ogni anno: 3 anni cosi' ≈ 2.000€.» (numero
+  ENORME rosso: la scala crescente 65 → 650 → 2.000 e' il pattern
+  refresh, al posto della clip)
+- 10-13s: «Quante te ne restano? 👇 Controllo gratis in bio» + sotto
+  piccolo: «Salvati il video per la prossima busta paga» (loop con Card 1)
+Variazione visiva = dimensione CRESCENTE dei numeri (65 piccolo, 650
+grande, 2.000 gigante): ogni card e' diversa dalla precedente senza filmato.
+Resta tutto della v6-PRO: commento fissato, orario 19:00, prima ora a
+rispondere, YouTube il giorno dopo, metriche a 48h.
 Caption: "Ogni giorno di ferie che non fai ti costa ~65€. Quante te ne
 restano? 👇 Controllo gratis in bio #ferie #bustapaga #stipendio #lavoro"
 YouTube il giorno dopo: "Le ferie non godute valgono 65€ al giorno:
