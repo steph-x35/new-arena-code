@@ -66,3 +66,28 @@ Prima ora = rispondere a TUTTI i commenti (incollare qui i commenti per risposte
 - Niente numeri non verificabili sul tool (il tool è la fonte unica)
 - Niente prezzi urlati in ogni commento: solo fissato + risposte con intent
 - Niente acquisto views/follower (mai)
+
+## FUNNEL FIX (2026-10-18): il link in bio non e' mai stato cliccabile
+Scoperta: il campo Sito di TikTok richiede 1.000 follower o Business
+VERIFICATO (lo switch semplice non basta piu', ottobre 2026). Sotto soglia
+il campo non esiste e i link nel testo bio/commenti non sono tappabili.
+=> "Nessuno compra" aveva una causa fisica: le views non hanno mai potuto
+raggiungere il sito (Payhip: 1 view in settimane).
+
+### Il ponte YouTube (attivo da subito, senza soglie)
+I campi social Instagram/YouTube nel profilo NON richiedono la soglia:
+1. TikTok > Modifica profilo > aggiungi YouTube (canale LavoroFacile)
+2. Bio text: "Il controllo FERIE e' nel video YouTube qui sotto"
+3. Commento fissato dei reel: indirizza all'icona YouTube
+4. Ogni Short su YouTube ha i link cliccabili in descrizione (demo+guida)
+5. Bonus: ogni passaggio TikTok->YouTube fa crescere il canale (verso
+   1.000 iscritti = monetizzazione YouTube)
+Catena: reel > icona YouTube nel profilo > Short > descrizione > demo > guida.
+
+### A 1.000 follower TikTok (traguardo triplo)
+- Campo Sito sbloccato -> link DIRETTO al sito (niente Linktree: ogni tap
+  intermedio perde meta' gente; il sito e' gia' hub completo)
+- Creator Rewards sbloccati (stesso traguardo)
+- Network affiliate riapribili (Impact)
+Se si tiene il Linktree comunque: ordine = 1) controllo gratis (sito)
+2) guida 2,90 3) pacchetti. MAI i pacchetti come prima voce.
