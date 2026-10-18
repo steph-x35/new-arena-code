@@ -91,3 +91,11 @@ Catena: reel > icona YouTube nel profilo > Short > descrizione > demo > guida.
 - Network affiliate riapribili (Impact)
 Se si tiene il Linktree comunque: ordine = 1) controllo gratis (sito)
 2) guida 2,90 3) pacchetti. MAI i pacchetti come prima voce.
+
+### NOTA MEMORIA (per non ridirlo mai come novita')
+- L'UTENTE GIA' SAPEVA la soglia 1.000 follower / link cliccabile TikTok:
+  non e' una scoperta da presentargli, era noto. Non spiegarglielo di nuovo.
+- Reel FERIE pubblicato su ENTRAMBE le piattaforme la sera stessa
+  (2026-10-18, TikTok + YouTube insieme, non +1 giorno come da piano).
+- Utente provera' lo switch Business per il campo Sito (se compare: link
+  diretto al sito). Business = solo suoni commerciali: gia' la prassi.
