@@ -570,21 +570,36 @@ stato servito 3 volte e aveva esaurito la novita'.)*
 — secondo episodio della serie anni. Il TFR come soggetto e' bruciato.)
 Soggetto scelto dall'utente: FERIE NON GODUTE. Domanda-identita' pura,
 universalissima, mai toccata, soldi veri, curiosity gap personale.
+
+**v6-PRO (richiesta utente: tutti i pro dell'analisi virale dentro):**
+- 13s (finestra 11-18s = max completamento). Tagli a 1,5 / 4 / 7 / 10s.
+- 0-1,5s HOOK: domanda APERTA di identita' («Non hai fatto tutte le
+  ferie?»), card ANIMATA pop/zoom, musica che colpisce a 0,0s.
+- 1,5-4s NUMERO con FRAMING NEGATIVO (1,3-1,8x): «Ogni giorno che non
+  prendi TI COSTA ~65€.» — perdita, non guadagno. Numero specifico (+71%).
+- 4-7s SOMMA: «10 giorni saltati = 650€. E si sommano ogni anno.» sotto
+  piccolo «1.500€ netti/mese» (condizione dichiarata, mai inventato).
+- 7-10s CLIP DEMO (3s): il box Ferie·Saldo + sovrimpressione «La TUA
+  quante ne ha? → bio» (cambio visivo = pattern refresh).
+- 10-13s CTA DOPPIA: domanda che genera commenti («Scrivimi quante te ne
+  restano 👇») + CTA SAVE («Salvati il video per la prossima busta paga»).
+  Grafica identica alla Card 1 → loop → rewatch → completamento.
+- Testo SEMPRE in schermo (+32%), un solo accento colore (rosso), font
+  bold unico, mai testo sotto 200px dal bordo basso (UI TikTok).
+- Caption corta: hook + CTA + 4 hashtag. Fissato: tool + riga esatta +
+  «salvati il video».
+- Prima ora: rispondere a TUTTI entro 60 min con domande, like a ogni
+  commento (il primo batch decide ~80% del potenziale).
+- Misura a 48h: % >3s (target >50%), tempo medio (target >7s su 13),
+  salvataggi e condivisioni (valgono piu' dei like).
+
 Numeri (onesti, condizioni dichiarate): 1.500€ netti/mese ≈ 79€ lordi al
 giorno di ferie indennizzata ≈ 65€ NETTI. 10 giorni non goduti ≈ 650€.
 Le ferie non godute si pagano come indennita' sostitutiva alla fine del
 rapporto ("te le danno quando te ne vai") — dettaglio vero che fa rabbia.
 La riga in busta paga si chiama "ferie residue": funnel sulla demo/guida.
-Sequenza (13s, il solito stile testo/numeri su scuro):
-- 0-1,5s: «Non hai fatto tutte le ferie?» (pop gigante)
-- 1,5-4s: «Ogni giorno non goduto vale ~65€.»
-- 4-8s: bolla: «10 giorni non goduti = 650€. E si sommano ogni anno.»
-  sotto piccolo: «1.500€ netti/mese · la riga: "ferie residue"»
-- 8-11s: «Quanto valgono le TUE? 2 minuti, gratis → bio»
-- 11-13s: «Scrivimi quante te ne restano 👇» (loop)
-Caption: "Non hai finito le ferie? Ogni giorno non goduto vale ~65€ e te
-li porti a casa quando lasci. Quante te ne restano? 👇 Controllo gratis
-in bio #ferie #bustapaga #stipendio #lavoro #dirittodelavoro"
+Caption: "Ogni giorno di ferie che non fai ti costa ~65€. Quante te ne
+restano? 👇 Controllo gratis in bio #ferie #bustapaga #stipendio #lavoro"
 YouTube il giorno dopo: "Le ferie non godute valgono 65€ al giorno:
 dove lo vedi in busta paga". Il caso 312 resta in coda come secondo slot.
 
