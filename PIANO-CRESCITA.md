@@ -123,7 +123,7 @@ quando lavori lì, le ferie residue e la voce TFR. E dimmi se la
 quattordicesima compare a parte in busta o e' gia' dentro lo stipendio.
 Con questi ti faccio subito il conto tra TFR, ferie e quattordicesima.
 Per le cifre ufficiali di fine rapporto ti consiglio pero' un
-commercialista — in un momento cosi' e' la scelta giusta: [Fiscozen]
+commercialista — in un momento cosi' e' la scelta giusta: https://www.fiscozen.it/
 Scrivimi quando vuoi, grazie."
 
 ### CASO REALE #1 processato (2026-10-19): calcolo TFR+ferie+14ma consegnato
