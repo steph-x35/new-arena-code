@@ -802,3 +802,10 @@ UNA pagina sola (stipendio-netto), 4 mosse / 20 secondi:
 · 3 cancella e digita 24000 (netto cambia) · 4 scroll giu' ai risultati, stop.
 Il pezzo cedolino ("Rateo 13a mensilita") = EXTRA opzionale, si salta: il
 messaggio sta nei testi, lo schermo deve solo muoversi e fare numeri.
+
+### STATO 19/10 sera (corretto: il reel e' STATO PUBBLICATO)
+- v8 14ma: PUBBLICATA 19/10 (utente: "il reel l'ho messo"). Lettura metriche
+  a 48h (saves > like, % >3s, tempo medio).
+- Messaggio Francesco: inviato (calcolo TFR/ferie/14ma + link Fiscozen).
+  In attesa di: nome CCNL, giorni ferie, TFR azienda/fondo.
+- Prossimi: v9 caso Francesco (mer) -> 312 (gio) -> v10 scatti (sab), ore 19.
