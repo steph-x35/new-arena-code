@@ -759,3 +759,17 @@ v8 CONSEGNATA in questa versione (frame per frame): hook flash «5 STIPENDI
 PERSI» 0-1,5s -> screencast calcolatore 1,5-4 -> scala 1-3-5 su risultati
 4-7 -> riga busta testo 7-10 -> CTA+loop 10-13. Audio: epic beat / tense
 piano (variare). Prossimi: v9 Francesco stessa ricetta, poi 312.
+
+## 🛠 PRODUZIONE v8 (procedura standard riusabile per v9/312)
+FASE 1 registrazione sito (UN take da ~30s, verticale, niente notifiche,
+browser incognito, MAI nome account/dati personali a schermo):
+1 apertura pagina (hook) · 2 digitazione lenta 1500 (card2) · 3 risultati
+fermi 3-4s (card3 scala) · 4 scroll guida (card4 twist) · 5 ritorno in cima
+alla CTA (card5).
+FASE 2 montaggio CapCut 9:16: tagli 0/1,5/4/7/10 su 13s totali; flash
+«5 STIPENDI PERSI» a 0,0 con velo scuro 40% sotto i testi; scala un rigo al
+secondo con numero crescente; loop = flash iniziale negli ultimi 0,3-0,5s;
+audio Pixabay (epic beat / tense piano / dark trailer) colpo a 0:00, volume
+30-40%; export 1080x1920 30fps unico per TT+YT.
+CHECK: numero dal frame 1 · testo sempre in schermo · ultimo=primo frame ·
+13s · CTA scrivi+SALVA · zero dati personali a schermo.
