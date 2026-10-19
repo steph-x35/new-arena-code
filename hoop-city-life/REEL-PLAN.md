@@ -661,3 +661,47 @@ YT titolo: «La quattordicesima che non hai mai preso: fino a 5 stipendi indietr
 ### Metriche 48h (target bomba)
 % >3s >55% (hook con numero enorme), tempo medio >8s, saves > like,
 commenti "anni senza 14ma" > 50. Se >5k views: spingere subito 312 il giovedì.
+
+## 📦 BATCH BOOM (2026-10-19): 4 reel in 6 giorni — la moltiplicazione dei tentativi forti
+Diagnosi onesta (dati alla mano): il FORMATO non e' in discussione (5,3s
+retention «8 ore», 1 DM cliente ogni 800 views su Ferie). Decide
+SOGGETTO + primi 2 secondi. «5 anni»=209k perche' "ti spettano soldi"
++ domanda-identita'. I boom non si ordinano: si moltiplicano tentativi
+vergini colla formula vincente e uno esplode. Poi: profilo pieno di roba
+buona dove far atterrare chi arriva.
+
+Calendario (ore 19:00, TikTok + YouTube insieme):
+- LUN 20/10 → v8 BOMBA 14ma (anticipata da mar: mano calda)
+- MER 22/10 → v9 CASO FRANCESCO (anonimo)
+- GIO 23/10 → 312 ore (caso commento, gia' pronto)
+- SAB 25/10 → v10 SCATTI DI ANZIANITÀ
+
+### v9 — «MI LICENZIO: COSA MI SPETTA?» (caso reale #1, TUTTO anonimo)
+Hook (0-1,5s): «Uno mi ha scritto: mi licenzio.» + rosso «COSA TI SPETTA?»
+Card 2 (1,5-4s): «7 anni e 8 mesi nello stesso lavoro. Ecco i numeri veri.»
+Card 3 (4-7s): scala rossa: «Ferie = 72,76€ al GIORNO» / «14ma = fino a 5 STIPENDI» / «TFR = ~12.500 lordi»
+Card 4 (7-10s): «La cifra esatta sta nel prospetto di liquidazione: è tuo DIRITTO chiederlo.»
+Card 5 (10-13s): «Stai pensando di andartene? 👇 Scrivi quanti anni fai + SALVA» (loop card 1)
+Numeri: presi dal calcolo reale del 19/10 (paga 9,0956€/h, 7y8m, rivalutazioni).
+MAI nome, azienda, IBAN o busta nel video ne' altrove. Framing: caso vero.
+
+### v10 — SCATTI DI ANZIANITÀ (sab 25/10)
+Hook: «La tua busta ha la riga "SCATTI"?» + rosso «SE MANCA, SONO INDIETRO»
+Card 2: «Quasi ogni CCNL dà uno scatto ogni 2-3 anni. Se la tua paga non sale...»
+Card 3: scala in ANNI: «2 anni = 1 scatto» / «4 anni = 2 scatti» / «6 anni = 3 scatti»
+Card 4: «Come si vede: nella busta c'è "N° SCATTI" e "PROSSIMO". Se manca dopo anni di lavoro, chiedi.»
+Card 5: «Da quanti anni sei fermo alla stessa paga? 👇 Scrivi + SALVA» (loop)
+Numeri: NESSUN euro inventato — scala in scatti/anni. La riga "N° SCATTI ·
+PROSSIMO" esiste davvero nelle buste (vista nel caso reale #1).
+
+### v11 — CONGUAGLIO DICEMBRE (skeleton, slot dopo — NUMERI DA VERIFICARE)
+Hook: «A dicembre lo stipendio cambia. La riga si chiama CONGUAGLIO.»
+⚠ DA VERIFICARE con dati veri prima di girare (mai cifre inventate):
+il delta netto del conguaglio varia per persona. Soggetto stagionale perfetto
+nov-dic ma va tarato su un caso reale (chiedere nei commenti "la busta di
+dicembre ti è mai arrivata diversa?").
+
+### Compilazioni "metterli insieme"
+- TikTok: NO — ricicli penalizzati, niente boom
+- YouTube: SI' — «4 calcoli in 60 secondi» >1min = formato per monetizzazione
+- Regola boom: quando uno esplode, il profilo e' GIA' pieno (batch prima, non dopo)
