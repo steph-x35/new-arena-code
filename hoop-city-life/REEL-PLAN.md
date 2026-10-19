@@ -744,3 +744,18 @@ FORMATI APPROVATI:
 views ma alto intent (800 views -> 1 cliente). Views = screencast/stitch.
 TRIO rivisto: 19:00 v8 screencast · 20:00 Francesco DM-schermo · 21:00 312
 commento-schermo.
+
+## 🏆 ESECUZIONE MASSIMA VIRALITÀ (2026-10-19): «LO SCHERMO CHE RACCONTA»
+Scelta finale per i limiti utente (no voce propria, no riprese, no robe
+complicate): il movimento dello schermo alza la piu' la retention.
+RICETTA (vale per tutti i formati):
+1. Fotogramma 1 = numero gigante gia' lì (regola «8 ore»)
+2. Sotto = schermo che si muove (screencast sito / DM / commento)
+3. Sopra = card testo appoggiate sullo schermo vivo, MAI su nero
+4. Musica = beat colpo a 0:00, dark suspense max 1 volta su 3
+5. Booster opzionale = voce TTS TikTok (NON dell'utente, formato "story");
+   se non piace si toglie e il video regge comunque.
+v8 CONSEGNATA in questa versione (frame per frame): hook flash «5 STIPENDI
+PERSI» 0-1,5s -> screencast calcolatore 1,5-4 -> scala 1-3-5 su risultati
+4-7 -> riga busta testo 7-10 -> CTA+loop 10-13. Audio: epic beat / tense
+piano (variare). Prossimi: v9 Francesco stessa ricetta, poi 312.
