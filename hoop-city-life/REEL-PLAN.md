@@ -727,3 +727,20 @@ LINK PROFILO (titolo + URL) — sito LIVE su GitHub Pages (branch sessione, buil
 Titolo: "Controllo busta paga gratis" -> https://steph-x35.github.io/new-arena-code/
 Linktree ordine: 1) gratis (sito) 2) kbpxY 2,90 3) ZI9na 3,90 4) utzIY 4,90
 Fix fatto: schema index.html url "fatturafacile.example" -> URL reale Pages.
+
+## 🎨 CAMBIO VESTE (2026-10-19, decisione utente): MAI PIU' solo dark+suspense
+Il formato fisso (nero testo + dark suspense) si consuma — «36 anni» docet.
+Restano le REGOLE virali (hook<1,5s, numeri, framing, CTA save+commenti,
+loop): cambia la VESTE. Utente ha riaperto il tema SITO ("quello che
+appigliava"): il divieto resta per il CEDOLINO FERMO; lo STRUMENTO VIVO
+(screencast del calcolatore mentre lavora) e' formato ammesso e voluto.
+FORMATI APPROVATI:
+1. Screencast del sito (calcolatore live) — v8 14ma lo usa
+2. Commento/DM vero a schermo (anonimizzato) — casi reali (Francesco, 312)
+3. Green screen TikTok + foto sfondo
+4. Stitch/duetto a video virali del settore (scorciatoia pubblico caldo)
+5. YouTube formato lungo 60-90s ("4 calcoli in 60 secondi", >1min monetiz.)
+"Video gratis" (tool/guide free) = riconfigurati come VIDEO-FUNNEL: poche
+views ma alto intent (800 views -> 1 cliente). Views = screencast/stitch.
+TRIO rivisto: 19:00 v8 screencast · 20:00 Francesco DM-schermo · 21:00 312
+commento-schermo.
