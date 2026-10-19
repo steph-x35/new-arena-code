@@ -705,3 +705,25 @@ dicembre ti è mai arrivata diversa?").
 - TikTok: NO — ricicli penalizzati, niente boom
 - YouTube: SI' — «4 calcoli in 60 secondi» >1min = formato per monetizzazione
 - Regola boom: quando uno esplode, il profilo e' GIA' pieno (batch prima, non dopo)
+
+## UPDATE 19/10 sera: TRIO "tutti insieme" + spinta YouTube (decisione utente)
+YouTube Ferie: 1.2k views = terza conferma: la macchina YouTube distribuisce
+anche da canale piccolo. Si spinge su ENTRAMBE le piattaforme in parallelo.
+
+Trio stessa sera a 1h di distanza (19:00 / 20:00 / 21:00 — MAI lo stesso
+minuto: la prima ora decide ~80% della spinta e post insieme si rubano pubblico):
+1. 19:00 -> v8 BOMBA 14ma
+2. 20:00 -> v9 CASO FRANCESCO
+3. 21:00 -> 312 ore
+(v10 scatti in coda per la prossima settimana)
+
+Titoli YouTube (descrizione per tutti e 3: demo + guida kbpxY + #shorts):
+- v8: «La quattordicesima che non hai mai preso: fino a 5 stipendi indietro»
+- v9: «Mi licenzio: cosa mi spetta davvero (TFR, ferie, quattordicesima)»
+- 312: «312 ore lavorate, 130 pagate: il caso di un commento vero»
+Demo: https://steph-x35.github.io/new-arena-code/  Guida: https://payhip.com/b/kbpxY
+
+LINK PROFILO (titolo + URL) — sito LIVE su GitHub Pages (branch sessione, build ok):
+Titolo: "Controllo busta paga gratis" -> https://steph-x35.github.io/new-arena-code/
+Linktree ordine: 1) gratis (sito) 2) kbpxY 2,90 3) ZI9na 3,90 4) utzIY 4,90
+Fix fatto: schema index.html url "fatturafacile.example" -> URL reale Pages.
