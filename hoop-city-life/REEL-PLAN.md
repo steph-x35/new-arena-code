@@ -793,3 +793,12 @@ quattordicesima dove sta?") · 5 Giacenze/ritorno cima (CTA).
 LINK PROFILO CORRETTO: "Controllo busta paga gratis" ->
 https://steph-x35.github.io/new-arena-code/stipendio-netto/
 (link vecchio root = sbagliato, porta a FatturaFacile).
+
+### SEMPLIFICAZIONE FINALE registrazione (utente: "mi sembra complicato")
+Niente scheda vuota, niente incognito (l'interfaccia "privato" si vede nel
+video). Regola: pagina aperta NORMALMENTE + Non disturbare + una sola scheda.
+UNA pagina sola (stipendio-netto), 4 mosse / 20 secondi:
+1 avvia registrazione · 2 digita 30000 nel lordo (netto si aggiorna da solo)
+· 3 cancella e digita 24000 (netto cambia) · 4 scroll giu' ai risultati, stop.
+Il pezzo cedolino ("Rateo 13a mensilita") = EXTRA opzionale, si salta: il
+messaggio sta nei testi, lo schermo deve solo muoversi e fare numeri.
