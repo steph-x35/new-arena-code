@@ -115,3 +115,13 @@ dall'utente, versione "come se fossi tu dal telefono"):
   15€) — linea onesta: tu aiuti a capire, il professionista certifica
 - Con permesso dell'interessato: il caso diventa contenuto ("Mi sono
   licenziato: quanto mi spettava?")
+
+### VERSIONE FINALE TEMPLATE DM (approvata: breve, rispettosa, zero emoji)
+"Ciao, grazie per la fiducia. Certo che ti aiuto. Per la tua privacy non
+mandarmi la busta intera — copiami solo la retribuzione lorda mensile, da
+quando lavori lì, le ferie residue e la voce TFR. E dimmi se la
+quattordicesima compare a parte in busta o e' gia' dentro lo stipendio.
+Con questi ti faccio subito il conto tra TFR, ferie e quattordicesima.
+Per le cifre ufficiali di fine rapporto ti consiglio pero' un
+commercialista — in un momento cosi' e' la scelta giusta: [Fiscozen]
+Scrivimi quando vuoi, grazie."
