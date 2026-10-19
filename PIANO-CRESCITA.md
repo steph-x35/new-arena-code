@@ -125,3 +125,12 @@ Con questi ti faccio subito il conto tra TFR, ferie e quattordicesima.
 Per le cifre ufficiali di fine rapporto ti consiglio pero' un
 commercialista — in un momento cosi' e' la scelta giusta: [Fiscozen]
 Scrivimi quando vuoi, grazie."
+
+### CASO REALE #1 processato (2026-10-19): calcolo TFR+ferie+14ma consegnato
+Busta reale ricevuta via DM nonostante la richiesta "solo numeri" —
+processata in chat e MAI archiviata (ne' in repo ne' altrove). Istruzione
+permanente: dati personali dei clienti (nome, CF, buste) NON entrano mai
+nel repo; i calcoli si consegnano in chat e la busta si fa cancellare.
+Il caso conferma il reel v8 14ma: il lead dice letteralmente "quattordicesima
+che ho a contratto ma non ho mai percepito". Nota strategica: il primo caso
+reale e' in malattia + dimissioni = sempre incollare il commercialista.
