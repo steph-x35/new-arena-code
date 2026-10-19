@@ -99,3 +99,19 @@ Se si tiene il Linktree comunque: ordine = 1) controllo gratis (sito)
   (2026-10-18, TikTok + YouTube insieme, non +1 giorno come da piano).
 - Utente provera' lo switch Business per il campo Sito (se compare: link
   diretto al sito). Business = solo suoni commerciali: gia' la prassi.
+
+## PRIMO LEAD DM (2026-10-18 sera): dimissionario chiede TFR+ferie+14ma
+Reel Ferie: 800 views, 1 like, MAI 1 DM ad alta intenzione ("mi dovrei
+licenziare") = primo vero segnale commerciale (like = metrica che conta
+meno; lead rate ~0,12% gia' buono). Template risposta NATURALE (approvato
+dall'utente, versione "come se fossi tu dal telefono"):
+- Ringraziare + "momento giusto per controllare tutto"
+- PRIVACY: mai accettare la busta intera (nome+CF+azienda). Chiedere in
+  chat solo: lordo mensile/RAL, inizio lavoro, ferie residue, voce TFR/
+  fondo TFR, e se 14ma e' voce separata o mensilizzata (spesso lo e':
+  "non l'ho mai percepita" puo' voler dire "e' dentro ogni stipendio")
+- Promettere solo "il conto" indicativo, MAI cifre prima dei suoi numeri
+- Calcolo UFFICIALE fine rapporto = commercialista (link Fiscozen aff
+  15€) — linea onesta: tu aiuti a capire, il professionista certifica
+- Con permesso dell'interessato: il caso diventa contenuto ("Mi sono
+  licenziato: quanto mi spettava?")
