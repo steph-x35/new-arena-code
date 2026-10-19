@@ -624,3 +624,40 @@ YouTube il giorno dopo: "Le ferie non godute valgono 65€ al giorno:
 dove lo vedi in busta paga". Il caso 312 resta in coda come secondo slot.
 
 
+
+## 💣 v8 — BOMBA «QUATTORDICESIMA MAI PERCEPITA» (soggetto vergine) — slot martedì 21/10 ore 19
+(Scelta utente 2026-10-18: 14ma > scatti / conguaglio / promuovi 312.
+Formula del 209k = domanda-identita' + numero; scala onesta 1→3→5 STIPENDI;
+prova sociale: il primo DM della sera "quattordicesima che non ho mai
+percepito" = il mercato ha gia' chiesto questo soggetto.)
+
+### Formato (il solito — tutti i pro virality)
+- 5 card testo su scuro, 13s, tagli 1,5 / 4 / 7 / 10s
+- NUMERO ENORME nel primo fotogramma (lezione «8 ore») + domanda-identita'
+- Framing perdita, scala crescente, rosso unico accento, testo sempre in schermo
+- Loop: ultima card = prima card
+- MAI cedolino/demo nel video — la busta vive solo nel sito
+- Musica Pixabay "dark suspense" (colpo a 0:00), export unico 1080x1920 30fps
+
+### Le 5 card
+1. (0-1,5s) «Mai preso la quattordicesima?» + gigante rosso «FINO A 5 STIPENDI PERSI»
+2. (1,5-4s) «Se il tuo CCNL la prevede, ti spetta OGNI anno: 1 mensilità in più. Se non te l'hanno mai data...»
+3. (4-7s) scala rossa: «1 anno = 1 STIPENDIO» / «3 anni = 3 STIPENDI» / «5 anni = 5 STIPENDI»
+4. (7-10s) «Attenzione: se è MENSILIZZATA è già dentro ogni stipendio. La riga in busta te lo dice: "quattordicesima" o "mensilità aggiuntive".»
+5. (10-13s) «Da quanti anni non la vedi? 👇 Scrivi qui + SALVA il video + controllo gratis in bio» (loop = card 1)
+
+### Numeri ONESTI (nessun euro inventato)
+14ma = 1 mensilità aggiuntiva/anno per i CCNL che la prevedono. Prescrizione
+retributiva = 5 anni -> recuperabile max ~5 mensilità = "5 stipendi". Lo
+stipendio varia: la scala è in STIPENDI, non in euro. La "bufala" della
+mensilizzazione è la verità a metà: entrambe le strade si vedono in busta.
+
+### Caption + fissato + YouTube
+Caption: "La quattordicesima che 'non hai mai preso' può valere fino a 5 stipendi. La riga in busta te lo dice 👇 #quattordicesima #bustapaga #stipendio #lavoro"
+Fissato: "La riga che decide: 'quattordicesima' o 'mensilità aggiuntive'. Se non compare mai = anni che ti devono. Controllo completo gratis in bio 🔖"
+YT titolo: «La quattordicesima che non hai mai preso: fino a 5 stipendi indietro»
+(descrizione: demo + guida kbpxY + #shorts, come Ferie)
+
+### Metriche 48h (target bomba)
+% >3s >55% (hook con numero enorme), tempo medio >8s, saves > like,
+commenti "anni senza 14ma" > 50. Se >5k views: spingere subito 312 il giovedì.
