@@ -773,3 +773,23 @@ audio Pixabay (epic beat / tense piano / dark trailer) colpo a 0:00, volume
 30-40%; export 1080x1920 30fps unico per TT+YT.
 CHECK: numero dal frame 1 · testo sempre in schermo · ultimo=primo frame ·
 13s · CTA scrivi+SALVA · zero dati personali a schermo.
+
+## 🔧 CORREZIONE PRODUZIONE v8 (2026-10-19): le pagine VERI del sito
+ERRORE precedente: "premi calcola" NON esiste — il sito calcola in automatico.
+Pagine reali (URL live su Pages):
+- https://steph-x35.github.io/new-arena-code/stipendio-netto/ = LA DEMO
+  (calcolatore lordo->netto, campi: lordo es.30.000, mensilita, inps,
+  regione, comune, coniuge/figli, detrazioni; risultati LIVE: Netto mensile
+  stimato + righe Lordo/INPS/Imponibile/IRPEF/Netto)
+- https://steph-x35.github.io/new-arena-code/busta-paga-esempio.html =
+  «Cedolino Stipendio» (Conto ore, Corrispettivi [Paga base, EDR, Superminimo,
+  Straordinari +25%, Rateo 13a mensilita 148,95, Rateo ferie], Trattenute,
+  Giacenze Ferie Gia./Spett./Usate/Saldo)
+- NB root index.html = FatturaFacile (fatture freelance) — NON e' il funnel.
+REGISTRAZIONE v8: 1 apertura stipendio-netto (hook) · 2 digitare 30000 nel
+lordo e far vedere il netto che cambia da SOLO · 3 riquadro risultati 3-4s ·
+4 busta-paga-esempio, zoom riga "Rateo 13a mensilita" (momento 14ma: "e la
+quattordicesima dove sta?") · 5 Giacenze/ritorno cima (CTA).
+LINK PROFILO CORRETTO: "Controllo busta paga gratis" ->
+https://steph-x35.github.io/new-arena-code/stipendio-netto/
+(link vecchio root = sbagliato, porta a FatturaFacile).
