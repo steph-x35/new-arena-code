@@ -17,8 +17,16 @@ const BALL_R := Court.BALL_R
 const CAM_ZOOM := 1.04
 const MOVE_SPEED := 255.0
 const LEFT_RIM := Vector2(-Court.COURT_W * 0.5 + Court.FIBA_HOOP_INSET, 0.0)
-const SEND_HZ := 30.0
+const SEND_HZ := 60.0          # v2.47.6: era 30 — a 60 la posa dell'altro
+                               # e' vecchia di 8 ms invece di 17, e le due
+                               # registrazioni del reel restano allineate.
 const DUNK_R := 132.0          # ~7 piedi dal ferro
+
+## QUESTA BUILD (v2.47.6 "solo tiri liberi"): il 1v1 e' finito e NON va
+## mostrato. Il codice resta tutto qui sotto, ma spento: niente pulsante
+## SFIDA 1V1, niente sfide in arrivo, niente partita che parte da sola.
+## Si riaccende mettendo true (una riga, nessun'altra modifica).
+const ONEV_ONE := false
 
 var joystick: VirtualJoystick
 var meter: ShotMeter
@@ -108,6 +116,21 @@ var _send_t := 0.0
 var _msg_t := 0.0
 var _look_t := 0.0   # invia l'aspetto ogni 1,2 s: se arriva mentre l'altro
                       # sta ancora caricando la scena, il prossimo passa
+
+# ---- SYNC (v2.47.6)
+# Com'era prima: ogni pacchetto sovrascriveva "t_pos" e il disegno inseguiva
+# con un lerp a 14/s — 1/14 di secondo di ritardo FISSO (~71 ms) sommato a
+# rete e invio a 30 Hz, e nessun numero di sequenza: due pacchetti invertiti
+# dal WiFi riportavano la posizione indietro (lo scatto all'indietro).
+# Com'e' ora: ogni pacchetto porta un numero di sequenza (i vecchi si
+# scartano), l'invio e' a 60 Hz e il bersaglio viene proiettato in avanti
+# della velocita' dell'altro per il tempo passato dall'ultimo pacchetto
+# (mai oltre 100 ms: se la rete tace, si smette di proiettare).
+var _seq := 0                 # numero del prossimo pacchetto che spedisco
+var _foe_seq := -1            # ultimo numero arrivato dall'altro telefono
+var _foe_vel := Vector2.ZERO  # px/s dell'altro, lisciata
+var _foe_rx := 0.0            # quando e' arrivato l'ultimo pacchetto (s)
+var _foe_rej := 0             # pacchetti vecchi scartati di fila
 
 # ---- SFIDA 1V1 (v2.45.0): una palla sola, punteggio e possesso.
 # Il gioco libero resta esattamente com'e': il 1v1 vive dietro duel_on, e
@@ -377,6 +400,11 @@ func _say(msg: String, t := 2.2) -> void:
 	_msg_t = t
 
 
+func _now() -> float:
+	## Orologio comune a tutti i calcoli di rete (secondi, monotono).
+	return float(Time.get_ticks_msec()) / 1000.0
+
+
 # ------------------------------------------------------------------ loop
 func _process(delta: float) -> void:
 	dribble_t += delta * 4.2
@@ -398,11 +426,22 @@ func _process(delta: float) -> void:
 		_msg_t -= delta
 		if _msg_t <= 0.0:
 			lbl_mid.text = ""
-	# l'avversario scivola verso l'ultima posizione ricevuta
+	# l'avversario va dove sara', non dove era (v2.47.6)
 	if court_art != null:
 		court_art.solo_hang = (dunk_phase == "hang")
-	var tp: Vector2 = foe["t_pos"]
-	foe["pos"] = (foe["pos"] as Vector2).lerp(tp, clampf(14.0 * delta, 0.0, 1.0))
+	var since: float = _now() - _foe_rx
+	if since > 0.15:
+		# tre pacchetti di silenzio: si e' fermato, o la rete ha perso colpi.
+		# Niente proiezione: si resta sull'ultima posizione vera.
+		_foe_vel = Vector2.ZERO
+	var tp: Vector2 = (foe["t_pos"] as Vector2) + _foe_vel * clampf(since, 0.0, 0.10)
+	var cur: Vector2 = foe["pos"] as Vector2
+	if cur.distance_to(tp) > 90.0:
+		# stacco vero (lag spike, teletrasporto del 1v1): si salta, non si
+		# scivola per mezzo campo. Un lerp qui sarebbe una scivolata.
+		foe["pos"] = tp
+	else:
+		foe["pos"] = cur.lerp(tp, clampf(26.0 * delta, 0.0, 1.0))
 	# EUROSTEP: due tempi — laterale, poi esplosione verso il ferro — e
 	# chiusura automatica (schiacciata se vicino, layup se no)
 	if euro_t > 0.0:
@@ -1181,6 +1220,7 @@ func _send(delta: float) -> void:
 		return
 	_send_t = 1.0 / SEND_HZ
 	var d := {
+		"q": _seq,
 		"p": player_pos, "f": facing, "k": _my_kind(), "a": _my_amount(),
 		"ph": dribble_t, "w": _my_walking(), "dp": dunk_phase, "ds": dunk_style,
 		"da": dunk_anim, "ht": hang_swing_t, "ho": _hang_one(),
@@ -1192,6 +1232,7 @@ func _send(delta: float) -> void:
 		"hd": i_hold,
 		"st": _steal_t > 0.05,
 	}
+	_seq += 1
 	NetLayer.rpc("rpc_duel_me", d)
 
 
@@ -1252,8 +1293,35 @@ func _hang_one() -> bool:
 
 
 func _on_foe_state(d: Dictionary) -> void:
+	# v2.47.6: i pacchetti vecchi o doppi si scartano. Il WiFi li inverte, e
+	# prima ogni inversione riportava l'altro giocatore indietro di un passo.
+	var q: int = int(d.get("q", -1))
+	if q >= 0:
+		if q <= _foe_seq:
+			_foe_rej += 1
+			# Il WiFi inverte qualche pacchetto: 2-3 di fila e si accetta il
+			# successivo. Trenta di fila NO: vuol dire che l'altro ha
+			# ricaricato la scena e ha ripreso a contare da zero — si riparte.
+			if _foe_rej < 30:
+				return
+		_foe_rej = 0
+		_foe_seq = q
 	var prev_dp: String = String(foe.get("dp", ""))
-	foe["t_pos"] = d.get("p", foe["t_pos"])
+	# velocita' dell'altro: differenza fra due posizioni divisa per il tempo
+	# VERO passato fra i due pacchetti (se ne manca uno, il conto torna)
+	var now := _now()
+	var np: Vector2 = d.get("p", foe["t_pos"])
+	var gap: float = now - _foe_rx
+	if _foe_rx > 0.0 and gap > 0.004 and gap < 0.25:
+		var v: Vector2 = (np - (foe["t_pos"] as Vector2)) / gap
+		if _foe_vel == Vector2.ZERO:
+			_foe_vel = v
+		else:
+			# 0,75 = risposta rapida: se l'altro frena o cambia direzione la
+			# proiezione lo segue subito, senza scivolargli davanti.
+			_foe_vel = _foe_vel.lerp(v, 0.75)
+	_foe_rx = now
+	foe["t_pos"] = np
 	foe["facing"] = d.get("f", foe["facing"])
 	foe["kind"] = d.get("k", Avatar.DRIBBLE)
 	foe["amount"] = d.get("a", 0.0)
@@ -1368,7 +1436,8 @@ func _leave() -> void:
 
 func _duel_tick(delta: float) -> void:
 	if btn_sfida != null:
-		btn_sfida.visible = _net_ok and bool(foe.get("seen", false)) and not duel_on
+		btn_sfida.visible = ONEV_ONE and _net_ok \
+			and bool(foe.get("seen", false)) and not duel_on
 	if btn_end != null:
 		btn_end.visible = duel_on and duel_phase != "over"
 	# Il pad come l'indoor: in attacco TIRA/TRICK/POST, in difesa
@@ -1564,12 +1633,18 @@ func _duel_end(win: bool) -> void:
 func _on_foe_ev(d: Dictionary) -> void:
 	match String(d.get("ev", "")):
 		"challenge":
+			# build "solo tiri liberi": le sfide in arrivo si ignorano
+			if not ONEV_ONE:
+				return
 			_pending_target = int(d.get("target", 11))
 			_show_accept()
 		"decline":
 			_hide_panels()
 			_say(Loc.t("duel.declined"), 2.0)
 		"start":
+			# build "solo tiri liberi": nessuna partita puo' partire
+			if not ONEV_ONE:
+				return
 			if duel_on and duel_phase != "over":
 				return
 			if int(Time.get_ticks_msec()) - _free_sent_at < 1200:
@@ -1613,6 +1688,9 @@ func _on_foe_ev(d: Dictionary) -> void:
 				Events.popup.emit(Loc.t("duel.stolen"), player_pos + Vector2(0, -100),
 					Color(1.0, 0.45, 0.38), true)
 		"rematch":
+			# build "solo tiri liberi": niente rivincite
+			if not ONEV_ONE:
+				return
 			if duel_phase != "over":
 				return
 			_duel_start(int(d.get("target", duel_target)), String(d.get("role", "host")))
@@ -1712,7 +1790,7 @@ func _hide_panels() -> void:
 
 
 func _sfida_panel() -> void:
-	if not _net_ok or duel_on:
+	if not ONEV_ONE or not _net_ok or duel_on:
 		return
 	var vb := _panel_layer(false)
 	_panel_text(vb, Loc.t("duel.pick"), 27, Color(1.0, 0.82, 0.35))
@@ -1733,7 +1811,7 @@ func _send_challenge(t: int) -> void:
 
 
 func _show_accept() -> void:
-	if duel_on:
+	if not ONEV_ONE or duel_on:
 		return
 	var vb := _panel_layer(true)
 	_panel_text(vb, "%s  %s  %d" % [
@@ -1774,6 +1852,8 @@ func _show_end() -> void:
 
 
 func _rematch() -> void:
+	if not ONEV_ONE:
+		return
 	NetLayer.rpc("rpc_duel_ev", {"ev": "rematch", "role": NetLayer.role,
 		"target": duel_target})
 	_duel_start(duel_target, NetLayer.role)
