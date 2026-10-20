@@ -2,6 +2,10 @@ name: Build Web (iPhone/Safari)
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'hoop-city-life/hoopcity/**'
+      - '.github/workflows/build-web.yml'
 
 permissions:
   contents: read
