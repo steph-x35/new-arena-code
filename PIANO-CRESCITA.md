@@ -1,0 +1,136 @@
+# 📈 Piano Crescita TikTok LavoroFacile — Ottobre 2026
+
+## Analisi (cosa dicono i nostri 6 video)
+
+| Video | Views | Lezione |
+|---|---|---|
+| "Lavori da 5 anni nella stessa azienda?" | 209k | VINCE: domanda-identità + numero nascosto |
+| Risposta a Vincenzo | 8.300 | Le video-risposte funzionano |
+| Stipendio netto | 4.000, 0 comm. | PERDE: numero già noto, nessuna curiosità |
+| Mito dimissioni | 380, 0 comm. | PERDE: affermazione (non domanda) + fuori audience |
+
+**Regola d'oro: i video vincono quando FANNO UNA DOMANDA SULLO SPETTATORE e nascondono un numero che lui vuole. Informare non basta.**
+
+## Regole algoritmo 2026 (dalla ricerca)
+
+1. Completion rate = segnale #1 (~40-50% peso, soglia ~70% per la spinta)
+2. Primi 2-3 secondi = tutto (63% dei top video danno il messaggio entro 3s)
+3. Lunghezza ideale 21-34s, il loop (riguardare) spinge
+4. L'algoritmo testa PRIMA coi follower → mai uscire dalla nicchia
+5. Share e save > like
+6. Post 19-23, costanza 3-5/settimana, risposte ai commenti nella prima ora
+
+## Nicchia bloccata
+Solo "i soldi del tuo lavoro": TFR, NASpI, stipendio, dimissioni, busta paga.
+Mai più contenuti fuori nicchia finché l'account non è grande.
+
+## La serie «Quanto hai davvero?» (un episodio = una domanda-identità)
+
+Episodi pronti (numeri già calcolati col tool, coincidono al centesimo):
+- ✅ 5 anni (209k — fatto)
+- **10 anni: "Lavori da 10 anni nella stessa azienda?" → 1.500 lordi/mese = 13.469€ lordi → 10.352€ netti**
+- 20 anni: → 26.939€ lordi → 20.704€ netti
+- Milos (video-risposta): 3 anni a 2.100 netti → 8.735€ lordi → 6.450€ netti
+- Primo lavoro / stesso stipendio da anni / NASpI (dopo il tool nuovo)
+
+Format obbligatorio (20-30s):
+1. 0-2s: domanda GRANDE in sovrimpressione ("Lavori da 10 anni...?")
+2. 2-15s: digiti nel calcolatore (sync mensile→RAL è il momento bello)
+3. 15-25s: RIVELA il numero (lordo → netto) + zoom
+4. Ultimo secondo: "E tu? Scrivi anni + stipendio 👇" + "Calcolatore in bio"
+
+Alterna: 1 episodio serie + 1 video-risposta ai commenti.
+
+## Funnel monetizzazione (i numeri del settore)
+
+- Click bio = 3-8% delle VISITE PROFILO (non delle views!) → conversione 1-5%
+- 100k views → 1-2% visite profilo → 3-8% click → 1-5% compra = **3-80 vendite/reel virale**
+- Colpa attuale: 230k views → 19 click (nessun invito nel video)
+- FIX: "in bio" detto nel video (testo finale) + fissato + coupon PRIMO10 SOLO su TikTok
+
+Prodotti: Pacchetto Dimissioni&TFR 3,90€ (ZI9na) = prodotto-lead per il pubblico TFR.
+Busta Paga Decodificata 2,90€ (kbpxY) e Kit Colloquio 4,90€ (utzIY) restano al loro posto.
+
+## Cadenza
+1 video/giorno (min 4/settimana) ore 19-21, per 30 giorni consecutivi.
+Prima ora = rispondere a TUTTI i commenti (incollare qui i commenti per risposte calcolate).
+
+## Traguardi
+- Prima vendita: entro il prossimo reel 50k+ col fissato nuovo
+- Mese 1: 10-15€/settimana se la serie gira
+- 10k follower + 100k views/30gg → sblocca TikTok Creator Rewards (soldi diretti)
+- Google/SEO: non investire tempo ora (1 click). Il sito converte il traffico TikTok; il SEO cuoce da solo.
+
+## Cosa NON fare
+- Niente contenuti fuori nicchia (l'algoritmo 2026 testa prima coi follower)
+- Niente numeri non verificabili sul tool (il tool è la fonte unica)
+- Niente prezzi urlati in ogni commento: solo fissato + risposte con intent
+- Niente acquisto views/follower (mai)
+
+## FUNNEL FIX (2026-10-18): il link in bio non e' mai stato cliccabile
+Scoperta: il campo Sito di TikTok richiede 1.000 follower o Business
+VERIFICATO (lo switch semplice non basta piu', ottobre 2026). Sotto soglia
+il campo non esiste e i link nel testo bio/commenti non sono tappabili.
+=> "Nessuno compra" aveva una causa fisica: le views non hanno mai potuto
+raggiungere il sito (Payhip: 1 view in settimane).
+
+### Il ponte YouTube (attivo da subito, senza soglie)
+I campi social Instagram/YouTube nel profilo NON richiedono la soglia:
+1. TikTok > Modifica profilo > aggiungi YouTube (canale LavoroFacile)
+2. Bio text: "Il controllo FERIE e' nel video YouTube qui sotto"
+3. Commento fissato dei reel: indirizza all'icona YouTube
+4. Ogni Short su YouTube ha i link cliccabili in descrizione (demo+guida)
+5. Bonus: ogni passaggio TikTok->YouTube fa crescere il canale (verso
+   1.000 iscritti = monetizzazione YouTube)
+Catena: reel > icona YouTube nel profilo > Short > descrizione > demo > guida.
+
+### A 1.000 follower TikTok (traguardo triplo)
+- Campo Sito sbloccato -> link DIRETTO al sito (niente Linktree: ogni tap
+  intermedio perde meta' gente; il sito e' gia' hub completo)
+- Creator Rewards sbloccati (stesso traguardo)
+- Network affiliate riapribili (Impact)
+Se si tiene il Linktree comunque: ordine = 1) controllo gratis (sito)
+2) guida 2,90 3) pacchetti. MAI i pacchetti come prima voce.
+
+### NOTA MEMORIA (per non ridirlo mai come novita')
+- L'UTENTE GIA' SAPEVA la soglia 1.000 follower / link cliccabile TikTok:
+  non e' una scoperta da presentargli, era noto. Non spiegarglielo di nuovo.
+- Reel FERIE pubblicato su ENTRAMBE le piattaforme la sera stessa
+  (2026-10-18, TikTok + YouTube insieme, non +1 giorno come da piano).
+- Utente provera' lo switch Business per il campo Sito (se compare: link
+  diretto al sito). Business = solo suoni commerciali: gia' la prassi.
+
+## PRIMO LEAD DM (2026-10-18 sera): dimissionario chiede TFR+ferie+14ma
+Reel Ferie: 800 views, 1 like, MAI 1 DM ad alta intenzione ("mi dovrei
+licenziare") = primo vero segnale commerciale (like = metrica che conta
+meno; lead rate ~0,12% gia' buono). Template risposta NATURALE (approvato
+dall'utente, versione "come se fossi tu dal telefono"):
+- Ringraziare + "momento giusto per controllare tutto"
+- PRIVACY: mai accettare la busta intera (nome+CF+azienda). Chiedere in
+  chat solo: lordo mensile/RAL, inizio lavoro, ferie residue, voce TFR/
+  fondo TFR, e se 14ma e' voce separata o mensilizzata (spesso lo e':
+  "non l'ho mai percepita" puo' voler dire "e' dentro ogni stipendio")
+- Promettere solo "il conto" indicativo, MAI cifre prima dei suoi numeri
+- Calcolo UFFICIALE fine rapporto = commercialista (link Fiscozen aff
+  15€) — linea onesta: tu aiuti a capire, il professionista certifica
+- Con permesso dell'interessato: il caso diventa contenuto ("Mi sono
+  licenziato: quanto mi spettava?")
+
+### VERSIONE FINALE TEMPLATE DM (approvata: breve, rispettosa, zero emoji)
+"Ciao, grazie per la fiducia. Certo che ti aiuto. Per la tua privacy non
+mandarmi la busta intera — copiami solo la retribuzione lorda mensile, da
+quando lavori lì, le ferie residue e la voce TFR. E dimmi se la
+quattordicesima compare a parte in busta o e' gia' dentro lo stipendio.
+Con questi ti faccio subito il conto tra TFR, ferie e quattordicesima.
+Per le cifre ufficiali di fine rapporto ti consiglio pero' un
+commercialista — in un momento cosi' e' la scelta giusta: https://www.fiscozen.it/
+Scrivimi quando vuoi, grazie."
+
+### CASO REALE #1 processato (2026-10-19): calcolo TFR+ferie+14ma consegnato
+Busta reale ricevuta via DM nonostante la richiesta "solo numeri" —
+processata in chat e MAI archiviata (ne' in repo ne' altrove). Istruzione
+permanente: dati personali dei clienti (nome, CF, buste) NON entrano mai
+nel repo; i calcoli si consegnano in chat e la busta si fa cancellare.
+Il caso conferma il reel v8 14ma: il lead dice letteralmente "quattordicesima
+che ho a contratto ma non ho mai percepito". Nota strategica: il primo caso
+reale e' in malattia + dimissioni = sempre incollare il commercialista.

@@ -1,0 +1,5 @@
+.godot/
+*.tmp
+export.cfg
+build/
+__pycache__/

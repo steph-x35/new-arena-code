@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://steph-x35.github.io/new-arena-code/sitemap.xml

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <rect width="200" height="200" rx="40" fill="#ffffff" />
+  <g transform="translate(24, 27)">
+    <!-- Letter L -->
+    <path d="M 0 0
+             L 34 0
+             L 34 112
+             L 106 112
+             C 113 112, 118 117, 118 124
+             L 118 134
+             C 118 141, 113 146, 106 146
+             L 18 146
+             C 8 146, 0 138, 0 128
+             Z"
+          fill="#1c1d21" />
+
+    <!-- Letter F: Top Pill -->
+    <path d="M 50 0
+             L 134 0
+             C 144 0, 152 8, 152 18
+             C 152 28, 144 36, 134 36
+             L 50 36
+             Z"
+          fill="#3b82f6" />
+
+    <!-- Letter F: Middle Pill -->
+    <path d="M 50 54
+             L 118 54
+             C 127 54, 134 61, 134 70
+             C 134 79, 127 86, 118 86
+             L 50 86
+             Z"
+          fill="#3b82f6" />
+  </g>
+</svg>

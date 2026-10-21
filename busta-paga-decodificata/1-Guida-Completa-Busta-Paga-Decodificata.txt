@@ -1,0 +1,301 @@
+╔══════════════════════════════════════════════════════════════╗
+║              LA BUSTA PAGA DECODIFICATA                       ║
+║          Capisci ogni voce del tuo stipendio, da solo         ║
+║                                                              ║
+║                    GUIDA COMPLETA (File 1/4)                 ║
+║                 LavoroFacile — Edizione 2026                  ║
+╚══════════════════════════════════════════════════════════════╝
+
+PERCHÉ QUESTA GUIDA ESISTE
+────────────────────────────────────────────────────────────────
+Ogni mese ricevi un documento che decide quanto porti a casa,
+eppure quasi nessuno sa leggerlo. Risultato: errori di paga che
+costano migliaia di euro passano inosservati per anni — ferie
+pagate male, straordinari sotto il minimo di legge, trattenute
+inspiegabili.
+
+In un'ora di lettura questa guida ti insegna a leggere OGNI voce
+della tua busta paga, a capire se è corretta e a sapere esattamente
+cosa fare se non lo è. Senza consulenti, senza avvocati, in
+italiano semplice.
+
+ ┌────────────────────────────────────────────┐
+ │ COME USARE QUESTA GUIDA                    │
+ │                                            │
+ │ File 1 → La guida completa (questo file)   │
+ │ File 2 → Cheat sheet: 10 minuti al mese    │
+ │ File 3 → Ti pagano meno del CCNL?          │
+ │ File 4 → Checklist cambio contratto        │
+ └────────────────────────────────────────────┘
+
+
+════════════════════════════════════════════════════════════════
+ PARTE 1 — L'ARCHITETTURA DELLA BUSTA PAGA
+════════════════════════════════════════════════════════════════
+
+Ogni busta paga (o "cedolino") ha sempre la stessa struttura,
+anche se il grafico cambia da consulente a consulente:
+
+  ZONA A — INTESTAZIONE
+    • Dati azienda: ragione sociale, sede
+    • Dati tuoi: nome, matricola, qualifica, livello, CCNL
+    • Periodo di riferimento: mese e anno della paga
+    • Data di pagamento e modalità (bonifico, assegno)
+
+  ZONA B — CONTO ORE
+    Quante ore dovevi lavorare, quante ne hai lavorate,
+    quante sono retribuite. Qui si nascondono gli errori
+    sulle ferie e sui permessi.
+
+  ZONA C — CORRISPETTIVI (quello che ENTRA)
+    Paga base, contingenza, superminimo, straordinari,
+    ratei di 13ª e 14ª, indennità varie.
+
+  ZONA D — TRATTENUTE (quello che ESCE)
+    Contributi INPS, IRPEF, addizionali, trattenute varie.
+
+  ZONA E — NETTO A PAGARE
+    Il numero finale. Ma attenzione: è solo la punta
+    dell'iceberg. Gli errori stanno nelle zone B, C e D.
+
+  ZONA F — GIACENZE (il "salvataggio")
+    Ferie, permessi e ROL rimasti: il tuo conto ore
+    accumulato. Da controllare OGNI mese.
+
+
+════════════════════════════════════════════════════════════════
+ PARTE 2 — IL CONTO ORE: DOVE SPARISCONO I SOLDI
+════════════════════════════════════════════════════════════════
+
+Le tre righe chiave della zona B:
+
+  ORE LAVORATE    = ore effettivamente prestate
+  ORE RETRIBUITE  = ore pagate (incluse ferie, permessi, festività)
+  ORE NON RETRIB. = assenze non pagate (malattia oltre il periodo
+                    di comporto, permessi non retribuiti, sciopero)
+
+  ⚠ REGOLA D'ORO N.1
+  Ore retribuite × la tua paga oraria = la base da cui parte
+  tutto il resto. Se le ore retribuite sono sbagliate, TUTTA
+  la busta è sbagliata.
+
+  ESEMPIO PRATICO
+  Sei a 152 ore mensili (il classico full-time) e prendi
+  10 €/ora. Se la busta indica 148 ore retribuite, ti mancano
+  4 ore × 10 € = 40 € — più le maggiorazioni e i ratei che
+  partono da lì. Piccoli errori, moltiplicati per 12 mesi,
+  diventano uno stipendio.
+
+
+════════════════════════════════════════════════════════════════
+ PARTE 3 — I CORRISPETTIVI: QUELLO CHE ENTRA (ZONA C)
+════════════════════════════════════════════════════════════════
+
+► PAGA BASE (o "minimo contrattuale" o "punto")
+  È il minimo del tuo livello e del tuo CCNL. NON è
+  negoziabile al ribasso: scendere sotto il minimo di
+  contratto è illegale. (Vedi File 3 per il confronto
+  con i minimi CCNL.)
+
+► CONTINGENZA (EDR)
+  Quota fissa indicizzata all'inflazione, stabilita dai
+  contratti nazionali. Si somma alla paga base.
+
+► SUPERMINIMO / SUPERMAGGIORAZIONE
+  La parte di stipendio SOPRA il minimo contrattuale che
+  hai negoziato tu (o l'azienda ha concesso). Attenzione:
+  il superminimo "assorbibile" può essere mangiato dagli
+  aumenti contrattuali futuri. Se non è specificato, chiedi.
+
+► STRAORDINARI
+  Ore oltre l'orario contrattuale. La legge impone
+  maggiorazioni (di solito dal +25% al +50% a seconda
+  del CCNL e del tipo: diurni, notturni, festivi).
+  Devono comparire come voce separata con la quantità
+  di ore e il coefficiente di maggiorazione.
+
+► RATEI
+  La 13ª (e la 14ª dove prevista) non "arriva" a dicembre:
+  matura un dodicesimo ogni mese. Il "rateo" è esattamente
+  quello: la quota che hai già maturato finora. Stessa cosa
+  per ferie e permessi. Se ti licenziano o ti dimetti a
+  giugno, ti spettano i ratei maturati fin lì — sempre.
+
+► INDENNITÀ E RIMBORSI
+  Trasferta, vitto, alloggio, comodato auto: sono voci
+  che ENTRANO ma attenzione — i veri rimborsi forfetari
+  (documentati) non sono tassati, gli altri sì.
+
+  ⚠ REGOLA D'ORO N.2
+  Ogni voce che entra deve avere una descrizione chiara
+  e una quantità. "Indennità varia — 83,50 €" senza
+  spiegazione è la scritta che nasconde più errori d'Italia.
+
+
+════════════════════════════════════════════════════════════════
+ PARTE 4 — LE TRATTENUTE: QUELLO CHE ESCE (ZONA D)
+════════════════════════════════════════════════════════════════
+
+► CONTRIBUTI INPS (IVS) — circa il 9,19%
+  Finanzia pensione, NASpI, malattia, famiglia. La quota a
+  carico del dipendente è il 9,19% della retribuzione
+  imponibile per la generalità dei lavoratori.
+  L'azienda paga in aggiunta un'altra quota (circa il
+  29-32%) che NON vedi in busta: è il costo reale del tuo
+  lavoro, molto più alto del tuo lordo.
+
+► IRPEF — l'imposta sul reddito
+  Aliquote 2026 (tre scaglioni):
+     da 0 a 28.000 €     →  23%
+     da 28.000 a 50.000 € →  35%
+     oltre 50.000 €       →  43%
+  Sulla busta non vedi l'aliquota: vedi la trattenuta già
+  calcolata, spesso suddivisa in "acconto" e "rateo".
+  Dalla trattenuta si sottraggono le DETRAZIONI da lavoro
+  dipendente, che dal 2025 sono state aumentate per gli
+  redditi più bassi: fino a ~15.000 € lordi/anno, di fatto,
+  si pagano zero IRPEF.
+
+  ⚠ Il conguaglio
+  A dicembre o a fine rapporto trovi una voce "conguaglio":
+  è il ricalcolo di TUTTO l'anno. Se hai cambiato contratto,
+  avuto promozioni o periodi di malattia, il conguaglio può
+  essere a tuo favore (ti danno soldi) o a sfavore (te ne
+  tolgono — e non è un erroe, è il saldo). Controlla sempre
+  che il conguaglio parta da dati giusti.
+
+► ADDIZIONALI REGIONALI E COMUNALI/PROVINCIALI
+  Una piccola imposta in più che dipende dalla regione e
+  dal comune dove RESIDI (non dove lavori). Varia dallo
+  0,7% al 3,33% circa. Se ti sei trasferito e non l'hai
+  comunicato, l'azienda continua a trattenere quella
+  sbagliata.
+
+► TRATTENUTE "VARIE" — le pericolose
+  Anticipi, pignoramenti (legittimi solo con regolare
+  atto), trattenute per "prestiti aziendali", sanzioni
+  interne. Ogni trattenuta deve avere un nome e un motivo.
+  Una trattenuta senza spiegazione non è una trattenuta:
+  è una domanda da fare.
+
+
+════════════════════════════════════════════════════════════════
+ PARTE 5 — IL BOX GIACENZE: FERIE, PERMESSI, ROL (ZONA F)
+════════════════════════════════════════════════════════════════
+
+Il tesoretto di ore che hai in banca. Si legge così:
+
+  GIA. (giacenza iniziale) → SPETT. (maturato nel mese)
+  → USATE (godute) → SALDO (rimasto)
+
+  • FERIE: per legge almeno 4 settimane all'anno (26 giorni
+    per chi lavora 6 giorni su 7). Le 2 settimane vanno
+    godute entro l'anno, le altre 2 possono essere
+    accumulate per max 18 mesi. Se non le usi tu, le usa
+    l'azienda decidendo lei i tempi — non si "perdono" ma
+    nemmeno scegli tu quando.
+
+  • PERMESSI/R.O.L.: i "riposi" retribuiti previsti dai CCNL.
+    Maturano ogni mese e NON si accumulano all'infinito:
+    il contratto metce un tetto (spesso 40-100 ore).
+
+  • FESTIVITÀ SOSTITUIVE, EX FESTIVITÀ, banca ore: ogni CCNL
+    ha le sue. Il principio è uno: ogni ora che matura o
+    si usa deve comparire nel box.
+
+  ⚠ REGOLA D'ORO N.3
+  Fotografa il box giacenze OGNI mese. È l'unica prova
+  semplice di quante ferie ti restano. Le giacenze sono la
+  voce n.1 delle liti sul posto di lavoro: "ma io le ferie
+  le avevo usate!" — con le foto dei cedolini, hai ragione tu.
+
+
+════════════════════════════════════════════════════════════════
+ PARTE 6 — IL NETTO A PAGARE E IL CONTROLLO FINALE
+════════════════════════════════════════════════════════════════
+
+Formula della busta paga in una riga:
+
+  LORDO (Zona C) − INPS − IRPEF − ADDIZIONALI − VARIE
+  = NETTO A PAGARE
+
+Contropartite per un controllo da 2 minuti:
+  1. Calcola le ore retribuite × paga oraria → coerente
+     con il lordo del mese?
+  2. Netto di questo mese vs netto di un mese "normale"
+     → differenza spiegabile voce per voce?
+  3. Giacenze → saldo coerente col mese scorso?
+
+Per la verifica precisa del netto puoi usare un calcolatore
+stipendio netto gratuito (cerca "Calcolatore Stipendio Netto
+LavoroFacile"): inserisci il lordo e ti dice il netto atteso
+con IRPEF, INPS e addizionali aggiornati. Se il tuo netto
+reale differisce da quello calcolato, una delle voci è
+strana: ora sai dove guardare.
+
+
+════════════════════════════════════════════════════════════════
+ PARTE 7 — BUSTA PAGA SBAGLIATA: LA PROCEDURA IN 4 PASSI
+════════════════════════════════════════════════════════════════
+
+  PASSO 1 — Chiedi spiegazioni per ISCRITTO
+    Mail o PEC all'ufficio del personale: "chiedo di
+    verificare la voce X del cedolino di [mese], che non
+    mi risulta coerente con [ore/contratto/CCNL]."
+    Restano i toni neutri: quasi sempre è un errore
+    banale del consulente. Dì la parola magica:
+    "chiedo il ricalcolo del cedolino".
+
+  PASSO 2 — Documenta TUTTO
+    Cedolini precedenti, foto delle giacenze, contratto,
+    comunicazioni scritte. Ordine cronologico, una cartella.
+
+  PASSO 3 — Se non rispondono o nicchiano: sindacato o patronato
+    Gratis. Portano la questione in modo formale e sanno
+    leggere il CCNL meglio di chiunque.
+
+  PASSO 4 — Ispezione
+    Se il errore è sistemico (stipendi sotto il minimo,
+    straordinari mai pagati), la segnalazione all'Ispettorato
+    del Lavoro si fa online, gratis, e può essere anonima.
+    L'azienda rischia sanzioni serie: di solito bastano
+    pochi cedolini fuori norma per far sistemare tutto.
+
+  TERMINE PRESCRIZIONALE (da sapere)
+  Il diritto a chiedere le differenze retributive si
+  prescrive in 5 anni. Significa due cose: 1) recuperi
+  anche errori vecchi; 2) non aspettare cinque anni per
+  controllare.
+
+
+════════════════════════════════════════════════════════════════
+ GLOSSARIO RAPIDO — LE PAROLE CHE SPAVENTANO
+════════════════════════════════════════════════════════════════
+
+  IMPOSSONIBILE INPS  → la base su cui si calcolano i contributi
+  IMPONIBILE FISCALE  → la base su cui si calcolano le tasse
+  SCAGLIONE           → fascia di reddito con la sua aliquota
+  RATEO               → quota già maturata ma non ancora pagata
+  CONGUAGLIO          → saldo finale dei calcoli annuali
+  COMPORTO            → giorni di malattia pagati dall'azienda
+  TFR                 → Trattamento di Fine Rapporto: ~6,91% della
+                        RAL accantonato ogni anno, tuo alla
+                        chiusura del rapporto (tassato a parte)
+  CCNL                → Contratto Collettivo Nazionale di Lavoro:
+                        il "libro delle regole" del tuo settore
+  EDR                 → ex contingenza, quota fissa in più sul minimo
+  TFR/MATUR.          → quanto TFR hai accumulato finora: confronta
+                        la voce col calcolatore TFR gratuito
+                        ("Calcolo TFR LavoroFacile") una volta
+                        all'anno
+
+
+╔══════════════════════════════════════════════════════════════╗
+║  Questa guida ha scopo informativo e non sostituisce un      ║
+║  consulto legale o sindacale. I riferimenti a IRPEF 2026,     ║
+║  INPS e detrazioni riflettono la normativa vigente al momento ║
+║  della pubblicazione.                                        ║
+║                                                              ║
+║  © LavoroFacile — Tutti i diritti riservati.                 ║
+║  Vietata la rivendita. Condividila solo indicando la fonte.  ║
+╚══════════════════════════════════════════════════════════════╝

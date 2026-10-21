@@ -1,0 +1,57 @@
+; HoopCity - Godot 4.x project
+; Engine configuration file.
+
+config_version=5
+
+[application]
+
+config/name="Baskin Academy"
+config/description="Baskin: inclusive basketball. Play it, learn it (Android)"
+run/main_scene="res://src/scenes/MainMenu.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+config/icon="res://icon.png"
+
+[autoload]
+
+Events="*res://src/core/Events.gd"
+Settings="*res://src/core/Settings.gd"
+Loc="*res://src/core/Loc.gd"
+Sfx="*res://src/core/Sfx.gd"
+Game="*res://src/core/GameData.gd"
+SaveSystem="*res://src/core/SaveSystem.gd"
+UIKit="*res://src/ui/UIKit.gd"
+SceneRouter="*res://src/core/SceneRouter.gd"
+
+[gui]
+
+theme/custom="res://src/ui/HoopTheme.tres"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+; 4 = sensor_landscape: locks to landscape but lets the tablet flip either way.
+; This was 1 (portrait), which is why the UI was laid out sideways on a tablet.
+window/handheld/orientation=4
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/size/window_width_override=1280
+window/size/window_height_override=720
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[physics]
+
+common/physics_ticks_per_second=60
+2d/default_gravity=980
+
+[rendering]
+
+environment/defaults/default_clear_color=Color(0.10, 0.11, 0.14, 1)
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+2d/snap/snap_2d_transforms_to_pixel=false
+anti_aliasing/quality/msaa_2d=1

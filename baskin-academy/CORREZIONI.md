@@ -1,0 +1,830 @@
+# Baskin Academy — v1.24.1: il terzo playtest
+
+Data: 14 ottobre 2026 • Motore: Godot 4.3 stable
+
+1. I TIRI A CASO — TROVATO IL VERO COLPEVOLE: l'EUROSTEP. La sequenza
+   chiudeva DA SOLA con un tiro automatico da qualunque distanza, e con
+   lo stick verso canestro (la direzione piu' comune quando si guida)
+   scattava in continuazione: ecco i "tiri a caso" segnalati tre volte,
+   incluso quello "dopo la rimessa". Ora l'eurostep e' SOLO un movimento
+   a due tempi: il tiro parte esclusivamente premendo TIRA. (Le due reti
+   della 1.24.0 restano: carica morta a gioco fermo + mezzo secondo di
+   grazia alla ricezione.)
+2. AUDIT COMPLETO DELLE REGOLE — verificata una a una ogni chiave testo
+   usata da card, fischi, riepilogo, quiz e pannello REGOLE: nessuna
+   chiave raggiungibile manca. Comunque tutte le letture ora sono a prova
+   di chiave mancante (mai piu' scritte grezze tipo "rule.xxx.body" a
+   schermo: se manca una traduzione, la card non appare) e aggiunti i due
+   testi mancanti (corpo di "3 secondi" e "5 secondi").
+3. CARROZZINA: tolte le ruotine anteriori che in 2D leggevano come
+   QUATTRO ruote — restano solo le due ruote grandi in basso.
+4. PALLEGGIO ancora un po' piu' alto.
+5. QUIZ DELL'ALLENATORE: l'intervallo fra i tempi NON CORRE piu' finche'
+   la domanda e' aperta — il quarto ripartiva sotto il pannello mentre
+   si stava ancora leggendo. Ora il gioco aspetta la risposta.
+
+v1.24.1 / versionCode 37.
+
+---
+
+# Baskin Academy — v1.24.0: il secondo playtest
+
+Data: 14 ottobre 2026 • Motore: Godot 4.3 stable
+
+Dieci correzioni dal secondo playtest sul telefono:
+
+1. DIFESA — lontano dal proprio uomo si insegue in posizione normale (piu'
+   veloce); la posizione difensiva scatta quando gli si e' davanti. Il
+   tocco del bottone porta subito dall'uomo giusto.
+2. TIRO DOPO LA RIMESSA — doppia rete: la carica del tiro si annulla anche
+   quando il gioco si ferma per una rimessa, e per mezzo secondo dalla
+   ricezione il bottone TIRA non parte (il tap della rimessa che finiva
+   sul bottone lanciava il tiro da meta' campo).
+3. PIVOT INVISIBILE — le ruote della carrozzina usavano un transform che
+   interferiva con la proiezione del campo: il pivot ruolo 1 spariva dallo
+   schermo (la CI headless non esegue il disegno, quindi non lo vedeva).
+   Riscritte in coordinate assolute: ruota con pneumatico, cerchio,
+   cerchione di spinta arancio, raggi e mozzo.
+4. MAGLIE — sulla divisa solo il numero del RUOLO, per tutti: anche i
+   cambi che entrano (prima i ricambi portavano numeri a caso del roster,
+   e il cambio dell'utente addirittura ruolo 0, cioe' nessuna regola).
+5. PALLEGGIO leggermente piu' alto.
+6. SQUEAK dei tacchini ridotto: meno frequenti (rata globale piu' che
+   dimezzata) e piu' piano; l'IA tenta meno stepback.
+7. 3 SECONDI — ogni infrazione ora diventa una RIMESSA per gli avversari
+   dal punto laterale piu' vicino (prima il possesso cambiava a caldo nel
+   mezzo dell'azione e sembrava casuale). L'avviso "3 secondi · R5" vale
+   per tutti gli attaccanti, non solo per l'utente: quando arriva il
+   fischio si capisce da chi e perche'.
+8. TASTO CAMBIO RIMOSSO — i cambi sono automatici (coach) e coerenti col
+   gioco: niente piu' pannello IN CAMPO/PANCHINA.
+9. CARD DELLE REGOLE — tolta la terza riga "il perche'" (fouls, 3 secondi
+   e tutte le altre): resta titolo + regola.
+10. STEPBACK — l'asse orizzontale e' ora relativo al canestro che si
+    attacca: dopo il cambio di campo a meta' partita, indicare il ferro
+    nuovo non fa piu' lo stepback al contrario. Le altre mosse non
+    cambiano.
+
+v1.24.0 / versionCode 36.
+
+---
+
+# Baskin Academy — v1.23.0: il pack del playtest
+
+Data: 13 ottobre 2026 • Motore: Godot 4.3 stable
+
+Sette correzioni dal primo playtest vero sul telefono:
+
+1. TIRO A CASO DOPO LA RIMESSA — la carica del tiro sopravviveva alla fine
+   del possesso: se il rilascio del dito andava perso, la rete di sicurezza
+   (che spara il tiro a carica piena) scattava quando la palla TORNAVA in
+   mano dopo la rimessa — il classico tiro lanciato a meta' campo senza
+   aver toccato niente. Ora la carica vive solo con la palla in mano.
+2. DIFESA AL TOCCO — la posizione difensiva partiva solo quando eri gia'
+   davanti all'uomo da marcare: sembrava che il bottone non rispondesse.
+   Ora parte dal tocco del bottone DIFESA (l'assist continua a portarti
+   davanti al tuo uomo).
+3. CARROZZINE DEI PIVOT RIDISEGNATE — come le vere: ruote grandi con
+   campanatura, pneumatico spesso, cerchione di spinta arancio, raggi,
+   ruotini anteriori con forcella, telaio tubolare e poggiapiedi centrale.
+4. MENO PANCHINA — tolta la rotazione programmata ("almeno due riposi a
+   partita") e la panchina per "impatto basso": il coach manda in panchina
+   solo per vera bonifica di stamina (sotto 18, dopo almeno un minuto in
+   campo) e richiama entro ~25 secondi. Con il ruolo 5 si gioca.
+5. CANESTRI LATERALI PIU' BASSI — l'alto da 2,20 a ~1,70 m, il basso da
+   1,20 a ~0,95 m (scelta di giocabilita' dal playtest: prima il gioco si
+   impantanava sui tiri laterali).
+6. SCHEDA FINE PARTITA MAI PIU' TAGLIATA — la card prende l'altezza giusta
+   per il suo contenuto e si rimpicciolisce se lo schermo e' piu' basso.
+7. RUOLO 5: TRE TIRI, CAMBIO SPIEGATO E CONTROLLO CHE RESTA — al terzo tiro
+   del tempo il ruolo 5 esce ed entra un altro ruolo 5 CHE CONTROLLI SEMPRE
+   TU (come gia' avveniva per il cambio del pivot), con toast e card della
+   regola. Prima il limite era solo un muro (infrazione al quarto tiro).
+
+v1.23.0 / versionCode 35.
+
+---
+
+# Baskin Academy — v1.22.1: la schermata benvenuto non blocca piu' il gioco
+
+Data: 13 ottobre 2026 • Motore: Godot 4.3 stable
+
+Bug segnalato dall'utente sul telefono: la schermata BENVENUTO della prima
+partita resta sopra e non cambia al tocco — e la partita non parte.
+
+CAUSA RADICE. La card avanzava solo sul RILASCIO del mouse emulato
+(gui_input). Su Android il mouse emulato nasce SOLO dal tocco 0: bastava
+avere il pollice sinistro poggiato sull'area dello stick (proprio mentre
+la card stessa parla dello stick) perché quell'altro dito non generasse
+NESSUN evento mouse. La card restava ferma per sempre e, dalla v1.21.2 in
+poi (che giustamente non fa partire il gioco sotto i consigli), la
+partita restava in attesa infinita. Non a caso tutto il resto del gioco
+(bottoni del pad, stick) usa _input multi-touch safe: la card era l'unica
+eccezione rimasta su gui_input.
+
+1. LA CARD AVANZA CON QUALSIASI PRESSIONE, OVUNQUE — via _input, come
+   tutto il resto: niente dipendenza dal mouse emulato, niente zona
+   morta, debounce 250 ms perché un tocco avanzi una card sola.
+2. LO STICK NON RECLAMA TOCCHI A GIOCO FERMO — durante la card, i quiz,
+   la scelta del pivot e ogni pausa il pollice sinistro non "possiede"
+   più il mouse emulato: ogni altro tocco a schermo vive.
+3. RETE DI SICUREZZA — senza alcun tocco, la card avanza da sola dopo 9
+   secondi: il gioco non puo' piu' restare bloccato su questa schermata,
+   per nessuna ragione.
+4. LE CARD NON TORNANO PIU' — il flag "prima partita vista" si scrive
+   alla fine dei consigli, non solo completando il terzo obiettivo in
+   campo: chi usciva a meta' partita si rivedeva tutte e cinque le card
+   a ogni partita successiva.
+
+Nuovo probe in CI (TipTapProbe): inietta input vero nei tre scenari —
+tocco centrale, pollice tenuto sullo stick + tap dell'altro dito, tocco
+sulla vecchia zona morta — e verifica avanzamento, auto-avanzamento,
+ripartenza del 3-2-1, stick riattivato e flag salvato. La run è verde
+solo se la card risponde in tutti e tre.
+
+v1.22.1 / versionCode 34.
+
+---
+
+# Baskin Academy — v1.22.0: il girone
+
+Data: 13 ottobre 2026 • Motore: Godot 4.3 stable
+
+Prima di questa versione si giocava SEMPRE contro la stessa squadra, sempre
+in casa, nello stesso impianto: il profilo non cambiava mai il prossimo
+avversario e le otto squadre — con stili, arene e nomi diversi — restavano
+sette su otto invisibili. La "carriera" segnata nel codice (reputazione,
+livelli) non si muoveva mai: la partita numero uno era identica alla
+partita numero venti.
+
+- IL GIRONE: alla sirena finale il prossimo avversario avanza nel girone
+  delle sette squadre e casa/trasferta si alterna. Il riepilogo prepartita
+  (che mostrava gia' avversario e impianto) e la scheda post-partita (che
+  ora dice PROSSIMA PARTITA) rendono il tutto visibile senza nuova
+  interfaccia.
+- L'ORDINE NON E' UN CASO: si parte dagli stili piu' leggibili per chi
+  comincia — gioco interno e ritmo — e i club "lock" (difesa attiva, palle
+  rubate) arrivano per ultimi, quando le regole sono padroneggiate. Poi il
+  girone ricomincia. Nessun numero nascosto: e' l'ordine del calendario,
+  scritto e visibile.
+- SOLO LE PARTITE GIOCATE CONTANO: uscire a meta' partita (dal bottone
+  ESCI o dal tasto Indietro, con conferma) non ruota nulla. La rotazione
+  avviene sulla sirena, prima del salvataggio: il profilo salvato riapre
+  la prossima sfida gia' pronta.
+- La difficolta' resta quella scelta in Impostazioni e vale per tutti,
+  come prima: il girone non tocca i numeri del gioco.
+
+Scelte esplicite di questa versione: NESSUNA progressione numerica (niente
+punti-carriera che salgono: Baskin resta strumento didattico, non gioco di
+ritenzione) e difficolta' di default invariata (NORMALE, visibile e
+modificabile in Impostazioni).
+
+v1.22.0 / versionCode 33.
+
+---
+
+# Baskin Academy — v1.21.3: il pack robustezza
+
+Data: 13 ottobre 2026 • Motore: Godot 4.3 stable
+
+- VIBRAZIONI RIPRISTINATE: il permesso VIBRATE non era dichiarato
+  nell'export Android — sul telefono i fischi e i feedback tattili erano
+  muti dal primo giorno. Ora ci sono.
+- TASTO INDIETRO DI ANDROID: durante la partita non chiude piu' l'app di
+  colpo, perdendo tutto: apre la conferma del bottone ESCI. Nei menu
+  (impostazioni, regole, scelta ruolo e maglia) il tasto indietro torna
+  indietro, come il bottone sullo schermo.
+- LA MARATONA IN CI: a ogni push la CI simula una partita 5v5 COMPLETA
+  — quattro tempi, quiz dell'allenatore, palle a due, rimesse —
+  accelerata e senza interfaccia. I test corti fermavano tutto al primo
+  minuto: i blocchi a meta' partita restavano invisibili.
+
+v1.21.3 / versionCode 32.
+
+---
+
+# Baskin Academy — v1.21.2: la partita non parte piu' sotto i consigli
+
+Data: 12 ottobre 2026 • Motore: Godot 4.3 stable
+
+Bug segnalato: durante l'interfaccia delle istruzioni, cliccando per
+continuare il pannello non se ne andava mentre la partita sotto partiva e
+proseguiva. Due cause concomitanti, entrambe corrette:
+
+1. WATCHDOG DELLA PALLA A DUE — il salto iniziale ha una rete di sicurezza
+   che lo esegue da solo dopo 6 secondi (pensata per le simulazioni senza
+   countdown). I consigli della prima partita mettono il gioco in pausa
+   "infinita" (countdown enorme): la rete scattava lo stesso e la partita
+   cominciava sotto il pannello. Ora una pausa voluta dall'interfaccia non
+   viene piu' scavalcata.
+
+2. SCELTA DEL PIVOT NEL MOMENTO GIUSTO — il pannello "1 tiro da 3 o 2 da 2"
+   veniva chiesto dentro la ricezione della palla. Ma alla palla a due la
+   ricezione arriva un istante PRIMA che il gioco diventi vivo: il pannello
+   compariva senza presa sul gioco, che ripartiva sotto. Ora la domanda
+   parte da un controllo a gioco VIVO (in qualsiasi modo il pivot abbia
+   preso la palla: tip, rimessa, passaggio, consegna) — quando il pannello
+   c'e', la partita e' davvero ferma; quando si sceglie, riparte davvero.
+
+v1.21.2 / versionCode 31.
+
+---
+
+# Baskin Academy — v1.21.1: i cambi automatici e il limite dei 3, insieme
+
+Data: 12 ottobre 2026 • Motore: Godot 4.3 stable
+
+I cambi seguono l'andamento della partita (stamina e impatto: e' l'allenatore
+che decide, con avviso e card esplicativa). Il limite Rev.19 dei 3 cambi per
+tempo ora convive con quel flusso senza attriti:
+
+- TOAST UNICO — "CAMBIO: entra #7 per #5 · 2/3": i toast si sovrascrivono
+  (niente coda), quindi conteggio e cambio viaggiano in un solo messaggio.
+  Prima il contatore cancellava l'avviso del cambio.
+- DISSOLVENZA IN ENTRATA dei toast (0,18s): prima comparivano a schermo
+  secco; l'uscita in dissolvenza c'era gia'. Il tween precedente ora viene
+  fermato, cosi' toast ravvicinati non lottano sull'alpha.
+- L'ALLENATORE RISPETTA IL BUDGET — esauriti i 3 cambi, non accoda piu'
+  richieste che verrebbero respinte a ogni palla morta (niente toast
+  ripetuti): il giocatore semplicemente resta in campo.
+- LIMITE PER ENTRAMBE LE SQUADRE — prima valeva solo per quella
+  dell'utente; ora il contatore e' per squadra (3 e 3).
+- LA CARD "SOSTITUZIONE" INSEGNA IL LIMITE — prima non lo nominava.
+
+I riposi dell'utente (l'allenatore lo manda in panchina per stamina e lo
+richiama) restano fuori dal conteggio: devono restare fluidi, sempre.
+
+v1.21.1 / versionCode 30.
+
+---
+
+# Baskin Academy — v1.21.0: il regolamento Rev.19 completo (pack 1+2)
+
+Data: 12 ottobre 2026 • Motore: Godot 4.3 stable
+
+Chiuse le ultime tre differenze tra il gioco e il regolamento:
+
+1. SCELTA DEL PIVOT (ruolo 1) — quando il ruolo 1 riceve la palla, COMUNICA
+   PRIMA come giochera' il suo turno: 1 tiro da 3 punti oppure 2 tiri da 2
+   punti. Per l'utente si apre un pannello (il gioco aspetta la scelta,
+   come per il quiz); l'IA decide da sola. Andare oltre i tiri comunicati
+   e' infrazione (v_att): palla agli avversari. I canestri valgono quanto
+   dichiarato, non piu' il vecchio fisso 3-2.
+
+2. 2R DIETRO IL TRATTEGGIATO — il pivot 2R puo' tirare al canestro laterale
+   solo da OLTRE l'arco tratteggiato (3,70 m). Il movimento c'era gia'
+   (_pivot_attack lo sposta oltre la linea); ora la regola e' applicata
+   davvero: tiro da dentro = v_dash, palla agli avversari. Vale per
+   l'utente e per l'IA (gate in may_shoot / shoot_allowed).
+
+3. MAX 3 CAMBI PER TEMPO (squadra utente) — al 4.mo cambio richiesto
+   arriva il rifiuto con avviso; ogni cambio riuscito mostra il conteggio
+   (Cambi usati: X di 3). Il contatore si azzera a ogni tempo.
+
+Verificato in cantiere (già a posto, nessun intervento):
+- TUTOR DEL 2T: posizionamento accanto al pivot, raccolta del suo errore,
+  consegna a mano e divieto di ritorno — tutto già attivo dal codice 28.
+- Orologio fermo sui canestri laterali: era già corretto.
+
+v1.21.0 / versionCode 29.
+
+---
+
+# Baskin Academy — v1.20.1: rimossa la modalita' ALLENAMENTO
+
+Data: 12 ottobre 2026 • Motore: Godot 4.3 stable
+
+Playtest: la modalita' ALLENAMENTO (drill) non convinceva. Tolta del tutto
+(menu, DrillPicker, Drills.gd, logica drill in Court/MatchScene/AIBrain).
+L'app resta didattica ATTRAVERSO IL GIOCO, che e' la strada giusta:
+
+- card contestuali con Cosa + Perche' a ogni fischio
+- riepilogo dei fischi a fine tempo
+- quiz dell'allenatore ai fine-tempo 1-3
+- onboarding della prima partita (consigli + 3 obiettivi)
+- vibrazione e POPUP che spiegano i tiri scolpiti
+
+v1.20.1 / versionCode 28.
+
+---
+
+# Baskin Academy — v1.20.0: ALLENAMENTO, onboarding e quiz dell'allenatore
+
+Data: 10 ottobre 2026 • Motore: Godot 4.3 stable
+
+## Modalita' ALLENAMENTO (drill)
+
+Nuova voce nel menu principale. Quattro esercizi guidati (src/match/Drills.gd
++ DrillPicker): tiro del pivot (R1, 5 canestri al laterale), consegna al
+pivot (R4, 3 consegne), prima-palleggia (R2, 3 canestri), arresto-e-tiro
+(R4, 3 canestri classici). In drill: difesa FERMA (AIBrain.passive), niente
+salto a due (palla in mano subito), cronometro sospeso (3600s), tabellone
+nascosto e banner con obiettivo + progresso (0/5...). Le regole continuano a
+valere: i fischi e le card didattiche insegnano anche in allenamento. A
+obiettivo raggiunto: pannello RIPROVA / TORNA AL MENU.
+
+## Onboarding della prima partita
+
+Al primo "GIOCA" (profile baskin_onboarded assente): cinque consigli a
+tocco (controlli, TIRA/TRICK, REGOLE, obiettivi) che trattengono il 3-2-1,
+poi tre obiettivi in campo contati dal gioco: 1) consegna al pivot 2) il
+pivot segna 3) canestro CLASSICO dell'utente. Completati: banner di festa e
+flag salvato nel profilo. Se si esce a meta', la prossima partita riparte
+dall'inizio.
+
+## Quiz dell'allenatore (fine tempo)
+
+Ai fine-tempo 1-3 una domandina a 3 risposte (8 domande EN/IT, Loc.gd):
+risposta giusta -> GIUSTO! + il perche' della regola; sbagliata -> si vede
+la giusta + il perche'. L'intervallo si allunga a 13s per leggere con calma.
+Mai dopo l'ultimo tempo (l'epilogo resta alla partita).
+
+## Dettagli tecnici
+
+- Court: segnali drill_step/drill_complete/onboard_step; _made_tally su
+  ogni canestro (shot_is_side decide laterale/classico); detection della
+  CONSEGNA in give_ball (passaggio recente al pivot della squadra 0)
+- MatchScene: score_holder (tabellone nascosto in drill), _center_panel
+  condiviso da quiz e fine-allenamento, gate _tip_step nel _process
+- AIBrain.passive: avversari fermi solo in allenamento
+
+---
+
+# Baskin Academy — v1.19.5: il perche', il riepilogo dei fischi, la vibrazione
+
+Data: 10 ottobre 2026 • Motore: Godot 4.3 stable
+
+## Il PERCHE' sulle card delle regole (didattica)
+
+Ogni card contestuale (fischio/canestro) ora ha una terza riga, piu'
+piccola e color sabbia, che spiega PERCHE' la regola esiste — non solo
+cosa e' successo. 21 testi nuovi (EN/IT): dal doppio palleggio ("la
+raccolta chiude il palleggio: ora ti impegni") al fallo L ("si marca per
+ruolo: il piu' debole non resta mai esposto"). Un fischio diventa una
+lezione.
+
+## Riepilogo dei fischi a fine tempo
+
+MatchScene conta le violazioni di ogni tempo (_on_rule -> _viol_counts)
+e a quarter_ended riempie la card didattica col conteggio: "FISCHI DEL
+TEMPO 1 — 2x DOPPIO PALLEGGIO · 1x FALLO L..." con l'invito ad aprire
+REGOLE. Resta su 9 secondi (le card normali 6,5): e' il momento in cui
+il giocatore riflette sugli errori. Conta i fischi di entrambe le squadre:
+in baskin ogni fischio insegna.
+
+## Vibrazione (parita' Hoop City, finalmente portata)
+
+- Sfx.haptic(ms): Input.vibrate_handheld, safe su desktop/web, con
+  interruttore VIBRAZIONE nelle impostazioni (Settings, default ON)
+- Rilascio tiro 35ms · canestro 50ms · schiacciata 60ms · stoppata 45ms
+  · fischio (violazioni) 50ms — il fischio si sente ANCHE in mano
+
+## Fix UX
+
+- REGOLE ora si chiude da solo quando si apre il menu ESCI o il pannello
+  CAMBIO (restava sopra, z_index 60, e copriva la dialog)
+- verifiche: slow-mo gia' ripristinato in _exit_tree (Engine.time_scale);
+  copertura IT completa (unica voce vuota: bc.style.none, voluta)
+
+---
+
+# Baskin Academy — v1.19.4: menu ESCI a schermo, braccio dritto, regole piu' corte
+
+Data: 9 ottobre 2026 • Motore: Godot 4.3 stable
+
+## Il menu "ESCI" usciva dallo schermo (tablet)
+
+`GamePanel` centava la card sui **pixel fisici della finestra**
+(`get_window().size`, es. 2560x1600) ma il pannello vive nel **canvas**
+dello stretch (1280x800): la card finiva oltre il bordo destro/inferiore.
+`_screen()` ora restituisce le unita' canvas (viewport del pannello), con
+fallback alla finestra solo se non ancora nell'albero. Copre anche
+_relayout, _fit e content_width.
+
+## Braccio del palleggio: DRETTO
+
+Il braccio forte in palleggio era una bezier continua sul gomito
+proiettato: al playtest risultava "ondulato". Ora e' una linea dritta
+spalla->mano (le funzioni statiche restano per i tool di debug).
+
+## Testi delle regole accorciati
+
+Le cards didattiche (in alto a destra, 6,5 s) e il pannello REGOLE
+avevano testi che non si facevano in tempo a leggere. Accorciati i piu'
+lunghi mantenendo ogni regola: campo, punteggi, fischi, fallo L,
+sostituzioni, doppio palleggio, R2/R3.
+
+## QA pad
+
+Ricontrollato il pad dopo la rimozione di POST: TIRA/TRICK/PASSA/P&R in
+attacco (PASSA e P&R solo 5v5), BLOCCA/RUBBA/MARCA in difesa, solo TIRA
+ai liberi, CHECK solo 1v1, tutto nascosto quando l'utente e' in panchina.
+Nessun riferimento residuo a btn_post/_post_tap.
+
+---
+
+# Baskin Academy — adattamento telefono/tablet + via il POST (v1.19.3)
+
+Data: 9 ottobre 2026 • Motore: Godot 4.3 stable
+
+## Schermi piu' larghi del 16:9: niente piu' strisce ne' interfaccia spostata
+
+Il gioco e' disegnato su un canvas 1280x720 con stretch "expand": su tablet
+(16:10) e telefoni moderni (19.5:9) lo schermo VERO e' piu' largo, e due cose
+si rompevano (segnalate al playtest su tablet: sfalsamenti e strisce a
+destra, interfaccia tutta spostata a sinistra):
+
+1. **Menu a coordinate fisse**: titolo, bottoni e blocchi 1280 restavano
+   incollati a sinistra e oltre il gradiente compariva una striscia scura.
+   Ora `UIKit.center_dx()` calcola l'offset di ricentro e menu principale,
+   COME SI GIOCA, scelta ruolo e prepartita si ricentrano da soli; lo
+   sfondo del menu (gradiente, skyline, cerchio di campo, hero art del
+   doppio canestro) e' disegnato sulla larghezza/altezza VERA del viewport,
+   con il canestro agganciato al bordo destro effettivo.
+2. **Bake statico del campo troppo stretto**: la camera spazia fino a
+   ~1030 px dal centro ma la "ciotola" precotta copriva solo +/-1003 px →
+   striscia di sfondo sul lato lontano. Margini del bake allargati
+   (W+680 × H+800): copre ogni aspect ratio senza costi per frame.
+
+In partenza tutto era gia' ancorato (tabellone, ESCI/REGOLE/TIMEOUT/CAMBIO,
+tasti azione in basso a destra): si adattano da soli.
+
+## Rimosso il bottone POST
+
+Al playtest il POST confondeva il pad baskin. Tolto bottone, gestore e
+visibilita'. Restano (invisibili al pad ma nel motore): fadeaway, hook da
+spalle, stepback, floater, pull-up, eurostep (TRICK + stick avanti) e
+tutta la famiglia dei tiri scolpiti v1.19.2.
+
+---
+
+# Baskin Academy — palleggio, difesa ed effetti di tiro da Hoop City (v1.19.2)
+
+Data: 7 ottobre 2026 • Motore: Godot 4.3 stable
+
+Portato da Hoop City tutto cioe' che in baskin mancava (la difesa era gia'
+alla pari: steal/block/guard identici).
+
+## Palleggio: due mosse nuove + post up
+
+- **EUROSTEP** (TRICK con stick avanti): due tempi — scatto laterale attorno
+  al difensore, poi esplosione verso il ferro e chiusura automatica a
+  schiacciata o layup. La chiusura automatica vale solo per il ruolo 5
+  (gli altri ruoli verrebbero fischiati dalle regole baskin: loro fanno
+  solo i due tempi).
+- **POST UP** (nuovo bottone POST): spalle al canestro, back-down lento;
+  da li' TIRA gioca la famiglia fade/hook e TRICK fa il **DROP STEP**
+  (l'uscita verso il ferro). Secondo tap sul POST per uscire.
+- Lo **stepback** ora apre una finestra di 0,9s: il tiro creato in quello
+  spazio e' riconosciuto (popup STEPBACK, piu' spazio, timing piu' severo).
+
+## Effetti di tiro: la famiglia dei tiri "scolpiti"
+
+Ogni tiro ora viene RICONOSCIUTO e mostrato a popup, con il suo vero
+compromesso (meno contest, timing piu' severo):
+
+- **REVERSE** (andando via da sotto il ferro), **HOOK** (spalle al canestro,
+  la palla archiata sopra il difensore; da post entro 9ft), **STEPBACK**
+  (tirando nello spazio creato), **FLOATER** (in corsa col difensore addosso,
+  6-16ft, arco alto +0,18s), **FADEAWAY** (rilascio in arretramento, con la
+  schienata disegnata sul torso), **PULL-UP** (combo TRICK->TIRA entro
+  mezzo secondo).
+- **CLUTCH bullet-time**: al buzzer o sul tiro decisivo dell'ultimo minuto
+  il tempo rallenta a 0,45 per mezzo respiro (popup CLUTCH!). Ripristino
+  del tempo su cambio possesso, fine tempo e fine partita.
+- **Difficolta'** ora pesa sui tiri (come in Hoop City): a difficolta' alta
+  il canestro e' protetto (sotto il ferro si regala meno, il contest pesa
+  fino al doppio). Vale per TUTTI i tiratori: e' il livello di gioco, non
+  un bonus nascosto all'IA.
+
+## Verifica
+
+CI smoke (SceneSmoke, MatchTest 5v5 IA, tutte le scene menu) verde.
+
+---
+
+# Baskin Academy — playtest v1.19.0: correzioni (v1.19.1)
+
+Data: 7 ottobre 2026 • Motore: Godot 4.3 stable
+
+Primo collaudo su dispositivo dell'utente. Cinque punti a sistema:
+
+## 1. CRASH al tasto CAMBIO (risolto)
+
+Causa radice: il selettore amichevole/ufficiale non esiste piu', ma il
+default di `match_is_fixture` era rimasto **false** → partita sempre
+"scrimmage" → panchina mai costruita (`bench_roster` vuoto). Il tasto CAMBIO
+pero' restava visibile e `_fill_subs` indicizzava `bench_roster[0][seat]`:
+indice fuori range, crash. Triplo fix:
+
+- `KitPicker`: default `match_is_fixture = true` (la partita e' il 5v5
+  completo: panchina, rotazioni dell'allenatore e CAMBIO attivi);
+- `Court.available_sub_seats()`: ritorna [] se non c'e' panchina (la classe
+  di crash e' impossibile anche con la UI davanti);
+- il tasto CAMBIO ora e' visibile solo nelle partite con panchina.
+
+## 2. Palla piccola → palla di Hoop City
+
+`BALL_R` 5.5 → **7.0 px** (identico a Hoop City: su un giocatore da 56 px
+la palla legge ~24 cm, regolamento) e stesso disegno: tinta piu' calda
+(0.95/0.55/0.15) e cuciture spesse. Il palleggio (incrocio, dietro-schiena,
+cambio mano, stepback, esitazione, giro, sotto-gamba, con pallino e suono
+sincroni alla mano) era gia' la versione rifinita del motore di Hoop City.
+
+## 3. HEAT CHECK (il miglioramento del tiro di Hoop City)
+
+3 canestri consecutivi dell'UTENTE = **ON FIRE**: finestra verde del metro
+piu' larga (+18% perfect, +15% good, `ShotSystem.shot_windows(ft, heat)`),
+popup ON FIRE/COLD e **palla in fiamme** NBA-JAM (fiammelle in mano, scia
+dietro al tiro — `Avatar.draw_ball_flames` portato da Hoop City). Solo
+l'utente: l'IA non prende bonus nascosti (GAMEPLAY-IA invariato).
+
+## 4. Aree laterali: tratti veri, niente numeri inutili
+
+Feedback: i raggi che partivano da meta' campo non sono veritieri e i "3"
+dipinti per ogni settore affollavano. Ora i cinque settori sono segnalati
+come sui campi veri: **quattro tacche di nastro che attraversano la linea**
+(ai confini 200/350/420/570 cm dei 770 cm di arco) e **solo il "2"** del
+settore centrale dipinto a pavimento (il valore laterale lo dice il chip
+sotto il tabellone). Stesso disegno nel diagramma di COME SI GIOCA.
+
+## 5. REGOLE: bottone a sinistra, pannello sopra tutto
+
+Il bottone torna **in alto a sinistra** (a destra si confondeva con TIMEOUT
+e CAMBIO) e il pannello della scheda ha `z_index` 60: nessun pulsante
+dell'HUD (ESCI, TIMEOUT, CAMBIO, tasti azione) se lo disegna piu' sopra.
+Aggiornati hint ("REGOLE in alto a sinistra") e guida.
+
+---
+
+# Baskin Academy — regolamento a norma + prima volta (post 1.18.0, quarta passata)
+
+Data: 7 ottobre 2026 • Motore: Godot 4.3 stable
+
+## Riferimento aggiornato: Rev.19 (25/09/2024)
+
+L'audit della 2ª passata era sulla Rev.12. Questa passata allinea il gioco al
+testo PIÙ RECENTE (Rev.19, scaricata e verificata per intero): le regole già
+implementate sono tutte confermate, con una correzione e un completamento.
+
+## I 5 settori dell'area laterale (Rev.19 fig. 2)
+
+- Geometria a norma: il semicerchio da 3 m è diviso in CINQUE settori con
+  larghezze lungo l'arco 200/150/70/150/200 cm (770 cm totali). Il settore
+  CENTRALE (70 cm, davanti al canestro) è il posto da 2 punti; tutti gli
+  altri settori valgono 3.
+- `Court.in_central_sector()` ricava il settore dalla posizione di tiro;
+  `_baskin_points` per il ruolo 2 ora vale 2 dal centrale / 3 dal laterale
+  (prima: 2 fisso sul laterale, semplificazione documentata in 3ª passata).
+- Disegno a pavimento (CourtVisual): 4 linee radiali con le proporzioni
+  vere, arco TRATTEGGIATO a 3,70 m e cifre "2"/"3" dipinte a stampino nei
+  settori — chi prende il gioco in mano capisce a colpo d'occhio quanto
+  paga ogni posto.
+- Il pivot IA sceglie il settore a ogni consegna (`give_ball` →
+  `pivot_sector`: 25% centrale / 75% laterale) e cammina fin lì prima di
+  tirare.
+
+## FIX regolamentare: la linea del 2R
+
+Rev.19: il 2R tira da FUORI l'arco tratteggiato a 3,70 m («cioè 0,7 metri
+più lontano degli altri»). Il codice lo faceva tirare da una linea PIÙ
+VICINA (≈2,1 m). Corretti `shot_must_clear_area` (nuovo `SIDE_DASH_R` =
+185 px), lo spot di tiro (`pivot_shot_spot`) e l'IA (`pivot_beyond_line`),
+così un 2R non pianta più i piedi dove il tiro verrebbe fischiato. I tiri
+liberi del ruolo 3 sul laterale erano già dietro la tratteggiata (194 px).
+
+## Prima volta: si capisce senza manuale
+
+- Nuova voce **COME SI GIOCA** nel menu → `RulesScene`: cos'è il baskin, il
+  campo, i 5 ruoli, i punti, le regole chiave, i comandi, più il DIAGRAMMA
+  del campo visto dall'alto con i 5 settori e i due ferri sullo stesso palo.
+- In partenza il bottone **REGOLE** sta in alto a SINISTRA sotto ESCI
+  (al playtest e' risultato piu' chiaro: a destra si confondeva con TIMEOUT
+  e CAMBIO — sistemato in v1.19.1); la scheda si apre a sinistra, sopra ogni
+  altro controllo (z_index), e inizia da IL CAMPO.
+- Chip «quanto vale il tuo tiro» sotto il tabellone per chi gioca pivot:
+  ruolo 1 → «1° TIRO · VALE 3» / «2° TIRO · VALE 2»; ruolo 2 → «SETTORE
+  CENTRALE · 2 PUNTI» / «SETTORE LATERALE · 3 PUNTI» / «ESCI DIETRO LA TUA
+  LINEA PER TIRARE»; ruolo 3 presso l'area → «CANESTRO LATERALE · 2 PUNTI».
+- Popup sul canestro realizzato dal ruolo 2: «+2 SETTORE CENTRALE» /
+  «+3 SETTORE LATERALE».
+- Il secondo hint della prima azione dice dove sta il bottone REGOLE; le
+  schede ruoli (RolePicker) e i testi del riquadro regole sono aggiornati
+  ai settori. Tutto in IT/EN (`Loc`).
+
+## Menu iniziale rinnovato
+
+- Pulsanti da menu veri (`UIKit.menu_button`): GIOCA primario arancione,
+  COME SI GIOCA + IMPOSTAZIONI secondari in stile «ghost» — addio ai
+  bottoni grigi di default sullo schermo di titolo.
+- Hero art: il DOPPIO canestro laterale (2,20 + 1,20 m sullo stesso palo,
+  scala 90 px/m, stesse proporzioni del campo di gioco) sotto riflettore a
+  destra, con le altezze scritte accanto ai ferri: è il simbolo del baskin
+  e ora è la prima cosa che si vede.
+
+## Versione e pipeline
+
+- **v1.19.0 / versionCode 21** (`GameData.VERSION` finalmente allineato: era
+  rimasto a 1.17.0 mentre il preset diceva 1.18.0).
+- Nuovo workflow `build-apk-baskin.yml`: APK firmato SOLO con il keystore
+  dai GitHub Secrets (mai nel repo; `keystore/` è ignorato da git); senza
+  secret la pipeline si salta in verde con un avviso; un tag `baskin-v*`
+  crea la Release con l'APK allegato. Istruzioni passo-passo per i secret in
+  `CONTINUITA-E-APK.md`.
+
+## Verifica
+
+CI smoke (Godot 4.3 headless: SceneSmoke, MatchTest 5v5 con IA, tutte le
+scene dei menu più la nuova RulesScene) verde, nessuno SCRIPT ERROR. La CI
+ha fermato due regressioni prima della consegna — inferenza `:=` da Variant
+nei loop su array non tipizzati (MainMenu, RulesScene) e `draw_ellipse`
+(inesistente in Godot 4.3) — entrambe corrette nel giro di due commit. Nel
+MatchTest si vedono già i nuovi hint («Consegna dentro, 2 palleggi, esci:
+dal SETTORE LATERALE vale 3!», «Prima volta? REGOLE (in alto a sinistra)
+spiega tutto.») e i pivot 2T/2R in campo.
+
+---
+
+# Baskin Academy — upgrade EISI (post 1.18.0, terza passata)
+
+Data: 7 ottobre 2026 • Motore: Godot 4.3 stable
+
+## Doppio canestro laterale (regolamento Rev.12)
+
+Ogni lato campo ha ora DUE canestri sullo stesso palo, alle altezze
+regolamentari: **ALTO a 2,20 m** (reg. 2,00-2,20) per il tiro del **ruolo 2**,
+**BASSO a 1,20 m** (reg. 1,00-1,20) per il **ruolo 1**. Canestri tradizionali
+a 3,05 m. (`Court.SIDE_RIM_HIGH` / `SIDE_RIM_LOW`, scala 61,6 px/m.)
+
+- La palla ricorda l'altezza del ferro del PROPRIO tiro (`Ball.shot_rim_h`):
+  collisioni, canestro, rimbalzi ed effetti usano quella, non più una sola
+  altezza unica — il tiro del ruolo 1 entra nel basso, quello del ruolo 2
+  nell'alto, stessa posizione x/y.
+- `rim_height_of(hoop, role)` decide per ruolo: lancio, tiri liberi, dunk.
+- Disegno: palo unico con pannello alto (vetro + quadrato arancio + rete) e
+  pannello basso più piccolo (rete corta), in entrambe le viste (frontale e
+  da dietro), con ombra di stacco.
+
+## Punteggio del ruolo 2 corretto
+
+Prima era invertito: laterale 3 / frontale 2. Ora come da regolamento:
+**canestro laterale alto = 2 punti** (settore centrale, semplificazione
+documentata dei 5 settori), **canestro tradizionale = 3 punti**.
+
+## Ruolo 1 in carrozzina
+
+Il pivot di ruolo 1 (giocatore senza cammino) si disegna sulla **sedia a
+rotelle da baskin**: ruote grandi da ~0,60 m di diametro con cerchione e
+raggi, telaio, schienale, poggiapiedi, gambe raccolte con i piedi sul
+poggiapiedi. Tutto il busto scende all'altezza del sedile (~0,55 m), così le
+proporzioni restano coerenti con la figura in piedi. Vale per il giocatore
+utente e per l'IA.
+
+## Verifica
+
+- CI `smoke-baskin.yml`: SceneSmoke + MatchTest + scene menu, verde.
+
+---
+
+# Baskin Academy — revisione dei sorgenti (post 1.18.0, seconda passata)
+
+Data: 7 ottobre 2026 • Motore: Godot 4.3 stable • Basato sui sorgenti 1.18.0
+
+## Animazioni delle schiacciate (portate da Hoop City Life v2.39)
+
+Stesso lavoro di rifinitura fatto su Hoop City Life, applicato al match 5v5:
+
+1. **FERRO A MENSOLA** (`HoopArt.gd`). La piega parte dall'ATTACCO COL
+   TABELLONE (peso zero lì) e cresce fino al fronte libero: molla reale
+   (`rim_bend`/`rim_bend_v`, k=26 damp 7) guidata dai giocatori appesi
+   (`CourtVisual.gd`, canestro più vicino). Vale per i due canestri da fondo.
+2. **LA RETE SEGUE IL FERRO**: tutta la maglia — prospettica e mezza rete
+   davanti alla palla — si sposta col ferro piegato, agganciata in cima e
+   smorzata verso l'orlo raccolto (`draw_net_perspective`, `draw_net_front`).
+3. **HANG ABBASSATO CON PENDOLO** (`Player.gd`, `Avatar.gd`). Appeso dopo lo
+   slam: corpo più basso (spalle sotto il bordo, testa fuori dal canestro),
+   la mano dello slam risale al LABBRO PIEGATO (`rim_drop`), oscillazione
+   destra/sinistra a pendolo attorno al ferro, e — quando la posa slam non
+   guida — presa a DUE mani convergenti sul tubo (`hang` + `hang_one`).
+4. (dalla prima passata: tabellone che insegue il ferro in ritardo, falli in
+   attacco calibrati, canestro laterale più leggibile.)
+
+## Audit regolamento (Rev.12 ufficiale, 18/10/2016)
+
+Verificato punto per punto sul motore regole esistente. GIÀ CONFORME:
+pivot = ruoli 1-2 (uno solo in campo, liberi da marcatura); ruolo 1: 3 punti
+al primo tiro / 2 dopo; ruolo 2: canestro laterale, obbligo palleggi prima
+del tiro; ruolo 3: laterale 2 / tradizionale 3, corsa con palleggi, no
+layup ravvicinato; ruoli 4-5: 3 da oltre l'arco; limite 3 TIR a tempo per
+il ruolo 5 e 3 CANESTRI a tempo per i ruoli 1-4 (regola 9); divieto di
+ingresso nelle aree laterali per i ruoli 3-4-5 salvo consegna (regola 5);
+canestri laterali più bassi. Documentate come semplificazioni: un solo
+canestro laterale per lato (il regolamento prevede alto+basso), punteggio
+del ruolo 2 semplificato (3 laterale / 2 frontale invece dei settori
+centrale/laterale).
+
+## Verifica
+
+- Workflow CI `smoke-baskin.yml`: SceneSmoke (MatchScene completa headless),
+  MatchTest (5v5 simulato), scene dei menu — verde, nessuno SCRIPT ERROR.
+
+---
+
+# Baskin Academy — revisione dei sorgenti (post 1.18.0)
+
+Data: 7 ottobre 2026 • Motore: Godot 4.3 stable • Basato sui sorgenti 1.18.0
+
+## Stato della consegna
+
+Sorgenti corretti, non una nuova release Android. Il progetto ora vive in
+`baskin-academy/` nel repository di lavoro, con smoke test automatico in CI
+(workflow `smoke-baskin.yml`: import + SceneSmoke/MatchTest headless ad ogni
+push sui sorgenti).
+
+## Correzioni e migliorie
+
+1. **Falli in attacco più presenti** (`Court.gd`, `_charge_check`). La
+   soglia richiedeva 34px di distanza (meno del contatto fisico dei corpi)
+   e uno scatto a 195: per questo uscivano 0-2 fischi in 180 secondi.
+   Calibrato a contatto a braccio disteso (52px), scatto 170, traiettoria
+   0.45 e difensore tollerato fino a 95 di velocità. Restano falli rari,
+   ma nella partita IA si vedono. Cooldown invariato (2 s): niente sfilate.
+2. **Il tabellone arriva dopo il ferro** (`CourtVisual.gd`, `HoopArt.gd`,
+   `NetFront.gd`). Nuovo `board_shake` che insegue `rim_shake` come una
+   molla lenta: la scossa parte dal ferro e il pannello la riceve con un
+   filo di ritardo, come nella struttura reale. Vale per i canestri da
+   fondo e per i laterali (entrambe le viste). A riposo nessuna differenza.
+3. **Canestro laterale lontano più leggibile** (`NetFront.gd`). L'ombra di
+   stacco era troppo accennata: ora pannello scuro più esteso (alpha 0.42)
+   e cornice scura attorno al vetro, in entrambe le viste. Contro il
+   maxi-schermo dell'arena il tabellone si legge subito.
+
+## Note
+
+- Il limite dei cambi per periodo (punto aperto del LEGGIMI) resta una
+  decisione di gioco: non implementato in attesa di scelta (proposta: 3
+  cambi a quarto, come da nota).
+- Verifica: workflow CI `smoke-baskin.yml` su ogni push dei sorgenti.
+
+---
+
+# Baskin Academy — revisione dei sorgenti 1.15.0
+
+Data: 26 settembre 2026 • Motore usato: Godot 4.3 stable
+
+## Stato della consegna
+
+Sorgenti corretti, non una nuova release Android. La versione applicativa resta 1.15.0: **l'APK originale non è stato ricompilato e non contiene queste correzioni**. Il pacchetto aggiornato non include APK, cache Godot, chiavi ADB o configurazioni personali dell'ambiente.
+
+## Correzioni
+
+1. **Sostituzioni nelle partite senza panchina** (`Court.gd`). Il coach attivava cambi anche quando `is_fixture` era falso e il roster delle riserve era vuoto. Riprodotto in MatchTest: errori ripetuti di accesso agli indici, dopo la creazione di nodi giocatore incompleti. Ora il coach opera solo nelle partite con panchina; `_start_sub` verifica modalità, giocatore e posto prima di creare il sostituto.
+2. **Comandi touch nascosti** (`TouchButton.gd`). Nascondere un pulsante o il suo genitore ora rilascia il comando attivo. Il rilascio del mouse non può più interrompere il dito che sta tenendo premuto un pulsante: identificatori separati.
+3. **Joystick nascosto** (`VirtualJoystick.gd`). Nascondere il joystick o un suo genitore azzera immediatamente il movimento; i controlli invisibili non acquisiscono nuovi tocchi.
+4. **Recupero dei salvataggi parzialmente corrotti** (`SaveSystem.gd`). Ripristino ricorsivo dei valori predefiniti per campi null o di tipo incompatibile, compresi `attrs` e `season.high`. Preservati campi aggiuntivi e numeri JSON. Non è una validazione completa dei limiti e di ogni campo dinamico del profilo.
+5. **Scrittura dei salvataggi** (`SaveSystem.gd`). Il vecchio file non viene più cancellato prima della sostituzione; gli errori di scrittura/rinomina restituiscono `false` invece di un successo fittizio. Provata creazione, sostituzione e rilettura su Linux; non simulati esaurimento spazio o interruzione di alimentazione su Android.
+6. **Errore di parsing nello strumento TmpCharge**. Corretta l'indentazione mista che faceva fallire l'importazione dello script.
+7. **Runner dei test** (`strumenti/run_battery.sh`). Percorsi relativi al pacchetto, override `GODOT`/`PROJECT`/`LOGS`, log completi e risultato non-zero per timeout, errori GDScript o controlli falliti. Gli errori diagnostici generici del motore vengono segnalati separatamente. Sintassi shell verificata; i test sotto sono stati eseguiti direttamente, non tramite un'esecuzione integrale del nuovo runner.
+
+## Verifiche eseguite
+
+| Verifica | Risultato |
+|---|---|
+| ReliabilityProbe, prima delle correzioni | 7 controlli falliti su 15 |
+| ReliabilityProbe, dopo | 15/15 superati |
+| PracticeSubProbe, nuovo test mirato | ALL OK: nessuna richiesta di cambio o creazione di giocatori senza panchina |
+| 16 probe esistenti, da BaskinProbe a Rule14Probe | Tutti riportano ALL OK dopo le correzioni a input e salvataggi |
+| Rule14Probe dopo la correzione di Court | ALL OK |
+| MatchTest, 90 secondi simulati, dopo la correzione di Court | MATCH TEST OK, senza SCRIPT ERROR; partita arrivata al secondo quarto |
+| BalanceProbe, 180 secondi simulati, dopo la correzione di Court | Completato senza SCRIPT ERROR; punteggio 10–9, 9 tentativi |
+| LoadTest | Caricati menu, scelta divisa e impostazioni |
+| Importazione editor dopo correzione TmpCharge | Nessun errore di parsing |
+| git diff --check | Nessun errore di whitespace |
+
+I log completi sono in `verifiche/`. Rimangono diagnostiche nei test headless: `Parameter "t" is null` dal renderer dummy e risorse/istanze ancora in uso all'uscita. **Non sono state risolte in questa revisione** e non vanno confuse con un collaudo totalmente privo di errori. I test guidati dall'IA restano soggetti a casualità.
+
+## Aprire e verificare
+
+Aprire `baskin_academy/project.godot` con Godot 4.3. Per i nuovi test:
+
+```bash
+godot --headless --path baskin_academy res://tools/ReliabilityProbe.tscn
+godot --headless --path baskin_academy res://tools/PracticeSubProbe.tscn
+```
+
+Per la batteria completa:
+
+```bash
+GODOT=/percorso/godot bash strumenti/run_battery.sh
+```
+
+Usare un profilo di sviluppo: alcuni test preesistenti cambiano impostazioni e dati locali dell'app.
+
+## Da fare prima di distribuire una nuova versione
+
+- Prova su dispositivo Android: due dita, cambio possesso, scomparsa comandi, background/rientro, ripresa della carriera e sostituzioni.
+- Verifica grafica e delle prestazioni: non effettuata con renderer reale in questa revisione.
+- Indagare risorse trattenute alla chiusura e diagnostiche del renderer dummy.
+- Incrementare insieme versione in GameData.gd e version/name + version/code in export_presets.cfg, ricompilare e firmare l'APK.
+
+Il progetto rimane disponibile in workspace per continuare lo sviluppo senza riscaricarlo.

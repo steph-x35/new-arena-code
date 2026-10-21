@@ -1,0 +1,8 @@
+.godot/
+*.tmp
+export.cfg
+build/
+__pycache__/
+
+# MAI nel repo pubblico: il keystore di firma resta SOLO nei GitHub Secrets
+keystore/

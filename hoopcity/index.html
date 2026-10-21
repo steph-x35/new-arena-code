@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hoop City Life — Il basket del campetto, gratis su Android</title>
+  <meta name="description" content="Hoop City Life: il gioco di basket 2D del campetto per Android. Green release, schiacciate, il metro del tiro e il campo condiviso in WiFi. Gratis, senza pubblicità nel gioco." />
+  <meta property="og:title" content="Hoop City Life — il basket del campetto, gratis" />
+  <meta property="og:description" content="Green release, schiacciate, il campo condiviso in WiFi col telefono dell'amico. Gratis, solo Android." />
+  <meta property="og:image" content="https://steph-x35.github.io/new-arena-code/hoopcity/assets/screens/windmill.png" />
+  <meta name="theme-color" content="#12151c" />
+  <link rel="icon" href="assets/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #f4f1ea;
+      --muted: #9aa3b2;
+      --bg: #12151c;
+      --bg2: #171b24;
+      --card: #1a1f2a;
+      --line: #2a3140;
+      --accent: #f97316;
+      --accent-2: #fb923c;
+      --cyan: #38bdf8;
+      --ok: #4ade80;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 86px; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 0 20px; }
+
+    /* ====================== NAVBAR (vetro) ====================== */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      border-bottom: 1px solid transparent;
+      transition: background .28s ease, border-color .28s ease, backdrop-filter .28s ease;
+    }
+    .nav.scrolled {
+      background: rgba(18, 21, 28, .78);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      border-bottom-color: var(--line);
+    }
+    .nav-inner {
+      max-width: 1080px; margin: 0 auto; padding: 12px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+    .nav-logo img {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: #fff; /* il logo e' nero: sul menu scuro serve fondo bianco */
+      box-shadow: 0 4px 14px rgba(0,0,0,.4);
+    }
+    .nav-logo b { font-size: 16px; font-weight: 900; letter-spacing: -.01em; }
+    .nav-logo b em { font-style: normal; color: var(--accent-2); }
+    .nav-links { display: none; align-items: center; gap: 26px; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 14.5px; font-weight: 700;
+      position: relative; padding: 4px 0; transition: color .18s ease;
+    }
+    .nav-links a::after {
+      content: ""; position: absolute; left: 0; right: 100%; bottom: 0;
+      height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--cyan));
+      transition: right .22s ease;
+    }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-links a:hover::after { right: 0; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-heart {
+      display: none; align-items: center; gap: 7px;
+      color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 700;
+      padding: 9px 13px; border-radius: 12px; border: 1px solid transparent;
+      transition: color .18s ease, border-color .18s ease;
+    }
+    .nav-heart:hover { color: var(--accent-2); border-color: rgba(249,115,22,.4); }
+    .nav-dl {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(180deg, var(--accent-2), var(--accent));
+      color: #1a1005; text-decoration: none; font-weight: 800; font-size: 14px;
+      padding: 10px 16px; border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(249, 115, 22, .3);
+      transition: transform .14s ease, box-shadow .14s ease;
+    }
+    .nav-dl:active { transform: scale(.96); }
+    .nav-dl .pulse {
+      width: 7px; height: 7px; border-radius: 50%; background: #1a1005;
+      animation: navpulse 1.8s ease-in-out infinite;
+    }
+    @keyframes navpulse { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
+
+    /* ---------- etichette di sezione ---------- */
+    .sec-label {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 800; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--accent-2);
+      margin-bottom: 18px;
+    }
+    .sec-label::before {
+      content: ""; width: 22px; height: 2px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--cyan));
+    }
+    .sec-label.cy { color: var(--cyan); }
+    .sec-label.gr { color: var(--ok); }
+    h3.sub { font-size: 24px; font-weight: 900; letter-spacing: -.01em; margin-bottom: 12px; }
+    h3.sub em { font-style: normal; color: var(--accent-2); }
+    p.body { font-size: 15.5px; color: var(--muted); }
+    p.body strong { color: var(--ink); }
+    p.body + p.body { margin-top: 10px; }
+
+    /* ---------- HERO ---------- */
+    .hero { position: relative; text-align: center; padding: 132px 0 56px; overflow: hidden; }
+    .hero::before {
+      content: ""; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 130% 90% at 50% -30%, rgba(249,115,22,.14), transparent 60%),
+        radial-gradient(ellipse 60% 50% at 85% 20%, rgba(56,189,248,.07), transparent 60%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0 2px, transparent 2px 46px);
+    }
+    .hero::after {
+      content: ""; position: absolute; left: 50%; bottom: -320px;
+      width: 600px; height: 600px; transform: translateX(-50%);
+      border: 2px solid rgba(249, 115, 22, .15); border-radius: 50%;
+    }
+    .hero > .wrap { position: relative; z-index: 1; }
+
+    /* il LOGO grande centrale, con alone che ruota */
+    .logo-stage { position: relative; width: 188px; height: 188px; margin: 0 auto 22px; }
+    .logo-stage::before {
+      content: ""; position: absolute; inset: -26px; border-radius: 50%;
+      background: conic-gradient(from 0deg,
+        rgba(249,115,22,.35), rgba(56,189,248,.22), rgba(74,222,128,.18), rgba(249,115,22,.35));
+      filter: blur(30px);
+      animation: spin 9s linear infinite;
+    }
+    .logo-stage img {
+      position: relative; width: 188px; height: 188px; border-radius: 44px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.07);
+      animation: float 4.5s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+    .badge {
+      display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--accent-2);
+      border: 1px solid rgba(249, 115, 22, .45); border-radius: 999px;
+      padding: 7px 14px; background: rgba(249, 115, 22, .08);
+      margin-bottom: 20px;
+    }
+    .hero h1 { font-size: 42px; font-weight: 900; letter-spacing: -.03em; line-height: 1.05; }
+    .hero h1 em { font-style: normal; color: var(--accent-2); }
+    .tag { color: var(--muted); font-size: 16.5px; font-weight: 600; margin-top: 10px; }
+    .tag strong { color: var(--ink); }
+    .scroll-hint {
+      margin-top: 38px; font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--muted); animation: pulse 2.2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: .45; } 50% { opacity: .9; } }
+
+    .cta { padding: 32px 0 6px; }
+    .btn {
+      display: block; width: 100%; position: relative; overflow: hidden;
+      background: linear-gradient(180deg, var(--accent-2), var(--accent));
+      color: #1a1005; font: 800 19px/1.2 'Inter', sans-serif; text-align: center;
+      text-decoration: none; border-radius: 16px; padding: 19px 16px;
+      box-shadow: 0 10px 30px rgba(249, 115, 22, .35);
+      transition: transform .14s ease, box-shadow .14s ease;
+    }
+    .btn::after {
+      content: ""; position: absolute; top: 0; bottom: 0; left: -70%; width: 45%;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,.35), transparent);
+      transform: skewX(-20deg); transition: left .5s ease;
+    }
+    .btn:hover::after { left: 130%; }
+    .btn:active { transform: scale(.98); box-shadow: 0 6px 18px rgba(249, 115, 22, .3); }
+    .btn small { display: block; font-size: 13px; font-weight: 700; opacity: .75; margin-top: 4px; }
+    .btn.ghost {
+      background: rgba(255,255,255,.03); color: var(--ink);
+      border: 1px solid var(--line); box-shadow: none; margin-top: 10px;
+      font-size: 16px; padding: 14px 16px;
+    }
+    .btn.ghost::after { display: none; }
+    .btn.ghost:active { background: rgba(255,255,255,.06); }
+    .btn.ghost svg { vertical-align: -3px; margin-right: 7px; }
+    .meta { margin-top: 12px; text-align: center; color: var(--muted); font-size: 13.5px; }
+    .ok-line { margin-top: 8px; text-align: center; color: var(--ok); font-size: 13.5px; font-weight: 600; }
+
+    /* ---------- SFIDA DI OGGI ---------- */
+    .challenge {
+      background: linear-gradient(160deg, rgba(249,115,22,.16), rgba(56,189,248,.07));
+      border: 1px solid rgba(249, 115, 22, .4); border-radius: 20px;
+      padding: 24px 22px; text-align: center;
+      animation: chglow 3.4s ease-in-out infinite;
+    }
+    @keyframes chglow {
+      0%,100% { box-shadow: 0 0 0 0 rgba(249,115,22,.0); }
+      50% { box-shadow: 0 0 34px -6px rgba(249,115,22,.28); }
+    }
+    .challenge .k {
+      font-size: 12px; font-weight: 800; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--accent-2); margin-bottom: 10px;
+    }
+    .challenge .txt { font-size: 21px; font-weight: 800; line-height: 1.3; }
+    .challenge .timer { margin-top: 14px; color: var(--muted); font-size: 13px; font-weight: 600; }
+    .challenge .timer b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+    /* ---------- GALLERIA / CAROSELLO ---------- */
+    .carousel { position: relative; }
+    .carousel::before, .carousel::after {
+      content: ""; position: absolute; top: 4px; bottom: 14px; width: 46px; z-index: 1;
+      pointer-events: none;
+    }
+    .carousel::before { left: 0; background: linear-gradient(90deg, var(--bg), transparent); }
+    .carousel::after { right: 0; background: linear-gradient(-90deg, var(--bg), transparent); }
+    .gallery-scroll {
+      display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
+      padding: 4px 20px 14px; margin: 0 -20px;
+      scrollbar-width: none; -webkit-overflow-scrolling: touch; cursor: grab;
+    }
+    .gallery-scroll.dragging { cursor: grabbing; scroll-snap-type: none; }
+    .gallery-scroll::-webkit-scrollbar { display: none; }
+    .shot { flex: 0 0 84%; scroll-snap-align: center; }
+    .shot .frame {
+      border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+      background: var(--bg2); aspect-ratio: 16 / 10; pointer-events: none;
+      transition: border-color .25s ease, transform .25s ease;
+    }
+    .shot:hover .frame { border-color: rgba(56,189,248,.5); }
+    .shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+        .car-nav {
+      position: absolute; top: 42%; transform: translateY(-50%);
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 1px solid var(--line); background: rgba(18, 21, 28, .88);
+      color: var(--ink); font-size: 20px; font-weight: 900; line-height: 1;
+      display: grid; place-items: center; cursor: pointer; z-index: 2;
+      transition: border-color .15s ease, color .15s ease, transform .15s ease;
+    }
+    .car-nav:hover { border-color: var(--cyan); color: var(--cyan); transform: translateY(-50%) scale(1.08); }
+    .car-prev { left: 10px; }
+    .car-next { right: 10px; }
+    .dots { display: flex; justify-content: center; gap: 8px; margin-top: 4px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--line); cursor: pointer; padding: 0; border: none;
+      transition: background .2s ease, transform .2s ease;
+    }
+    .dot.on { background: var(--accent); transform: scale(1.25); }
+
+    /* ---------- STORIA + NUMERI ---------- */
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+    .stat {
+      background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+      padding: 16px 14px; text-align: center;
+      transition: border-color .25s ease, transform .25s ease;
+    }
+    .stat:hover { border-color: rgba(249,115,22,.45); transform: translateY(-2px); }
+    .stat .n { font-size: 26px; font-weight: 900; color: var(--accent-2); letter-spacing: -.02em; }
+    .stat:nth-child(2) .n { color: var(--ok); }
+    .stat:nth-child(3) .n { color: var(--cyan); }
+    .stat .l { font-size: 12px; color: var(--muted); font-weight: 700; margin-top: 2px; }
+
+    /* ---------- FEATURE ---------- */
+    ul.feats { list-style: none; display: grid; gap: 10px; }
+    ul.feats li {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      padding: 14px 16px; font-size: 15px; display: flex; gap: 12px; align-items: baseline;
+      transition: border-color .25s ease, transform .25s ease;
+    }
+    ul.feats li:hover { border-color: rgba(56,189,248,.45); transform: translateY(-2px); }
+    ul.feats li::before {
+      content: ""; flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--cyan)); position: relative; top: -1px;
+    }
+    ul.feats li strong { font-weight: 700; }
+
+    /* ---------- ROADMAP ---------- */
+    .road { list-style: none; margin-top: 6px; }
+    .road li { position: relative; padding: 0 0 26px 30px; }
+    .road li::before {
+      content: ""; position: absolute; left: 0; top: 4px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--ok); box-shadow: 0 0 0 4px rgba(74,222,128,.16);
+    }
+    .road li::after {
+      content: ""; position: absolute; left: 6.5px; top: 22px; bottom: 2px;
+      width: 1.5px; background: var(--line);
+    }
+    .road li:last-child::after { display: none; }
+    .road li.next::before {
+      background: transparent; border: 2px dashed var(--accent-2);
+      box-shadow: none; width: 10px; height: 10px;
+    }
+    .road .when { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ok); }
+    .road .when::before { content: "✓ "; }
+    .road li.next .when { color: var(--accent-2); }
+    .road li.next .when::before { content: "→ "; }
+    .road .what { font-size: 16px; font-weight: 800; margin: 2px 0; }
+    .road .how { font-size: 14px; color: var(--muted); }
+
+    /* ---------- INSTALLAZIONE ---------- */
+    .steps { display: grid; gap: 12px; }
+    .step {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: 14px; padding: 16px;
+    }
+    .n {
+      flex: 0 0 30px; height: 30px; display: grid; place-items: center;
+      background: rgba(249, 115, 22, .15); color: var(--accent-2);
+      font-weight: 800; font-size: 15px; border-radius: 50%;
+    }
+    .step p { font-size: 15px; }
+    .step p strong { font-weight: 700; }
+    .step p span { color: var(--muted); }
+
+    /* ---------- FAQ ---------- */
+    .faq { display: grid; gap: 10px; }
+    details {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      padding: 0 18px; overflow: hidden;
+      transition: border-color .25s ease;
+    }
+    details[open] { border-color: rgba(249,115,22,.4); }
+    details summary {
+      cursor: pointer; list-style: none; padding: 16px 0;
+      font-size: 15.5px; font-weight: 700; display: flex; justify-content: space-between; gap: 14px;
+    }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::after { content: "+"; color: var(--accent-2); font-weight: 900; font-size: 18px; }
+    details[open] summary::after { content: "–"; }
+    details .a { padding: 0 0 16px; font-size: 14.5px; color: var(--muted); }
+    details .a strong { color: var(--ink); }
+    details .a a { color: var(--accent-2); font-weight: 700; text-decoration: none; }
+
+    section { padding: 34px 0; }
+    section + section { border-top: 1px solid var(--line); }
+
+    footer {
+      border-top: 1px solid transparent;
+      border-image: linear-gradient(90deg, var(--accent), var(--cyan), var(--ok)) 1;
+      margin-top: 8px; padding: 26px 0 40px;
+      color: var(--muted); font-size: 13px; text-align: center;
+    }
+    footer strong { color: var(--ink); }
+    footer .links { display: flex; justify-content: center; gap: 8px 18px; flex-wrap: wrap; margin-bottom: 10px; }
+    footer a { color: var(--ink); font-weight: 700; text-decoration: none; }
+    footer a:hover { color: var(--accent-2); }
+
+    /* ---------- comparsa allo scroll ---------- */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .65s ease, transform .65s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* ===================== DESKTOP ===================== */
+    @media (min-width: 960px) {
+      .wrap { max-width: 1080px; padding: 0 32px; }
+      .nav-links { display: flex; }
+      .nav-heart { display: inline-flex; }
+
+      .hero { padding: 150px 0 76px; }
+      .hero h1 { font-size: 68px; }
+      .tag { font-size: 19px; }
+      .logo-stage { width: 224px; height: 224px; margin-bottom: 28px; }
+      .logo-stage img { width: 224px; height: 224px; border-radius: 52px; }
+      .hero .cta { max-width: 760px; margin: 40px auto 0; }
+      .cta-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 12px; }
+      .cta .btn.ghost { margin-top: 0; }
+      .scroll-hint { margin-top: 52px; }
+
+      .challenge-wrap { max-width: 640px; margin: 0 auto; }
+
+      .gallery-scroll { padding: 4px 32px 14px; margin: 0 -32px; gap: 20px; }
+      .shot { flex-basis: 640px; }
+      .car-prev { left: 26px; }
+      .car-next { right: 26px; }
+
+      .split { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; }
+      .stats { margin-top: 0; }
+      .stat .n { font-size: 32px; }
+
+      ul.feats { grid-template-columns: 1fr 1fr; gap: 12px; }
+      ul.feats li { font-size: 15.5px; padding: 18px 20px; }
+
+      .road { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px 26px; }
+      .road li { padding: 22px 0 0; border-top: 2px solid rgba(74,222,128,.35); }
+      .road li::before { top: -8px; left: 0; }
+      .road li::after { display: none; }
+      .road li.next { border-top-style: dashed; border-top-color: rgba(251,146,60,.55); }
+      .road .what { font-size: 18px; margin-top: 6px; }
+      .road .how { font-size: 14.5px; }
+
+      .duo { display: grid; grid-template-columns: .9fr 1.1fr; gap: 48px; align-items: start; }
+      .duo > div > h3.sub { margin-top: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .logo-stage::before, .logo-stage img, .scroll-hint, .challenge, .nav-dl .pulse { animation: none; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .btn::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================ NAVBAR ============================ -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="#top">
+        <img src="assets/icon.png" alt="Hoop City Life" />
+        <b>Hoop City <em>Life</em></b>
+      </a>
+      <div class="nav-links">
+        <a href="#gioco">Il gioco</a>
+        <a href="#storia">La storia</a>
+        <a href="#strada">La strada</a>
+        <a href="#domande">Domande</a>
+      </div>
+      <div class="nav-right">
+        <a class="nav-heart" href="https://paypal.me/sakerindustryy" rel="noopener">
+          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/></svg>
+          Sostieni
+        </a>
+        <a class="nav-dl js-dl" href="https://github.com/steph-x35/new-arena-code/releases/download/v2.47.7/HoopCity-v2.47.7.apk" rel="noopener">
+          <span class="pulse"></span> Scarica
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================ HERO ============================ -->
+  <header class="hero" id="top">
+    <div class="wrap">
+      <div class="logo-stage">
+        <img src="assets/icon.png" alt="Logo Hoop City Life" />
+      </div>
+      <div class="badge">Gratis · Android</div>
+      <h1>Hoop City <em>Life</em></h1>
+      <p class="tag">Il basket del campetto, in 2D. <strong>Gratis, senza pubblicità nel gioco.</strong></p>
+
+      <div class="cta">
+        <div class="cta-row">
+          <a class="btn js-dl" id="dl"
+             href="https://github.com/steph-x35/new-arena-code/releases/download/v2.47.7/HoopCity-v2.47.7.apk"
+             rel="noopener">
+            Scarica l'APK gratuita
+            <small id="dl-sub">Versione 2.47.7 · 58,9 MB</small>
+          </a>
+          <a class="btn ghost" href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">
+            Canale Telegram
+            <small style="display:block;font-size:12px;font-weight:700;opacity:.7;margin-top:3px">avvisi delle nuove versioni</small>
+          </a>
+          <a class="btn ghost" href="https://paypal.me/sakerindustryy" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/></svg>
+            Sostieni il lavoro
+            <small style="display:block;font-size:12px;font-weight:700;opacity:.7;margin-top:3px">PayPal · quanto vuoi</small>
+          </a>
+        </div>
+        <p class="meta" id="dl-meta">Ultima versione · aggiornata di recente</p>
+        <p class="ok-line">Nessun account. Nessun acquisto dentro l'app.</p>
+      </div>
+
+      <p class="scroll-hint">Scorri</p>
+    </div>
+  </header>
+
+  <!-- ======================= SFIDA DI OGGI ======================= -->
+  <section>
+    <div class="wrap">
+      <div class="challenge-wrap reveal">
+        <span class="sec-label">La sfida di oggi</span>
+        <div class="challenge">
+          <div class="k">Oggi al campetto</div>
+          <div class="txt" id="ch-txt">Tre green release di fila dal palleggio</div>
+          <div class="timer">Cambia ogni giorno · prossima tra <b id="ch-timer">--:--:--</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= GALLERIA ========================= -->
+  <section id="gioco">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="sec-label cy">Dentro il gioco</span>
+        <h3 class="sub">Com'è, <em>davvero</em></h3>
+        <p class="body" style="margin-bottom:18px">Niente render di presentazione: schermate vere del gioco. Scorrono da sole — trascinale, o usa le frecce.</p>
+      </div>
+      <div class="carousel reveal">
+        <button class="car-nav car-prev" id="car-prev" aria-label="Precedente">‹</button>
+        <div class="gallery-scroll" id="gallery">
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/campetto.jpg" alt="Il campetto sul telefono" loading="lazy" /></div>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/windmill.png" alt="Schiacciata windmill" loading="lazy" /></div>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/metro.png" alt="Il metro del tiro" loading="lazy" /></div>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/spin360.png" alt="Schiacciata con giro di 360 gradi" loading="lazy" /></div>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/partita.png" alt="Partita al campetto" loading="lazy" /></div>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/menu.png" alt="Menu principale" loading="lazy" /></div>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/nuova1.jpg" alt="Hoop City Life, schermata di gioco" loading="lazy" /></div>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/nuova2.jpg" alt="Hoop City Life, schermata di gioco" loading="lazy" /></div>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/nuova3.jpg" alt="Hoop City Life, schermata di gioco" loading="lazy" /></div>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/nuova4.jpg" alt="Hoop City Life, schermata di gioco" loading="lazy" /></div>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/nuova5.jpg" alt="Hoop City Life, schermata di gioco" loading="lazy" /></div>
+          </figure>
+          <figure class="shot">
+            <div class="frame"><img src="assets/screens/nuova6.jpg" alt="Hoop City Life, schermata di gioco" loading="lazy" /></div>
+          </figure>
+        </div>
+        <button class="car-nav car-next" id="car-next" aria-label="Successiva">›</button>
+      </div>
+      <div class="dots" id="car-dots"></div>
+    </div>
+  </section>
+
+  <!-- ========================== STORIA ========================== -->
+  <section id="storia">
+    <div class="wrap split">
+      <div class="reveal">
+        <span class="sec-label">La storia</span>
+        <h3 class="sub">Nato al campetto, <em>non in ufficio</em></h3>
+        <p class="body">
+          Il campetto del quartiere: il ferro senza retina, l'asfalto che scotta, il tiro in punta di dita
+          che devi prendere al volo. <strong>Hoop City Life nasce per portare nel telefono quel basket lì</strong> —
+          non quello delle supercar e dei contratti milioni.
+        </p>
+        <p class="body">
+          È un progetto indipendente: si aggiorna in continuazione, una versione dopo l'altra, e cresce
+          insieme a chi lo gioca. Le idee migliori arrivano dai video e dai commenti su
+          <a href="https://www.tiktok.com/@hoop_city_life" rel="noopener" style="color:var(--cyan);font-weight:700">TikTok</a>:
+          <strong>se hai qualcosa da dire, dillo lì</strong>.
+        </p>
+      </div>
+      <div class="stats reveal">
+        <div class="stat"><div class="n" id="rel-count">42</div><div class="l">Aggiornamenti rilasciati</div></div>
+        <div class="stat"><div class="n">0&nbsp;€</div><div class="l">Per giocare, per sempre</div></div>
+        <div class="stat"><div class="n">1</div><div class="l">Sviluppatore, indipendente</div></div>
+        <div class="stat"><div class="n">100%</div><div class="l">Giocabile offline</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== COSA C'È NEL GIOCO ====================== -->
+  <section>
+    <div class="wrap">
+      <div class="reveal">
+        <span class="sec-label">Il gioco</span>
+        <h3 class="sub">Tiro, timing <em>e ferro</em></h3>
+        <ul class="feats" style="margin-top:14px">
+          <li><strong>Il metro del tiro:</strong> rilascia sul verde e il canestro è pulito. Giallo, metà e metà. Rosso, mai.</li>
+          <li><strong>Schiacciate vere:</strong> windmill, giro di 360°, tomahawk — e ti ci puoi appendere al ferro.</li>
+          <li><strong>Le mosse del campetto:</strong> eurostep, fadeaway, stepback, cambio mano. Ognuna col suo peso.</li>
+          <li><strong>La Sfida Metà Campo:</strong> il campetto da solo, con i record da battere.</li>
+          <li><strong>Il campo condiviso:</strong> due telefoni Android, WiFi o hotspot, lo stesso campetto in tempo reale.</li>
+          <li><strong>Entri e giochi:</strong> niente account, niente attese, niente pubblicità dentro il gioco.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= ROADMAP ========================= -->
+  <section id="strada">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="sec-label gr">La strada</span>
+        <h3 class="sub">Da dove veniamo, <em>dove andiamo</em></h3>
+        <ul class="road" style="margin-top:18px">
+          <li>
+            <div class="when">Fatto</div>
+            <div class="what">Il campetto</div>
+            <div class="how">Il gioco da soli: palleggio, tiro, la Sfida Metà Campo e i record personali.</div>
+          </li>
+          <li>
+            <div class="when">Fatto</div>
+            <div class="what">Il metro e le schiacciate</div>
+            <div class="how">Green release, windmill, 360°, tomahawk e la presa del ferro.</div>
+          </li>
+          <li>
+            <div class="when">Fatto</div>
+            <div class="what">Le mosse scolpite</div>
+            <div class="how">Eurostep, fadeaway, stepback, scivolo: ognuna cambia davvero il tiro.</div>
+          </li>
+          <li>
+            <div class="when">Fatto</div>
+            <div class="what">Il campo condiviso</div>
+            <div class="how">Due telefoni Android sulla stessa rete WiFi o via hotspot: stesso campetto, in tempo reale.</div>
+          </li>
+          <li>
+            <div class="when">Fatto</div>
+            <div class="what">La finestra delle novità</div>
+            <div class="how">A ogni versione il gioco racconta cosa è cambiato, dentro il gioco.</div>
+          </li>
+          <li class="next">
+            <div class="when">Prossimo passo</div>
+            <div class="what">Il 1v1 a punti</div>
+            <div class="how">Le regole del campetto, ma col punteggio in mano: vincere o perdere conta.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================ INSTALLAZIONE + FAQ (affiancate) ================ -->
+  <section id="domande">
+    <div class="wrap duo">
+      <div class="reveal">
+        <span class="sec-label">Installazione</span>
+        <h3 class="sub">Tre tocchi e <em>sei dentro</em></h3>
+        <div class="steps" style="margin-top:14px">
+          <div class="step"><div class="n">1</div>
+            <p><strong>Tocca “Scarica l'APK”</strong> e aspetta che il download finisca.</p>
+          </div>
+          <div class="step"><div class="n">2</div>
+            <p><strong>Apri il file scaricato.</strong> <span>Se Android chiede il permesso, consenti “installare app da origini sconosciute”. Si fa una volta sola.</span></p>
+          </div>
+          <div class="step"><div class="n">3</div>
+            <p><strong>Installa e gioca.</strong> <span>Hai già una versione precedente? La nuova si installa sopra: non perdi niente.</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <span class="sec-label cy">Domande</span>
+        <h3 class="sub">Le cose che <em>ci si chiede</em></h3>
+        <div class="faq" style="margin-top:14px">
+          <details>
+            <summary>È gratis davvero?</summary>
+            <div class="a">Sì: l'APK è gratuita, <strong>non ci sono acquisti dentro l'app né pubblicità nel gioco</strong>. Nessun account da creare.</div>
+          </details>
+          <details>
+            <summary>Serve internet per giocare?</summary>
+            <div class="a">No: <strong>si gioca offline</strong>. Internet serve solo per scaricare gli aggiornamenti — e per il campo condiviso, che funziona in WiFi locale o via hotspot, senza internet.</div>
+          </details>
+          <details>
+            <summary>Ci si gioca in due?</summary>
+            <div class="a">Sì: <strong>il campo condiviso</strong> mette due telefoni Android sullo stesso campetto, in WiFi locale o con l'hotspot di uno dei due. Non è gioco online: serve stare vicini, come al campetto vero.</div>
+          </details>
+          <details>
+            <summary>Come faccio a sapere quando esce una versione nuova?</summary>
+            <div class="a">Questa pagina <strong>punta sempre all'ultima versione</strong>: salvala nei preferiti. Oppure segui il <a href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">canale Telegram</a> per gli avvisi.</div>
+          </details>
+          <details>
+            <summary>Posso sostenerlo?</summary>
+            <div class="a">Sì, in due modi. Con un caffè su <a href="https://paypal.me/sakerindustryy" rel="noopener">PayPal</a> — quanto vuoi, quando vuoi. Oppure gratis: <strong>giocalo, parlane, mandalo a chi ama il basket</strong>. È il modo in cui questo progetto cresce.</div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== FOOTER ========================== -->
+  <footer>
+    <div class="wrap">
+      <div class="links">
+        <a href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">Telegram</a>
+        <a href="https://www.tiktok.com/@hoop_city_life" rel="noopener">TikTok</a>
+        <a href="https://paypal.me/sakerindustryy" rel="noopener">Sostieni su PayPal</a>
+        <a href="https://github.com/steph-x35/new-arena-code/releases" rel="noopener">Tutte le versioni</a>
+      </div>
+      <strong>Hoop City Life</strong> · gioco gratuito, nessun acquisto in app, nessuna pubblicità nel gioco<br />
+      Solo Android · fatto a mano, un aggiornamento alla volta
+    </div>
+  </footer>
+
+  <script>
+    // ================================================================
+    // LA PAGINA SI AGGIORNA DA SOLA: legge le release di Hoop City dal
+    // repository GitHub e sceglie quella con il NUMERO DI VERSIONE PIU'
+    // ALTO. L'ordine dell'API non e' affidabile (release ricreate su tag
+    // esistenti riportano date vecchie e affondano in fondo alla lista),
+    // quindi non si prende la prima: si confrontano i numeri.
+    // Dallo stesso giro: il contatore degli aggiornamenti rilasciati.
+    // Tutti i bottoni con classe js-dl (hero + navbar) si aggiornano.
+    // Se il fetch non riesce, restano i valori scritti sopra.
+    // ================================================================
+    (function () {
+      fetch('https://api.github.com/repos/steph-x35/new-arena-code/releases?per_page=100')
+        .then(function (r) { return r.json(); })
+        .then(function (rs) {
+          if (!Array.isArray(rs)) return;
+          var rel = null, asset = null, bestKey = -1, count = 0;
+          for (var i = 0; i < rs.length; i++) {
+            var r = rs[i];
+            var m = /^v(\d+)\.(\d+)\.(\d+)$/.exec(r.tag_name || '');
+            if (!m) continue;
+            if (r.prerelease) continue;   // le versioni di prova non si offrono
+            var key = parseInt(m[1], 10) * 1000000 + parseInt(m[2], 10) * 1000 + parseInt(m[3], 10);
+            for (var j = 0; j < (r.assets || []).length; j++) {
+              if ((r.assets[j].name || '').indexOf('HoopCity') === 0) {
+                count++;
+                if (key > bestKey) { bestKey = key; rel = r; asset = r.assets[j]; }
+                break;
+              }
+            }
+          }
+          if (rel && asset) {
+            var links = document.querySelectorAll('.js-dl');
+            var sub = document.getElementById('dl-sub');
+            var meta = document.getElementById('dl-meta');
+            var v = (rel.tag_name || '').replace(/^v/, '');
+            var mb = Math.round(asset.size / 104857.6) / 10;
+            for (var k = 0; k < links.length; k++) links[k].href = asset.browser_download_url;
+            if (sub) sub.textContent = 'Versione ' + v + ' · ' + mb.toString().replace('.', ',') + ' MB';
+            var d = rel.published_at ? new Date(rel.published_at) : null;
+            var when = d ? 'pubblicata il ' + d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' }) : 'ultima versione';
+            if (meta) meta.textContent = 'Ultima versione · ' + when;
+          }
+          if (count > 0) {
+            var rc = document.getElementById('rel-count');
+            if (rc) rc.textContent = String(count);
+          }
+        })
+        .catch(function () { /* fallback: resta la versione statica */ });
+    })();
+
+    // ================================================================
+    // LA SFIDA DI OGGI: una per giorno, ruotano per data. Nessun server,
+    // nessun salvataggio: e' solo un motivo per tornare al campetto.
+    // ================================================================
+    (function () {
+      var challenges = [
+        'Tre green release di fila dal palleggio',
+        'Una windmill, e restare appesi al ferro',
+        'Schiacciata con giro di 360°',
+        'Cinque canestri di fila dallo stesso punto',
+        'Eurostep e canestro nello stesso possesso',
+        'Schiacciata tomahawk in corsa',
+        'Una partita intera senza toccare il ferro',
+        'Chiudi la Sfida Metà Campo senza sbagliare un tiro'
+      ];
+      var now = new Date();
+      var start = new Date(now.getFullYear(), 0, 0);
+      var doy = Math.floor((now - start) / 86400000);
+      var el = document.getElementById('ch-txt');
+      if (el) el.textContent = challenges[doy % challenges.length];
+
+      var t = document.getElementById('ch-timer');
+      function tick() {
+        var n = new Date();
+        var mid = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1, 0, 0, 0);
+        var s = Math.max(0, Math.floor((mid - n) / 1000));
+        var hh = Math.floor(s / 3600), mm = Math.floor((s % 3600) / 60), ss = s % 60;
+        var p = function (x) { return (x < 10 ? '0' : '') + x; };
+        if (t) t.textContent = p(hh) + ':' + p(mm) + ':' + p(ss);
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
+
+    // ================================================================
+    // IL FLUSSO DELLE SCHERMATE: scorre da solo, si trascina col dito o
+    // col mouse, frecce e pallini. Quando lo tocchi si ferma, quando lo
+    // lasci riparte. Rispetta prefers-reduced-motion (niente auto-scroll).
+    // ================================================================
+    (function () {
+      var gal = document.getElementById('gallery');
+      if (!gal) return;
+      var shots = gal.querySelectorAll('.shot');
+      var dotsBox = document.getElementById('car-dots');
+      var prevB = document.getElementById('car-prev');
+      var nextB = document.getElementById('car-next');
+      var dots = [];
+      var cur = 0;
+      var pauseUntil = 0;
+      var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      for (var i = 0; i < shots.length; i++) {
+        var d = document.createElement('button');
+        d.className = 'dot' + (i === 0 ? ' on' : '');
+        d.setAttribute('aria-label', 'Schermata ' + (i + 1));
+        (function (idx) {
+          d.addEventListener('click', function () { goTo(idx); pauseFor(6000); });
+        })(i);
+        dotsBox.appendChild(d);
+        dots.push(d);
+      }
+
+      function slideW() { return shots.length ? shots[0].getBoundingClientRect().width + 20 : 1; }
+
+      function goTo(idx, instant) {
+        cur = ((idx % shots.length) + shots.length) % shots.length;
+        gal.scrollTo({ left: cur * slideW(), behavior: instant ? 'auto' : 'smooth' });
+        for (var k = 0; k < dots.length; k++) dots[k].className = 'dot' + (k === cur ? ' on' : '');
+      }
+
+      function pauseFor(ms) { pauseUntil = Date.now() + ms; }
+
+      function syncFromScroll() {
+        var idx = Math.round(gal.scrollLeft / slideW());
+        if (idx !== cur && idx >= 0 && idx < shots.length) {
+          cur = idx;
+          for (var k = 0; k < dots.length; k++) dots[k].className = 'dot' + (k === cur ? ' on' : '');
+        }
+      }
+      gal.addEventListener('scroll', function () {
+        window.clearTimeout(gal._t);
+        gal._t = window.setTimeout(syncFromScroll, 120);
+      });
+
+      var TIMER = 4000;
+      setInterval(function () {
+        if (reduced) return;
+        if (Date.now() < pauseUntil) return;
+        if (document.hidden) return;
+        goTo(cur + 1 >= shots.length ? 0 : cur + 1);
+      }, TIMER);
+
+      gal.addEventListener('pointerdown', function () { pauseFor(6000); gal.classList.add('dragging'); });
+      window.addEventListener('pointerup', function () { gal.classList.remove('dragging'); });
+      gal.addEventListener('mouseenter', function () { pauseFor(3600000); });
+      gal.addEventListener('mouseleave', function () { pauseFor(2000); });
+      gal.addEventListener('touchstart', function () { pauseFor(8000); }, { passive: true });
+
+      prevB.addEventListener('click', function () { goTo(cur - 1); pauseFor(6000); });
+      nextB.addEventListener('click', function () { goTo(cur + 1); pauseFor(6000); });
+
+      var down = false, startX = 0, startL = 0;
+      gal.addEventListener('mousedown', function (e) {
+        down = true; startX = e.pageX; startL = gal.scrollLeft;
+        e.preventDefault();
+      });
+      window.addEventListener('mousemove', function (e) {
+        if (!down) return;
+        gal.scrollLeft = startL - (e.pageX - startX);
+      });
+      window.addEventListener('mouseup', function () { down = false; });
+
+      window.addEventListener('resize', function () { goTo(cur, true); });
+    })();
+
+    // ================================================================
+    // NAVBAR: trasparente in cima, vetro quando si scorre.
+    // REVEAL: le sezioni compaiono scivolando quando entrano in vista.
+    // ================================================================
+    (function () {
+      var nav = document.getElementById('nav');
+      function onScroll() {
+        if (window.scrollY > 12) nav.classList.add('scrolled');
+        else nav.classList.remove('scrolled');
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var revs = document.querySelectorAll('.reveal');
+      if (reduced || !('IntersectionObserver' in window)) {
+        for (var i = 0; i < revs.length; i++) revs[i].classList.add('in');
+        return;
+      }
+      var obs = new IntersectionObserver(function (entries) {
+        for (var j = 0; j < entries.length; j++) {
+          if (entries[j].isIntersecting) {
+            entries[j].target.classList.add('in');
+            obs.unobserve(entries[j].target);
+          }
+        }
+      }, { threshold: 0.12 });
+      for (var k = 0; k < revs.length; k++) obs.observe(revs[k]);
+    })();
+  </script>
+</body>
+</html>
