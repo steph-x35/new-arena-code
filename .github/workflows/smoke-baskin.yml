@@ -87,6 +87,24 @@ jobs:
             echo "!!! PROBE TOCCHI muto: manca TAPTAP OK=true" | tee -a /tmp/smoke_all.log
             ERR=1
           fi
+          # LA TRANSIZIONE DEL FALLO: ogni fischio deve portare a tiri liberi o
+          # rimessa con il velo che cala e il campo che si riordina al coperto,
+          # senza teletrasporti davanti agli occhi e senza tiri durante il buio.
+          echo "=== FALLO: transizione di tiro libero e rimessa ===" | tee -a /tmp/smoke_all.log
+          timeout 120 godot --headless "res://tools/FTTransitionProbe.tscn" > /tmp/fttrans.log 2>&1 || true
+          cat /tmp/fttrans.log | tee -a /tmp/smoke_all.log
+          if grep -E "SCRIPT ERROR|Parse Error" /tmp/fttrans.log; then
+            echo "!!! SCRIPT ERRORS nella transizione del fallo" | tee -a /tmp/smoke_all.log
+            ERR=1
+          fi
+          if grep -q "FT PROBE OK=false" /tmp/fttrans.log; then
+            echo "!!! TRANSIZIONE DEL FALLO FALLITA (assert)" | tee -a /tmp/smoke_all.log
+            ERR=1
+          fi
+          if ! grep -q "FT PROBE OK=true" /tmp/fttrans.log; then
+            echo "!!! FT PROBE muta: manca FT PROBE OK=true" | tee -a /tmp/smoke_all.log
+            ERR=1
+          fi
           if [ "$ERR" = "1" ]; then
             cp /tmp/smoke_all.log $GITHUB_WORKSPACE/baskin_smoke_errors.log
             cd $GITHUB_WORKSPACE

@@ -147,6 +147,16 @@ var ft_shooter: BallPlayer = null
 var ft_total := 0
 var ft_left := 0
 var ft_timer := 0.0                 # NPC routine timer, see _process
+## TRANSIZIONE DEL TIRO LIBERO (v1.19): il fallo non deve teletrasportare
+## nessuno davanti agli occhi. Il velo cala, la fila si sistema al coperto,
+## il velo si alza. `_ft_ready` resta false finche' la fila non e' a posto:
+## ne' l'utente ne' l'IA possono tirare mentre lo schermo e' coperto.
+var _ft_ready := false
+var _ft_epoch := 0
+var _ft_watch := 0.0              # rete di sicurezza sotto il velo                  # annulla una transizione rimasta in volo
+const FT_FADE_IN := 0.18            # il velo cala
+const FT_HOLD := 0.12               # buio pieno: qui avviene lo spostamento
+const FT_FADE_OUT := 0.26           # il velo si alza
 
 var hoops := [Vector2(-COURT_W * 0.5 + FIBA_HOOP_INSET, 0), Vector2(COURT_W * 0.5 - FIBA_HOOP_INSET, 0)]
 var side_hoops := [Vector2(0, -COURT_H * 0.5), Vector2(0, COURT_H * 0.5)]   # baskin: team 0 far, team 1 near
@@ -969,6 +979,13 @@ func _end_quarter() -> void:
 	_inbound_preparing = false
 	_inbound_requested = false
 	inbound_wait = 0.0
+	# Un tiro libero non puo' sopravvivere al suono della sirena: annulla la
+	# transizione eventualmente in volo e togli lo stato, altrimenti il quarto
+	# dopo comincia con la fila ancora schierata.
+	_ft_epoch += 1
+	_ft_ready = false
+	ft_active = false
+	ft_shooter = null
 	if is_fixture and not user_on_court and not finished:
 		unbench_user()
 		benched_time = 0.0
@@ -1839,17 +1856,27 @@ func _pivot_dead_ball() -> void:
 	_inbound(1 - team, rebound_hoop if rebound_hoop.length() > 1.0 else side_hoops[team])
 
 signal inbound_transition(duration: float)
+## Il fallo che porta in lunetta: stessa transizione morbida della rimessa,
+## con la sua scritta ("TIRI LIBERI ×2"). Emesso quando lo schermo comincia
+## a coprirsi, prima che la fila venga sistemata.
+signal free_throw_transition(shots: int)
 const INBOUND_FADE_IN := 0.12
 const INBOUND_FADE_OUT := 0.18
+## Testo mostrato sotto il velo: la rimessa normale dice "RIMESSA", quella
+## che nasce da un fallo dice "FALLO · RIMESSA". Lo legge la MatchScene.
+var inbound_caption_key := "match.inbound.transition"
 var _inbound_epoch := 0
 var _inbound_preparing := false
 var _inbound_requested := false
 var _inbound_caller: BallPlayer = null
 
-func _inbound(team: int, from_hoop: Vector2 = Vector2.ZERO) -> void:
+func _inbound(team: int, from_hoop: Vector2 = Vector2.ZERO, caption_key := "") -> void:
 	if finished: return
 	_inbound_epoch += 1
 	var epoch := _inbound_epoch
+	# La scritta sotto il velo: "RIMESSA" di norma, "FALLO · RIMESSA" quando
+	# la rimessa nasce da un fallo.
+	inbound_caption_key = caption_key if caption_key != "" else "match.inbound.transition"
 	possession = team
 	restarting = true
 	play_live = false
@@ -2109,11 +2136,13 @@ func on_turnover(from: BallPlayer, to: BallPlayer) -> void:
 ## ANY change of possession is a dead ball: the new attacking team throws the
 ## ball in from the sideline/baseline. Used by steals, interceptions and
 ## defensive rebounds, so play always restarts the same way.
-func _possession_restart(team: int, reason := "Turnover") -> void:
+func _possession_restart(team: int, reason := "Turnover", caption_key := "") -> bool:
 	if one_on_one or finished or ft_active or restarting or inbound_wait > 0.0:
-		return
-	Events.toast.emit(reason)
-	_inbound(team, _side_near_ball())
+		return false
+	if reason != "":
+		Events.toast.emit(reason)
+	_inbound(team, _side_near_ball(), caption_key)
+	return true
 
 ## Loose ball picked up by the OTHER team: hand it over with a throw-in.
 func _after_loose_grab(p: BallPlayer, prev_team: int) -> void:
@@ -2171,7 +2200,7 @@ var charges := [0, 0]              # falli in attacco fischiati, per squadra
 
 func _charge_check(delta: float) -> void:
 	_charge_cd = maxf(0.0, _charge_cd - delta)
-	if _charge_cd > 0.0 or ft_active or inbound_wait > 0.0:
+	if _charge_cd > 0.0 or ft_active or inbound_wait > 0.0 or restarting:
 		return
 	var h: BallPlayer = ball_handler()
 	if h == null or not h.has_ball or h.jumping or h.dunking or h.hanging:
@@ -2218,7 +2247,11 @@ func call_charge(offender: BallPlayer, defender: BallPlayer) -> void:
 		stat_add("tov", 1)
 		Events.shake.emit(0.35)
 	possession = defender.team
-	_turnover_to(defender.team)
+	# Fallo in attacco = palla morta: si riprende con la RIMESSA, non con un
+	# passaggio di palla istantaneo. Cosi' anche questo fallo ha la sua
+	# transizione morbida invece del teletrasporto del pallone.
+	if not _possession_restart(defender.team, "", "match.foul.transition"):
+		_turnover_to(defender.team)
 
 func _turnover_to(team: int) -> void:
 	possession = team
@@ -2244,7 +2277,9 @@ func call_foul(defender: BallPlayer, victim: BallPlayer, pts_attempt := 0) -> vo
 	var bonus: bool = team_fouls[defender.team] >= 5
 	if pts_attempt <= 0 and not bonus:
 		Events.toast.emit(Loc.t("t.foul.inbound"))
-		_possession_restart(victim.team, "Foul")
+		# Il fallo senza tiri si riprende con la rimessa: stessa transizione
+		# morbida, ma la scritta dice che nasce da un fallo.
+		_possession_restart(victim.team, "Foul", "match.foul.transition")
 		return
 	if pts_attempt <= 0:
 		Events.toast.emit(Loc.t("t.foul.bonus"))
@@ -2256,6 +2291,27 @@ func call_foul(defender: BallPlayer, victim: BallPlayer, pts_attempt := 0) -> vo
 ## middle of the free-throw line and takes his shots. Everything else on the
 ## floor freezes until the last one lands.
 func _start_free_throws(victim: BallPlayer, shots: int) -> void:
+	_prepare_free_throws(victim, shots)
+	var epoch := _ft_epoch
+	# Il velo comincia a calare ADESSO, mentre i giocatori sono ancora dove
+	# il fallo e' stato fischiato: si vede la scena reale, non un salto.
+	free_throw_transition.emit(shots)
+	await get_tree().create_timer(FT_FADE_IN).timeout
+	if epoch != _ft_epoch or finished or not ft_active:
+		return
+	_arrange_free_throws()
+	# Buio pieno: il tiro parte solo quando il velo ha finito di calare.
+	await get_tree().create_timer(FT_HOLD).timeout
+	if epoch != _ft_epoch or finished or not ft_active:
+		return
+	ft_timer = 1.0
+	_ft_ready = true
+
+## Stati del tiro libero, tutti SUBITO (la palla e' morta dall'istante del
+## fischio): e' solo il posizionamento che aspetta il velo.
+func _prepare_free_throws(victim: BallPlayer, shots: int) -> void:
+	_ft_epoch += 1
+	_ft_ready = false
 	_inbound_epoch += 1
 	_inbound_preparing = false
 	_inbound_requested = false
@@ -2271,6 +2327,16 @@ func _start_free_throws(victim: BallPlayer, shots: int) -> void:
 	# the HIGH side basket from the dashed line (the 2R's spot). A pivot who
 	# is fouled shoots at his own side basket, from his usual spot.
 	ft_side = not one_on_one and victim.role <= 3
+	if ball != null:
+		ball.live = false
+		ball.shot_result_pending = false
+
+## Posizionamento al coperto: la vittima sulla lunetta, la fila nelle corsie.
+## Tutto quello che prima "compariva" di colpo succede qui, sotto il velo.
+func _arrange_free_throws() -> void:
+	var victim := ft_shooter
+	if not ft_active or victim == null or not is_instance_valid(victim):
+		return
 	var hoop: Vector2 = hoop_for(victim.team)
 	var dir := -1.0 if hoop.x > 0.0 else 1.0
 	if ft_side:
@@ -2289,16 +2355,27 @@ func _start_free_throws(victim: BallPlayer, shots: int) -> void:
 	# corsia, gli altri fuori dall'arco. Serve perche' sull'ULTIMO libero
 	# sbagliato la palla resta VIVA e il rimbalzo si gioca davvero.
 	_line_up_for_free_throws(victim, hoop, dir, ft_side)
-	if ball != null:
-		ball.live = false
-		ball.shot_result_pending = false
 	give_ball(victim)
-	Events.toast.emit("Free throws ×%d" % shots)
+	Events.toast.emit("Free throws ×%d" % ft_total)
+
+## Stessa sequenza senza velo, in un frame: la usano gli strumenti che
+## fotografano la fila del tiro libero (Batch13Shot) e i test headless.
+func _start_free_throws_instant(victim: BallPlayer, shots: int) -> void:
+	_prepare_free_throws(victim, shots)
+	_arrange_free_throws()
+	_ft_ready = true
+
+## Vero solo quando la fila e' a posto e il velo si e' alzato. La MatchScene
+## lo usa per non far partire il metro del tiro mentre lo schermo e' coperto.
+func free_throws_armed() -> bool:
+	return ft_active and _ft_ready
 
 ## The user's shot-meter release lands here; NPC shooters run a timed routine
 ## in _process instead.
 func free_throw_release(shooter: BallPlayer, err: float) -> void:
-	if not ft_active or shooter != ft_shooter:
+	# `_ft_ready` e' false mentre il velo copre la scena: nessun tiro parte
+	# prima che la fila sia a posto e lo schermo torni visibile.
+	if not ft_active or not _ft_ready or shooter != ft_shooter:
 		return
 	_ft_shoot(err)
 
@@ -2331,6 +2408,16 @@ func _process(delta: float) -> void:
 			or (ball.live and ball.shooter == user))
 	if not ft_active or finished:
 		return
+	if not _ft_ready:
+		# Rete di sicurezza: se la transizione non si chiude per qualsiasi
+		# motivo, il libero si arma lo stesso invece di fermare la partita.
+		_ft_watch += delta
+		if _ft_watch < 2.0:
+			return
+		_arrange_free_throws()
+		ft_timer = 1.0
+		_ft_ready = true
+	_ft_watch = 0.0
 	if ft_shooter == null or not is_instance_valid(ft_shooter):
 		_end_free_throws()
 		return
@@ -2415,6 +2502,8 @@ func _line_up_for_free_throws(victim: BallPlayer, hoop: Vector2, dir: float,
 func _missed_last_free_throw(b: Ball) -> void:
 	ft_left = maxi(0, ft_left - 1)
 	ft_active = false
+	_ft_ready = false
+	_ft_epoch += 1
 	ft_shooter = null
 	restarting = false
 	_ft_keep_possession = false
@@ -2451,6 +2540,8 @@ func _missed_last_free_throw(b: Ball) -> void:
 
 func _end_free_throws() -> void:
 	ft_active = false
+	_ft_ready = false
+	_ft_epoch += 1
 	var shooter := ft_shooter
 	ft_shooter = null
 	if ball != null:
