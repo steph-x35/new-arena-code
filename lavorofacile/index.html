@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LavoroFacile — Busta paga, TFR e colloquio: capirli davvero</title>
+  <meta name="description" content="Tre strumenti gratuiti per capire la busta paga, calcolare il TFR netto e creare il CV in PDF. Nessun account, nessun dato inviato. Se vuoi le guide complete e le lettere già scritte, partono da 2,90 €." />
+  <meta name="keywords" content="busta paga, capire busta paga, calcolo tfr netto, stipendio netto, lettera dimissioni, cv pdf, colloquio lavoro" />
+  <link rel="canonical" href="https://steph-x35.github.io/new-arena-code/lavorofacile/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="LavoroFacile — Busta paga, TFR e colloquio: capirli davvero" />
+  <meta property="og:description" content="Tre strumenti gratuiti che fanno i conti al posto tuo. Guide e modelli pronti da 2,90 €." />
+  <meta property="og:url" content="https://steph-x35.github.io/new-arena-code/lavorofacile/" />
+  <link rel="icon" type="image/svg+xml" href="../logo-icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css?v=4" />
+  <style>
+    .nav-links { display: flex; gap: 4px; margin-left: auto; }
+    .nav-links a {
+      text-decoration: none; color: var(--muted); font-weight: 600; font-size: .9rem;
+      padding: 7px 14px; border-radius: 9px;
+    }
+    .nav-links a:hover { background: var(--bg); color: var(--ink); }
+    .nav-links a.is-active { background: var(--accent-soft); color: var(--accent); }
+    @media (max-width: 860px) { .nav-links { margin-left: 0 !important; flex-wrap: wrap; } }
+
+    /* ---------- hero ---------- */
+    .lf-hero { padding: 46px 0 6px; text-align: center; }
+    .lf-hero h1 { font-size: clamp(1.55rem, 3.6vw, 2.45rem); letter-spacing: -.03em; margin: 0 auto 12px; line-height: 1.15; max-width: 780px; }
+    .lf-hero h1 em { font-style: normal; color: var(--accent); }
+    .lf-hero p.lead { max-width: 660px; margin: 0 auto 16px; color: var(--muted); font-size: 1.04rem; }
+    .lf-hero .hero-badges { justify-content: center; }
+
+    /* ---------- sezioni ---------- */
+    .lf-section { padding: 40px 0 6px; }
+    .lf-section > .wrap > h2 { font-size: 1.4rem; letter-spacing: -.02em; margin: 0 0 6px; }
+    .lf-section > .wrap > p.sub { color: var(--muted); margin: 0 0 22px; font-size: .95rem; }
+
+    /* ---------- card problema ---------- */
+    .prob-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .prob-card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 24px; display: flex; flex-direction: column;
+    }
+    .prob-card .prob-ico { font-size: 1.9rem; line-height: 1; }
+    .prob-card h3 { font-size: 1.1rem; margin: 10px 0 6px; letter-spacing: -.01em; line-height: 1.3; }
+    .prob-card p.prob-desc { color: var(--muted); font-size: .93rem; margin: 0 0 16px; }
+    .prob-free {
+      display: block; background: var(--accent); color: #fff; text-decoration: none;
+      font-weight: 700; font-size: .95rem; text-align: center;
+      padding: 13px 16px; border-radius: 10px; margin-bottom: 8px;
+      transition: filter .15s ease;
+    }
+    .prob-free:hover { filter: brightness(1.08); }
+    .prob-free small { display: block; font-weight: 500; font-size: .76rem; opacity: .85; }
+    .prob-paid {
+      display: block; text-decoration: none; color: var(--ink);
+      border: 1px dashed var(--line); border-radius: 10px; padding: 12px 16px;
+      font-size: .88rem; line-height: 1.45; background: #f8fafc;
+    }
+    .prob-paid:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .prob-paid b { display: block; font-size: .93rem; margin-bottom: 2px; }
+    .prob-paid span.price { color: var(--accent); font-weight: 800; }
+
+    /* ---------- cosa contiene ---------- */
+    .inside-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+    .inside-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+    .inside-card h3 { font-size: .98rem; margin: 0 0 10px; }
+    .inside-card ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: .89rem; line-height: 1.6; }
+    .inside-card .inside-price { display: block; margin-top: 14px; font-weight: 800; color: var(--accent); font-size: .95rem; }
+    .inside-card a.buy {
+      display: block; text-align: center; margin-top: 10px; text-decoration: none;
+      background: var(--ink); color: #fff; font-weight: 700; font-size: .9rem;
+      padding: 11px 14px; border-radius: 9px;
+    }
+    .inside-card a.buy:hover { background: var(--accent); }
+
+    /* ---------- trasparenza ---------- */
+    .honest {
+      background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius);
+      padding: 22px 24px; margin: 6px 0 8px;
+    }
+    .honest h2 { font-size: 1.05rem; margin: 0 0 10px; color: #78350f; }
+    .honest ul { margin: 0; padding-left: 18px; color: #78350f; font-size: .9rem; line-height: 1.65; }
+    .honest a { color: #92400e; }
+
+    /* ---------- sample ---------- */
+    .sample-cta {
+      display: block; background: var(--card); border: 1px dashed #f59e0b; border-radius: var(--radius);
+      padding: 18px 22px; margin: 22px 0 0; text-align: center;
+      text-decoration: none; color: #78350f; font-weight: 700; font-size: .95rem;
+    }
+    .sample-cta:hover { background: #fffbeb; }
+
+    /* ---------- trust ---------- */
+    .trust-row {
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+      margin: 26px 0 0; color: var(--muted); font-size: .87rem;
+    }
+    .trust-row span { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 7px 15px; }
+
+    /* ---------- faq ---------- */
+    .lf-faq { padding: 42px 0 50px; }
+    .lf-faq h2 { font-size: 1.4rem; letter-spacing: -.02em; margin: 0 0 14px; }
+    .lf-faq details {
+      background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+      padding: 14px 18px; margin-bottom: 10px;
+    }
+    .lf-faq summary { cursor: pointer; font-weight: 600; font-size: .96rem; }
+    .lf-faq p { color: var(--muted); margin: 10px 0 2px; font-size: .91rem; }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ItemList",
+        "name": "Guide LavoroFacile",
+        "itemListElement": [
+          {
+            "@type": "ListItem", "position": 1,
+            "item": {
+              "@type": "Product",
+              "name": "La Busta Paga Decodificata",
+              "description": "Quattro guide per capire ogni voce dello stipendio: IRPEF 2026, INPS, cheat sheet del controllo mensile, verifica del CCNL e checklist per cambiare lavoro.",
+              "url": "https://steph-x35.github.io/new-arena-code/lavorofacile/",
+              "offers": { "@type": "Offer", "price": "2.90", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://payhip.com/b/kbpxY" }
+            }
+          },
+          {
+            "@type": "ListItem", "position": 2,
+            "item": {
+              "@type": "Product",
+              "name": "Pacchetto Dimissioni e TFR",
+              "description": "Cinque lettere pronte da compilare: dimissioni con preavviso, dimissioni per giusta causa, sollecito del TFR con messa in mora e guida ai termini di pagamento.",
+              "url": "https://steph-x35.github.io/new-arena-code/lavorofacile/",
+              "offers": { "@type": "Offer", "price": "3.90", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://payhip.com/b/ZI9na" }
+            }
+          },
+          {
+            "@type": "ListItem", "position": 3,
+            "item": {
+              "@type": "Product",
+              "name": "Kit Carriera",
+              "description": "Ventidue file: cinque modelli di CV compatibili ATS, dieci lettere di presentazione per settore e la guida al colloquio con le risposte alle domande difficili.",
+              "url": "https://steph-x35.github.io/new-arena-code/lavorofacile/",
+              "offers": { "@type": "Offer", "price": "4.90", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://payhip.com/b/utzIY" }
+            }
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Gli strumenti sono davvero gratis?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Sì. Calcolatore TFR, stipendio netto e generatore di CV sono gratuiti e restano gratuiti: non richiedono account e non inviano i tuoi dati a nessun server, perché i calcoli avvengono nel browser." }
+          },
+          {
+            "@type": "Question",
+            "name": "Cosa ricevo comprando una guida?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Un download immediato di file PDF e di testo che puoi leggere e stampare. L'accesso non scade: paghi una volta sola, nessun abbonamento." }
+          },
+          {
+            "@type": "Question",
+            "name": "Come pago?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Con PayPal o carta, tramite Payhip. Il pagamento è gestito da loro: non vediamo né conserviamo i dati della tua carta." }
+          },
+          {
+            "@type": "Question",
+            "name": "I calcolatori sostituiscono un commercialista?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No, e non lo pretendono. I calcolatori danno una stima per capire l'ordine di grandezza. Per le cifre ufficiali di un fine rapporto serve un professionista." }
+          },
+          {
+            "@type": "Question",
+            "name": "Posso usare le lettere così come sono?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Sono modelli da compilare con i tuoi dati. Vanno letti e adattati alla tua situazione: non sono una consulenza legale personalizzata." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <header class="site-header no-print">
+    <div class="wrap header-inner">
+      <div class="brand">
+        <img src="../logo-icon.svg" alt="LF" width="28" height="28" style="border-radius:6px; display:inline-block; vertical-align:middle;" />
+        <span class="brand-name">Lavoro<span>Facile</span></span>
+      </div>
+      <p class="brand-tag">Strumenti gratis per chi vive di lavoro</p>
+      <nav class="nav-links">
+        <a href="../">Fatture</a>
+        <a href="../stipendio-netto/">Stipendio netto</a>
+        <a href="../crea-cv/">Crea CV</a>
+        <a href="../calcolo-tfr/">Calcolo TFR</a>
+        <a href="./" class="is-active">Guide</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="lf-hero">
+      <div class="wrap">
+        <h1>La tua busta paga, il tuo TFR, il tuo colloquio. <em>Capiti in mezz'ora.</em></h1>
+        <p class="lead">
+          Tre strumenti gratuiti che fanno i conti al posto tuo: nessun account, nessun dato inviato.
+          Se poi vuoi la guida completa o le lettere già scritte, le trovi qui sotto.
+        </p>
+        <ul class="hero-badges">
+          <li>✅ Strumenti gratis, per sempre</li>
+          <li>🔒 I dati restano nel browser</li>
+          <li>⚡ Guide e modelli pronti da scaricare</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="lf-section">
+      <div class="wrap">
+        <h2>Da dove parte il tuo problema?</h2>
+        <p class="sub">Scegli la situazione. Sotto ognuna c'è lo strumento gratuito e, se ti serve, la guida che la risolve per intero.</p>
+
+        <div class="prob-grid">
+
+          <div class="prob-card">
+            <span class="prob-ico">📮</span>
+            <h3>Ti stai licenziando, o ti hanno lasciato a casa</h3>
+            <p class="prob-desc">TFR, ferie non godute, preavviso, quattordicesima: le voci che compongono il conguaglio finale e che quasi nessuno controlla.</p>
+            <a class="prob-free" href="../calcolo-tfr/">Calcola il TFR netto <small>Gratis · stima in 30 secondi</small></a>
+            <a class="prob-paid" href="https://payhip.com/b/ZI9na" target="_blank" rel="noopener">
+              <b>Pacchetto Dimissioni &amp; TFR</b>
+              5 lettere pronte: dimissioni, giusta causa, sollecito del TFR con messa in mora, anticipo TFR, guida ai termini di pagamento. <span class="price">3,90 €</span>
+            </a>
+          </div>
+
+          <div class="prob-card">
+            <span class="prob-ico">🧾</span>
+            <h3>Non capisci cosa c'è scritto nella busta paga</h3>
+            <p class="prob-desc">Lordo, netto, contributi, addizionali: se prendi in mano il cedolino e non sai da dove cominciare, il problema è la decodifica, non tu.</p>
+            <a class="prob-free" href="../stipendio-netto/">Dal lordo al netto <small>Gratis · IRPEF, INPS e addizionali</small></a>
+            <a class="prob-paid" href="https://payhip.com/b/kbpxY" target="_blank" rel="noopener">
+              <b>La Busta Paga Decodificata</b>
+              4 guide: ogni voce spiegata con esempi reali, cheat sheet del controllo mensile, verifica del CCNL, checklist per cambiare contratto. <span class="price">2,90 €</span>
+            </a>
+          </div>
+
+          <div class="prob-card">
+            <span class="prob-ico">🎯</span>
+            <h3>Devi cercare lavoro, o hai un colloquio</h3>
+            <p class="prob-desc">Un CV che regge i filtri automatici e le risposte giuste alle domande scomode fanno più differenza dell'ennesimo corso.</p>
+            <a class="prob-free" href="../crea-cv/">Crea il CV in PDF <small>Gratis · senza account, pronto in 5 minuti</small></a>
+            <a class="prob-paid" href="https://payhip.com/b/utzIY" target="_blank" rel="noopener">
+              <b>Kit Carriera</b>
+              22 file: 5 modelli di CV compatibili ATS, 10 lettere di presentazione per settore, guida al colloquio con le risposte alle domande difficili. <span class="price">4,90 €</span>
+            </a>
+          </div>
+
+        </div>
+
+        <a class="sample-cta" href="../busta-paga-esempio.html">
+          👀 Prima di comprare: apri una busta paga di esempio e trova i 3 errori nascosti →
+        </a>
+      </div>
+    </section>
+
+    <section class="lf-section">
+      <div class="wrap">
+        <h2>Cosa c'è dentro, file per file</h2>
+        <p class="sub">Niente sorprese: questi sono esattamente i file che scarichi.</p>
+
+        <div class="inside-grid">
+
+          <div class="inside-card">
+            <h3>🧾 La Busta Paga Decodificata</h3>
+            <ul>
+              <li>Guida completa: ogni voce del cedolino</li>
+              <li>Cheat sheet: il controllo da 10 minuti</li>
+              <li>Ti pagano meno del CCNL?</li>
+              <li>Checklist del primo giorno dopo il cambio contratto</li>
+            </ul>
+            <span class="inside-price">2,90 €</span>
+            <a class="buy" href="https://payhip.com/b/kbpxY" target="_blank" rel="noopener">Scarica la guida →</a>
+          </div>
+
+          <div class="inside-card">
+            <h3>📮 Pacchetto Dimissioni &amp; TFR</h3>
+            <ul>
+              <li>Lettera di dimissioni volontarie con preavviso</li>
+              <li>Lettera di dimissioni per giusta causa</li>
+              <li>Sollecito ufficiale con messa in mora del TFR</li>
+              <li>Richiesta anticipo TFR in costanza di rapporto</li>
+              <li>Guida pratica a termini di pagamento e preavviso</li>
+            </ul>
+            <span class="inside-price">3,90 €</span>
+            <a class="buy" href="https://payhip.com/b/ZI9na" target="_blank" rel="noopener">Scarica il pacchetto →</a>
+          </div>
+
+          <div class="inside-card">
+            <h3>🎯 Kit Carriera</h3>
+            <ul>
+              <li>5 modelli di CV compatibili ATS</li>
+              <li>10 lettere di presentazione per settore</li>
+              <li>Guida al colloquio</li>
+              <li>Le risposte alle domande difficili</li>
+            </ul>
+            <span class="inside-price">4,90 €</span>
+            <a class="buy" href="https://payhip.com/b/utzIY" target="_blank" rel="noopener">Scarica il kit →</a>
+          </div>
+
+        </div>
+
+        <div class="trust-row">
+          <span>🔒 Pagamento sicuro PayPal / carte</span>
+          <span>⚡ Download immediato</span>
+          <span>♾️ Accesso a vita, nessun abbonamento</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="lf-section">
+      <div class="wrap">
+        <div class="honest">
+          <h2>Cosa questi strumenti NON fanno</h2>
+          <ul>
+            <li>Non sostituiscono un commercialista: i calcolatori danno una <strong>stima</strong>, utile per capire l'ordine di grandezza e per fare le domande giuste.</li>
+            <li>Per le cifre ufficiali di un fine rapporto serve un professionista: è la scelta giusta, soprattutto in un momento delicato.</li>
+            <li>Le lettere sono <strong>modelli da compilare</strong> con i tuoi dati, da leggere e adattare alla tua situazione.</li>
+            <li>Non chiediamo mai il nome, il codice fiscale o la busta paga intera: per una stima bastano lordo mensile, data di assunzione e ferie residue.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="lf-faq">
+      <div class="wrap">
+        <h2>Domande frequenti</h2>
+
+        <details>
+          <summary>Gli strumenti sono davvero gratis?</summary>
+          <p>Sì. Calcolatore TFR, stipendio netto e generatore di CV sono gratuiti e restano gratuiti: non richiedono account e non inviano i tuoi dati a nessun server, perché i calcoli avvengono nel browser.</p>
+        </details>
+
+        <details>
+          <summary>Cosa ricevo comprando una guida?</summary>
+          <p>Un download immediato di file PDF e di testo che puoi leggere e stampare. L'accesso non scade: paghi una volta sola, nessun abbonamento.</p>
+        </details>
+
+        <details>
+          <summary>Come pago?</summary>
+          <p>Con PayPal o carta, tramite Payhip. Il pagamento è gestito da loro: non vediamo né conserviamo i dati della tua carta.</p>
+        </details>
+
+        <details>
+          <summary>I calcolatori sostituiscono un commercialista?</summary>
+          <p>No, e non lo pretendono. I calcolatori danno una stima per capire l'ordine di grandezza. Per le cifre ufficiali di un fine rapporto serve un professionista.</p>
+        </details>
+
+        <details>
+          <summary>Posso usare le lettere così come sono?</summary>
+          <p>Sono modelli da compilare con i tuoi dati. Vanno letti e adattati alla tua situazione: non sono una consulenza legale personalizzata.</p>
+        </details>
+
+        <details>
+          <summary>Perché costano così poco?</summary>
+          <p>Perché sono file, non un servizio: nessuna consulenza personalizzata, nessun appuntamento. Quello che leggi lo scarichi subito e lo usi quando vuoi.</p>
+        </details>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer no-print">
+    <div class="wrap">
+      <p>💼 <strong>LavoroFacile</strong> — strumenti e guide per capire il tuo lavoro: busta paga, TFR, colloquio. I tuoi dati non lasciano mai il browser.</p>
+      <p style="margin-top:8px;">Questa pagina contiene link al negozio <a href="https://payhip.com?fp_ref=lavorofacile-e658df" target="_blank" rel="noopener sponsored">Payhip</a>. <em>(link partner)</em></p>
+    </div>
+  </footer>
+
+</body>
+</html>
