@@ -677,14 +677,15 @@ Calendario (ore 19:00, TikTok + YouTube insieme):
 - SAB 25/10 → v10 SCATTI DI ANZIANITÀ
 
 ### v9 — «TI LICENZI: QUANTO TI SPETTA?» (caso reale #1, TUTTO anonimo)
-FORMATO: **registrazione del sito** (calcolatore TFR), 22-28s — NON card scure.
+FORMATO: **registrazione del sito** (calcolatore TFR), 20s — NON card scure.
 Struttura (quella del 209k):
-- 0-2s   fermo sul calcolatore vuoto · testo «Ti licenzi dopo 7 anni?»
-- 2-6s   digiti 1577 nel mensile lordo
-- 6-8s   la RAL si compila da sola: 20.501  <-- il momento bello
-- 8-12s  7 anni e 8 mesi
-- 14-24s esce il risultato · zoom su 8.360 € netti (10.857 lordi)
-- 24-28s «E tu? Scrivi anni + stipendio 👇» · ultimo frame = primo (loop)
+- 0-1,5s  fermo sul calcolatore vuoto · testo «Ti licenzi dopo 7 anni?»
+- 1,5-4,5 digiti 1577 nel mensile lordo
+- 4,5-6,5 la RAL si compila da sola: 20.501  <-- il momento bello (1s fermo)
+- 6,5-9s  7 anni e 8 mesi
+- 11-15s  zoom su 8.359,64 € netti (10.856,67 lordi sotto)
+- 15-18s  «E tu? Scrivi anni + stipendio 👇»
+- 18-20s  ritorno al primo fotogramma = loop invisibile (mai finire sul CTA)
 Numeri: dal calcolo del 19/10 (paga 9,0956€/h, 7y8m), riverificati col
 codice del sito il 22/10. MAI nome, azienda, IBAN o busta nel video.
 Copione completo (testi, montaggio, metriche): REEL-22-LICENZIAMENTO.md.
