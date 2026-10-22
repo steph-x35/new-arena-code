@@ -674,7 +674,7 @@ Calendario (ore 19:00, TikTok + YouTube insieme):
 - LUN 20/10 → v8 BOMBA 14ma (anticipata da mar: mano calda)
 - MER 22/10 → v9 CASO FRANCESCO (anonimo)
 - GIO 23/10 → 312 ore (caso commento, gia' pronto)
-- SAB 25/10 → v10 SCATTI DI ANZIANITÀ
+- SAB 25/10 → **STIPENDIO NETTO** (REEL-25, screencast) — scatti spostati
 
 ### v9 — «TI LICENZI: QUANTO TI SPETTA?» (caso reale #1, TUTTO anonimo)
 FORMATO: **registrazione del sito** (calcolatore TFR), 20s — NON card scure.
@@ -701,7 +701,15 @@ Copione completo (testi, montaggio, metriche): REEL-22-LICENZIAMENTO.md.
 >    le card scure hanno gia' fatto 967 e 1.389 e non vanno piu' usate.
 > Copione completo, testi, montaggio e metriche: vedi **REEL-22-LICENZIAMENTO.md**.
 
-### v10 — SCATTI DI ANZIANITÀ (sab 25/10)
+### ⇄ v10 — SCATTI DI ANZIANITÀ (SPOSTATO — vedi nota)
+
+> ⚠️ 22/10 — **Spostato fuori dallo slot di sabato 25/10.**
+> Motivo: gli scatti **non hanno un calcolatore sul sito**, quindi non si
+> possono girare come registrazione dello schermo e si torna alle card scure
+> (967 e 1.389 views, 4 tentativi). Lo slot di sabato va a
+> **REEL-25-STIPENDIO-NETTO.md** (calcolatore stipendio netto, stesso format
+> del 209k). Il testo qui sotto resta valido e si gira appena esiste un modo
+> di mostrare gli scatti a schermo.
 Hook: «La tua busta ha la riga "SCATTI"?» + rosso «SE MANCA, SONO INDIETRO»
 Card 2: «Quasi ogni CCNL dà uno scatto ogni 2-3 anni. Se la tua paga non sale...»
 Card 3: scala in ANNI: «2 anni = 1 scatto» / «4 anni = 2 scatti» / «6 anni = 3 scatti»
