@@ -676,14 +676,30 @@ Calendario (ore 19:00, TikTok + YouTube insieme):
 - GIO 23/10 → 312 ore (caso commento, gia' pronto)
 - SAB 25/10 → v10 SCATTI DI ANZIANITÀ
 
-### v9 — «MI LICENZIO: COSA MI SPETTA?» (caso reale #1, TUTTO anonimo)
-Hook (0-1,5s): «Uno mi ha scritto: mi licenzio.» + rosso «COSA TI SPETTA?»
-Card 2 (1,5-4s): «7 anni e 8 mesi nello stesso lavoro. Ecco i numeri veri.»
-Card 3 (4-7s): scala rossa: «Ferie = 72,76€ al GIORNO» / «14ma = fino a 5 STIPENDI» / «TFR = ~12.500 lordi»
-Card 4 (7-10s): «La cifra esatta sta nel prospetto di liquidazione: è tuo DIRITTO chiederlo.»
-Card 5 (10-13s): «Stai pensando di andartene? 👇 Scrivi quanti anni fai + SALVA» (loop card 1)
-Numeri: presi dal calcolo reale del 19/10 (paga 9,0956€/h, 7y8m, rivalutazioni).
-MAI nome, azienda, IBAN o busta nel video ne' altrove. Framing: caso vero.
+### v9 — «TI LICENZI: QUANTO TI SPETTA?» (caso reale #1, TUTTO anonimo)
+FORMATO: **registrazione del sito** (calcolatore TFR), 20s — NON card scure.
+Struttura (quella del 209k):
+- 0-1,5s  fermo sul calcolatore vuoto · testo «Ti licenzi dopo 7 anni?»
+- 1,5-4,5 digiti 1577 nel mensile lordo
+- 4,5-6,5 la RAL si compila da sola: 20.501  <-- il momento bello (1s fermo)
+- 6,5-9s  7 anni e 8 mesi
+- 11-15s  zoom su 8.359,64 € netti (10.856,67 lordi sotto)
+- 15-18s  «E tu? Scrivi anni + stipendio 👇»
+- 18-20s  ritorno al primo fotogramma = loop invisibile (mai finire sul CTA)
+Numeri: dal calcolo del 19/10 (paga 9,0956€/h, 7y8m), riverificati col
+codice del sito il 22/10. MAI nome, azienda, IBAN o busta nel video.
+Copione completo (testi, montaggio, metriche): REEL-22-LICENZIAMENTO.md.
+
+> ⚠️ 22/10 — CORREZIONE NUMERI **E FORMATO**.
+> 1) Il TFR lordo e' **10.857** (netto 8.360), non 12.500: i 12.500 includevano
+>    le rivalutazioni ISTAT, che il calcolatore NON calcola.
+> 2) Attenzione alla sincronizzazione: `app.js` fa mensile -> RAL con **x13**.
+>    Il caso (1.576,54 mensili) da' RAL 20.501 -> TFR 10.857. Il calcolo a 14
+>    mensilita' (11.689) NON e' riproducibile sullo schermo di chi guarda.
+> 3) **Il reel va girato come REGISTRAZIONE DEL SITO, 22-28s** — non come
+>    card su fondo scuro. Il 209k e' venuto dalla registrazione del calcolatore;
+>    le card scure hanno gia' fatto 967 e 1.389 e non vanno piu' usate.
+> Copione completo, testi, montaggio e metriche: vedi **REEL-22-LICENZIAMENTO.md**.
 
 ### v10 — SCATTI DI ANZIANITÀ (sab 25/10)
 Hook: «La tua busta ha la riga "SCATTI"?» + rosso «SE MANCA, SONO INDIETRO»
