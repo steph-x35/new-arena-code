@@ -66,7 +66,8 @@ sul default, nessun familiare a carico.
 `1.500 − 1.143,48 = 356,52 €` (il "buco" mensile, non annuo).
 
 ⚠️ **Regola per chi registra:** **non toccare il campo «regione»**. Il tool parte
-con l'aliquota 1,23% già impostata nel campo; se si cambia regione dal menù
+già su **Veneto 1,23%** (è il default, e il riquadro risultati lo scrive per
+esteso: «Addizionale regionale — Veneto (1,23%)»). Se si cambia regione dal menù
 l'aliquota cambia (es. Abruzzo 1,73%) e il netto scende a 1.136,67 €. Lasciando
 tutto com'è, il numero è **1.143,48** e chiunque lo riproduce ottiene lo stesso.
 
