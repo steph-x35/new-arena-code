@@ -679,11 +679,17 @@ Calendario (ore 19:00, TikTok + YouTube insieme):
 ### v9 — «MI LICENZIO: COSA MI SPETTA?» (caso reale #1, TUTTO anonimo)
 Hook (0-1,5s): «Uno mi ha scritto: mi licenzio.» + rosso «COSA TI SPETTA?»
 Card 2 (1,5-4s): «7 anni e 8 mesi nello stesso lavoro. Ecco i numeri veri.»
-Card 3 (4-7s): scala rossa: «Ferie = 72,76€ al GIORNO» / «14ma = fino a 5 STIPENDI» / «TFR = ~12.500 lordi»
+Card 3 (4-7s): scala rossa: «Ferie = 72,76€ al GIORNO» / «14ma = fino a 5 STIPENDI» / «TFR = 11.688 lordi»
 Card 4 (7-10s): «La cifra esatta sta nel prospetto di liquidazione: è tuo DIRITTO chiederlo.»
 Card 5 (10-13s): «Stai pensando di andartene? 👇 Scrivi quanti anni fai + SALVA» (loop card 1)
-Numeri: presi dal calcolo reale del 19/10 (paga 9,0956€/h, 7y8m, rivalutazioni).
+Numeri: presi dal calcolo reale del 19/10 (paga 9,0956€/h, 7y8m).
 MAI nome, azienda, IBAN o busta nel video ne' altrove. Framing: caso vero.
+
+> ⚠️ 22/10 — CORREZIONE NUMERO: il TFR lordo e' **11.688**, non 12.500.
+> I 12.500 vecchi includevano le rivalutazioni ISTAT, che il calcolatore del
+> sito NON calcola: chi lo digitava trovava 11.688 e ci smontava nei commenti
+> (regola del piano: il tool e' la fonte unica). Copione completo, testi,
+> montaggio e metriche: vedi **REEL-22-LICENZIAMENTO.md**.
 
 ### v10 — SCATTI DI ANZIANITÀ (sab 25/10)
 Hook: «La tua busta ha la riga "SCATTI"?» + rosso «SE MANCA, SONO INDIETRO»
