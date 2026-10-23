@@ -1,7 +1,7 @@
 # 🎬 REEL «1.500 € lordi: quanto ti resta?» — sabato 25/10
 
 > **Formato: registrazione dello schermo del calcolatore stipendio netto.**
-> Lo stesso del reel da 209k. **20 secondi**, loop in fondo.
+> Lo stesso del reel da 209k, **con la voce**. 22 secondi, loop in fondo.
 > Numeri verificati riga per riga sul codice di `stipendio-netto/app.js`.
 
 ---
@@ -73,25 +73,80 @@ tutto com'è, il numero è **1.143,48** e chiunque lo riproduce ottiene lo stess
 
 ---
 
-## 3 — Timeline: 20 secondi
+## 3 — Timeline 22s, con la voce
 
-| Tempo | Cosa si vede | Testo in sovrimpressione |
-|---|---|---|
-| **0 – 1,5 s** | **fermo** sul calcolatore vuoto | **1.500 € lordi.** (grande, bold) |
-| **1,5 – 4 s** | digiti **1500** nel campo *Oppure mensile lordo* | — |
-| **4 – 6 s** | ⚡ il **lordo annuo si compila da solo: 19.500** | **↑ 19.500 € all'anno** |
-| **6 – 8 s** | niente da digitare: il risultato è già lì | **Quanto ti resta?** |
-| **8 – 12 s** | scrolli al riquadro risultati | — |
-| **12 – 16 s** | **zoom** sul netto mensile | **1.143 € netti** (giallo, grande) |
-| **16 – 18 s** | resti sul numero | **356 € al mese. Spariti.** |
-| **18 – 20 s** | **torni sul primo fotogramma** | **1.500 € lordi.** |
-| **fine** | ↻ riparte da 0 — loop invisibile | — |
+Il 23/10 il reel v9 ha fatto **0,1% di like su TikTok e 0,1% su YouTube**
+(6.510 → 7 · 1.000 → 1). Due piattaforme, stesso numero: il video è utile
+ma non simpatico. La voce è la riparazione più diretta, perché aggiunge
+una persona dove prima c'erano solo numeri.
 
-**Ordine di importanza:** il sync del lordo annuo (4-6 s) e i due numeri
-(1.143 e 356). Il resto è contorno.
+| Tempo | Cosa si vede | **La voce dice** | Testo a schermo |
+|---|---|---|---|
+| **0 – 2 s** | fermo sul calcolatore vuoto | *1.500 euro lordi. Quanto ti resta?* | **1.500 € lordi.** |
+| **2 – 5 s** | digiti `1500` | *Quasi un quarto se ne va prima del conto.* | — |
+| **5 – 8 s** | ⚡ il lordo annuo si compila: **19.500** | *Ecco: diciannovemilacinquecento all'anno. Ma non sono i tuoi.* | **↑ 19.500 € all'anno** |
+| **8 – 12 s** | scrolli ai risultati | *Contributi, tasse, addizionali.* | — |
+| **12 – 16 s** | **zoom** sul netto | *Ti restano millecentoquarantatré euro.* | **1.143 € netti** |
+| **16 – 19 s** | resti sul numero | *Trecentocinquantasei al mese. Non li vedi mai.* | **356 € al mese. Spariti.** |
+| **19 – 21 s** | card CTA (testo, sopra il sito fermo) | *Ti spettano anche a te? Like, e iscriviti: ogni settimana un conto che nessuno ti fa.* | **❤️ + ISCRIVITI** / *ogni settimana un conto* |
+| **21 – 22 s** | **torni al primo fotogramma, senza voce** | *(silenzio — solo musica)* | **1.500 € lordi.** |
+| fine | ↻ riparte da 0 | — | — |
 
-**Il video NON finisce sul CTA.** Finisce sul ritorno al primo fotogramma. Il CTA
-sta nella **penultima** card (16-18 s), insieme al numero perduto.
+**53 parole in 22 secondi.** È il ritmo giusto: né affrettato né vuoto.
+Se la voce ti sembra lenta, non accelerarla: togli parole, non tempo.
+
+### Le tre regole della voce
+
+**1. La voce tace sull'ultimo secondo.** Il segmento di ritorno (21-22 s)
+è **solo musica**. Se la voce sta ancora parlando quando il video riparte,
+il loop si sente come uno stacco e si perde. Il silenzio finale è quello che
+fa sembrare il video infinito.
+
+**2. La musica scende a 10-15%.** Nel v9 era al 30-40% perché non c'era voce.
+Adesso la voce è il protagonista: se la musica resta alta, la gente non
+capisce una parola e scorre.
+
+**3. I testi a schermo restano.** Non sono decorazione: la prima cosa che fa
+chi scorre è guardare, non ascoltare. Circa un terzo arriva senza audio.
+
+---
+
+## 3b — Registrare la voce
+
+### Se usi la tua voce (consigliato)
+
+È la differenza tra un canale e un video. Un volto o una voce sono l'unica
+cosa che trasforma 6.500 views in iscritti: senza, la gente prende il numero
+e va via — è esattamente quello che è successo ieri.
+
+- Telefono a **10-15 cm**, di lato (non davanti), per evitare le "p" che
+  esplodono
+- **Stanza piccola** con vestiti o tende: il bagno e la cucina rimbombano
+- Registra **tutto in una volta**, senza pause. Se sbagli una parola, riparti
+  dalla frase, non dal video: in CapCut tagli
+- Parla **un filo più veloce** di come parli normalmente: al microfono sembra
+  sempre più lento
+- Un sorriso mentre parli: si sente, e cambia tutto
+
+### Se usi la voce automatica di TikTok
+
+Zero attrito, ma suona come mille altri account. Va bene per **testare**;
+se il test funziona, la rifai con la tua.
+
+⚠️ **Scrivi i numeri a lettere.** La voce automatica legge `1.143` come
+"uno punto uno quattro tre" o salta le cifre. Nel campo del testo scrivi
+**millecentoquarantatré**, e così `19.500` → **diciannovemilacinquecento**.
+
+### Cosa NON mettere nella voce
+
+- **Niente «in bio».** Su YouTube la bio non esiste (il link sta in
+  descrizione) e su TikTok a 458 follower il campo sito non è toccabile:
+  è il bug che ha bruciato 7.500 views ieri.
+- **Niente prezzi.** Il prodotto si nomina nel commento fissato, mai nel video.
+- **Niente «metti like e seguici».** Generico e invisibile: la gente non lo
+  sente più. Il like va chiesto **subito dopo il numero** (16-19 s), che è il
+  punto in cui l'emozione è alta, e il follow va chiesto **con una promessa**
+  («ogni settimana un conto che nessuno ti fa»).
 
 ---
 
@@ -105,13 +160,13 @@ Le uniche differenze:
 | Passo | Qui |
 |---|---|
 | Progetto | 9:16, 1080×1920, 30 fps |
-| Testo 1 | «1.500 € lordi.» — 0-1,5 s **e** 18-20 s |
-| Testo 2 | «↑ 19.500 € all'anno» — 4-6 s |
-| Testo 3 | «Quanto ti resta?» — 6-8 s |
+| Testo 1 | «1.500 € lordi.» — 0-2 s **e** 21-22 s (loop) |
+| Testo 2 | «↑ 19.500 € all'anno» — 5-8 s |
+| Testo 3 | **«❤️ + ISCRIVITI»** + *ogni settimana un conto che nessuno ti fa* — 19-21 s |
 | Testo 4 | «1.143 € netti» — 12-16 s, giallo `#FFC43D`, grande |
-| Testo 5 | «356 € al mese. Spariti.» — 16-18 s |
-| Audio | «dark suspense», colpo a 0:00, volume 30-40% |
-| Loop | clip 0-1,5 s copiata in coda, tagliata a 1,5-2 s, sovrapposta al primo frame |
+| Testo 5 | «356 € al mese. Spariti.» — 16-19 s |
+| Audio | **voce** (100%) + «dark suspense» sotto, **10-15%**, colpo a 0:00 |
+| Loop | clip 0-2 s copiata in coda, tagliata a **1 s**, **senza voce**, sovrapposta al primo frame |
 
 ---
 
@@ -123,10 +178,11 @@ Le uniche differenze:
 1.500 € lordi. Netti? 1.143 €.
 
 356 € al mese che non arrivano mai sul conto.
-
 Su 13 mensilità sono 4.635 € l'anno.
 
-Quanto ti resta a te? Calcolalo gratis 👇
+Quanto ti resta a te? Scrivilo nei commenti 👇
+Iscriviti: ogni settimana un conto che nessuno ti fa.
+
 #stipendio #bustapaga #lavoro #netto #tasse
 ```
 
@@ -134,7 +190,9 @@ Quanto ti resta a te? Calcolalo gratis 👇
 
 ```
 Scrivete il vostro lordo mensile 👇 vi dico l'ordine di grandezza del netto.
-(Il conto esatto cambia con regione e carichi di famiglia: il tool in bio li considera)
+Il conto esatto dipende da regione e carichi di famiglia: il calcolatore è
+nel canale YouTube (icona qui nel profilo).
+Iscriviti: ogni settimana un conto che nessuno ti fa.
 ```
 
 ### YouTube — Titolo
@@ -156,6 +214,8 @@ https://payhip.com/b/kbpxY
 
 ⚠️ Stima indicativa su 13 mensilità, regione a aliquota base, nessun familiare a carico.
 Il netto reale dipende da CCNL, regione, comune e detrazioni.
+
+Iscriviti: ogni settimana un conto che nessuno ti fa.
 
 #shorts #stipendio #bustapaga #lavoro
 ```
@@ -179,15 +239,26 @@ mai messo davanti a un video che parla di stipendio**.
 
 ## 7 — Metriche a 48 ore
 
-| Metrica | Soglia | Se è sotto |
-|---|---|---|
-| Spettatori oltre i 3 s | **> 50%** | l'hook «1.500 € lordi» non aggancia |
-| Tempo medio | **> 14 s** su 20 | il loop non lavora |
-| Commenti con il proprio lordo | **> 30** | la CTA è troppo timida |
-| Click Linktree su «Busta paga» | **> 5** in 48h | il video informa ma non vende |
+### La metrica che decide tutto: **il tasso di like**
 
-Il numero che conta: **quanti toccano «Busta paga 2,90 €»**. Era a 2. Se arriva a
-7-8 in 48 ore, questo formato vende, e si replica.
+Il v9 ha fatto **0,11%** su TikTok e **0,10%** su YouTube. La media è 2-5%.
+Tutto il resto è rumore finché questo numero resta a zero virgola.
+
+| Metrica | v9 (senza voce) | Soglia per dire «funziona» | Se è sotto |
+|---|---|---|---|
+| **Tasso di like** | 0,11% | **> 1%** (10× il v9) | il problema non è il video: è il tono. La voce non basta: serve un volto o una battuta |
+| Spettatori oltre i 3 s | n.d. | **> 50%** | l'hook «1.500 € lordi» non aggancia |
+| Tempo medio | n.d. | **> 14 s** su 22 | il loop non lavora |
+| Commenti con il proprio lordo | 3 (v9) | **> 30** | la CTA è troppo timida |
+| Follower nuovi | ~0 (v9) | **> 20** | la promessa «ogni settimana un conto» non convince |
+
+**Il passaggio da 0,1% a 1% è il vero obiettivo**, non le views. Un video che
+fa 2.000 views con 1% di like vale dieci volte un video da 6.500 con 0,1%,
+perché è quello che la piattaforma spinge.
+
+**Nessun click.** Su TikTok il link non è raggiungibile sotto i 1.000 follower:
+giudicare questo reel dai click è come pesare una cosa con un righello.
+I click si guardano **solo su YouTube**.
 
 ---
 

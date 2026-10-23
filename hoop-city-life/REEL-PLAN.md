@@ -361,7 +361,14 @@ promessa**, mai da solo: la gente si iscrive per quello che arriva, non per
 quello che ha appena visto.
 
 Riga 1 (grande):  Ti spettano anche a te?
-Riga 2 (piccola): ❤️ + iscriviti — il prossimo sono le ferie
+Riga 2 (piccola): ❤️ + iscriviti — ogni settimana un conto che nessuno ti fa
+
+⚠️ La promessa NON deve essere un argomento specifico. «Il prossimo sono le
+ferie» era la prima idea ed e' sbagliata: le ferie sono gia' uscite il 18/10
+(v7) e non hanno un calcolatore, quindi in questo format non si possono
+rifare. Una promessa che non mantieni al video dopo e' peggio di nessuna
+promessa. La formula «ogni settimana un conto che nessuno ti fa» e' sempre
+vera e non scade.
 
 Vietato: «metti like e seguici» (generico, invisibile, non dice perche').
 Vietato: chiedere il like senza aver prima dato il numero.
