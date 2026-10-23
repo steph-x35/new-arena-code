@@ -292,7 +292,7 @@ Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) �
 | LF «8 ore / 6 pagate» (rabbia+giustizia) | **967 · 1 like · 1 save · 5,3s tempo medio** | NON e' il formato ad aver fallito: con 5,3s di retention la gente se ne va' DURANTE l'hook → TikTok smette di spingere prima ancora di mostrare il contenuto. Malattia = primi 2 secondi. Istruzione per il prossimo: il NUMERO enorme e' gia' nel primo fotogramma, domanda-identita' come «5 anni», zero introduzione |
 | LF «8 ore / 6 pagate» — YouTube Shorts (canale NUOVO, 0 iscritti) | **1.300 views in 24h · 1,8h di watch time (≈5s a view)** | canale a zero distribuito subito: la macchina YouTube FUNZIONA. Stesso crollo a ~5s di TikTok = conferma incrociata: il problema e' l'hook, non la piattaforma. UNA riparazione (primi 2s) vale per entrambi i canali. Ogni reel TikTok si ricarica qui: costo zero, pubblico da ricerca |
 | LF «Ferie non godute» (v7: 13s, 5 card, zero cedolino, soggetto vergine) | **pubblicato 2026-10-18 19:00** | primo reel con tutti i pro caricati: hook <1,5s, framing perdita, scala 65→650→2.000, CTA commenti+save, loop. Lettura a 48h: % >3s target >50%, tempo medio >7s, salvataggi |
-| **LF «TI LICENZI DOPO 7 ANNI?»** (v9, screencast 20s, 22/10 ore 20) | **6.510 in 24h** con account a 458 follower · 7 like · 3 commenti | primo reel in formato REGISTRAZIONE DELLO SCHERMO dopo il 209k. 6.510 il primo giorno da 458 follower = distribuzione sana. Commenti arrivati con anni+stipendio ("anni 7 stipendio 2300", "1700 x8 mesi") = la gente usa il profilo come calcolatore, che e' esattamente il comportamento cercato. Da NON leggere come vittoria: 7 like su 6.510 = 0,1%, il pubblico prende il numero e va via senza motivo per restare |
+| **LF «TI LICENZI DOPO 7 ANNI?»** (v9, screencast 20s, 22/10 ore 20) | **6.510 in 24h** con account a 458 follower · 7 like · 3 commenti | primo reel in formato REGISTRAZIONE DELLO SCHERMO dopo il 209k. 6.510 il primo giorno da 458 follower = distribuzione sana. Commenti arrivati con anni+stipendio ("anni 7 stipendio 2300", "1700 x8 mesi") = la gente usa il profilo come calcolatore, che e' esattamente il comportamento cercato. Da NON leggere come vittoria: 7 like su 6.510 = 0,1%, il pubblico prende il numero e va via senza motivo per restare. **Linktree «Calcola il TFR»: 121 -> 122 = UN solo click su 6.510 views (0,015%).** Il modello del piano ne prevedeva 2-10: siamo sotto anche al caso pessimista |
 | HCL POV «appeso al ferro» | **790 CON boost gratis** | organico reale piu' basso: le views sponsorizzate sono pubblico freddo, non misurano il video. Il boost non si usa per TESTARE ma per SPINGERE un video che cammina da solo |
 
 **Stato account LF al 2026-10-23: 458 follower · 1.495 like totali · 0 seguiti.**
@@ -301,6 +301,30 @@ Linktree che si mangia meta' dei tap) e per i Creator Rewards. 458 = 46%.
 Le 6.510 views di v9 hanno reso ~0 follower: il video informa, non da' un
 motivo per restare. Da qui in avanti ogni reel chiude con un motivo
 (anticipazione del video dopo), e il fissato lo ripete.
+
+### 🔴 23/10 — IL DATO CHE CAMBIA LE REGOLE: 6.510 views, 1 click
+
+| Passaggio | Modello del piano | Reale |
+|---|---|---|
+| 6.510 views -> visite profilo (1-2%) | 65-130 | n.d. |
+| visite profilo -> click Linktree (3-8%) | 2-10 | **1** |
+| click -> acquisto (1-5%) | 0-0,5 | **0** |
+
+Causa fisica, gia' scritta in PIANO-CRESCITA.md: **sotto i 1.000 follower
+il campo sito del profilo TikTok non esiste**, quindi "calcolatore in bio"
+manda a una cosa che non si puo' toccare. Non e' colpa del video: e' un
+ponte che non c'e'.
+
+**Conseguenza operativa (vale da subito):**
+1. Su TikTok **si smette di dire "in bio"**. Il CTA diventa il commento
+   ("scrivi gli anni") + il follow. Il commento e' gratis e si puo' toccare.
+2. Il traffico verso il sito **si prende solo su YouTube**, dove il link in
+   descrizione e' cliccabile senza soglie. TikTok -> icona YouTube nel
+   profilo -> Short -> descrizione.
+3. Non si giudica piu' un reel TikTok dai click: si giudica da
+   (a) commenti con anni+stipendio (b) follower nuovi.
+4. Ogni view TikTok senza follow e' un view sprecato: 6.510 views hanno
+   reso ~0 follower. Il video deve chiedere il follow, non il click.
 
 **Decisioni da questi numeri:**
 - LF: la serie «quanti anni» TIRA IL FIOATO → si cambia arma: formato RABBIA+GIUSTIZIA (Pietro, part-time) che vende la Busta Paga Decodificata. Le video-risposte restano priorita' SOLO se arrivano commenti con anni+stipendio.
