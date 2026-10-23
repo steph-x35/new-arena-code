@@ -326,6 +326,46 @@ ponte che non c'e'.
 4. Ogni view TikTok senza follow e' un view sprecato: 6.510 views hanno
    reso ~0 follower. Il video deve chiedere il follow, non il click.
 
+### 🔴 23/10 — IL VERO DATO: 0,1% di like su ENTRAMBE le piattaforme
+
+| Piattaforma | Views | Like | Tasso | Iscritti/follower resi |
+|---|---|---|---|---|
+| TikTok v9 | 6.510 | 7 | **0,11%** | ~0 |
+| YouTube v9 | 1.000 | 1 | **0,10%** | 2 (canale a 2 totale) |
+
+Due algoritmi diversi, due pubblici diversi, **lo stesso 0,1%**. La media di
+settore e' 2-5%. Siamo 20-40 volte sotto. Questo esclude la piattaforma e la
+distribuzione: **e' il video**. Viene guardato, non viene amato.
+
+Perche': il reel e' **utile**, non **simpatico**. L'utile si salva, il simpatico
+si mette il like. Il like e' il segnale che fa spingere il video: senza like
+si ferma a 1-6k invece di esplodere. Ecco perche' il 209k non ha lasciato
+ne' follower ne' una community — ha lasciato solo views.
+
+**Il paradosso da tenere a mente:** il format che fa VIEWS e' lo screencast
+senza volto. Il format che fa FOLLOWERS probabilmente richiede un volto o
+una voce. Non si risolve oggi: prima si ripara il like sul format attuale.
+
+**Bug di produzione trovato (da correggere su ogni YouTube):**
+il video finiva con «Calcolatore gratis **in bio**». Su YouTube la bio non
+esiste: il link sta nella **descrizione**. Chi ha guardato su YouTube ha
+letto un'istruzione che non poteva eseguire. Testo corretto:
+- TikTok -> «Calcolatore gratis nel link in bio 🔗» (e solo dopo 1.000 follower)
+- YouTube -> «Calcolatore gratis: link in descrizione 👇»
+
+### CTA STANDARD da qui in avanti (testo a schermo, 2 righe)
+
+Il like va chiesto **subito dopo la rivelazione del numero** (quando l'emozione
+e' alta), non alla fine (dove c'e' il vuoto). Il follow va chiesto **con una
+promessa**, mai da solo: la gente si iscrive per quello che arriva, non per
+quello che ha appena visto.
+
+Riga 1 (grande):  Ti spettano anche a te?
+Riga 2 (piccola): ❤️ + iscriviti — il prossimo sono le ferie
+
+Vietato: «metti like e seguici» (generico, invisibile, non dice perche').
+Vietato: chiedere il like senza aver prima dato il numero.
+
 **Decisioni da questi numeri:**
 - LF: la serie «quanti anni» TIRA IL FIOATO → si cambia arma: formato RABBIA+GIUSTIZIA (Pietro, part-time) che vende la Busta Paga Decodificata. Le video-risposte restano priorita' SOLO se arrivano commenti con anni+stipendio.
 - HCL: prossimo = «DUE TELEFONI, UN SOLO CAMPO» (gia' pianificato, organico). I crediti gratis restanti si usano SOLO su un video che mostra gia' gambe organiche (>5k), mai prima.
