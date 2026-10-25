@@ -282,7 +282,7 @@ Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) �
 
 ---
 
-## 📋 PUBBLICATI + RISULTATI (aggiornato al 2026-10-23)
+## 📋 PUBBLICATI + RISULTATI (aggiornato al 2026-10-25)
 
 | Reel | Views | Lettura |
 |---|---|---|
@@ -292,7 +292,8 @@ Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) �
 | LF «8 ore / 6 pagate» (rabbia+giustizia) | **967 · 1 like · 1 save · 5,3s tempo medio** | NON e' il formato ad aver fallito: con 5,3s di retention la gente se ne va' DURANTE l'hook → TikTok smette di spingere prima ancora di mostrare il contenuto. Malattia = primi 2 secondi. Istruzione per il prossimo: il NUMERO enorme e' gia' nel primo fotogramma, domanda-identita' come «5 anni», zero introduzione |
 | LF «8 ore / 6 pagate» — YouTube Shorts (canale NUOVO, 0 iscritti) | **1.300 views in 24h · 1,8h di watch time (≈5s a view)** | canale a zero distribuito subito: la macchina YouTube FUNZIONA. Stesso crollo a ~5s di TikTok = conferma incrociata: il problema e' l'hook, non la piattaforma. UNA riparazione (primi 2s) vale per entrambi i canali. Ogni reel TikTok si ricarica qui: costo zero, pubblico da ricerca |
 | LF «Ferie non godute» (v7: 13s, 5 card, zero cedolino, soggetto vergine) | **pubblicato 2026-10-18 19:00** | primo reel con tutti i pro caricati: hook <1,5s, framing perdita, scala 65→650→2.000, CTA commenti+save, loop. Lettura a 48h: % >3s target >50%, tempo medio >7s, salvataggi |
-| **LF «TI LICENZI DOPO 7 ANNI?»** (v9, screencast 20s, 22/10 ore 20) | **6.510 in 24h** con account a 458 follower · 7 like · 3 commenti | primo reel in formato REGISTRAZIONE DELLO SCHERMO dopo il 209k. 6.510 il primo giorno da 458 follower = distribuzione sana. Commenti arrivati con anni+stipendio ("anni 7 stipendio 2300", "1700 x8 mesi") = la gente usa il profilo come calcolatore, che e' esattamente il comportamento cercato. Da NON leggere come vittoria: 7 like su 6.510 = 0,1%, il pubblico prende il numero e va via senza motivo per restare. **Linktree «Calcola il TFR»: 121 -> 122 = UN solo click su 6.510 views (0,015%).** Il modello del piano ne prevedeva 2-10: siamo sotto anche al caso pessimista |
+| **LF «TI LICENZI DOPO 7 ANNI?»** (v9, screencast 20s, 22/10 ore 20) | **6.510 in 24h → 30 like · 14 commenti · 9 save a 72h** (tasso like **0,46%**, era 0,11%) | primo reel in formato REGISTRAZIONE DELLO SCHERMO dopo il 209k. 6.510 il primo giorno da 458 follower = distribuzione sana. Commenti arrivati con anni+stipendio ("anni 7 stipendio 2300", "1700 x8 mesi") = la gente usa il profilo come calcolatore, che e' esattamente il comportamento cercato. Da NON leggere come vittoria: 7 like su 6.510 = 0,1%, il pubblico prende il numero e va via senza motivo per restare. **Linktree «Calcola il TFR»: 121 -> 122 = UN solo click su 6.510 views (0,015%).** Il modello del piano ne prevedeva 2-10: siamo sotto anche al caso pessimista |
+| **LF «UN ANNO DI LAVORO = 2.267 €»** (v26, screencast 21s + voce sintetica, 25/10) | **pubblicato 25/10 ore 19:00/19:10** | soggetto nato dal commento di Operatore 25 («stipendio netto 1690, un anno di lavoro quant'è?»). Primo reel con **voce** (InShot TTS) e primo con il **CTA nuovo** (like subito dopo il numero + follow con promessa). Numeri: digiti 2525 -> RAL 32.825 -> TFR 1 anno 2.267,36 lordi / 1.745,86 netti. Lettura a 48h: tasso di like sopra l'1% = il formato con la voce funziona |
 | HCL POV «appeso al ferro» | **790 CON boost gratis** | organico reale piu' basso: le views sponsorizzate sono pubblico freddo, non misurano il video. Il boost non si usa per TESTARE ma per SPINGERE un video che cammina da solo |
 
 **Stato account LF al 2026-10-23: 458 follower · 1.495 like totali · 0 seguiti.**
@@ -372,6 +373,71 @@ vera e non scade.
 
 Vietato: «metti like e seguici» (generico, invisibile, non dice perche').
 Vietato: chiedere il like senza aver prima dato il numero.
+
+### 🕖 25/10 — ORARI: 19:00 TikTok, 19:10 YouTube
+
+Corretto il vecchio «mai lo stesso minuto». Quella regola vale **dentro la
+stessa piattaforma** (tre reel TikTok insieme si cannibalizzano), **non tra
+piattaforme diverse**: chi guarda su YouTube non e' pubblico tolto a TikTok.
+
+Vantaggio pratico: con 10 minuti di scarto si presidia **una sola ora**
+(19:00-20:00) invece di due, e la prima ora e' quella in cui si risponde ai
+commenti.
+
+Su YouTube l'orario conta ancora meno: gli Shorts non hanno feed cronologico,
+vengono testati nelle ore e nei giorni successivi. Spostare YouTube di 10
+minuti non costa niente.
+
+**Orario standard da qui in avanti: 19:00 TikTok -> 19:10 YouTube.**
+
+### 🎙️ 25/10 — PRODUZIONE: niente faccia, niente voce (InShot TTS)
+
+L'utente non mostra ne' volto ne' voce. La voce si genera in **InShot**
+(Text to Speech), cosi' l'export e' **un file unico** valido per TikTok E per
+YouTube. Con la voce interna di TikTok il video su YouTube resterebbe muto:
+due versioni da gestire, due lavori.
+
+**Regole della voce sintetica (provate):**
+1. I numeri **a lettere** (`duemiladuecentosessantasette`), mai le cifre
+2. `euro` per esteso, mai `€`
+3. La punteggiatura e' il ritmo: punto = pausa piena, virgola = breve, `...` = lunga
+4. Velocita' **1,1-1,2x** (le voci sintetiche partono sempre troppo lente)
+
+⚠️ Le battute che funzionano solo con una voce umana (es. «ventottomila... anzi,
+trentaduemilaottocento») vanno **tolte**: la voce sintetica le legge piatte e
+diventano un errore, non una gag.
+
+Limite accettato: una voce vera è l'unica cosa che distingue il canale da altri
+cento. Ma il problema ora non e' l'identita', e' il **tasso di like** (0,46%):
+la voce sintetica lo alza comunque perche' da' ritmo a un video che prima era
+solo musica.
+
+### 💰 25/10 — PAYHIP: 46 visite, 0 ordini. Campione troppo piccolo.
+
+| Prodotto | Visite | Ordini |
+|---|---|---|
+| Busta Paga Decodificata (2,90) | 15 | 0 |
+| Pacchetto Dimissioni (3,90) | 15 | 0 |
+| Kit Carriera (4,90) | 16 | 0 |
+| **Totale** | **46** | **0** |
+
+Con 46 visite ci si aspettano statisticamente **0-2 vendite**: lo zero rientra
+nel normale. **Non toccare prezzi ne' pagine**: servono **150-200 visite** per
+avere un campione che dica qualcosa. Se a quel punto resta zero, allora e' il
+prodotto.
+
+### ⚠️ 25/10 — TRAPPOLA 12 MENSILITA' (da usare nelle risposte)
+
+Il tool sincronizza **mensile -> RAL con x13**. Chi e' pagato su **12 mensilita'**
+e digita lo stipendio mensile ottiene un TFR **gonfiato**.
+
+Caso reale (commento Operatore 25, 1.690 netti x 12):
+- digita 2.483 nel mensile -> RAL 32.279 -> TFR **2.230** (SBAGLIATO)
+- digita la RAL **29.793** -> TFR **2.058** (GIUSTO)
+- differenza: **172 € in piu'**, e poi si sente preso in giro dal prospetto
+
+**Regola per le risposte:** prima si chiede "quante mensilita'?", poi si dice
+cosa digitare. Se sono 12, si fa scrivere la RAL, mai il mensile.
 
 **Decisioni da questi numeri:**
 - LF: la serie «quanti anni» TIRA IL FIOATO → si cambia arma: formato RABBIA+GIUSTIZIA (Pietro, part-time) che vende la Busta Paga Decodificata. Le video-risposte restano priorita' SOLO se arrivano commenti con anni+stipendio.

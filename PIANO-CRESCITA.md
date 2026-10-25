@@ -51,6 +51,27 @@ Alterna: 1 episodio serie + 1 video-risposta ai commenti.
 Prodotti: Pacchetto Dimissioni&TFR 3,90€ (ZI9na) = prodotto-lead per il pubblico TFR.
 Busta Paga Decodificata 2,90€ (kbpxY) e Kit Colloquio 4,90€ (utzIY) restano al loro posto.
 
+### 📊 STATO al 2026-10-25 (misurato, non stimato)
+
+| | |
+|---|---|
+| Follower TikTok LF | **458** (46% verso i 1.000) |
+| Reel v9 «Ti licenzi dopo 7 anni?» | 6.510 views · 30 like · 14 commenti · 9 save |
+| Tasso di like v9 | **0,46%** (media di settore 2-5%) |
+| Payhip | **46 visite prodotto · 0 ordini** |
+| Click Linktree «Calcola il TFR» | 121 -> **122** su 6.510 views |
+
+**Il funnel del piano non regge ancora, e non per colpa del video:** sotto i
+1.000 follower il campo sito di TikTok non esiste, quindi "in bio" e' una
+porta murata. I click si misurano **solo su YouTube**, dove il link in
+descrizione e' cliccabile senza soglie.
+
+**Campione troppo piccolo:** 46 visite prodotto non dicono niente (0-2 vendite
+e' l'atteso). Servono **150-200 visite** prima di toccare prezzi o pagine.
+
+**La metrica da guardare ora e' il tasso di like**, non le views: e' quello che
+fa spingere i video. 0,46% -> obiettivo 1%.
+
 ## Cadenza
 1 video/giorno (min 4/settimana) ore 19-21, per 30 giorni consecutivi.
 Prima ora = rispondere a TUTTI i commenti (incollare qui i commenti per risposte calcolate).
