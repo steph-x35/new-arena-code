@@ -2,6 +2,7 @@
 
 > Formato del 209k: **registrazione del calcolatore TFR, con la voce.**
 > 21 secondi, loop in fondo. Numeri verificati sul codice di `calcolo-tfr/app.js`.
+> **Niente faccia e niente voce dell'autore:** la voce e' sintetica (InShot TTS).
 
 ---
 
@@ -48,24 +49,63 @@ rifà il conto trova lo stesso numero.
 |---|---|---|---|
 | **0 – 2 s** | fermo sul calcolatore vuoto | *Un anno di lavoro. Quanto ti sei messo da parte?* | **UN ANNO DI LAVORO.** |
 | **2 – 5 s** | digiti `2525` nel mensile lordo | — | — |
-| **5 – 7 s** | ⚡ la RAL si compila: **32.825** | *Ventottomila… anzi, trentaduemilaottocento.* | **↑ 32.825 €** |
+| **5 – 7 s** | ⚡ la RAL si compila: **32.825** | *Trentaduemilaottocentoventicinque euro all'anno.* | **↑ 32.825 €** |
 | **7 – 9 s** | digiti `1` negli anni | *Un anno.* | — |
 | **9 – 12 s** | scrolli ai risultati | *Ecco il conto.* | — |
 | **12 – 15 s** | **zoom** sul numero | *Duemiladuecentosessantasette euro lordi.* | **2.267 € lordi** |
-| **15 – 17 s** | resti sul numero | *Mille settecentoquarantasei in mano. Per un anno intero.* | **1.746 € netti** |
-| **17 – 19 s** | card CTA | *Ti spettano anche a te? Like, e iscriviti: ogni settimana un conto che nessuno ti fa.* | **❤️ + ISCRIVITI** |
+| **15 – 17 s** | resti sul numero | *Mille settecentoquarantasei, in mano.* | **1.746 € netti** |
+| **17 – 19 s** | card CTA | *Ti spettano anche a te? Metti like, e iscriviti. Ogni settimana, un conto che nessuno ti fa.* | **❤️ + ISCRIVITI** |
 | **19 – 21 s** | **torni al primo fotogramma, senza voce** | *(silenzio)* | **UN ANNO DI LAVORO.** |
 | fine | ↻ riparte da 0 | — | — |
 
-52 parole in 21 secondi.
+42 parole in 21 secondi.
 
 **Le tre regole della voce** (dal v9, restano valide):
 la voce **tace** sull'ultimo secondo · musica giù a **10-15%** ·
 i testi a schermo restano sempre.
 
+### Se usi la voce sintetica (InShot)
+
+1. I numeri **a lettere**: `duemiladuecentosessantasette`, mai `2.267`
+2. `euro` per esteso, mai `€` (il simbolo lo ignora o lo legge a caso)
+3. La punteggiatura è il ritmo: punto = pausa piena, virgola = breve, `...` = lunga
+4. Velocità **1,1-1,2×**: le voci sintetiche partono sempre troppo lente
+
+⚠️ La battuta «ventottomila... anzi, trentaduemilaottocento» è stata **tolta**:
+funziona con una voce umana che si corregge, ma una voce sintetica la legge
+piatta e diventa un errore.
+
+⚠️ La voce **deve tacere dal 19° al 21° secondo**: il loop si sente solo se
+l'ultimo secondo è silenzio.
+
+---
+
+### Il copione da incollare in InShot (42 parole)
+
+```
+Un anno di lavoro.
+Quanto ti sei messo da parte?
+
+Trentaduemilaottocentoventicinque euro all'anno.
+
+Un anno.
+
+Ecco il conto.
+Duemiladuecentosessantasette euro lordi.
+Mille settecentoquarantasei, in mano.
+
+Ti spettano anche a te?
+Metti like, e iscriviti.
+Ogni settimana, un conto che nessuno ti fa.
+```
+
+Voce italiana, velocità **1,1-1,2×**. Se una parola esce storta, spezza in due
+blocchi e rigenera solo quello sbagliato: non rifare tutto.
+
 ---
 
 ## 3 — Montaggio
+
 
 Stessa procedura di `REEL-22-LICENZIAMENTO.md` §4 per il loop: clip 0-2 s
 copiata in coda, tagliata a 1 s, senza voce, sovrapposta al primo frame.

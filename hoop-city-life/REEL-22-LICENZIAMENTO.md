@@ -6,6 +6,31 @@
 
 ---
 
+## ✅ ESITO (pubblicato 22/10 ore 20, letto il 25/10)
+
+| | 24h | 72h |
+|---|---|---|
+| Views | 6.510 | 6.510 |
+| Like | 7 | **30** |
+| Commenti | 3 | **14** |
+| Save | 1 | **9** |
+| Click Linktree | 1 | 1 |
+
+**Tasso di like: 0,11% → 0,46%.** Il video cresce mentre dorme (7 → 30 like
+in tre giorni): non si giudica a 24h.
+
+**Cosa ha funzionato:** il formato screencast (6.510 views da un account a 458
+follower) e la CTA nei commenti — la gente ha scritto davvero anni + stipendio.
+
+**Cosa non ha funzionato:** il click. 1 su 6.510 = 0,015%. Causa fisica, non
+creativa: sotto i 1.000 follower il campo sito di TikTok non esiste, quindi
+«calcolatore in bio» mandava a una porta murata. **Mai più «in bio».**
+
+**Lezione:** un video puo' essere guardato e non amato. Il like era il segnale
+mancante, ed e' per questo che dal v26 il like si chiede subito dopo il numero.
+
+---
+
 ## 0 — L'errore da non ripetere
 
 Questo documento era stato scritto con **card testo su fondo scuro, 13 secondi**.
