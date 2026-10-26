@@ -32,6 +32,18 @@ Nove file:
 
 Togli il vecchio zip dalla pagina.
 
+## Ferie, ROL e permessi — 3,90 €
+
+Dalla cartella `ferie-permessi/`, quattro file:
+
+1. `1-Guida-Completa-Ferie-ROL-Permessi.pdf`
+2. `2-Cheat-Sheet-Ferie-ROL-10-Minuti.pdf`
+3. `3-Ferie-Non-Godute-Quanto-Valgono.pdf`
+4. `4-Tre-Lettere-Pronte-Ferie-ROL.pdf`
+
+Le fonti stanno in `ferie-rol-permessi/` (stessa cartella della Busta Paga:
+`.txt` impaginati, si rigenerano con `txt2pdf.py`).
+
 ## Perché i CV sono .docx e non PDF
 
 Un PDF non si compila: chi compra deve scrivere il proprio nome sopra
