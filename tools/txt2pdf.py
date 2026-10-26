@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
-"""txt2pdf.py — converte i modelli LavoroFacile da .txt a PDF impaginati.
+"""txt2pdf.py — converte i materiali LavoroFacile in PDF impaginati.
 
 Solo libreria standard: nessuna dipendenza. Font Helvetica (base-14, WinAnsi).
-Uso: python3 tools/txt2pdf.py sorgente.txt output.pdf "Titolo" "Sottotitolo"
+Supporta .txt e .md (ripulisce i marcatori markdown) e piu' sorgenti in un
+unico PDF, separate da un salto pagina.
+
+Uso:
+  python3 tools/txt2pdf.py OUT.pdf "Titolo" "Sottotitolo" TAGLINE src1 [src2 ...]
+
+Esempio (10 lettere in un solo PDF):
+  python3 tools/txt2pdf.py lettere.pdf "10 Lettere" "..." "..." a.txt b.txt
 """
 import sys, os, textwrap
 
@@ -21,17 +28,22 @@ for c in "abcdefghknopqsuvxyz":   _W[c] = 0.556
 for c in "ABCDEFGHIJKLMNOPQRSTUVXYZ": _W[c] = 0.667
 
 
-def text_w(s, size, bold=False):
+def text_w(s, size, bold=False, mono=False):
+    if mono:
+        return len(s) * 0.6 * size          # Courier: tutti i glifi 0.6 em
     k = 1.045 if bold else 1.0
     return sum(_W.get(ch, 0.556) for ch in s) * size * k
 
 
-def wrap(s, size, bold=False, width=None):
+def wrap(s, size, bold=False, width=None, mono=False):
     width = width or CW
+    if mono:                                # a capo per numero di caratteri
+        n = max(1, int(width / (0.6 * size)))
+        return [s[i:i + n] for i in range(0, len(s), n)] or [""]
     words, out, cur = s.split(" "), [], ""
     for w in words:
         cand = (cur + " " + w).strip()
-        if text_w(cand, size, bold) <= width or not cur:
+        if text_w(cand, size, bold, mono) <= width or not cur:
             cur = cand
         else:
             out.append(cur)
@@ -45,6 +57,46 @@ def wrap(s, size, bold=False, width=None):
 _WIN = {"\u20ac": 0x80, "\u2013": 0x96, "\u2014": 0x97, "\u2018": 0x91,
         "\u2019": 0x92, "\u201c": 0x93, "\u201d": 0x94, "\u2026": 0x85,
         "\u2022": 0x95, "\u00b7": 0xB7}
+
+# caratteri "disegno" -> ASCII equivalente (le guide sono impaginate a mano)
+_BOX = {
+    "\u2550": "=", "\u2500": "-", "\u2551": "|", "\u2502": "|",
+    "\u2554": "+", "\u2557": "+", "\u255A": "+", "\u255D": "+",
+    "\u250C": "+", "\u2510": "+", "\u2514": "+", "\u2518": "+",
+    "\u2560": "+", "\u2563": "+", "\u2566": "+", "\u2569": "+",
+    "\u256C": "+", "\u251C": "+", "\u2524": "+", "\u252C": "+",
+    "\u2534": "+", "\u253C": "+",
+    "\u25BA": ">", "\u2192": "->", "\u2190": "<-",
+    "\u2265": ">=", "\u2264": "<=", "\u00D7": "x", "\u00F7": "/",
+    "\u2212": "-", "\u2610": "[ ]", "\u2717": "x", "\u2713": "v",
+    "\u00A9": "(c)", "\u26A0": "!",
+}
+# caratteri che scriviamo per esteso
+_SPELL = {"\u20ac": "EUR", "\u2018": "'", "\u2019": "'",
+          "\u201C": '"', "\u201D": '"', "\u2026": "..."}
+
+# solo i caratteri di cornice: le frecce sono testo normale
+BOXCHARS = ("\u2500\u2502\u250C\u2510\u2514\u2518\u251C\u2524\u252C\u2534\u253C"
+            "\u2550\u2551\u2554\u2557\u255A\u255D\u2560\u2563\u2566\u2569\u256C"
+            "\u25BA")
+
+
+def sanitize(s):
+    """porta la stringa dentro Latin-1: mappa i simboli, elimina le emoji."""
+    out = []
+    for c in s:
+        if c in _BOX:
+            out.append(_BOX[c])
+        elif c in _WIN:
+            out.append(chr(_WIN[c]))
+        elif c in _SPELL:
+            out.append(_SPELL[c])
+        elif ord(c) < 256:
+            out.append(c)
+        else:
+            out.append("\uFFFD")   # verra' scartato sotto
+    # le emoji sostituite dal segnaposto: via, insieme allo spazio doppio
+    return "".join(ch for ch in "".join(out) if ch != "\uFFFD")
 
 
 def esc(s):
@@ -64,11 +116,13 @@ class Doc:
         self.cur = []
         self.y = H - MT
 
-    def text(self, s, size=10.5, bold=False, dy=None, lead=None, indent=0, color=(0, 0, 0)):
+    def text(self, s, size=10.5, bold=False, dy=None, lead=None, indent=0,
+             color=(0, 0, 0), mono=False):
         """scrive una riga (o più, wrappata) con controllo del salto pagina."""
-        font = "F2" if bold else "F1"
+        s = sanitize(s)
+        font = "F3" if mono else ("F2" if bold else "F1")
         lead = lead or size * 1.42
-        for line in wrap(s, size, bold, CW - indent):
+        for line in wrap(s, size, bold, CW - indent, mono=mono):
             if self.y - lead < MB:
                 self.new_page()
             self.y -= lead if dy is None else dy
@@ -95,7 +149,7 @@ class Doc:
             self.pages.append(self.cur)
         for i, page in enumerate(self.pages, 1):
             if footer:
-                label = esc(f"{footer} \u00b7 pagina {i} di {len(self.pages)}")
+                label = esc(sanitize(f"{footer} \u00b7 pagina {i} di {len(self.pages)}"))
                 page.append(
                     f"BT 0.42 0.42 0.42 rg /F1 8 Tf "
                     f"{ML:.2f} 34 Td ({label}) Tj ET")
@@ -110,14 +164,16 @@ class Doc:
                     "/Encoding /WinAnsiEncoding >>")
         font2 = add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold "
                     "/Encoding /WinAnsiEncoding >>")
+        font3 = add("<< /Type /Font /Subtype /Type1 /BaseFont /Courier "
+                    "/Encoding /WinAnsiEncoding >>")
         pages_id = add("PLACEHOLDER")
         kids = []
         for page in self.pages:
             stream = "\n".join(page).encode("latin-1", "replace")
             cid = add(b"<< /Length %d >>\nstream\n" % len(stream) + stream + b"\nendstream")
             pid = add("<< /Type /Page /Parent %d 0 R /MediaBox [0 0 %d %d] "
-                      "/Resources << /Font << /F1 %d 0 R /F2 %d 0 R >> >> "
-                      "/Contents %d 0 R >>" % (pages_id, W, H, font1, font2, cid))
+                      "/Resources << /Font << /F1 %d 0 R /F2 %d 0 R /F3 %d 0 R >> >> "
+                      "/Contents %d 0 R >>" % (pages_id, W, H, font1, font2, font3, cid))
             kids.append(pid)
         objs[pages_id - 1] = ("<< /Type /Pages /Count %d /Kids [%s] >>"
                               % (len(kids), " ".join("%d 0 R" % k for k in kids)))
@@ -141,7 +197,8 @@ class Doc:
         return len(out)
 
 
-def cover(doc, title, subtitle, brand="LavoroFacile"):
+def cover(doc, title, subtitle, brand="LavoroFacile",
+          tagline="Documento pronto da compilare \u2014 stampa, compila, invia."):
     doc.y = H - 200
     doc.text(brand.upper(), 11, bold=True, color=(0.10, 0.35, 0.65), lead=26)
     doc.space(24)
@@ -153,35 +210,88 @@ def cover(doc, title, subtitle, brand="LavoroFacile"):
     for line in wrap(subtitle, 12.5):
         doc.text(line, 12.5, color=(0.30, 0.30, 0.30), lead=19)
     doc.y = 150
-    doc.text("Documento pronto da compilare — stampa, compila, invia.",
-             9.5, color=(0.45, 0.45, 0.45))
+    doc.text(tagline, 9.5, color=(0.45, 0.45, 0.45))
 
 
-def convert(src, dst, title, subtitle):
-    raw = open(src, encoding="utf-8").read().splitlines()
-    doc = Doc()
-    cover(doc, title, subtitle)
-    doc.new_page()
+def clean_md(s):
+    """toglie i marcatori markdown che non sappiamo disegnare."""
+    s = s.replace("**", "").replace("__", "")
+    s = s.replace("`", "")
+    if s.startswith("> "):
+        s = s[2:]
+    elif s.startswith(">\t"):
+        s = s[2:]
+    # corsivo: *testo* -> testo (solo se le stelle sono appaiate)
+    if s.count("*") >= 2 and s.count("*") % 2 == 0:
+        s = s.replace("*", "")
+    return s
 
+
+def emit(doc, path):
+    """scrive il contenuto di un file dentro il documento."""
+    raw = open(path, encoding="utf-8").read().splitlines()
     for ln in raw:
         s = ln.rstrip()
         if not s.strip():
             doc.space(7)
             continue
-        if set(s.strip()) <= set("=") and len(s.strip()) > 3:
+        core = s.strip()
+
+        # riga impaginata a mano (cornici, tabelle): la rendiamo monospaziata
+        if any(c in BOXCHARS for c in core):
+            doc.text(clean_md(core).replace("\t", "    "), 9, mono=True)
+            continue
+
+        # separatori
+        if set(core) <= set("=") and len(core) > 3:
             doc.rule()
             continue
-        if set(s.strip()) <= set("-") and len(s.strip()) > 3:
+        if (set(core) <= set("-") and len(core) > 3) or core == "---":
             doc.rule(gray=0.86, pad=5)
             continue
-        # sfondo blu dei titoli: riga tutta maiuscola e corta = intestazione
-        core = s.strip()
+
+        # titoli markdown
+        if core.startswith("### "):
+            doc.space(6)
+            doc.text(clean_md(core[4:]), 11, bold=True, color=(0.25, 0.25, 0.25))
+            continue
+        if core.startswith("## "):
+            doc.space(10)
+            doc.text(clean_md(core[3:]), 12.5, bold=True, color=(0.10, 0.20, 0.40))
+            continue
+        if core.startswith("# "):
+            doc.space(6)
+            doc.text(clean_md(core[2:]), 15, bold=True, color=(0.10, 0.20, 0.40))
+            continue
+
+        # citazioni markdown -> rientrate
+        if core.startswith("> "):
+            doc.text(clean_md(core), 10.5, indent=18, color=(0.28, 0.28, 0.28))
+            continue
+
+        core = clean_md(core)
+
+        # intestazione: riga tutta maiuscola e corta
         if core.isupper() and len(core) < 90 and any(c.isalpha() for c in core):
             doc.space(4)
             doc.text(core, 11.5, bold=True, color=(0.10, 0.20, 0.40))
             continue
-        doc.text(s, 10.5)
 
+        doc.text(core, 10.5)
+
+
+def convert(dst, title, subtitle, sources, tagline=None):
+    doc = Doc()
+    cover(doc, title, subtitle,
+          tagline=tagline or "Documento pronto da compilare \u2014 stampa, compila, invia.")
+    for i, src in enumerate(sources):
+        doc.new_page()
+        if i > 0:
+            # intestazione del singolo documento quando sono piu' d'uno
+            name = os.path.basename(src).rsplit(".", 1)[0].replace("-", " ")
+            doc.text(name, 11, bold=True, color=(0.10, 0.20, 0.40))
+            doc.rule(gray=0.86, pad=6)
+        emit(doc, src)
     doc.finish("LavoroFacile \u00b7 lavorofacile")
     return doc.build(dst)
 
@@ -190,5 +300,10 @@ if __name__ == "__main__":
     if len(sys.argv) < 5:
         print(__doc__)
         sys.exit(1)
-    n = convert(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-    print("%s -> %s  (%d bytes, %d pagine)" % (sys.argv[1], sys.argv[2], n, 0))
+    out, title, subtitle, tagline = sys.argv[1:5]
+    srcs = sys.argv[5:]
+    if not srcs:
+        print(__doc__)
+        sys.exit(1)
+    n = convert(out, title, subtitle, srcs, tagline=tagline)
+    print("%s  <-  %d file  (%d bytes)" % (out, len(srcs), n))
