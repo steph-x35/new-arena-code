@@ -1,0 +1,180 @@
+╔════════════════════════════════════════════════════════════╗
+║     FERIE NON GODUTE: QUANTO VALGONO E COME SI CHIEDONO    ║
+║          La voce che si paga quando te ne vai              ║
+║                LavoroFacile — Edizione 2026                ║
+╚════════════════════════════════════════════════════════════╝
+
+Questa è la parte della guida che riguarda i soldi, e solo
+quelli. Quanto valgono i giorni che hai fermi, come si
+calcolano e cosa fare quando l'azienda non li paga.
+
+
+1. PERCHÉ NON PUOI FARLI PAGARE MENTRE LAVORI
+==============================================================
+
+La regola è netta: le ferie non si possono monetizzare mentre
+il rapporto di lavoro è in corso. L'azienda non può pagarti
+un giorno in più al posto di un giorno di riposo, e tu non
+puoi chiederlo.
+
+Il motivo è semplice: le ferie servono a proteggere la salute.
+Se fosse possibile convertirle sempre in denaro, chi ha bisogno
+di soldi rinuncerebbe al riposo, e la legge non lo vuole.
+
+Ci sono poche eccezioni, previste dal CCNL o dalla legge per
+casi specifici. Se il tuo contratto le prevede, le trovi
+all'articolo sulle ferie.
+
+
+2. QUANDO INVECE SI PAGANO
+==============================================================
+
+Alla fine del rapporto di lavoro il discorso si ribalta. I
+giorni di ferie che hai maturato e non hai goduto diventano
+un'indennità sostitutiva: una voce in più nella busta paga
+finale, insieme al TFR, alle ultime competenze e agli altri
+ratei.
+
+Succede in tutti i casi di cessazione:
+
+  - dimissioni
+  - licenziamento
+  - scadenza del contratto a termine
+  - risoluzione consensuale
+
+E vale anche per i ROL e le ex festività residue, secondo
+quanto prevede il tuo CCNL: in molti contratti si pagano,
+in altri si perdono. Questa differenza vale ore di stipendio,
+quindi va controllata prima di firmare qualsiasi cosa.
+
+
+3. QUANTO VALE UN GIORNO
+==============================================================
+
+Il valore di un giorno si ricava dalla retribuzione
+giornaliera lorda: stipendio mensile lordo diviso i giorni
+del mese di riferimento, secondo il criterio del tuo CCNL.
+
+Un modo rapido per stimare il netto: con 1.500 € netti al
+mese, un giorno di ferie indennizzato vale circa 65 € netti.
+Con 2.000 € netti al mese si sale verso gli 87 €.
+
+┌──────────────────────────────────────────────────────────────┐
+│  Stipendio netto         Valore di 1 giorno                  │
+├──────────────────────────────────────────────────────────────┤
+│  1.200 euro/mese                         circa 52 euro netti │
+│  1.500 euro/mese                         circa 65 euro netti │
+│  1.800 euro/mese                         circa 78 euro netti │
+│  2.000 euro/mese                         circa 87 euro netti │
+└──────────────────────────────────────────────────────────────┘
+
+La stessa scala, letta dal lato dei giorni:
+
+┌──────────────────────────────────────────────────────────────┐
+│  5 giorni non goduti                    circa 325 euro netti │
+│  10 giorni non goduti                   circa 650 euro netti │
+│  20 giorni non goduti                 circa 1.300 euro netti │
+└──────────────────────────────────────────────────────────────┘
+
+Sono stime: il numero esatto dipende dalla tua retribuzione
+giornaliera, che trovi in busta paga. L'ordine di grandezza,
+però, è questo, e spiega perché vale la pena controllare.
+
+
+4. COME SI CALCOLA IL SALDO, PASSO PER PASSO
+==============================================================
+
+  1. Prendi il numero di giorni di ferie annui del tuo CCNL.
+  2. Dividilo per 12: sono i giorni che maturi ogni mese.
+  3. Moltiplica per i mesi lavorati nell'anno (i mesi di
+     malattia e maternità contano, quelli non retribuiti no).
+  4. Togli i giorni che hai effettivamente goduto.
+  5. Quello che resta è il saldo, e deve combaciare con il
+     box giacenze dell'ultimo cedolino.
+
+Se il tuo saldo è più basso del conto, hai due possibilità:
+hai goduto più ferie di quante ne ricordi, oppure qualcuno
+ha sbagliato. Il cedolino ti dice quale delle due.
+
+Per i mesi parziali si usa la frazione di mese: 15 giorni
+lavorati su 30 sono mezzo dodicesimo, non un dodicesimo
+intero. Le aziende arrotondano in modi diversi, ma la
+differenza non può essere di giorni interi.
+
+
+5. COSA DEVE ESSERCI NELLA BUSTA PAGA FINALE
+==============================================================
+
+Controlla queste voci, una per una:
+
+  ☐  ferie residue (giorni e importo)
+  ☐  ROL residui, se il CCNL li paga
+  ☐  ex festività residue, se il CCNL le paga
+  ☐  rateo della tredicesima e della quattordicesima
+  ☐  TFR, con la rivalutazione
+  ☐  ultime mensilità e gli straordinari non pagati
+
+Se una voce manca, la richiesta va fatta subito e per
+iscritto.
+
+In molti casi la busta finale arriva settimane dopo la
+cessazione. Quello è il momento in cui si può ancora
+chiedere: dopo la chiusura del rapporto, le contestazioni
+diventano più lunghe e più care.
+
+
+6. LE SCUSE CHE SENTIRAI
+==============================================================
+
+"Le ferie si perdono se non le fai entro l'anno."
+  In parte vero, ma non sempre. Dipende da cosa dice il tuo
+  CCNL e da chi ha deciso di non fartele prendere. Se è
+  l'azienda a negarle, il diritto non si perde perché è
+  passato dicembre.
+
+"Ti abbiamo pagato i ROL insieme allo stipendio."
+  Allora devono esserci in busta paga, con la voce e
+  l'importo. Chiedi il cedolino e controlla.
+
+"Hai firmato la rinuncia."
+  Una rinuncia alle ferie firmata durante il rapporto è
+  spesso nulla, perché il diritto alle ferie è indisponibile.
+  Ma va vista da qualcuno che se ne intende: non firmare
+  altre carte nel frattempo.
+
+"Il conteggio l'ha fatto il consulente."
+  Il consulente sbaglia come tutti. Chiedi il dettaglio
+  dei movimenti: è un tuo diritto e non serve un avvocato
+  per chiederlo.
+
+
+7. I TEMPI: PERCHÉ NON SI ASPETTA
+==============================================================
+
+Il termine ordinario per far valere un credito di lavoro è di
+5 anni. Il momento da cui inizia a decorrere, però, è una
+questione discussa e dipende dal caso concreto: per questo
+la regola giusta non è "ho 5 anni davanti", ma "muoviti
+adesso".
+
+Tre cose da fare, in questo ordine:
+
+  1. scrivi una mail chiesta di chiarimento (il modello è
+     nel documento 4), così resta la data
+  2. conserva le buste paga, i contratti e gli screenshot
+     del box giacenze
+  3. se non ti rispondono o la risposta non convince, porta
+     tutto al sindacato: la consulenza è gratuita
+
+
+ATTENZIONE
+==============================================================
+
+Questa guida spiega come leggere e come chiedere. Non è
+consulenza legale e non sostituisce il tuo CCNL. Gli importi
+sono stime calcolate su uno stipendio netto dichiarato: il
+valore esatto dipende dalla tua retribuzione. Per il tuo caso
+specifico rivolgiti a un sindacato o a un consulente del
+lavoro.
+
+LavoroFacile — Vietata la rivendita. Condividi citando la fonte.
