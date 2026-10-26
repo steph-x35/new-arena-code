@@ -1070,5 +1070,5 @@ Scheda completa: `REEL-28-FERIE-ROL.md`.
 Soggetto stagionale (da novembre si cerca), numero verificabile a mente
 (30.000 ÷ 13 = 2.308) e prodotto dimostrato: il cedolino del sito ha la riga
 «Rateo 13ª mensilità», quindi il video apre il prodotto invece di raccontarlo.
-Numeri ricalcolati e corretti rispetto alla prima stesura: netto ≈1.530, non
-1.360. Scheda completa: `REEL-30-TREDICESIMA.md`.
+Numeri ricalcolati con le aliquote 2026 vere (23/33/43): netto ≈1.570.
+Scheda completa: `REEL-30-TREDICESIMA.md`.

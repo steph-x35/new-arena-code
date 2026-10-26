@@ -45,7 +45,7 @@ Un take unico da 30 secondi per A e B: si taglia in montaggio, non si rigira.
 | 1 | 0-2 s | card | **2.308 €** gigante giallo, PDF sfocato dietro | **2.308 € — NON È UN REGALO** |
 | 2 | 2-5 s | B | il PDF della cheat sheet a schermo pieno, zoom sul punto 8 | **ARRIVA GIÀ DECURTATA** |
 | 3 | 5-9 s | A | screencast: scroll lento, si ferma sulla riga «Rateo 13ª mensilità» | **STA QUI, OGNI MESE** |
-| 4 | 9-13 s | card | scala crescente: **2.308 lordi → 1.530 netti** | **PIÙ DELLA METÀ SE NE VA** |
+| 4 | 9-13 s | card | scala crescente: **2.308 lordi → 1.570 netti** | **QUASI METÀ SE NE VA** |
 | 5 | 13-17 s | D | le 4 copertine, una al secondo | **4 DOCUMENTI · 16 PAGINE** |
 | 6 | 17-21 s | card | ritorno al fotogramma 1 (loop) + CTA | **SCRIVI «TREDICESIMA» 👇** |
 
@@ -58,7 +58,7 @@ Export **1080×1920, 30 fps, senza filigrana** — serve anche per YouTube.
 
 ## Voce (InShot TTS, italiano — incollare così com'è)
 
-La tredicesima non è un regalo di Natale: è una mensilità che ti sei guadagnato mese per mese. Su trentamila euro lordi sono duemilatrecentootto euro, che netti diventano circa millecinquecentotrenta. E se ti licenzi prima di dicembre, il rateo ti spetta lo stesso. Il problema è che nessuno controlla mai quella riga. Dieci controlli, un minuto ciascuno, per trovare quello che non torna. Scrivi TREDICESIMA nei commenti e seguimi: un controllo a settimana.
+La tredicesima non è un regalo di Natale: è una mensilità che ti sei guadagnato mese per mese. Su trentamila euro lordi sono duemilatrecentootto euro, che netti diventano circa millecinquecentosettanta. E se ti licenzi prima di dicembre, il rateo ti spetta lo stesso. Il problema è che nessuno controlla mai quella riga. Dieci controlli, un minuto ciascuno, per trovare quello che non torna. Scrivi TREDICESIMA nei commenti e seguimi: un controllo a settimana.
 
 ---
 
@@ -78,7 +78,7 @@ La riga si chiama «rateo 13ª mensilità» e cresce ogni mese: se a dicembre il
 
 **Descrizione:**
 
-Su 30.000 € lordi la tredicesima sono 2.308 € lordi, che al netto di contributi e imposte diventano circa 1.530 €. E il rateo matura anche nei mesi in cui pensi di non aver diritto.
+Su 30.000 € lordi la tredicesima sono 2.308 € lordi, che al netto di contributi e imposte diventano circa 1.570 €. E il rateo matura anche nei mesi in cui pensi di non aver diritto.
 
 I 4 documenti con il controllo completo (16 pagine): https://payhip.com/b/kbpxY
 
@@ -93,9 +93,9 @@ Il calcolatore stipendio netto gratuito: https://steph-x35.github.io/new-arena-c
 | 13ª lorda su RAL 30.000 | **2.308 €** | 30.000 ÷ 13 |
 | INPS 9,19% | −212 € | aliquota dipendenti |
 | Imponibile | 2.096 € | lorda − INPS |
-| IRPEF 25% | −524 € | scaglione 15.001-28.000 |
+| IRPEF 23% | −482 € | primo scaglione (fino a 28.000) |
 | Addizionali ~2% | −43 € | regionale 1,23% + comunale 0,8% |
-| **Netto 13ª** | **≈1.530 €** | |
+| **Netto 13ª** | **≈1.570 €** | |
 
 Stime dichiarate: il numero esatto dipende da detrazioni e addizionali del
 comune, e sta nel cedolino di dicembre. **Nel video si dice «circa»**, mai

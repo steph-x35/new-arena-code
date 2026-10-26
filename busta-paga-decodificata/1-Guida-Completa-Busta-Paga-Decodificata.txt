@@ -145,16 +145,17 @@ Le tre righe chiave della zona B:
   lavoro, molto più alto del tuo lordo.
 
 ► IRPEF — l'imposta sul reddito
-  Aliquote 2026 (tre scaglioni):
+  Aliquote 2026 (tre scaglioni, L. 199/2025):
      da 0 a 28.000 €     →  23%
-     da 28.000 a 50.000 € →  35%
+     da 28.000 a 50.000 € →  33%
      oltre 50.000 €       →  43%
   Sulla busta non vedi l'aliquota: vedi la trattenuta già
   calcolata, spesso suddivisa in "acconto" e "rateo".
   Dalla trattenuta si sottraggono le DETRAZIONI da lavoro
-  dipendente, che dal 2025 sono state aumentate per gli
-  redditi più bassi: fino a ~15.000 € lordi/anno, di fatto,
-  si pagano zero IRPEF.
+  dipendente: riducono l'IRPEF, e sotto una certa soglia di
+  reddito (circa 8.500 € l'anno) la azzerano del tutto. Sono
+  il motivo per cui due buste con lo stesso lordo possono
+  avere trattenute diverse.
 
   ⚠ Il conguaglio
   A dicembre o a fine rapporto trovi una voce "conguaglio":
