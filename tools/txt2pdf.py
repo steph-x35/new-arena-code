@@ -117,11 +117,17 @@ class Doc:
         self.y = H - MT
 
     def text(self, s, size=10.5, bold=False, dy=None, lead=None, indent=0,
-             color=(0, 0, 0), mono=False):
-        """scrive una riga (o più, wrappata) con controllo del salto pagina."""
+             color=(0, 0, 0), mono=False, keep=0):
+        """scrive una riga (o più, wrappata) con controllo del salto pagina.
+
+        keep = spazio che deve restare sotto la riga: serve ai titoli, che
+        altrimenti restano da soli in fondo alla pagina con il testo dopo.
+        """
         s = sanitize(s)
         font = "F3" if mono else ("F2" if bold else "F1")
         lead = lead or size * 1.42
+        if keep and self.y - lead - keep < MB:
+            self.new_page()
         for line in wrap(s, size, bold, CW - indent, mono=mono):
             if self.y - lead < MB:
                 self.new_page()
@@ -253,15 +259,15 @@ def emit(doc, path):
         # titoli markdown
         if core.startswith("### "):
             doc.space(6)
-            doc.text(clean_md(core[4:]), 11, bold=True, color=(0.25, 0.25, 0.25))
+            doc.text(clean_md(core[4:]), 11, bold=True, color=(0.25, 0.25, 0.25), keep=80)
             continue
         if core.startswith("## "):
             doc.space(10)
-            doc.text(clean_md(core[3:]), 12.5, bold=True, color=(0.10, 0.20, 0.40))
+            doc.text(clean_md(core[3:]), 12.5, bold=True, color=(0.10, 0.20, 0.40), keep=80)
             continue
         if core.startswith("# "):
             doc.space(6)
-            doc.text(clean_md(core[2:]), 15, bold=True, color=(0.10, 0.20, 0.40))
+            doc.text(clean_md(core[2:]), 15, bold=True, color=(0.10, 0.20, 0.40), keep=80)
             continue
 
         # citazioni markdown -> rientrate
@@ -274,7 +280,7 @@ def emit(doc, path):
         # intestazione: riga tutta maiuscola e corta
         if core.isupper() and len(core) < 90 and any(c.isalpha() for c in core):
             doc.space(4)
-            doc.text(core, 11.5, bold=True, color=(0.10, 0.20, 0.40))
+            doc.text(core, 11.5, bold=True, color=(0.10, 0.20, 0.40), keep=80)
             continue
 
         doc.text(core, 10.5)
