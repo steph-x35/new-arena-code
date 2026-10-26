@@ -1043,3 +1043,13 @@ messaggio sta nei testi, lo schermo deve solo muoversi e fare numeri.
 - Messaggio Francesco: inviato (calcolo TFR/ferie/14ma + link Fiscozen).
   In attesa di: nome CCNL, giorni ferie, TFR azienda/fondo.
 - Prossimi: v9 caso Francesco (mer) -> 312 (gio) -> v10 scatti (sab), ore 19.
+
+---
+
+## 🎬 REEL 27 — «IL CONTROLLO DA 10 MINUTI» (26/10, 19:00/19:10)
+
+Primo reel che mostra **le pagine vere del PDF** invece di raccontare il
+prodotto. Gancio verificabile: l'INPS al 9,19% (punto 7 della cheat sheet),
+che chi guarda può controllare sulla propria busta in dieci secondi.
+Screencast dal telefono + voce sintetica, 21 secondi.
+Scheda completa: `REEL-27-BUSTA-PAGA-PDF.md`.
