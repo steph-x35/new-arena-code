@@ -1053,3 +1053,12 @@ prodotto. Gancio verificabile: l'INPS al 9,19% (punto 7 della cheat sheet),
 che chi guarda può controllare sulla propria busta in dieci secondi.
 Screencast dal telefono + voce sintetica, 21 secondi.
 Scheda completa: `REEL-27-BUSTA-PAGA-PDF.md`.
+
+---
+
+## 🎬 REEL 28 — «650 € IN FERME» (27/10, 19:00/19:10)
+
+Stesso soggetto del reel ferie del 18/10 (che aveva funzionato) ma con il
+prodotto dietro: prima non c'era niente da vendere. Screencast delle pagine
+vere del PDF nuovo, numero già verificato (65 €/giorno, 10 giorni = 650 €).
+Scheda completa: `REEL-28-FERIE-ROL.md`.
