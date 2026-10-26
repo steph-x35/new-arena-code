@@ -51,15 +51,29 @@ Alterna: 1 episodio serie + 1 video-risposta ai commenti.
 Prodotti: Pacchetto Dimissioni&TFR 3,90€ (ZI9na) = prodotto-lead per il pubblico TFR.
 Busta Paga Decodificata 2,90€ (kbpxY) e Kit Colloquio 4,90€ (utzIY) restano al loro posto.
 
-### 📊 STATO al 2026-10-25 (misurato, non stimato)
+### 📊 STATO al 2026-10-26 (misurato, non stimato)
 
-| | |
-|---|---|
-| Follower TikTok LF | **458** (46% verso i 1.000) |
-| Reel v9 «Ti licenzi dopo 7 anni?» | 6.510 views · 30 like · 14 commenti · 9 save |
-| Tasso di like v9 | **0,46%** (media di settore 2-5%) |
-| Payhip | **46 visite prodotto · 0 ordini** |
-| Click Linktree «Calcola il TFR» | 121 -> **122** su 6.510 views |
+| | 25/10 | **26/10** |
+|---|---|---|
+| Follower TikTok LF | 458 (46% verso i 1.000) | **458** (invariato) |
+| Reel v9 «Ti licenzi dopo 7 anni?» | 6.510 views | **19.000 views** |
+| Like / commenti / save | 30 / 14 / 9 | **30 / 20 / 10** |
+| Tasso di like v9 | 0,46% | **0,158%** |
+| Click Linktree «Calcola il TFR» | 122 | **125** (+4) |
+| Payhip | 46 visite · 0 ordini | **47 visite · 0 ordini** |
+
+**26/10 — il numero che chiude il discorso:** 19.000 views hanno prodotto
+**4 click** sullo strumento (0,021%) e **1** visita prodotto in piu'.
+Rapporto **19.000 : 1**. Per avere le 100 visite prodotto che servono a
+misurare una conversione, con questo rapporto servono **1,9 milioni di views**.
+
+Views x2,9 e like x1,0: dodicimila persone in piu' hanno guardato senza
+mettere like. **Non e' un funnel: e' un muro**, e la causa e' fisica (sotto i
+1.000 follower il campo sito di TikTok non esiste).
+
+Anomalia da non perdere: **1 save ogni 3 like** (normale 1 ogni 10-20).
+10 persone su 19.000 vogliono davvero il contenuto: sono poche in percentuale,
+ma sono quelle che comprano.
 
 **Il funnel del piano non regge ancora, e non per colpa del video:** sotto i
 1.000 follower il campo sito di TikTok non esiste, quindi "in bio" e' una

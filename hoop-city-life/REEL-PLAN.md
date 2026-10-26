@@ -292,7 +292,7 @@ Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) �
 | LF «8 ore / 6 pagate» (rabbia+giustizia) | **967 · 1 like · 1 save · 5,3s tempo medio** | NON e' il formato ad aver fallito: con 5,3s di retention la gente se ne va' DURANTE l'hook → TikTok smette di spingere prima ancora di mostrare il contenuto. Malattia = primi 2 secondi. Istruzione per il prossimo: il NUMERO enorme e' gia' nel primo fotogramma, domanda-identita' come «5 anni», zero introduzione |
 | LF «8 ore / 6 pagate» — YouTube Shorts (canale NUOVO, 0 iscritti) | **1.300 views in 24h · 1,8h di watch time (≈5s a view)** | canale a zero distribuito subito: la macchina YouTube FUNZIONA. Stesso crollo a ~5s di TikTok = conferma incrociata: il problema e' l'hook, non la piattaforma. UNA riparazione (primi 2s) vale per entrambi i canali. Ogni reel TikTok si ricarica qui: costo zero, pubblico da ricerca |
 | LF «Ferie non godute» (v7: 13s, 5 card, zero cedolino, soggetto vergine) | **pubblicato 2026-10-18 19:00** | primo reel con tutti i pro caricati: hook <1,5s, framing perdita, scala 65→650→2.000, CTA commenti+save, loop. Lettura a 48h: % >3s target >50%, tempo medio >7s, salvataggi |
-| **LF «TI LICENZI DOPO 7 ANNI?»** (v9, screencast 20s, 22/10 ore 20) | **6.510 in 24h → 30 like · 14 commenti · 9 save a 72h** (tasso like **0,46%**, era 0,11%) | primo reel in formato REGISTRAZIONE DELLO SCHERMO dopo il 209k. 6.510 il primo giorno da 458 follower = distribuzione sana. Commenti arrivati con anni+stipendio ("anni 7 stipendio 2300", "1700 x8 mesi") = la gente usa il profilo come calcolatore, che e' esattamente il comportamento cercato. Da NON leggere come vittoria: 7 like su 6.510 = 0,1%, il pubblico prende il numero e va via senza motivo per restare. **Linktree «Calcola il TFR»: 121 -> 122 = UN solo click su 6.510 views (0,015%).** Il modello del piano ne prevedeva 2-10: siamo sotto anche al caso pessimista |
+| **LF «TI LICENZI DOPO 7 ANNI?»** (v9, screencast 20s, 22/10 ore 20) | **19.000 views al 26/10** · 30 like · 20 commenti · 10 save · tasso like **0,158%** | primo reel in formato REGISTRAZIONE DELLO SCHERMO dopo il 209k. 6.510 il primo giorno da 458 follower = distribuzione sana. Commenti arrivati con anni+stipendio ("anni 7 stipendio 2300", "1700 x8 mesi") = la gente usa il profilo come calcolatore, che e' esattamente il comportamento cercato. Da NON leggere come vittoria: 7 like su 6.510 = 0,1%, il pubblico prende il numero e va via senza motivo per restare. **Linktree «Calcola il TFR»: 121 -> 122 = UN solo click su 6.510 views (0,015%).** Il modello del piano ne prevedeva 2-10: siamo sotto anche al caso pessimista. **Il dato del 26/10: views x2,9 (6.510 -> 19.000), like x1,0 (30 -> 30).** Dodicimila persone in piu' hanno guardato e NON hanno messo like. Linktree 121 -> 125 = +4 click su 19.000 views (0,021%). Payhip: 1 sola visita prodotto in piu' su 19.000 views -> 1 ogni 19.000. |
 | **LF «UN ANNO DI LAVORO = 2.267 €»** (v26, screencast 21s + voce sintetica, 25/10) | **pubblicato 25/10 ore 19:00/19:10** | soggetto nato dal commento di Operatore 25 («stipendio netto 1690, un anno di lavoro quant'è?»). Primo reel con **voce** (InShot TTS) e primo con il **CTA nuovo** (like subito dopo il numero + follow con promessa). Numeri: digiti 2525 -> RAL 32.825 -> TFR 1 anno 2.267,36 lordi / 1.745,86 netti. Lettura a 48h: tasso di like sopra l'1% = il formato con la voce funziona |
 | HCL POV «appeso al ferro» | **790 CON boost gratis** | organico reale piu' basso: le views sponsorizzate sono pubblico freddo, non misurano il video. Il boost non si usa per TESTARE ma per SPINGERE un video che cammina da solo |
 
@@ -373,6 +373,71 @@ vera e non scade.
 
 Vietato: «metti like e seguici» (generico, invisibile, non dice perche').
 Vietato: chiedere il like senza aver prima dato il numero.
+
+### 🔴 26/10 — LA MISURA DEFINITIVA: 19.000 views, 4 click, 1 visita prodotto
+
+| | 22/10 | 26/10 | Δ |
+|---|---|---|---|
+| Views TikTok | 6.510 | **19.000** | **+12.490** |
+| Like | 7 | 30 | +23 |
+| Commenti | 3 | 20 | +17 |
+| Save | 1 | 10 | +9 |
+| Linktree «Calcola il TFR» | 121 | **125** | **+4** |
+| Linktree totale (6 link) | 162 | 166 | +4 |
+| Payhip — visite prodotto | 45 | **47** | **+2** |
+| Payhip — ordini | 0 | **0** | 0 |
+
+**1. Il like non si e' mosso.** Views x2,9, like x1,0. Dodicimila persone
+nuove hanno guardato e non hanno messo like. Il tasso e' sceso da 0,46% a
+**0,158%**: la crescita delle views non ha portato nessun segnale positivo.
+
+**2. Il like e' distribuito in modo anomalo: 1 save ogni 3 like.** Il rapporto
+normale e' 1 save ogni 10-20 like. Significa che una fetta piccolissima ma
+reale vuole il contenuto (10 persone), mentre la massa lo consuma e va via.
+
+**3. Il ponte non esiste, e ora c'e' la misura.** 19.000 views -> 4 click
+sullo strumento (**0,021%**) e **1** visita prodotto in piu'.
+
+> **19.000 views : 1 visita prodotto.** Per arrivare alle 100 visite prodotto
+> che servono a leggere un tasso di conversione, con questo rapporto servono
+> **1,9 milioni di views**.
+
+Non e' un funnel con una perdita: e' un muro. Nessun ritocco alla CTA lo
+sposta, perche' la causa e' **fisica**: sotto i 1.000 follower il campo sito
+di TikTok non esiste, e il link in descrizione di YouTube lo vede solo chi
+apre la descrizione.
+
+**Conseguenza: smettere di ottimizzare i reel per le views.** Tre sole
+direzioni restano aperte, in quest'ordine:
+1. **1.000 follower** (458 oggi, 46%): e' l'unico evento che crea il ponte
+2. **YouTube** (link cliccabile): l'unico posto dove il click esiste gia'
+3. **Vendere dentro il video**: mostrare il prodotto e il prezzo nel reel,
+   perche' senza ponte il pubblico deve arrivarci da solo
+
+### 🛒 26/10 — LE PAGINE PRODOTTO: cosa vede chi arriva su Payhip
+
+Lette le tre pagine live (Payhip). Il contenuto e' buono: il pacchetto
+Dimissioni sono **2.330 parole** in 5 documenti, con istruzioni, riferimenti
+normativi (D.Lgs. 151/2015, art. 1219 c.c., art. 429 c.p.c.) e campi da
+compilare. **Il problema non e' il contenuto: e' come e' confezionato.**
+
+| Cosa vede il compratore | Perche' e' un problema |
+|---|---|
+| **«You will get a ZIP (10KB) file»** | e' l'ULTIMA riga prima del pulsante. 10 KB = "un file di testo". Azzera il valore percepito di un prodotto legale da 3,90 € |
+| **«On Sale — €3,90 — €3,90»** | prezzo doppio identico: sembra un finto sconto o un errore. Uccide la fiducia |
+| Formato **.txt** | per un modello legale ci si aspetta un PDF. Il .txt sembra un blocco note |
+| Nessuna recensione | nessuna prova sociale su nessuno dei 3 prodotti |
+| Nessuna FAQ / garanzia | nessuna risposta a "e se non fa per me?" |
+| Nessun disclaimer legale | manca "non e' consulenza legale", che e' anche una tutela per chi vende |
+
+**Il dato che conta:** 47 visite prodotto in totale, 0 ordini. Su 47 visite
+l'atteso statistico e' 0-1 vendita, quindi lo zero **non** dimostra ancora che
+i prodotti non piacciano. Ma la riga «ZIP 10KB» e' gratuita da togliere.
+
+**Correzione preparata:** i 5 documenti sono stati impaginati in **PDF**
+(`tools/txt2pdf.py` -> `prodotti-pdf/dimissioni-tfr/`). Ogni PDF ha copertina,
+intestazioni, piè di pagina con numerazione, e contiene gli stessi testi.
+Restano da caricare su Payhip al posto (o insieme) al .txt.
 
 ### 🕖 25/10 — ORARI: 19:00 TikTok, 19:10 YouTube
 
