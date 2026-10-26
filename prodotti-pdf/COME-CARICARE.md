@@ -1,55 +1,55 @@
-# Come caricare i PDF su Payhip
+# Cosa caricare su Payhip
 
-Generato con `tools/txt2pdf.py`. Nessuna dipendenza esterna: i PDF sono scritti
-a mano (Helvetica + Courier, base-14) partendo dai `.txt` del repository.
+I PDF si caricano **uno per uno**, non come zip: la pagina mostra così
+«PDF (29KB)», «PDF (8KB)»… e il prodotto sembra quello che è. Con un solo zip
+la pagina scrive «You will get a ZIP (17KB)», che è quello che avevamo prima e
+che non ha venduto niente.
 
-## File da scaricare (dal telefono, un tap)
+## La Busta Paga Decodificata — 2,90 €
 
-| Prodotto | Bundle | Cosa contiene |
-|---|---|---|
-| **La Busta Paga Decodificata** | `Busta-Paga-4-PDF.zip` | 4 PDF |
-| **Kit Carriera** | `Kit-Carriera-3-PDF.zip` | 3 PDF |
-| **Kit Carriera** — modelli CV | `kit-carriera/4-Modelli-CV-modificabili.zip` | 5 HTML modificabili |
-
-## Cosa caricare su Payhip
-
-### La Busta Paga Decodificata — 2,90 €
-
-Carica i **4 PDF singoli** dalla cartella `busta-paga/`:
+Dalla cartella `busta-paga/`, quattro file:
 
 1. `1-Guida-Completa.pdf`
 2. `2-Cheat-Sheet-10-Minuti.pdf`
 3. `3-Ti-Pagano-Meno-Del-CCNL.pdf`
 4. `4-Checklist-Cambio-Contratto.pdf`
 
-Rimuovi il vecchio `Busta-Paga-Decodificata-LavoroFacile.zip`.
+Togli il vecchio zip dalla pagina.
 
-### Kit Carriera — 4,90 €
+## Kit Carriera — 4,90 €
 
-Carica **3 PDF + 1 zip**:
+Nove file:
 
 1. `1-Come-Usare-il-Kit.pdf`
 2. `2-Guida-20-Domande-Colloquio.pdf`
-3. `3-Dieci-Lettere-di-Presentazione.pdf` (le 10 lettere in un solo PDF)
-4. `4-Modelli-CV-modificabili.zip` — **resta uno zip perché sono HTML da
-   modificare**, e un PDF non si compila. Nella descrizione va detto.
+3. `3-Dieci-Lettere-di-Presentazione.pdf`
+4. `4-Dieci-Lettere-Modificabili.docx`
+5. `cv-docx/1-Modello-Classico-ATS.docx`
+6. `cv-docx/2-Modello-Moderno-Due-Colonne.docx`
+7. `cv-docx/3-Modello-Minimal-Elegante.docx`
+8. `cv-docx/4-Modello-Professionale-Senior.docx`
+9. `cv-docx/5-Modello-Junior-Formativo.docx`
 
-Rimuovi il vecchio `Kit-Colloquio-LavoroFacile.zip`.
+Togli il vecchio zip dalla pagina.
 
-## Perché i CV restano HTML
+## Perché i CV sono .docx e non PDF
 
-Sono modelli da personalizzare: in PDF sarebbero solo da guardare. In HTML si
-aprono nel browser, si modificano con un editor di testo o si stampano in PDF.
-Nella descrizione del prodotto va scritto chiaro, altrimenti chi compra si
-aspetta 5 PDF e trova 5 file HTML.
+Un PDF non si compila: chi compra deve scrivere il proprio nome sopra
+`[Nome e Cognome]`. I .docx si aprono in Word, Google Docs e LibreOffice e si
+salvano in PDF con un clic. In più i sistemi di selezione leggono molto meglio
+un .docx di un CV impaginato come un poster.
+
+Gli zip nella cartella (`Busta-Paga-4-PDF.zip`, `Kit-Carriera-3-PDF.zip`) sono
+solo copie di comodo per scaricare tutto in un colpo: **non vanno caricati**.
 
 ## Come si rigenerano
 
 ```bash
 python3 tools/txt2pdf.py OUT.pdf "Titolo" "Sottotitolo" "Tagline" sorgente1 [sorgente2 ...]
+python3 tools/cv2docx.py prodotti-pdf/kit-carriera/cv-docx
+PYTHONPATH=tools python3 tools/lettere2docx.py kit-colloquio/lettere-presentazione \
+    prodotti-pdf/kit-carriera/4-Dieci-Lettere-Modificabili.docx
 ```
 
-- supporta `.txt` e `.md` (ripulisce i marcatori markdown)
-- le righe con cornici `┌─┐│` vengono rese in Courier, così le tabelle restano allineate
-- le emoji vengono scartate: in un documento legale non servono
-- piu' sorgenti = un solo PDF, separate da un salto pagina
+`txt2pdf.py` legge `.txt` e `.md`, rende in Courier le righe con le cornici
+così le tabelle restano allineate, e scarta le emoji.
