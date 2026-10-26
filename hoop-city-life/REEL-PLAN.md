@@ -1062,3 +1062,13 @@ Stesso soggetto del reel ferie del 18/10 (che aveva funzionato) ma con il
 prodotto dietro: prima non c'era niente da vendere. Screencast delle pagine
 vere del PDF nuovo, numero già verificato (65 €/giorno, 10 giorni = 650 €).
 Scheda completa: `REEL-28-FERIE-ROL.md`.
+
+---
+
+## 🎬 REEL 30 — «LA TREDICESIMA NON È UN REGALO» (28/10, 19:00/19:10)
+
+Soggetto stagionale (da novembre si cerca), numero verificabile a mente
+(30.000 ÷ 13 = 2.308) e prodotto dimostrato: il cedolino del sito ha la riga
+«Rateo 13ª mensilità», quindi il video apre il prodotto invece di raccontarlo.
+Numeri ricalcolati e corretti rispetto alla prima stesura: netto ≈1.530, non
+1.360. Scheda completa: `REEL-30-TREDICESIMA.md`.
