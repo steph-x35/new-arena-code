@@ -1,74 +1,55 @@
-# REEL 30 — «LA TREDICESIMA NON È UN REGALO» (Busta Paga, 2,90 €)
+# REEL 30 — «LA TREDICESIMA» (Busta Paga, 2,90 €)
 
 **Pubblicazione: 28/10 ore 19:00 TikTok · 19:10 YouTube**
-Screencast del cedolino dimostrativo + pagine vere del PDF + voce sintetica.
-21 secondi, 6 inquadrature.
+12 secondi, 5 fotogrammi, nessuna registrazione schermo, nessuna card.
+
+Le 5 immagini sono già pronte nella cartella `reel-30/`, **con le scritte dentro**.
+In CapCut non c'è nessun testo da aggiungere.
 
 ---
 
-## Perché questo soggetto
+## I 5 fotogrammi
 
-Tre ragioni, in ordine di peso:
-
-1. **È stagionale.** Da novembre la tredicesima si cerca. Non è un tema che
-   dipende dal nostro pubblico: è il calendario.
-2. **Il numero è verificabile.** RAL 30.000 diviso 13 fa 2.308 € lordi. Chi
-   guarda può fare la divisione a mente sul proprio stipendio.
-3. **Il prodotto si dimostra.** Nel cedolino dimostrativo del sito c'è la riga
-   «Rateo 13ª mensilità»: il video non racconta il prodotto, lo apre.
-
-Soggetto mai usato: la quattordicesima è già andata (reel 21/10), la
-tredicesima no.
-
----
-
-## Cosa si riprende
-
-Telefono, una scheda sola, Non Disturbare attivo, browser aperto normalmente
-(niente incognito: la scritta si vede nel video).
-
-| # | Cosa apri | Mosse | Secondi |
-|---|---|---|---|
-| A | `https://steph-x35.github.io/new-arena-code/busta-paga-esempio.html` | apri, scroll lento fino alla riga «Rateo 13ª mensilità», fermo 2 s | 8-10 s |
-| B | `https://steph-x35.github.io/new-arena-code/prodotti-pdf/busta-paga/2-Cheat-Sheet-10-Minuti.pdf` | apri, scroll dal punto 8 al punto 10 | 5-6 s |
-| C | `https://steph-x35.github.io/new-arena-code/prodotti-pdf/busta-paga/1-Guida-Completa.pdf` | apri la copertina, lascia fermo | 3 s |
-| D | Le 4 copertine dei PDF (`prodotti-pdf/busta-paga/`) | in CapCut, una ogni secondo | — |
-
-Un take unico da 30 secondi per A e B: si taglia in montaggio, non si rigira.
-
----
-
-## Montaggio — fotogramma per fotogramma
-
-| # | Tempo | Sorgente | Contenuto | Scritta a schermo |
+| # | File | Cosa si vede | Scritta (già dentro) | Durata |
 |---|---|---|---|---|
-| 1 | 0-2 s | card | **2.308 €** gigante giallo, PDF sfocato dietro | **2.308 € — NON È UN REGALO** |
-| 2 | 2-5 s | B | il PDF della cheat sheet a schermo pieno, zoom sul punto 8 | **ARRIVA GIÀ DECURTATA** |
-| 3 | 5-9 s | A | screencast: scroll lento, si ferma sulla riga «Rateo 13ª mensilità» | **STA QUI, OGNI MESE** |
-| 4 | 9-13 s | card | scala crescente: **2.308 lordi → 1.570 netti** | **QUASI METÀ SE NE VA** |
-| 5 | 13-17 s | D | le 4 copertine, una al secondo | **4 DOCUMENTI · 16 PAGINE** |
-| 6 | 17-21 s | card | ritorno al fotogramma 1 (loop) + CTA | **SCRIVI «TREDICESIMA» 👇** |
+| 1 | `1-dicembre.png` | blocco RATEI, pagina 4 della guida | LA 13ª NON ARRIVA A DICEMBRE | 2,4 s |
+| 2 | `2-numeri.png` | stesso blocco | 2.308 € LORDI → 1.570 € NETTI | 2,4 s |
+| 3 | `3-giugno.png` | stesso blocco | VALE ANCHE SE TE NE VAI A GIUGNO | 2,4 s |
+| 4 | `4-controlli.png` | cheat sheet, controlli 1-3 | 10 CONTROLLI · 1 MINUTO CIASCUNO | 2,4 s |
+| 5 | `5-cta.png` | ritorno al blocco RATEI | SCRIVI «TREDICESIMA» E SEGUIMI | 2,4 s |
 
-Regole di montaggio, come sempre: tagli secchi, nessuna dissolvenza, musica
-al 12-15% con il colpo a 0,0 s, ultimo fotogramma identico al primo (chi lo
-riguarda non se ne accorge e il video guadagna una seconda view).
-Export **1080×1920, 30 fps, senza filigrana** — serve anche per YouTube.
+I fotogrammi 1, 2, 3 e 5 mostrano **la pagina vera del PDF**, non una grafica:
+il prodotto si vede dal primo secondo. Il quarto è la cheat sheet, quindi si
+vede un secondo documento.
+
+---
+
+## Montaggio (tre passi)
+
+1. Importa le 5 immagini, nell'ordine 1 → 5.
+2. Selezionale tutte e cinque, durata **2,4 secondi** ciascuna: 12 secondi totali.
+3. Voce, musica al 12-15%, export **1080×1920, 30 fps, senza filigrana**.
+
+Niente zoom, niente keyframe, niente dissolvenze: il ritmo lo danno i tagli.
 
 ---
 
 ## Voce (InShot TTS, italiano — incollare così com'è)
 
-La tredicesima non è un regalo di Natale: è una mensilità che ti sei guadagnato mese per mese. Su trentamila euro lordi sono duemilatrecentootto euro, che netti diventano circa millecinquecentosettanta. E se ti licenzi prima di dicembre, il rateo ti spetta lo stesso. Il problema è che nessuno controlla mai quella riga. Dieci controlli, un minuto ciascuno, per trovare quello che non torna. Scrivi TREDICESIMA nei commenti e seguimi: un controllo a settimana.
+La tredicesima matura un dodicesimo ogni mese, non arriva a dicembre. Su trentamila euro lordi: duemilatrecentootto, netti circa millecinquecentosettanta. Se te ne vai a giugno, ti spetta lo stesso.
+
+Se in lettura supera i 12 secondi, togli «netti circa millecinquecentosettanta»
+e il video torna a filo.
 
 ---
 
 ## Caption TikTok
 
-La tredicesima non è un bonus: è una mensilità che ti sei guadagnato, e sulla busta paga si controlla come tutto il resto. Scrivi TREDICESIMA e ti dico dove guardare 👇 #tredicesima #bustapaga #dicembre #stipendio #lavoro #italia
+La tredicesima non è un bonus: è una mensilità che ti sei guadagnato mese per mese. Scrivi TREDICESIMA e ti dico quale riga guardare 👇 #tredicesima #bustapaga #stipendio #lavoro #italia
 
 ## Commento fissato (qui si vende)
 
-La riga si chiama «rateo 13ª mensilità» e cresce ogni mese: se a dicembre il numero non torna, hai un motivo per chiedere. Il controllo completo sono 4 documenti — 10 controlli in 10 minuti, ogni voce spiegata, e la frase da mandare all'ufficio personale. Scrivi TREDICESIMA e ti rispondo.
+La riga si chiama «rateo 13ª mensilità» e sale ogni mese. Se a dicembre il numero non torna, hai il motivo per chiedere. Il controllo completo sono 4 documenti, 10 controlli in 10 minuti: https://payhip.com/b/kbpxY
 
 ---
 
@@ -87,6 +68,8 @@ Il calcolatore stipendio netto gratuito: https://steph-x35.github.io/new-arena-c
 ---
 
 ## I numeri, e come sono stati calcolati
+
+Aliquote 2026 verificate (L. 199/2025: secondo scaglione al 33%, non più 35%).
 
 | Voce | Valore | Come |
 |---|---|---|
