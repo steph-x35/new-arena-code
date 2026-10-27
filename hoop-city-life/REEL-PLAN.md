@@ -1077,3 +1077,23 @@ Scheda completa: `REEL-30-TREDICESIMA.md`.
 (3 like, 3 save), YouTube 790 views. Tasso di save 0,58% = 11x il reel «7 anni»,
 ma reach 40x inferiore. Causa probabile: carosello di immagini ferme +
 etichetta «Contenuto promozionale». Dettaglio in `PIANO-CRESCITA.md`.
+
+---
+
+## 🎬 REEL 31 — «QUANTO TI RESTA DI 100 € DI STRAORDINARI?» (29/10, 19:00/19:10)
+
+Torna la struttura del 209k (domanda che riguarda chi guarda + numero che non
+sa di avere) su un soggetto mai usato: gli straordinari.
+
+Perché non un altro episodio «anni»: 5 anni 209k, 10 anni già pubblicato,
+36 anni 1.389 — la serie è esaurita. Perché non il carosello di pagine del
+reel 30: cinque immagini ferme = 519 views, TikTok non raccomanda i caroselli.
+
+Il video mostra uno strumento nuovo e gratuito del sito
+(`/quanto-resta/`): il numero grande scende da 68,11 a 59,03 a 49,95 mentre si
+cambia il lordo. Niente prodotto nel video, prodotto solo nel commento fissato.
+
+Numeri: 100 € lordi → INPS 9,19 → IRPEF marginale 23% (fino a ~30.840 € di
+lordo) o 33% → addizionali 2% → **68,11 / 59,03 / 49,95 €**.
+
+Scheda completa: `REEL-31-STRAORDINARI.md`.

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quanto ti resta di 100 € lordi in più — Stipendio netto marginale 2026</title>
+  <meta name="description" content="Su 100 € lordi in più (straordinari, aumento, premio) quanti te ne restano davvero? Calcolo dell'aliquota marginale 2026: INPS 9,19%, IRPEF a scaglioni 23/33/43 e addizionali. Gratis." />
+  <link rel="icon" type="image/svg+xml" href="../logo-icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css?v=4" />
+  <style>
+    .calc-grid {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      gap: 22px; align-items: start; padding-top: 26px; padding-bottom: 56px;
+    }
+    @media (max-width: 900px) {
+      .calc-grid { grid-template-columns: 1fr; gap: 16px; padding-top: 14px; padding-bottom: 36px; }
+      .calc-form { padding: 12px 14px; }
+      .results { position: static; padding: 16px 14px; }
+      .result-big { padding: 16px 18px; margin-bottom: 14px; }
+      .result-big .amount { font-size: 1.8rem; }
+    }
+    .result-big {
+      background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+      color: #fff; border-radius: 14px; padding: 20px 22px; margin-bottom: 18px;
+    }
+    .result-big .label { font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; opacity: .85; }
+    .result-big .amount { font-size: 2.3rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
+    .result-big .sub { font-size: .88rem; opacity: .9; margin-top: 4px; }
+    .breakdown { width: 100%; border-collapse: collapse; }
+    .breakdown td { padding: 8px 2px; border-bottom: 1px solid #eef2f7; font-size: .93rem; }
+    .breakdown td:last-child { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .breakdown tr.neg td:last-child { color: #dc2626; }
+    .breakdown tr.grand td { border-top: 2px solid var(--ink); border-bottom: 0; padding-top: 12px; font-weight: 800; font-size: 1.02rem; }
+    .rate-badge {
+      display: inline-block; margin-top: 14px; background: var(--accent-soft); color: var(--accent);
+      border: 1px solid #c7d7fe; border-radius: 999px; padding: 6px 14px;
+      font-size: .85rem; font-weight: 700;
+    }
+    .disclaimer {
+      margin-top: 18px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px;
+      padding: 12px 14px; font-size: .82rem; color: #92400e;
+    }
+    .nav-links { display: flex; gap: 4px; margin-left: auto; }
+    .nav-links a {
+      text-decoration: none; color: var(--muted); font-weight: 600; font-size: .9rem;
+      padding: 7px 14px; border-radius: 9px;
+    }
+    .nav-links a:hover { background: var(--bg); color: var(--ink); }
+    .nav-links a.is-active { background: var(--accent-soft); color: var(--accent); }
+    .scala { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .scala th, .scala td { padding: 9px 6px; font-size: .9rem; border-bottom: 1px solid #eef2f7; text-align: right; }
+    .scala th:first-child, .scala td:first-child { text-align: left; }
+    .scala thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .scala tr.is-now td { background: var(--accent-soft); font-weight: 700; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header no-print">
+    <div class="wrap header-inner">
+      <a class="brand" href="../" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px;">
+        <img src="../logo-icon.svg" alt="LF" width="28" height="28" style="border-radius:6px; display:inline-block;" />
+        <span class="brand-name">Lavoro<span>Facile</span></span>
+      </a>
+      <p class="brand-tag">Strumenti gratis per chi vive di lavoro</p>
+      <nav class="nav-links">
+        <a href="../">Fatture</a>
+        <a href="../stipendio-netto/">Stipendio netto</a>
+        <a href="../crea-cv/">Crea CV</a>
+        <a href="../calcolo-tfr/">Calcolo TFR</a>
+        <a href="index.html" class="is-active">100 € in più</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero no-print">
+      <div class="wrap">
+        <h1>Su 100 € lordi in più, quanti te ne <em>restano</em>?</h1>
+        <p class="hero-sub">
+          Straordinari, premio, aumento, una giornata in più: quello che arriva in busta non è
+          100 €. Inserisci il tuo lordo annuo e vedi <strong>quanto resta davvero</strong> di ogni
+          100 € in più, con il dettaglio di INPS, IRPEF e addizionali.
+        </p>
+        <ul class="hero-badges">
+          <li>✅ 100% gratuito</li>
+          <li>🇹 Parametri 2026: IRPEF 23/33/43 · INPS 9,19%</li>
+          <li>📉 Aliquota marginale, non media</li>
+          <li>👀 I dati restano nel tuo browser</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="calc-grid wrap">
+      <div class="calc-form no-print">
+        <fieldset class="fsection">
+          <legend>1 · Il tuo lordo annuo</legend>
+          <div class="grid2">
+            <label>Reddito lordo annuo (€)
+              <input id="lordo" type="text" inputmode="decimal" placeholder="es. 30.000" value="30.000" />
+            </label>
+            <label>Addizionali regionali + comunali (%)
+              <input id="add" type="text" inputmode="decimal" value="2,0" />
+            </label>
+          </div>
+          <p class="hint" style="font-size:.82rem;color:var(--muted);margin:8px 2px 0;">
+            Se non le sai, lascia 2%: è la media italiana (regionale ~1,23% + comunale ~0,8%).
+          </p>
+        </fieldset>
+
+        <fieldset class="fsection">
+          <legend>2 · Da dove arrivano i 100 €</legend>
+          <div class="grid2">
+            <label>Straordinari, premio o aumento?
+              <select id="tipo">
+                <option value="ord">Straordinari / premio / aumento</option>
+                <option value="ord2">Tredicesima o quattordicesima</option>
+              </select>
+            </label>
+          </div>
+          <p class="hint" style="font-size:.82rem;color:var(--muted);margin:8px 2px 0;">
+            Sono tassati come lo stipendio ordinario: nessuna sorpresa, nessuno sconto.
+          </p>
+        </fieldset>
+
+        <a href="https://payhip.com/b/kbpxY" target="_blank" rel="noopener" class="kit-promo-btn" style="display:block;margin-top:18px;text-align:center;">
+          🧾 La busta paga spiegata voce per voce — 2,90 €
+        </a>
+      </div>
+
+      <div class="results">
+        <div class="result-big">
+          <div class="label">Ti resta in tasca</div>
+          <div class="amount"><span id="out-netto">68,11</span> €</div>
+          <div class="sub">su 100 € lordi in più · <span id="out-annuo">817,29</span> € su base annua</div>
+        </div>
+
+        <table class="breakdown">
+          <tr><td>Lordo in più</td><td>100,00 €</td></tr>
+          <tr class="neg"><td>Contributi INPS (9,19%)</td><td id="r-inps">−9,19 €</td></tr>
+          <tr><td>Imponibile fiscale</td><td id="r-imp">90,81 €</td></tr>
+          <tr class="neg"><td>IRPEF <span id="r-al">23%</span> (aliquota marginale)</td><td id="r-irpef">−20,89 €</td></tr>
+          <tr class="neg"><td>Addizionali <span id="r-addp">2,0%</span></td><td id="r-add">−1,82 €</td></tr>
+          <tr class="grand"><td>Netto in tasca</td><td id="r-net">68,11 €</td></tr>
+        </table>
+
+        <span class="rate-badge" id="badge">Aliquota effettiva sul lordo: 31,89%</span>
+
+        <div class="disclaimer">
+          ⚠️ Calcolo dell'<strong>aliquota marginale</strong>: quanto viene trattenuto sugli
+          <em>ultimi</em> 100 € guadagnati, non sulla media dell'anno. L'IRPEF è quella degli
+          scaglioni 2026 (23% fino a 28.000 €, 33% fino a 50.000 €, 43% oltre). Sotto i 28.000 €
+          la detrazione da lavoro che si riduce può alzare l'aliquota effettiva: è una stima di
+          orientamento, il dato esatto sta nella busta paga.
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap" style="padding-bottom:56px;">
+      <h2 style="font-size:1.3rem;letter-spacing:-.02em;margin:0 0 6px;">La stessa cosa al variare dello stipendio</h2>
+      <p style="color:var(--muted);font-size:.92rem;margin:0 0 8px;">Quanto resta di 100 € lordi in più, con addizionali al 2%.</p>
+      <table class="scala" id="scala">
+        <thead>
+          <tr><th>Lordo annuo</th><th>Aliquota IRPEF</th><th>Totale trattenuto</th><th>Ti restano</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p style="color:var(--muted);font-size:.85rem;margin-top:12px;">
+        Più sale il reddito, più il pezzo successivo è tassato: è il motivo per cui
+        un aumento «lordo» rende sempre meno di quanto sembra.
+      </p>
+    </section>
+
+    <section class="wrap" style="padding-bottom:60px;">
+      <h2 style="font-size:1.3rem;letter-spacing:-.02em;margin:0 0 10px;">Altri strumenti gratis</h2>
+      <div class="tools-grid">
+        <a class="tool-card" href="../stipendio-netto/">
+          <div class="tool-icon">💶</div>
+          <strong>Calcolatore stipendio netto</strong>
+          <p>Dal lordo al netto mensile e annuo, con detrazioni e addizionali della tua regione.</p>
+          <span class="tool-cta">Calcola il netto →</span>
+        </a>
+        <a class="tool-card" href="../calcolo-tfr/">
+          <div class="tool-icon">💰</div>
+          <strong>Calcolo TFR netto</strong>
+          <p>Quanto hai da parte davvero, con tassazione separata e anni di anzianità.</p>
+          <span class="tool-cta">Calcola il TFR →</span>
+        </a>
+        <a class="tool-card" href="https://payhip.com/b/kbpxY" target="_blank" rel="noopener">
+          <div class="tool-icon">🧾</div>
+          <strong>Busta Paga Decodificata — 2,90 €</strong>
+          <p>4 documenti, 16 pagine: ogni voce spiegata e il controllo da 10 minuti al mese.</p>
+          <span class="tool-cta">Vedi i documenti →</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer no-print">
+    <div class="wrap">
+      <p>LavoroFacile — strumenti gratuiti, nessuna registrazione. Stime di orientamento, non sostituiscono un consulente del lavoro.</p>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    'use strict';
+
+    function parseNum(v) {
+      let s = String(v == null ? '' : v).trim().replace(/[€\s]/g, '');
+      if (!s) return 0;
+      if (s.indexOf(',') > -1) s = s.replace(/\./g, '').replace(',', '.');
+      else if ((s.match(/\./g) || []).length > 1) s = s.replace(/\./g, '');
+      const n = parseFloat(s);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    const it = (n, d) => n.toLocaleString('it-IT', {
+      minimumFractionDigits: d == null ? 2 : d,
+      maximumFractionDigits: d == null ? 2 : d,
+    });
+
+    const INPS = 0.0919;
+
+    function aliquotaIRPEF(imponibile) {
+      if (imponibile <= 28000) return 0.23;
+      if (imponibile <= 50000) return 0.33;
+      return 0.43;
+    }
+
+    function calcola(ral, addPct) {
+      const inps = 100 * INPS;
+      const imponibile = 100 - inps;
+      const al = aliquotaIRPEF(Math.max(0, ral * (1 - INPS)));
+      const irpef = imponibile * al;
+      const add = imponibile * (addPct / 100);
+      const netto = 100 - inps - irpef - add;
+      return { inps, imponibile, al, irpef, add, netto, trattenuto: 100 - netto };
+    }
+
+    const $ = (s) => document.querySelector(s);
+
+    function render() {
+      const ral = parseNum($('#lordo').value);
+      const addPct = parseNum($('#add').value);
+      const r = calcola(ral, addPct);
+
+      $('#out-netto').textContent = it(r.netto);
+      $('#out-annuo').textContent = it(r.netto * 12);
+      $('#r-inps').textContent = '−' + it(r.inps) + ' €';
+      $('#r-imp').textContent = it(r.imponibile) + ' €';
+      $('#r-al').textContent = Math.round(r.al * 100) + '%';
+      $('#r-irpef').textContent = '−' + it(r.irpef) + ' €';
+      $('#r-addp').textContent = it(addPct, 1) + '%';
+      $('#r-add').textContent = '−' + it(r.add) + ' €';
+      $('#r-net').textContent = it(r.netto) + ' €';
+      $('#badge').textContent = 'Aliquota effettiva sul lordo: ' + it(r.trattenuto) + '%';
+
+      const livelli = [15000, 20000, 28000, 30000, 35000, 50000, 65000];
+      const tb = $('#scala tbody');
+      tb.innerHTML = '';
+      livelli.forEach(function (l) {
+        const c = calcola(l, addPct);
+        const tr = document.createElement('tr');
+        if (ral > 0 && Math.abs(l - ral) < 1500) tr.className = 'is-now';
+        tr.innerHTML =
+          '<td>' + it(l, 0) + ' €</td>' +
+          '<td>' + Math.round(c.al * 100) + '%</td>' +
+          '<td>−' + it(c.trattenuto) + ' €</td>' +
+          '<td>' + it(c.netto) + ' €</td>';
+        tb.appendChild(tr);
+      });
+    }
+
+    ['#lordo', '#add'].forEach(function (s) {
+      const el = $(s);
+      el.addEventListener('input', render);
+      el.addEventListener('change', render);
+    });
+
+    render();
+  })();
+  </script>
+</body>
+</html>
