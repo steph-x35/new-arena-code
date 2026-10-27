@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quanto ti resta di 100 € lordi in più — Stipendio netto marginale 2026</title>
-  <meta name="description" content="Su 100 € lordi in più (straordinari, aumento, premio) quanti te ne restano davvero? Calcolo dell'aliquota marginale 2026: INPS 9,19%, IRPEF a scaglioni 23/33/43 e addizionali. Gratis." />
+  <title>Quanto ti resta di 100 € lordi in più — Calcolo 2026</title>
+  <meta name="description" content="Su 100 € lordi in più (straordinari, premio, aumento) quanti te ne restano davvero? INPS 9,19%, IRPEF 2026 a scaglioni 23/33/43 e addizionali. Calcolo gratuito, dati nel browser." />
   <link rel="icon" type="image/svg+xml" href="../logo-icon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,14 +22,19 @@
       .result-big { padding: 16px 18px; margin-bottom: 14px; }
       .result-big .amount { font-size: 1.8rem; }
     }
+    .calc-form, .results { min-width: 0; max-width: 100%; }
+    /* niente elemento puo' allargare la colonna: e' quello che rompeva il telefono */
+    .grid2 > *, .grid3 > * { min-width: 0; }
+    label { min-width: 0; }
+    input, select, textarea { max-width: 100%; }
     .result-big {
       background: linear-gradient(135deg, #1d4ed8, #3b82f6);
       color: #fff; border-radius: 14px; padding: 20px 22px; margin-bottom: 18px;
     }
     .result-big .label { font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; opacity: .85; }
-    .result-big .amount { font-size: 2.3rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
+    .result-big .amount { font-size: 2.1rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
     .result-big .sub { font-size: .88rem; opacity: .9; margin-top: 4px; }
-    .breakdown { width: 100%; border-collapse: collapse; }
+    .breakdown { width: 100%; border-collapse: collapse; table-layout: auto; }
     .breakdown td { padding: 8px 2px; border-bottom: 1px solid #eef2f7; font-size: .93rem; }
     .breakdown td:last-child { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .breakdown tr.neg td:last-child { color: #dc2626; }
@@ -50,11 +55,24 @@
     }
     .nav-links a:hover { background: var(--bg); color: var(--ink); }
     .nav-links a.is-active { background: var(--accent-soft); color: var(--accent); }
-    .scala { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    .scala th, .scala td { padding: 9px 6px; font-size: .9rem; border-bottom: 1px solid #eef2f7; text-align: right; }
-    .scala th:first-child, .scala td:first-child { text-align: left; }
-    .scala thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
-    .scala tr.is-now td { background: var(--accent-soft); font-weight: 700; }
+    .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .tool-card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 22px; box-shadow: var(--shadow); display: block; text-decoration: none; color: var(--ink);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .tool-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(15,23,42,.12); }
+    .tool-icon { font-size: 1.8rem; }
+    .tool-card strong { display: block; margin: 8px 0 6px; font-size: 1.05rem; }
+    .tool-card p { margin: 0 0 12px; color: var(--muted); font-size: .9rem; }
+    .tool-cta { color: var(--accent); font-weight: 700; font-size: .9rem; }
+    .tools { padding: 8px 0 54px; }
+    .tools h2 { font-size: 1.35rem; letter-spacing: -.02em; margin: 0 0 16px; }
+    .tabella-scala tr.is-now td { background: var(--accent-soft); font-weight: 700; }
+    .tabella-scala td:first-child { color: var(--muted); }
+    @media (max-width: 560px) {
+      .breakdown td, .tabella-scala td { font-size: .88rem; padding: 7px 2px; }
+    }
   </style>
 </head>
 <body>
@@ -68,10 +86,10 @@
       <p class="brand-tag">Strumenti gratis per chi vive di lavoro</p>
       <nav class="nav-links">
         <a href="../">Fatture</a>
-        <a href="../stipendio-netto/">Stipendio netto</a>
+        <a href="index.html" class="is-active">100 € in più</a>
         <a href="../crea-cv/">Crea CV</a>
         <a href="../calcolo-tfr/">Calcolo TFR</a>
-        <a href="index.html" class="is-active">100 € in più</a>
+        <a href="../stipendio-netto/">Stipendio netto</a>
       </nav>
     </div>
   </header>
@@ -81,20 +99,20 @@
       <div class="wrap">
         <h1>Su 100 € lordi in più, quanti te ne <em>restano</em>?</h1>
         <p class="hero-sub">
-          Straordinari, premio, aumento, una giornata in più: quello che arriva in busta non è
-          100 €. Inserisci il tuo lordo annuo e vedi <strong>quanto resta davvero</strong> di ogni
-          100 € in più, con il dettaglio di INPS, IRPEF e addizionali.
+          Straordinari, premio, aumento: quello che arriva in busta non è 100 €.
+          Inserisci il tuo lordo annuo e vedi <strong>quanto resta davvero</strong> di ogni 100 € in più.
         </p>
         <ul class="hero-badges">
           <li>✅ 100% gratuito</li>
-          <li>🇹 Parametri 2026: IRPEF 23/33/43 · INPS 9,19%</li>
+          <li>🇹 Parametri 2026: IRPEF 23/33/43</li>
           <li>📉 Aliquota marginale, non media</li>
-          <li>👀 I dati restano nel tuo browser</li>
+          <li>👀 I dati restano nel browser</li>
         </ul>
       </div>
     </section>
 
     <section class="calc-grid wrap">
+      <!-- ============ FORM ============ -->
       <div class="calc-form no-print">
         <fieldset class="fsection">
           <legend>1 · Il tuo lordo annuo</legend>
@@ -102,106 +120,99 @@
             <label>Reddito lordo annuo (€)
               <input id="lordo" type="text" inputmode="decimal" placeholder="es. 30.000" value="30.000" />
             </label>
-            <label>Addizionali regionali + comunali (%)
+            <label>Addizionali regionale + comunale (%)
               <input id="add" type="text" inputmode="decimal" value="2,0" />
             </label>
           </div>
-          <p class="hint" style="font-size:.82rem;color:var(--muted);margin:8px 2px 0;">
-            Se non le sai, lascia 2%: è la media italiana (regionale ~1,23% + comunale ~0,8%).
+          <p style="font-size:.82rem;color:var(--muted);margin:10px 2px 0;">
+            Se non le sai lascia 2%: è la media italiana (regionale ~1,23% + comunale ~0,8%).
           </p>
         </fieldset>
 
         <fieldset class="fsection">
-          <legend>2 · Da dove arrivano i 100 €</legend>
-          <div class="grid2">
-            <label>Straordinari, premio o aumento?
-              <select id="tipo">
-                <option value="ord">Straordinari / premio / aumento</option>
-                <option value="ord2">Tredicesima o quattordicesima</option>
-              </select>
-            </label>
-          </div>
-          <p class="hint" style="font-size:.82rem;color:var(--muted);margin:8px 2px 0;">
-            Sono tassati come lo stipendio ordinario: nessuna sorpresa, nessuno sconto.
+          <legend>2 · Cosa sono questi 100 €</legend>
+          <p style="font-size:.88rem;color:var(--muted);margin:0;">
+            Straordinari, premio, aumento, tredicesima: si tassano come lo stipendio
+            ordinario, con INPS al 9,19% e l'aliquota del tuo scaglione. Nessuno sconto.
           </p>
         </fieldset>
-
-        <a href="https://payhip.com/b/kbpxY" target="_blank" rel="noopener" class="kit-promo-btn" style="display:block;margin-top:18px;text-align:center;">
-          🧾 La busta paga spiegata voce per voce — 2,90 €
-        </a>
       </div>
 
+      <!-- ============ RISULTATI ============ -->
       <div class="results">
         <div class="result-big">
           <div class="label">Ti resta in tasca</div>
           <div class="amount"><span id="out-netto">68,11</span> €</div>
-          <div class="sub">su 100 € lordi in più · <span id="out-annuo">817,29</span> € su base annua</div>
+          <div class="sub">su 100 € lordi in più</div>
         </div>
-
         <table class="breakdown">
-          <tr><td>Lordo in più</td><td>100,00 €</td></tr>
-          <tr class="neg"><td>Contributi INPS (9,19%)</td><td id="r-inps">−9,19 €</td></tr>
-          <tr><td>Imponibile fiscale</td><td id="r-imp">90,81 €</td></tr>
-          <tr class="neg"><td>IRPEF <span id="r-al">23%</span> (aliquota marginale)</td><td id="r-irpef">−20,89 €</td></tr>
-          <tr class="neg"><td>Addizionali <span id="r-addp">2,0%</span></td><td id="r-add">−1,82 €</td></tr>
-          <tr class="grand"><td>Netto in tasca</td><td id="r-net">68,11 €</td></tr>
+          <tbody>
+            <tr><td>Lordo in più</td><td>100,00 €</td></tr>
+            <tr class="neg"><td>Contributi INPS (9,19%)</td><td id="r-inps">−9,19 €</td></tr>
+            <tr><td>Imponibile fiscale</td><td id="r-imp">90,81 €</td></tr>
+            <tr class="neg"><td>IRPEF <span id="r-al">23%</span> (marginale)</td><td id="r-irpef">−20,89 €</td></tr>
+            <tr class="neg"><td>Addizionali <span id="r-addp">2,0%</span></td><td id="r-add">−1,82 €</td></tr>
+            <tr class="grand"><td>Netto in tasca</td><td id="r-net">68,11 €</td></tr>
+          </tbody>
         </table>
-
-        <span class="rate-badge" id="badge">Aliquota effettiva sul lordo: 31,89%</span>
-
+        <div class="result-cta">
+          🧾 <strong>Queste sono solo le prime due voci.</strong> Ratei, giacenze, addizionali e conguagli sono spiegati voce per voce nella
+          <a href="https://payhip.com/b/kbpxY" target="_blank" rel="noopener">Busta Paga Decodificata — 2,90 €</a>, con il controllo da 10 minuti.
+        </div>
+        <span class="rate-badge" id="badge">Trattenuto sul lordo: 31,89%</span>
         <div class="disclaimer">
-          ⚠️ Calcolo dell'<strong>aliquota marginale</strong>: quanto viene trattenuto sugli
-          <em>ultimi</em> 100 € guadagnati, non sulla media dell'anno. L'IRPEF è quella degli
-          scaglioni 2026 (23% fino a 28.000 €, 33% fino a 50.000 €, 43% oltre). Sotto i 28.000 €
-          la detrazione da lavoro che si riduce può alzare l'aliquota effettiva: è una stima di
-          orientamento, il dato esatto sta nella busta paga.
+          ⚠️ <strong>Stima indicativa.</strong> Calcola l'<em>aliquota marginale</em>: quanto viene
+          trattenuto sugli ultimi 100 € guadagnati, non sulla media dell'anno. IRPEF 2026
+          (23% fino a 28.000 €, 33% fino a 50.000 €, 43% oltre). Sotto i 28.000 € di imponibile
+          la detrazione da lavoro che si riduce può alzare l'aliquota effettiva: il dato esatto
+          sta nella tua busta paga.
         </div>
       </div>
     </section>
 
-    <section class="wrap" style="padding-bottom:56px;">
-      <h2 style="font-size:1.3rem;letter-spacing:-.02em;margin:0 0 6px;">La stessa cosa al variare dello stipendio</h2>
-      <p style="color:var(--muted);font-size:.92rem;margin:0 0 8px;">Quanto resta di 100 € lordi in più, con addizionali al 2%.</p>
-      <table class="scala" id="scala">
-        <thead>
-          <tr><th>Lordo annuo</th><th>Aliquota IRPEF</th><th>Totale trattenuto</th><th>Ti restano</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <p style="color:var(--muted);font-size:.85rem;margin-top:12px;">
-        Più sale il reddito, più il pezzo successivo è tassato: è il motivo per cui
-        un aumento «lordo» rende sempre meno di quanto sembra.
-      </p>
-    </section>
+    <section class="tools no-print">
+      <div class="wrap">
+        <h2>E al variare dello stipendio?</h2>
+        <table class="breakdown tabella-scala">
+          <tbody id="scala-body">
+            <tr><td>20.000 € lordi (23%)</td><td>68,11 €</td></tr>
+            <tr><td>35.000 € lordi (33%)</td><td>59,03 €</td></tr>
+            <tr><td>65.000 € lordi (43%)</td><td>49,95 €</td></tr>
+          </tbody>
+        </table>
+        <p style="color:var(--muted);font-size:.85rem;margin:12px 0 26px;">
+          Più sale il reddito, più il pezzo successivo è tassato: è il motivo per cui un aumento
+          «lordo» rende sempre meno di quanto sembra.
+        </p>
 
-    <section class="wrap" style="padding-bottom:60px;">
-      <h2 style="font-size:1.3rem;letter-spacing:-.02em;margin:0 0 10px;">Altri strumenti gratis</h2>
-      <div class="tools-grid">
-        <a class="tool-card" href="../stipendio-netto/">
-          <div class="tool-icon">💶</div>
-          <strong>Calcolatore stipendio netto</strong>
-          <p>Dal lordo al netto mensile e annuo, con detrazioni e addizionali della tua regione.</p>
-          <span class="tool-cta">Calcola il netto →</span>
-        </a>
-        <a class="tool-card" href="../calcolo-tfr/">
-          <div class="tool-icon">💰</div>
-          <strong>Calcolo TFR netto</strong>
-          <p>Quanto hai da parte davvero, con tassazione separata e anni di anzianità.</p>
-          <span class="tool-cta">Calcola il TFR →</span>
-        </a>
-        <a class="tool-card" href="https://payhip.com/b/kbpxY" target="_blank" rel="noopener">
-          <div class="tool-icon">🧾</div>
-          <strong>Busta Paga Decodificata — 2,90 €</strong>
-          <p>4 documenti, 16 pagine: ogni voce spiegata e il controllo da 10 minuti al mese.</p>
-          <span class="tool-cta">Vedi i documenti →</span>
-        </a>
+        <h2>Altri strumenti gratis</h2>
+        <div class="tools-grid">
+          <a class="tool-card" href="../stipendio-netto/">
+            <div class="tool-icon">💶</div>
+            <strong>Calcolatore stipendio netto</strong>
+            <p>Dal lordo al netto mensile e annuo, con detrazioni e addizionali della tua regione.</p>
+            <span class="tool-cta">Calcola il netto →</span>
+          </a>
+          <a class="tool-card" href="../calcolo-tfr/">
+            <div class="tool-icon">💰</div>
+            <strong>Calcolo TFR netto</strong>
+            <p>Quanto hai da parte davvero, con tassazione separata e anni di anzianità.</p>
+            <span class="tool-cta">Calcola il TFR →</span>
+          </a>
+          <a class="tool-card" href="https://payhip.com/b/kbpxY" target="_blank" rel="noopener">
+            <div class="tool-icon">🧾</div>
+            <strong>Busta Paga Decodificata — 2,90 €</strong>
+            <p>4 documenti, 16 pagine: ogni voce spiegata e il controllo da 10 minuti al mese.</p>
+            <span class="tool-cta">Vedi i documenti →</span>
+          </a>
+        </div>
       </div>
     </section>
   </main>
 
   <footer class="site-footer no-print">
     <div class="wrap">
-      <p>LavoroFacile — strumenti gratuiti, nessuna registrazione. Stime di orientamento, non sostituiscono un consulente del lavoro.</p>
+      <p>🧾 <strong>LavoroFacile</strong> — strumenti gratis per chi vive di lavoro. I tuoi dati non lasciano mai il browser.</p>
     </div>
   </footer>
 
@@ -210,73 +221,71 @@
     'use strict';
 
     function parseNum(v) {
-      let s = String(v == null ? '' : v).trim().replace(/[€\s]/g, '');
+      var s = String(v == null ? '' : v).trim().replace(/[€\s]/g, '');
       if (!s) return 0;
       if (s.indexOf(',') > -1) s = s.replace(/\./g, '').replace(',', '.');
       else if ((s.match(/\./g) || []).length > 1) s = s.replace(/\./g, '');
-      const n = parseFloat(s);
-      return Number.isFinite(n) ? n : 0;
+      var n = parseFloat(s);
+      return isFinite(n) ? n : 0;
     }
 
-    const it = (n, d) => n.toLocaleString('it-IT', {
-      minimumFractionDigits: d == null ? 2 : d,
-      maximumFractionDigits: d == null ? 2 : d,
-    });
+    function it(n) {
+      return n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
-    const INPS = 0.0919;
+    var INPS = 0.0919;
 
-    function aliquotaIRPEF(imponibile) {
+    function aliquota(imponibile) {
       if (imponibile <= 28000) return 0.23;
       if (imponibile <= 50000) return 0.33;
       return 0.43;
     }
 
     function calcola(ral, addPct) {
-      const inps = 100 * INPS;
-      const imponibile = 100 - inps;
-      const al = aliquotaIRPEF(Math.max(0, ral * (1 - INPS)));
-      const irpef = imponibile * al;
-      const add = imponibile * (addPct / 100);
-      const netto = 100 - inps - irpef - add;
-      return { inps, imponibile, al, irpef, add, netto, trattenuto: 100 - netto };
+      var inps = 100 * INPS;
+      var imponibile = 100 - inps;
+      var al = aliquota(Math.max(0, ral * (1 - INPS)));
+      var irpef = imponibile * al;
+      var add = imponibile * (addPct / 100);
+      var netto = 100 - inps - irpef - add;
+      return { inps: inps, imponibile: imponibile, al: al, irpef: irpef, add: add, netto: netto };
     }
 
-    const $ = (s) => document.querySelector(s);
+    function $(id) { return document.getElementById(id); }
 
     function render() {
-      const ral = parseNum($('#lordo').value);
-      const addPct = parseNum($('#add').value);
-      const r = calcola(ral, addPct);
+      var ral = parseNum($('lordo').value);
+      var addPct = parseNum($('add').value);
+      var r = calcola(ral, addPct);
 
-      $('#out-netto').textContent = it(r.netto);
-      $('#out-annuo').textContent = it(r.netto * 12);
-      $('#r-inps').textContent = '−' + it(r.inps) + ' €';
-      $('#r-imp').textContent = it(r.imponibile) + ' €';
-      $('#r-al').textContent = Math.round(r.al * 100) + '%';
-      $('#r-irpef').textContent = '−' + it(r.irpef) + ' €';
-      $('#r-addp').textContent = it(addPct, 1) + '%';
-      $('#r-add').textContent = '−' + it(r.add) + ' €';
-      $('#r-net').textContent = it(r.netto) + ' €';
-      $('#badge').textContent = 'Aliquota effettiva sul lordo: ' + it(r.trattenuto) + '%';
+      $('out-netto').textContent = it(r.netto);
+      $('r-inps').textContent = '−' + it(r.inps) + ' €';
+      $('r-imp').textContent = it(r.imponibile) + ' €';
+      $('r-al').textContent = Math.round(r.al * 100) + '%';
+      $('r-irpef').textContent = '−' + it(r.irpef) + ' €';
+      $('r-addp').textContent = it(addPct) + '%';
+      $('r-add').textContent = '−' + it(r.add) + ' €';
+      $('r-net').textContent = it(r.netto) + ' €';
+      $('badge').textContent = 'Trattenuto sul lordo: ' + it(100 - r.netto) + '%';
 
-      const livelli = [15000, 20000, 28000, 30000, 35000, 50000, 65000];
-      const tb = $('#scala tbody');
-      tb.innerHTML = '';
-      livelli.forEach(function (l) {
-        const c = calcola(l, addPct);
-        const tr = document.createElement('tr');
+      var livelli = [20000, 28000, 35000, 50000, 65000];
+      var body = $('scala-body');
+      body.innerHTML = '';
+      for (var i = 0; i < livelli.length; i++) {
+        var l = livelli[i];
+        var c = calcola(l, addPct);
+        var tr = document.createElement('tr');
         if (ral > 0 && Math.abs(l - ral) < 1500) tr.className = 'is-now';
         tr.innerHTML =
-          '<td>' + it(l, 0) + ' €</td>' +
-          '<td>' + Math.round(c.al * 100) + '%</td>' +
-          '<td>−' + it(c.trattenuto) + ' €</td>' +
+          '<td>' + l.toLocaleString('it-IT') + ' € lordi (' + Math.round(c.al * 100) + '%)</td>' +
           '<td>' + it(c.netto) + ' €</td>';
-        tb.appendChild(tr);
-      });
+        body.appendChild(tr);
+      }
     }
 
-    ['#lordo', '#add'].forEach(function (s) {
-      const el = $(s);
+    ['lordo', 'add'].forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
       el.addEventListener('input', render);
       el.addEventListener('change', render);
     });
