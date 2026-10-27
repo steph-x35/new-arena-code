@@ -1,7 +1,27 @@
 # REEL 30 — «LA TREDICESIMA» (Busta Paga, 2,90 €)
 
-**Pubblicazione: 28/10 ore 19:00 TikTok · 19:10 YouTube**
+**Pubblicato il 26/10 ore 17:08 su TikTok e YouTube** (due giorni prima del previsto)
 12 secondi, 5 fotogrammi, nessuna registrazione schermo, nessuna card.
+
+## Risultati al 27/10 ore 18:08
+
+| | TikTok | YouTube |
+|---|---|---|
+| Views | 519 | 790 |
+| Like | 3 | 0 |
+| Commenti | 1 | 0 |
+| Save | 3 | — |
+
+Tempo medio di visualizzazione: **4,5 s su 7,5** (TikTok), completamento 16%.
+
+Tasso di save **0,58%** e di like **0,58%**: undici volte il tasso di save del
+reel «7 anni» (0,05%) e quasi quattro volte i suoi like (0,158%). Il contenuto
+interessa, ma la reach è un quarantesimo.
+
+Cause della reach bassa, in ordine: carosello di immagini ferme (TikTok non lo
+raccomanda), etichetta «Contenuto promozionale» attiva, tempo medio 4,5 s.
+Da non ripetere: il fumetto blu ha coperto l'etichetta «BUSTA PAGA
+DECODIFICATA» e la freccia rossa ha coperto «pagina 4 di 7».
 
 Le 5 immagini sono già pronte nella cartella `reel-30/`, **con le scritte dentro**.
 In CapCut non c'è nessun testo da aggiungere.
