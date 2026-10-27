@@ -74,6 +74,28 @@ Un take unico da 30 secondi. Si taglia in montaggio, non si rigira.
 
 ---
 
+## Le scritte sono già pronte (cartella `reel-31/`)
+
+Trasparenti, 1080×1920, testo bianco con bordo nero: si mettono **sopra** la
+registrazione schermo e si leggono su qualsiasi sfondo. Non coprono il numero
+grande del calcolatore, che sta al centro.
+
+| File | Testo | Quando |
+|---|---|---|
+| `1-domanda.png` | QUANTO TI RESTA DI 100 € DI STRAORDINARI? | 0-2 s |
+| `2-ventimila.png` | 20.000 € → 68 € | 2-9 s |
+| `3-trentacinquemila.png` | 35.000 € → 59 € | 9-14 s |
+| `4-quarantuno.png` | 41 € SE LI PRENDE LO STATO | 14-18 s |
+| `5-cta.png` | E TU? SCRIVI QUANTO PRENDI | 18-22 s |
+
+Link diretti (sostituiscono i testi da scrivere a mano):
+
+https://steph-x35.github.io/new-arena-code/reel-31/1-domanda.png
+https://steph-x35.github.io/new-arena-code/reel-31/2-ventimila.png
+https://steph-x35.github.io/new-arena-code/reel-31/3-trentacinquemila.png
+https://steph-x35.github.io/new-arena-code/reel-31/4-quarantuno.png
+https://steph-x35.github.io/new-arena-code/reel-31/5-cta.png
+
 ## Montaggio (22 s)
 
 | # | Tempo | Cosa si vede | Testo a schermo |
