@@ -28,8 +28,14 @@ Mai più contenuti fuori nicchia finché l'account non è grande.
 
 Episodi pronti (numeri già calcolati col tool, coincidono al centesimo):
 - ✅ 5 anni (209k — fatto)
-- **10 anni: "Lavori da 10 anni nella stessa azienda?" → 1.500 lordi/mese = 13.469€ lordi → 10.352€ netti**
-- 20 anni: → 26.939€ lordi → 20.704€ netti
+- **10 anni: "Lavori da 10 anni nella stessa azienda?" → 1.500 lordi/mese = 13.469,44 € lordi → 10.371,47 € netti** (era 10.352: aritmetica sbagliata, corretto il 27/10)
+- 20 anni: → 26.938,89 € lordi → 20.742,94 € netti (era 20.704: aritmetica sbagliata, corretto il 27/10)
+
+> ⚠️ **LA SERIE ANNI È ESAURITA (verificato il 27/10).** Il 10 anni risulta
+> già pubblicato in REEL-PLAN (riga «LF 10 anni — pubblicato»), e il 36 anni ha
+> fatto **1.389**. Tre episodi dello stesso schema: 209k → n.d. → 1.389. Non si
+> rifà. Il prossimo reel tiene la STRUTTURA (domanda-identità + numero nascosto)
+> e cambia il soggetto: `REEL-31-STRAORDINARI.md`.
 - Milos (video-risposta): 3 anni a 2.100 netti → 8.735€ lordi → 6.450€ netti
 - Primo lavoro / stesso stipendio da anni / NASpI (dopo il tool nuovo)
 
