@@ -1072,3 +1072,8 @@ Soggetto stagionale (da novembre si cerca), numero verificabile a mente
 «Rateo 13ª mensilità», quindi il video apre il prodotto invece di raccontarlo.
 Numeri ricalcolati con le aliquote 2026 vere (23/33/43): netto ≈1.570.
 Scheda completa: `REEL-30-TREDICESIMA.md`.
+
+**Esito (27/10):** pubblicato il 26/10 alle 17:08, non il 28. TikTok 519 views
+(3 like, 3 save), YouTube 790 views. Tasso di save 0,58% = 11x il reel «7 anni»,
+ma reach 40x inferiore. Causa probabile: carosello di immagini ferme +
+etichetta «Contenuto promozionale». Dettaglio in `PIANO-CRESCITA.md`.

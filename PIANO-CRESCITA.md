@@ -169,3 +169,129 @@ nel repo; i calcoli si consegnano in chat e la busta si fa cancellare.
 Il caso conferma il reel v8 14ma: il lead dice letteralmente "quattordicesima
 che ho a contratto ma non ho mai percepito". Nota strategica: il primo caso
 reale e' in malattia + dimissioni = sempre incollare il commercialista.
+
+---
+
+# 📊 STATO al 2026-10-27, ore 18:08 (misurato dagli screenshot, non stimato)
+
+## TikTok — @lavoro_facile
+
+| | 26/10 | **27/10** |
+|---|---|---|
+| Follower | 458 | **470** (+12) |
+| Mi piace totali | 1.495 | **1.526** (+31) |
+
+I reel pubblicati e le loro views (dal profilo):
+
+| Reel | Views |
+|---|---|
+| «Ti licenzi dopo 7 anni?» (v9) | **20.020** |
+| «Ti pagano TUTTE le ore che fai?» (27) | **1.526** |
+| «Calcolatore Stipendio Netto 2026» (25) | **1.308** |
+| «Non hai fatto tutte le ferie?» (28) | **925** |
+| «Un anno di lavoro» (26) | **913** |
+| «La 13ª non arriva a dicembre» (30) | **519** |
+
+Reel 27 e 28 quindi **sono stati girati e pubblicati**: la scheda diceva
+«da girare», ma i dati dicono il contrario. Aggiornato.
+
+## Reel 30 «La 13ª non arriva a dicembre» — 26/10 ore 17:08
+
+| | TikTok | YouTube |
+|---|---|---|
+| Views | **519** (a ~25 h) | **790** (a ~24 h) |
+| Like | 3 | 0 |
+| Commenti | 1 | 0 |
+| Save | 3 | — |
+
+**Il dato interessante è il rapporto, non il numero.** Il 7 anni ha 0,158% di
+like e 0,05% di save; questo ha **0,58% di like e 0,58% di save**, cioè 4x e
+**11x** per visualizzazione. Dieci volte meglio come contenuto, un quarantesimo
+come reach.
+
+Quindi: **il pubblico giusto c'è, il numero di persone raggiunte no.** È il
+contrasto opposto a quello del 7 anni (tante views, nessun segnale).
+
+## YouTube — canale LavoroFacile (ultimi 28 giorni)
+
+| | Valore |
+|---|---|
+| Visualizzazioni | **7.500** |
+| Tempo medio di visualizzazione | **8,0 s** |
+| Iscritti | **2** |
+| «Ti licenzi dopo 7 anni?» | 1.100 views in 5 giorni |
+| «La 13ª non arriva a dicembre» | 790 views in 1 giorno |
+| «Un anno di lavoro» | 3 views in 22 ore |
+
+**7.500 views → 2 iscritti (0,027%).** YouTube porta visualizzazioni gratis,
+senza soglie e con i link cliccabili in descrizione, ma gli Shorts non
+convertono in iscritti: sono la stessa audience che scorre, non una community.
+
+Il 13ª fa **più views su YouTube che su TikTok** (790 contro 519) pur avendo
+il canale 2 iscritti: è la conferma che su TikTok il limite è la
+raccomandazione, non il contenuto.
+
+## Google Search Console (28 giorni)
+
+| | Valore |
+|---|---|
+| Impressioni | **13** |
+| Clic | **2** |
+| CTR | 15,4% |
+| Posizione media | **83,5** |
+
+Conferma la scelta già presa: **il SEO non è una leva**, non si investe tempo.
+13 impressioni in un mese = il sito è invisibile su Google.
+
+## Il numero che conta, tutto insieme
+
+**20.020 + 7.500 + 6.500 views circa = ~34.000 visualizzazioni** hanno prodotto
+**~47 visite Payhip e 0 ordini.**
+
+Continua a non essere un problema di traffico. Con questo rapporto servirebbero
+centinaia di migliaia di views per una vendita: è già stato calcolato
+(19.000 : 1) e la misura di oggi non lo smentisce, lo conferma.
+
+---
+
+# 🔍 Perché il reel 30 ha preso 519 e non 5.000
+
+Tre cause, in ordine di probabilità. Nessuna è «il video è sbagliato».
+
+1. **È un carosello di immagini ferme.** TikTok elenca esplicitamente «a still
+   image, a two second clip, a slideshow with nothing in it» tra i contenuti
+   che non manda nel For You. Cinque foto da 2,4 s sono esattamente questo.
+   Il formato che funziona (il 7 anni) era un calcolo che si muoveva.
+2. **Etichetta «Contenuto promozionale» attiva.** È la scelta onesta, ma i
+   contenuti commerciali dichiarati vengono raccomandati meno. Nei reel
+   precedenti non c'era: 519 contro 913-1.526 è coerente.
+3. **Tempo medio 4,5 s su 7,5.** Metà del pubblico se ne va prima della fine,
+   e il completamento è il segnale n.1.
+
+## Il difetto visibile nel fotogramma pubblicato
+
+Nel reel 30 il fumetto blu copre l'etichetta arancione «BUSTA PAGA
+DECODIFICATA» e la freccia rossa copre «pagina 4 di 7»: le due cose messe lì
+apposta per far capire che sono i nostri PDF. **Restano i testi neri, che sono
+quelli che sembrano un riquadro.** Nei prossimi: i testi nostri NON si coprono.
+
+---
+
+# ✅ Cosa cambia da adesso
+
+Il percorso «facciamo views e qualcuno comprerà» è stato misurato e **non si
+verifica**: 34.000 views, 0 ordini. Non si continua così.
+
+La vendita arriva da chi ha **la busta paga in mano** mentre guarda, non da chi
+scorre. Quindi il prossimo video non è un altro carosello di pagine:
+
+1. **Video-risposta a «quanto prendo io»** — stesso schema del caso «20 anni».
+   Chi la guarda ha il cedolino davanti: è l'unico pubblico che compra.
+2. **Nel video, un numero suo**, non un esempio da 30.000 €.
+3. **Un link solo**, in descrizione YouTube (dove è cliccabile sotto i 1.000
+   follower) e nel commento fissato.
+4. **Mai più slideshow di sole immagini**: o un calcolo che si muove, o una
+   busta paga che si scorre con la voce che racconta.
+
+La metrica da guardare non sono più le views: è **quante persone aprono il
+link**. Quello si misura su YouTube, non su TikTok.
