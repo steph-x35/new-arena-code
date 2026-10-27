@@ -43,20 +43,30 @@ soggetto si cambia.
 `https://steph-x35.github.io/new-arena-code/quanto-resta/`
 
 Inserisci il lordo annuo → ti dice quanto resta di 100 € in più, con INPS,
-IRPEF marginale e addizionali. Cambiando il lordo cambiano i numeri: è questo
-il movimento da riprendere.
+IRPEF a scaglioni, **detrazione da lavoro che si riduce** e addizionali.
+Cambiando il lordo cambiano i numeri: è questo il movimento da riprendere.
 
-| Lordo annuo | IRPEF marginale | Ti restano su 100 € |
-|---|---|---|
-| 20.000 € | 23% | **68,11 €** |
-| 30.000 € | 23% | **68,11 €** |
-| 35.000 € | 33% | **59,03 €** |
-| 50.000 € | 33% | **59,03 €** |
-| 65.000 € | 43% | **49,95 €** |
+| Lordo annuo | IRPEF sullo scatto | Detrazione che si riduce | Ti restano su 100 € |
+|---|---|---|---|
+| 12.000 € | 23% | 0 | **68,11 €** |
+| 20.000 € | 23% | −9,15 | **58,95 €** |
+| 30.000 € | 23% | −8,68 | **59,43 €** |
+| 35.000 € | 33% | −8,68 | **50,34 €** |
+| 45.000 € | 33% | −8,68 | **50,34 €** |
+| 65.000 € | 43% | 0 | **49,95 €** |
 
-Addizionali al 2% (media regionale + comunale). Il salto 23% → 33% avviene
-quando l'imponibile supera 28.000 €, cioè con un lordo intorno a **30.840 €**:
-sotto quella soglia il 33% non si tocca.
+Addizionali al 2%. **La detrazione da lavoro (art. 13 TUIR) non è un dettaglio:**
+si riduce mentre il reddito sale, e quella riduzione è una tassa in più di circa
+9 punti. Senza, il conto darebbe 68 € — ed era sbagliato.
+
+Il salto al 33% avviene quando l'imponibile supera 28.000 €, cioè a **30.834 €**
+di lordo. Il secondo salto (59 → 50) non è l'IRPEF: è l'inizio della riduzione
+della detrazione appena sopra i 30.000 €.
+
+**A 15.000 € esatti la legge ha uno scalino** (la detrazione passa da 1.955 a
+3.100 €): lì 100 € in più valgono molto più di 100. La pagina lo segnala con un
+avviso invece di stampare un numero senza senso, e il video non tocca quel
+punto.
 
 ---
 
@@ -65,8 +75,8 @@ sotto quella soglia il 33% non si tocca.
 Registrazione schermo, Non Disturbare attivo, luminosità alta, browser pulito.
 
 1. Apri il calcolatore.
-2. Tocca il campo lordo e scrivi **20.000** → il numero grande dice 68,11.
-3. Cancella e scrivi **35.000** → il numero scende a 59,03. **Fermo 2 secondi.**
+2. Tocca il campo lordo e scrivi **20.000** → il numero grande dice 58,95.
+3. Cancella e scrivi **35.000** → il numero scende a 50,34. **Fermo 2 secondi.**
 4. Cancella e scrivi **65.000** → 49,95.
 5. Torna a **35.000** e resta lì.
 
@@ -83,9 +93,9 @@ grande del calcolatore, che sta al centro.
 | File | Testo | Quando |
 |---|---|---|
 | `1-domanda.png` | QUANTO TI RESTA DI 100 € DI STRAORDINARI? | 0-2 s |
-| `2-ventimila.png` | 20.000 € → 68 € | 2-9 s |
-| `3-trentacinquemila.png` | 35.000 € → 59 € | 9-14 s |
-| `4-quarantuno.png` | 41 € SE LI PRENDE LO STATO | 14-18 s |
+| `2-ventimila.png` | 20.000 € → 59 € | 2-9 s |
+| `3-trentacinquemila.png` | 35.000 € → 50 € | 9-14 s |
+| `4-la-meta.png` | QUASI LA METÀ | 14-18 s |
 | `5-cta.png` | E TU? SCRIVI QUANTO PRENDI | 18-22 s |
 
 Link diretti (sostituiscono i testi da scrivere a mano):
@@ -93,7 +103,7 @@ Link diretti (sostituiscono i testi da scrivere a mano):
 https://steph-x35.github.io/new-arena-code/reel-31/1-domanda.png
 https://steph-x35.github.io/new-arena-code/reel-31/2-ventimila.png
 https://steph-x35.github.io/new-arena-code/reel-31/3-trentacinquemila.png
-https://steph-x35.github.io/new-arena-code/reel-31/4-quarantuno.png
+https://steph-x35.github.io/new-arena-code/reel-31/4-la-meta.png
 https://steph-x35.github.io/new-arena-code/reel-31/5-cta.png
 
 ## Montaggio (22 s)
@@ -101,10 +111,10 @@ https://steph-x35.github.io/new-arena-code/reel-31/5-cta.png
 | # | Tempo | Cosa si vede | Testo a schermo |
 |---|---|---|---|
 | 1 | 0-2 s | calcolatore, campo lordo vuoto | **QUANTO TI RESTA DI 100 € DI STRAORDINARI?** |
-| 2 | 2-9 s | digiti 20.000 → 68,11 | **20.000 € → 68 €** |
-| 3 | 9-14 s | digiti 35.000 → 59,03 (zoom sul numero) | **35.000 € → 59 €** |
-| 4 | 14-18 s | scendi sul dettaglio: IRPEF 33% −29,97 | **41 € SE LI PRENDE LO STATO** |
-| 5 | 18-22 s | fermo sul numero 59,03 | **E TU? SCRIVI QUANTO PRENDI 👇** + **calcolalo gratis** |
+| 2 | 2-9 s | digiti 20.000 → 58,95 | **20.000 € → 59 €** |
+| 3 | 9-14 s | digiti 35.000 → 50,34 (zoom sul numero) | **35.000 € → 50 €** |
+| 4 | 14-18 s | scendi sul dettaglio, riga «detrazione che si riduce» | **QUASI LA METÀ** |
+| 5 | 18-22 s | fermo sul numero 50,34 | **E TU? SCRIVI QUANTO PRENDI** + **calcolalo gratis** |
 
 Tagli secchi, nessuna dissolvenza. Musica al 12-15%, colpo sullo 0,0 s.
 Export **1080×1920, 30 fps, senza filigrana**.
@@ -116,10 +126,9 @@ sotto**, mai addosso al totale.
 
 ## Voce (InShot TTS, italiano — incollare così com'è)
 
-Fai straordinari? Su cento euro lordi in più, te ne restano sessantotto. Ma
-appena superi i trentamila, scendono a cinquantanove. Di cento euro, quarantuno
-se li prendono loro. E più sale lo stipendio, più la fetta cresce. Scrivi quanto
-prendi e ti dico quanti te ne restano davvero.
+Fai straordinari? Su cento euro lordi in più, te ne restano cinquantanove. Non
+sessantotto: quasi la metà se ne va. E appena superi i trentamila, scendono a
+cinquanta. Scrivi quanto prendi e ti dico quanti te ne restano davvero.
 
 Se in lettura supera i 22 secondi, togli l'ultima frase e la CTA resta scritta.
 
@@ -127,7 +136,7 @@ Se in lettura supera i 22 secondi, togli l'ultima frase e la CTA resta scritta.
 
 ## Caption TikTok
 
-Su 100 € di straordinari te ne restano 59. Nessuno te lo dice quando li fai. Scrivi quanto prendi e te lo calcolo 👇 #straordinari #bustapaga #stipendio #lavoro #tasse
+Su 100 € di straordinari te ne restano 59, non 68. Nessuno te lo dice quando li fai. Scrivi quanto prendi e te lo calcolo 👇 #straordinari #bustapaga #stipendio #lavoro #tasse
 
 ## Commento fissato (qui si vende)
 
@@ -141,7 +150,7 @@ Il conto completo, con tutte le voci che ti mangiano lo stipendio, sta nei 4 doc
 
 **Descrizione:**
 
-Lo straordinario è tassato come lo stipendio ordinario: su 100 € lordi restano circa 68 € fino a 30.000 € di lordo annuo, poi 59 €, poi 50 €. Il calcolo completo, con INPS 9,19%, IRPEF 2026 (23/33/43) e addizionali: https://steph-x35.github.io/new-arena-code/quanto-resta/
+Su 100 € lordi di straordinari restano circa 59 € fino a 30.000 € di lordo annuo, poi 50 €. Non è solo l'IRPEF: conta anche la detrazione da lavoro che si riduce mentre lo stipendio sale. Il calcolo completo, con INPS 9,19%, IRPEF 2026 (23/33/43) e addizionali: https://steph-x35.github.io/new-arena-code/quanto-resta/
 
 I 4 documenti della Busta Paga Decodificata (16 pagine): https://payhip.com/b/kbpxY
 
@@ -149,18 +158,25 @@ I 4 documenti della Busta Paga Decodificata (16 pagine): https://payhip.com/b/kb
 
 ## I numeri, come sono calcolati
 
+Esempio del video, lordo 35.000 €:
+
 | Voce | Valore | Come |
 |---|---|---|
 | Lordo in più | 100,00 € | |
 | INPS 9,19% | −9,19 € | aliquota dipendenti |
 | Imponibile | 90,81 € | |
-| IRPEF 33% (lordo 35.000) | −29,97 € | scaglione 28.001-50.000 (L. 199/2025) |
+| IRPEF 33% | −29,97 € | scaglione 28.001-50.000 (L. 199/2025) |
+| Detrazione da lavoro che si riduce | −8,68 € | art. 13 TUIR: 1.910 € × (50.000 − RC) / 22.000 |
 | Addizionali 2% | −1,82 € | media regionale + comunale |
-| **Netto** | **59,03 €** | |
+| **Netto** | **50,34 €** | |
+
+Stesso conto a lordo 20.000 €: IRPEF 23% −20,89 €, detrazione −9,15 €,
+addizionali −1,82 € → **58,95 €**. Ed è il numero del gancio, quello che nessuno si aspetta: **59, non 68**.
 
 Al lordo 30.000 l'imponibile è 27.243 €, quindi si resta al **23%**: il salto al
-33% scatta intorno ai 30.840 € di lordo. Nel video si parte da 20.000 e si sale:
-il numero che scende è la dimostrazione, non un'affermazione.
+33% scatta a **30.834 €** di lordo (lì l'imponibile tocca 28.000 €). Nel video si
+parte da 20.000 e si sale: il numero che scende è la dimostrazione, non
+un'affermazione.
 
 ---
 
