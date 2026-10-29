@@ -1,6 +1,6 @@
-# COLLAUDO 1V1 — due telefoni (v2.49.0)
+# COLLAUDO 1V1 — due telefoni (v2.49.2)
 
-**APK:** https://github.com/steph-x35/new-arena-code/releases/download/v2.49.0/HoopCity-v2.49.0.apk
+**APK:** https://github.com/steph-x35/new-arena-code/releases/download/v2.49.2/HoopCity-v2.49.2.apk
 Stessa rete (WiFi di casa **o** hotspot di uno dei due). Porta 7777, scoperta UDP 47899.
 
 Installazione: se Android dice «origini sconosciute», è normale — è un APK, non Play Store.
@@ -38,6 +38,16 @@ Poi: **FINE PARTITA** → tutti e due tornano ai tiri liberi, senza uscire dal c
 | 12 | in attacco: **FINTA** (o passo indietro/spin) mentre l'altro sta **correndo** | lui inciampa e resta fermo ~mezzo secondo («CAVIGLIE!» da te, «TI HA SEDUTO» da lui). Se sta fermo davanti a te non succede quasi mai. |
 
 Se l'anello non compare: Impostazioni → **grafica bassa** lo spegne apposta (per il telefono lento). Tienila alta per questa prova.
+
+---
+
+## Ombra, difesa, parquet (v2.49.2)
+
+| # | Cosa fai | Cosa DEVE succedere |
+|---|---|---|
+| 13 | in difesa premi **SALTA** (o fai saltare l'altro: basta che uno salti) | l'ombra resta **a terra** sotto i piedi e si **rimpicciolisce** salendo, poi torna grande. Il salto **non** ti fa arretrare di un metro. |
+| 14 | in difesa tieni **DIFENDI** e l'altro si muove | il difensore ha **le braccia aperte e le gambe piegate**, e mentre si sposta **muove le gambe** (passo strisciato): non scivola più fermo. |
+| 15 | Impostazioni → **CAMPO** → Cambia colore | parquet **classico → nero → blu notte → rovere scuro**. Vale dalla partita successiva (non dal campetto: quello è asfalto). |
 
 ---
 
