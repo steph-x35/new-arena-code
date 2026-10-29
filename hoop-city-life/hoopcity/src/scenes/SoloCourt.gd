@@ -51,6 +51,7 @@ var dunk_anim := 0.0        # progress within the current phase
 var dust_t := 0.0           # nuvolette all'atterraggio
 var dust_big := false       # atterraggio da slam
 var dunk_phase := ""        # "" | "rise" | "hang" | "drop"
+var dunk_timed := ""        # "" | "perfect" | "early" | "late" (v2.49.0)
 var hang_swing_t := 0.0    # tempo appeso: oscilla dx/sx come un pendolo
 var hang_cam := 0.0        # 0..1: zoom della camera della schiacciata (v2.40.2)
 var hang_lift_now := 0.0   # lift reale dell'hang (il corpo e' piu' basso del rise)
@@ -158,6 +159,9 @@ func _ready() -> void:
 	else:
 		Sfx.play_music("music_rhythm")
 	court_art.modulate = Color.WHITE
+	# HALLOWEEN (v2.49.3): se e' periodo, i fari del parco si scaldano verso
+	# l'arancio e compaiono zucche e pipistrelli (piu' sotto, in _draw_park).
+	court_art.set("spooky_floods", outdoor and Spooky.active())
 	if court_art.has_method("apply_env"):
 		court_art.apply_env("street" if outdoor else "arena")
 	else:
@@ -913,6 +917,9 @@ func _pickup_loose() -> void:
 
 
 func _shoot_down() -> void:
+	if dunk_phase == "rise":
+		_dunk_tap()
+		return
 	if shot_anim > 0.0 or dunk_phase != "":
 		return
 	if solo_loose:
@@ -943,11 +950,39 @@ func _shoot_down() -> void:
 		meter.perfect_window = float(w["perfect"]) * 0.72
 		meter.good_window = float(w["good"]) * 0.85
 
+## SCHIACCIATA A TEMPO (v2.49.0, come il dunk meter di 2K27): sali, e premi
+## TIRA quando la pallina dell'anello e' nel verde. A tempo la schiacciata
+## e' pulita e NESSUNA difesa la tocca; fuori tempo la va a schiacciare un
+## uomo che salta addosso (online) e la puo' stoppare.
+func _dunk_window() -> Vector2:
+	## La finestra e' l'ultimo tratto della salita, in frazione 0..1.
+	var rt: float = maxf(dunk_rise_t, 0.05)
+	return Vector2(maxf(1.0 - 0.17 / rt, 0.55), 1.0)
+
+func _dunk_prog() -> float:
+	return clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
+
+func _dunk_tap() -> void:
+	if dunk_timed != "":
+		return
+	var prog: float = _dunk_prog()
+	if prog < 0.45:
+		return          # primo tocco troppo presto: si ignora, non si punisce
+	if prog >= _dunk_window().x:
+		dunk_timed = "perfect"
+		Events.popup.emit("PERFECT!", player_pos + Vector2(0, -110),
+			Color(0.30, 1.0, 0.45), true)
+		Sfx.haptic(40)
+	else:
+		dunk_timed = "early"
+
+
 ## Dunk: drive at the rim, rise to the iron, throw it down -- then HANG there
 ## until the dunk button is released.
 func _start_dunk() -> void:
 	dunk_phase = "rise"
 	dunk_anim = 0.0
+	dunk_timed = ""
 	dunk_ball_t = 0.0
 	want_hang = true
 	shot_made = true
@@ -974,8 +1009,16 @@ func _dunk_throw() -> void:
 	_drain_energy(-1.6)
 	session_score += 2
 	dunk_ball_t = 0.0
-	lbl_mid.text = "%s!  x%d" % [DunkStyle.label(dunk_style), streak]
-	lbl_mid.modulate = Color(1.0, 0.75, 0.25)
+	# VERDETTO DEL TEMPO: al campetto non c'e' nessuno che stoppa, quindi la
+	# schiacciata va sempre dentro — ma solo quella a tempo e' "pulita".
+	if dunk_timed == "":
+		dunk_timed = "late"
+	lbl_mid.text = ("PERFECT!  " if dunk_timed == "perfect" else "") \
+		+ "%s!  x%d" % [DunkStyle.label(dunk_style), streak]
+	lbl_mid.modulate = Color(1.0, 0.75, 0.25) if dunk_timed == "perfect" \
+		else Color(0.95, 0.88, 0.70)
+	if dunk_timed == "perfect":
+		Game.add_xp(3, "solo_shots")
 
 func _drop_from_rim() -> void:
 	if dunk_phase == "hang":
@@ -1459,6 +1502,12 @@ func _draw_park() -> void:
 			draw_line(Vector2(bx2 + float(b) * 2.6 - 2.6, by2),
 				Vector2(bx2 + float(b) * 2.6 - 2.6 + lean2 + sway, by2 - hgt + float(b)),
 				col2, 1.4)
+	# HALLOWEEN: zucche ai piedi delle panchine e dei cestini, ragnatela sullo
+	# schienale, pipistrelli sopra il muro. Poche, ai bordi del campo: il
+	# campo resta campo.
+	if Spooky.active():
+		_draw_spooky_park(tt, g_top, g_bot)
+
 	# DUE panchine distanziate, DAVANTI a chi guarda (sempre in campo visivo
 	# quando la camera e' ferma: x -330 / +330, vista +/-615)
 	for bx in [-330.0, 330.0]:
@@ -1489,6 +1538,38 @@ func _draw_park() -> void:
 		draw_rect(Rect2(tx - 24.0, ty - 58.0, 48.0, 10.0), Color(0.13, 0.26, 0.19))
 		draw_circle(Vector2(tx + 6.0, ty - 60.0), 7.0, Color(0.65, 0.62, 0.55))
 		draw_circle(Vector2(tx - 8.0, ty - 62.0), 5.0, Color(0.72, 0.70, 0.62))
+
+## HALLOWEEN AL CAMPETTO. `tt` e' il tempo per le ali, la fascia e' quella
+## d'erba fra il bordo campo e il fondo schermo.
+func _draw_spooky_park(tt: float, g_top: float, g_bot: float) -> void:
+	var glow: float = clampf(CourtStage.night_amount() * 1.2, 0.0, 1.0)
+	var lit: bool = glow > 0.28
+	# le notti di fine ottobre sono lunghe: se il gioco dice "giorno" le
+	# zucche restano spente, ma sono li'.
+	var y: float = g_top + 96.0
+	# gruppo di zucche accanto a ogni panchina, e due vicino ai cestini
+	for bx in [-424.0, -236.0, 424.0, 236.0]:
+		Spooky.draw_pumpkin(self, Vector2(bx, y), 15.0, lit, glow)
+		Spooky.draw_pumpkin(self, Vector2(bx + (26.0 if bx < 0.0 else -26.0), y + 4.0),
+			10.0, lit, glow)
+	# due zucche grosse ai lati, sul prato davanti al campo: al centro
+	# finirebbero sotto i piedi di chi gioca
+	Spooky.draw_pumpkin(self, Vector2(-528.0, g_bot - 18.0), 19.0, lit, glow)
+	Spooky.draw_pumpkin(self, Vector2(512.0, g_bot - 12.0), 13.0, lit, glow)
+	# ragnatela sullo spigolo alto dello schienale delle due panchine
+	for bx2 in [-330.0, 330.0]:
+		Spooky.draw_cobweb(self, Vector2(bx2 + 66.0, 240.0), 40.0, -1.0, 1.0, 0.24)
+	# PIPISTRELLI: sopra il muro, cioe' nel cielo (lo schermo sopra y -370)
+	# y: la camera del campetto sta a -40 con zoom 1.04, quindi si vede fino
+	# a y ~ -386 -- la fascia di cielo e' -386..-260. A -430 i pipistrelli
+	# volavano fuori dallo schermo: qui stanno tutti dentro.
+	# Rotta larga 1900 px, cioe' piu' dello schermo: si riavvolgono fuori
+	# campo, non davanti al canestro.
+	for i in 3:
+		var bx3: float = fmod(tt * (34.0 + float(i) * 9.0) + float(i) * 640.0, 1900.0) - 950.0
+		var by3: float = -302.0 - float(i) * 26.0 + sin(tt * 0.8 + float(i) * 2.0) * 12.0
+		Spooky.draw_bat(self, Vector2(bx3, by3), 20.0 - float(i) * 3.0, tt + float(i) * 1.9)
+
 
 func _draw_npcs() -> void:
 	for n in npcs:
@@ -1639,20 +1720,27 @@ func _draw_player() -> void:
 			var py: float = screen.y - 6.0 - (i % 2) * (7.0 if dust_big else 5.0)
 			var rr: float = lerpf(9.0, 2.5, kk) if dust_big else lerpf(7.0, 2.5, kk)
 			draw_circle(Vector2(px, py), rr, Color(0.85, 0.80, 0.68, da))
-	# OMBRA REALE durante la schiacciata: a terra, scorre al centro della
-	# semicirconferenza sotto il ferro e cresce con l'altezza.
-	if dunk_phase != "":
-		var sh_world: Vector2 = player_pos.lerp(RIM, clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)) \
-			if dunk_phase == "rise" else RIM
-		var sh_base: Vector2 = _screen(sh_world)
-		var grow: float = 1.15 + clampf(lift / 240.0, 0.0, 0.35)
-		var rw: float = 14.0 * grow
-		var rh: float = 5.5 * grow
-		var pts: PackedVector2Array = []
-		for i in 20:
-			var ang: float = TAU * float(i) / 20.0
-			pts.append(sh_base + Vector2(cos(ang) * rw, sin(ang) * rh))
-		draw_colored_polygon(pts, Color(0, 0, 0, 0.40))
+	# OMBRA A TERRA (v2.49.2): una sola regola in tutto il gioco — sta sotto
+	# i piedi (o sotto il ferro, in schiacciata) e RIMPICCIOLISCE mentre
+	# sale. Prima cresceva con l'altezza: contro la fisica.
+	var sh_world: Vector2 = draw_base
+	if dunk_phase == "rise":
+		sh_world = player_pos.lerp(RIM, clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0))
+	elif dunk_phase != "":
+		sh_world = RIM
+	Avatar.draw_ground_shadow(self, _screen(sh_world), h, lift, 1.0, 0.36)
+	# ANELLO A TERRA (v2.49.0): la schiacciata a tempo mentre sali, il
+	# contest mentre carichi il tiro. Sta sotto i piedi, segue il giocatore.
+	var feet: Vector2 = _screen(draw_base)
+	if not bool(Settings.get_v("lowgfx", false)):
+		if dunk_phase == "rise":
+			var dw: Vector2 = _dunk_window()
+			Avatar.draw_dunk_ring(self, feet, h, _dunk_prog(), dw.x, dw.y, dunk_timed)
+		elif charging:
+			# al campetto nessuno difende: verde, cioe' "sei libero". La
+			# stessa lingua del 1v1, cosi' si impara in un posto e vale
+			# nell'altro.
+			Avatar.draw_contest_ring(self, feet, h, 0.0, Time.get_ticks_msec() / 1000.0)
 	# SCIA PALLA in volo (stessa del match): fantasmi che svaniscono.
 	# Scia rimossa su richiesta utente.
 	var hold_ball: bool = carry and not ball_live and not solo_loose and trick_t <= 0.0
@@ -1699,7 +1787,7 @@ func _draw_player() -> void:
 				* Transform2D(0.09 * facing, Vector2(1.0, 0.93)) \
 				* Transform2D(0.0, Vector2.ONE, 0.0, -screen)
 		Avatar.draw_body(self, screen, h, facing, po, Avatar.colours(true), hold_ball,
-			dunk_phase == "", true, BALL_R, xf)
+			false, true, BALL_R, xf)
 	# HEAT CHECK: stesse lingue di fuoco del match (helper condiviso).
 	if hot and not bool(Settings.get_v("lowgfx", false)):
 		Avatar.draw_flames(self, screen + Vector2(0.0, -h * 1.16), Time.get_ticks_msec() / 1000.0)

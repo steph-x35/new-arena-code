@@ -9,9 +9,18 @@ var _skyline: Array = []
 func _ready() -> void:
 	z_index = -20
 	_build_skyline()
+	# HALLOWEEN: i pipistrelli volano a parte, in un layer che si ridisegna
+	# da solo 12 volte al secondo. La citta' intera si ridisegna di rado
+	# (costa centinaia di comandi): se le ali battessero dentro _draw
+	# costringerebbero a ridisegnare tutto, e sarebbe lag garantito.
+	if Spooky.active():
+		spooky_layer = SpookySky.new()
+		spooky_layer.z_index = 1
+		add_child(spooky_layer)
 	set_process(true)
 
 var _wx := 0.0
+var spooky_layer: Node2D = null
 func _process(delta: float) -> void:
 	_wx += delta
 	if _wx < 0.033:
@@ -95,6 +104,12 @@ func _draw() -> void:
 	# into a grey void. Pure scenery — the player stops before reaching them.
 	_draw_edge_blocks()
 
+	# HALLOWEEN: zucche sui marciapiedi davanti alle vetrine e ragnatele
+	# appese alla tenda. Statiche: entrano nel ridisegno della citta' che
+	# avviene gia' da solo, non aggiungono un frame di lavoro.
+	if Spooky.active():
+		_draw_spooky_street()
+
 	# street lamps + light pools. The beam is only the suggestion; the lamp must
 	# actually ILLUMINATE the pavement below it, so a pool of warm light is
 	# drawn on the sidewalk and road that brightens as the night deepens.
@@ -122,6 +137,76 @@ func _draw() -> void:
 				Color(1.0, 0.92, 0.65, 0.10 * glow))
 	# Rain/snow in FRONT of the street so the drops are visible.
 	_draw_weather()
+
+
+## ZUCCHE E RAGNATELE. Le zucche stanno SUL MARCIAPIEDE (y ~190), davanti
+## alle vetrine: due o tre per negozio, di misure diverse, cosi' la strada
+## sembra addobbata e non decorata a stampo. Di notte si accendono.
+func _draw_spooky_street() -> void:
+	var glow: float = clampf(night * 1.15, 0.0, 1.0)
+	var lit: bool = night > 0.28
+	var i := 0
+	for b in buildings:
+		var p: Vector2 = b["pos"]
+		var id: String = String(b["id"])
+		# la zucca grande a sinistra del portone, poi due piccole
+		Spooky.draw_pumpkin(self, Vector2(p.x - 104.0, 194.0), 15.0, lit, glow)
+		Spooky.draw_pumpkin(self, Vector2(p.x + 96.0, 198.0), 11.0, lit, glow)
+		if i % 2 == 0:
+			Spooky.draw_pumpkin(self, Vector2(p.x + 118.0, 200.0), 8.0, lit, glow)
+		# ragnatela sullo spigolo della tenda (solo i negozi ce l'hanno)
+		if id not in ["arena", "gym", "court", "park"] and i % 2 == 1:
+			Spooky.draw_cobweb(self, Vector2(p.x - 120.0, p.y + 20.0), 46.0, 1.0, 1.0, 0.26)
+		i += 1
+
+
+## I PIPISTRELLI: un layer a parte (la citta' sotto non si ridisegna).
+##
+## v2.49.4: volano in COORDINATE DEL MONDO, cioè ognuno per la sua strada
+## lungo la via. Prima erano appesi al centro della camera: restavano
+## fermi sullo schermo mentre il marciapiede scorreva sotto, e sembravano
+## seguire il personaggio (e "laggare" rispetto ai palazzi). Ora, se tu
+## cammini, sono loro a passare di lato, come i palazzi: nessuno li spinge.
+##
+## Quota: i tetti arrivano a y -280 e la fascia di cielo visibile e' circa
+## -283..-419, quindi stanno fra -296 e -345. Negli altri punti della
+## strada non volano: sono pipistrelli, non un fondale.
+class SpookySky extends Node2D:
+	# v = px al secondo; s = apertura alare; off = punto di partenza sulla
+	# rotta (la stessa strada per tutti, sfalsata: mai a grappolo).
+	const BATS := [
+		{"y": -298.0, "s": 24.0, "v": 78.0, "off": 0.0},
+		{"y": -320.0, "s": 17.0, "v": 58.0, "off": 1400.0},
+		{"y": -306.0, "s": 20.0, "v": 96.0, "off": 2800.0},
+		{"y": -340.0, "s": 14.0, "v": 66.0, "off": 4200.0},
+		{"y": -330.0, "s": 18.0, "v": 84.0, "off": 5600.0},
+	]
+	# La rotta: da 3400 px fuori il negozio piu' a sinistra a 3600 fuori
+	# quello piu' a destra. Fuori da qui si riavvolgono, cioe' sempre FUORI
+	# dal campo visivo: nessun pipistrello che sparisce sotto gli occhi.
+	const X0 := -3400.0
+	const SPAN := 7000.0
+	var t := 0.0
+
+	var _acc := 0.0
+
+	func _process(delta: float) -> void:
+		t += delta
+		_acc += delta
+		# 5 pipistrelli costano una manciata di comandi; 30 ridisegni al
+		# secondo (non 12) bastano perche' le ali non scattino, e il layer e'
+		# solo loro: la citta' sotto non si tocca.
+		if _acc < 0.033:
+			return
+		_acc = 0.0
+		queue_redraw()
+
+	func _draw() -> void:
+		for i in BATS.size():
+			var b: Dictionary = BATS[i]
+			var x: float = X0 + fmod(float(b["off"]) + t * float(b["v"]), SPAN)
+			var y: float = float(b["y"]) + sin(t * 0.9 + float(i) * 2.1) * 12.0
+			Spooky.draw_bat(self, Vector2(x, y), float(b["s"]), t + float(i) * 1.7)
 
 
 func _draw_street_trees() -> void:

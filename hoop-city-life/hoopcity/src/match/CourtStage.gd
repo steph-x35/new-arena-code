@@ -294,24 +294,74 @@ static func _full_arena_backdrop(c: CanvasItem, w: float, h: float) -> void:
 	# advertising hoarding along the front of the stand
 	c.draw_rect(Rect2(-w, far_y - 58.0, w * 2.0, 56.0), Color(0.11, 0.16, 0.30))
 
+## Quanto e' notte, 0..1, dall'orologio del gioco. Un solo posto che lo
+## calcola: le luci del campetto e il cielo devono raccontare la stessa ora.
+static func night_amount() -> float:
+	var tday: float = Game.day_t() * 24.0 if Game != null else 12.0
+	if tday < 6.5 or tday > 19.5:
+		return 1.0
+	if tday < 8.0:
+		return 1.0 - (tday - 6.5) / 1.5
+	if tday > 18.0:
+		return (tday - 18.0) / 1.5
+	return 0.0
+
 static func _full_street_backdrop(c: CanvasItem, w: float, h: float,
 		t: float) -> void:
 	var far_y: float = m_project(Vector2(0.0, -h * 0.5), h).y
+	# v2.48.3: IL CIELO SEGUE L'OROLOGIO. Prima restava azzurro a mezzanotte
+	# mentre i fari si accendevano: campetto di giorno con le luci accese.
+	var night: float = night_amount()
+	# v2.49.1: con GRAFICA BASSA il cielo di notte resta lo stesso, ma senza
+	# stelle ne' finestre accese: e' un interruttore che c'e' gia' nelle
+	# Impostazioni, non una cosa nuova da imparare — e sui telefoni lenti
+	# toglie un altro centinaio di comandi a frame.
+	var cheap: bool = bool(Settings.get_v("lowgfx", false))
+	var sky: Color = Color(0.53, 0.71, 0.86).lerp(Color(0.045, 0.06, 0.14), night)
+	c.draw_rect(Rect2(-w, far_y - 900.0, w * 2.0, 900.0), sky)
+	if night > 0.02:
+		# la citta' accesa rischiara l'orizzonte
+		c.draw_rect(Rect2(-w, far_y - 300.0, w * 2.0, 300.0),
+			Color(0.42, 0.26, 0.22, 0.22 * night))
+		# stelle: deterministiche (nessun randf: il fondale si ridisegna).
+		# v2.49.1: 34 invece di 70, solo nella fascia che la camera puo'
+		# mostrare — sono puntini da 1,7 px, il cielo non cambia.
+		for k in (0 if cheap else 34):
+			var sx: float = -1600.0 + fmod(float(k) * 271.3 + 40.0, 3200.0)
+			var sy: float = far_y - 880.0 + fmod(float(k) * 137.7, 560.0)
+			var br: float = 0.25 + 0.60 * absf(sin(float(k) * 12.9898))
+			c.draw_circle(Vector2(sx, sy), 1.7, Color(1, 0.97, 0.88, br * night))
 	# sky and city block
-	c.draw_rect(Rect2(-w, far_y - 900.0, w * 2.0, 900.0), Color(0.53, 0.71, 0.86))
-	var bx: float = -w
+	# v2.49.1: PRESTAZIONI. Il fondale si ridisegna ogni frame (qui non e'
+	# rasterizzato come l'arena) e il giro largo [w = 2800] costava ~970
+	# comandi di disegno A FRAME: e' quello che faceva scattare il campetto.
+	# La camera non mostra mai oltre +/-1600 px, quindi il resto era lavoro
+	# buttato. Stesso disegno, un quarto dei comandi.
+	var xf: float = minf(w, 1600.0)
+	var bx: float = -xf
 	var i := 0
-	while bx < w:
+	while bx < xf:
 		var bh: float = 150.0 + fmod(float(i) * 97.0, 220.0)
+		var bcol: Color = Color(0.38, 0.42, 0.50).lerp(
+			Color(0.30, 0.33, 0.42), fmod(float(i) * 0.3, 1.0))
 		c.draw_rect(Rect2(bx, far_y - 120.0 - bh, 150.0, bh),
-			Color(0.38, 0.42, 0.50).lerp(Color(0.30, 0.33, 0.42), fmod(float(i) * 0.3, 1.0)))
+			bcol.lerp(Color(0.05, 0.06, 0.11), night))
+		if night > 0.02 and not cheap:
+			# finestre accese: e' quello che rende "citta' di notte" in 4 px
+			for wy in 3:
+				for wx in 2:
+					if int(i * 7 + wy * 3 + wx) % 3 != 0:
+						continue
+					c.draw_rect(Rect2(bx + 22.0 + wx * 46.0,
+						far_y - 100.0 - bh + 26.0 + wy * 42.0, 18.0, 22.0),
+						Color(1.0, 0.86, 0.52, 0.55 * night))
 		bx += 175.0
 		i += 1
 	# trees behind the fence — foliage follows season (dry + drop in autumn)
 	var fol: float = WeatherArt.foliage()
-	var leaf: Color = WeatherArt.leaf_color()
-	var tx: float = -w + 120.0
-	while tx < w:
+	var leaf: Color = WeatherArt.leaf_color().lerp(Color(0.04, 0.08, 0.07), night)
+	var tx: float = -xf + 120.0
+	while tx < xf:
 		c.draw_rect(Rect2(tx - 9.0, far_y - 190.0, 18.0, 120.0), Color(0.32, 0.23, 0.15))
 		if fol > 0.05:
 			for k in 3:
@@ -335,11 +385,12 @@ static func _full_street_backdrop(c: CanvasItem, w: float, h: float,
 	if WeatherArt.weather() == "snow" or WeatherArt.season() == "winter":
 		c.draw_rect(Rect2(-w, far_y - 40.0, w * 2.0, 50.0), Color(0.92, 0.94, 0.98, 0.40))
 	# graffiti wall + chain fence
-	c.draw_rect(Rect2(-w, far_y - 120.0, w * 2.0, 120.0), Color(0.60, 0.58, 0.55))
+	c.draw_rect(Rect2(-w, far_y - 120.0, w * 2.0, 120.0),
+		Color(0.60, 0.58, 0.55).lerp(Color(0.17, 0.18, 0.22), night))
 	var tags := [Color(0.86, 0.25, 0.30), Color(0.25, 0.55, 0.82), Color(0.95, 0.72, 0.20)]
-	var gx: float = -w + 90.0
+	var gx: float = -xf + 90.0
 	var gi := 0
-	while gx < w:
+	while gx < xf:
 		# al centro del muro no tag casuali: lì vive il piece col nome della
 		# carriera (disegnato da SoloCourt sopra il backdrop)
 		if absf(gx) < 230.0:
@@ -352,13 +403,69 @@ static func _full_street_backdrop(c: CanvasItem, w: float, h: float,
 			Color(col.darkened(0.25), 0.75), 7.0)
 		gx += 300.0
 		gi += 1
-	var fx: float = -w
-	while fx < w:
-		c.draw_line(Vector2(fx, far_y - 120.0), Vector2(fx + 20.0, far_y),
-			Color(0.78, 0.80, 0.82, 0.28), 1.5)
-		c.draw_line(Vector2(fx + 20.0, far_y - 120.0), Vector2(fx, far_y),
-			Color(0.78, 0.80, 0.82, 0.28), 1.5)
+	# RETE A MAGLIE: la stessa diagonale incrociata di prima, ma come DUE
+	# polilinee a zig-zag invece di 280 singole linee. Era il singolo pezzo
+	# piu' caro del fondale (560 comandi a frame) per 1,5 px di spessore.
+	var fence_col := Color(0.78, 0.80, 0.82, 0.28)
+	var fence_dn := PackedVector2Array()
+	var fence_up := PackedVector2Array()
+	var fx: float = -xf
+	var fk := 0
+	while fx <= xf:
+		var top_y: float = far_y - 120.0
+		if fk % 2 == 0:
+			fence_dn.append(Vector2(fx, top_y))
+			fence_up.append(Vector2(fx, far_y))
+		else:
+			fence_dn.append(Vector2(fx, far_y))
+			fence_up.append(Vector2(fx, top_y))
 		fx += 20.0
+		fk += 1
+	c.draw_polyline(fence_dn, fence_col, 1.5)
+	c.draw_polyline(fence_up, fence_col, 1.5)
+
+## ============================================================ PARQUET
+## Il colore del parquet indoor, scelto nelle Impostazioni. Quattro scelte e
+## basta: classico, nero, blu notte, rovere scuro. Un solo posto che le
+## definisce — il campo le legge da qui, quindi nessun "colore mio" sparso.
+const FLOOR_STYLES := 4
+
+static func floor_style() -> int:
+	return clampi(int(Settings.get_v("floor_style", 0)), 0, FLOOR_STYLES - 1)
+
+## Chiave di traduzione del nome (l'indice e' quello salvato in Settings).
+static func floor_name_key(i: int) -> String:
+	match clampi(i, 0, FLOOR_STYLES - 1):
+		1: return "floor.black"
+		2: return "floor.navy"
+		3: return "floor.walnut"
+		_: return "floor.classic"
+
+## Tutti i colori del pavimento in un dizionario: base, doghe, fughe, due
+## strati della vernice del pitturato, cornice.
+static func floor_colours() -> Dictionary:
+	match floor_style():
+		1:
+			return {"base": Color(0.155, 0.155, 0.175), "plank": Color(0.125, 0.125, 0.145),
+				"seam": Color(0.62, 0.62, 0.66, 0.16), "seam2": Color(0.62, 0.62, 0.66, 0.12),
+				"paint": Color(0.60, 0.14, 0.18, 0.85), "paint2": Color(0.22, 0.22, 0.26, 0.38),
+				"frame": Color(0.075, 0.075, 0.09)}
+		2:
+			return {"base": Color(0.13, 0.17, 0.28), "plank": Color(0.11, 0.145, 0.245),
+				"seam": Color(0.45, 0.55, 0.75, 0.20), "seam2": Color(0.45, 0.55, 0.75, 0.14),
+				"paint": Color(0.80, 0.52, 0.18, 0.78), "paint2": Color(0.20, 0.26, 0.40, 0.40),
+				"frame": Color(0.07, 0.09, 0.15)}
+		3:
+			return {"base": Color(0.42, 0.285, 0.185), "plank": Color(0.385, 0.255, 0.16),
+				"seam": Color(0.25, 0.16, 0.09, 0.35), "seam2": Color(0.25, 0.16, 0.09, 0.26),
+				"paint": Color(0.55, 0.18, 0.20, 0.80), "paint2": Color(0.30, 0.20, 0.13, 0.40),
+				"frame": Color(0.16, 0.11, 0.08)}
+		_:
+			return {"base": Color(0.86, 0.68, 0.42), "plank": Color(0.83, 0.64, 0.39),
+				"seam": Color(0.55, 0.36, 0.18, 0.30), "seam2": Color(0.55, 0.36, 0.18, 0.22),
+				"paint": Color(0.35, 0.22, 0.55, 0.85), "paint2": Color(0.62, 0.40, 0.22, 0.35),
+				"frame": Color(0.30, 0.22, 0.16)}
+
 
 static func _full_floor(c: CanvasItem, w: float, h: float, env: String) -> void:
 	var wood: bool = env != "street"
@@ -383,3 +490,16 @@ static func _full_floor(c: CanvasItem, w: float, h: float, env: String) -> void:
 				tone)
 		y = y2
 		row += 1
+	# v2.48.3: di notte l'asfalto e' quello che i fari illuminano. Una pozza
+	# di luce calda al centro (prima il campo restava giorno pieno anche a
+	# mezzanotte, mentre le luci erano accese).
+	if not wood:
+		var nn: float = night_amount()
+		if nn > 0.02:
+			var ctr: Vector2 = m_project(Vector2(0.0, 0.0), h)
+			# v2.49.1: erano SEI cerchi semitrasparenti fino a 1190 px di
+			# raggio, cioe' sei riempimenti a schermo intero per frame. Il
+			# colore e' identico, i pixel da fondere un sesto.
+			for k in 3:
+				var rad: float = 300.0 + float(k) * 260.0
+				c.draw_circle(ctr, rad, Color(1.0, 0.92, 0.68, 0.030 * nn))

@@ -8,16 +8,16 @@ web_nothreads_debug.zip
 web_nothreads_release.zip
 web_release.zip
 total 72960
-drwxr-xr-x 2 runner runner     4096 Oct 21 11:26 .
-drwxr-xr-x 3 runner runner     4096 Oct 21 11:26 ..
--rw-r--r-- 1 runner runner  8972312 Oct 21 11:26 web_debug.zip
--rw-r--r-- 1 runner runner 10450872 Oct 21 11:26 web_dlink_debug.zip
--rw-r--r-- 1 runner runner 10596848 Oct 21 11:26 web_dlink_nothreads_debug.zip
--rw-r--r-- 1 runner runner  9681918 Oct 21 11:26 web_dlink_nothreads_release.zip
--rw-r--r-- 1 runner runner  9613206 Oct 21 11:26 web_dlink_release.zip
--rw-r--r-- 1 runner runner  9082643 Oct 21 11:26 web_nothreads_debug.zip
--rw-r--r-- 1 runner runner  8168102 Oct 21 11:26 web_nothreads_release.zip
--rw-r--r-- 1 runner runner  8120251 Oct 21 11:26 web_release.zip
+drwxr-xr-x 2 runner runner     4096 Oct 29 19:55 .
+drwxr-xr-x 3 runner runner     4096 Oct 29 19:54 ..
+-rw-r--r-- 1 runner runner  8972312 Oct 29 19:55 web_debug.zip
+-rw-r--r-- 1 runner runner 10450872 Oct 29 19:55 web_dlink_debug.zip
+-rw-r--r-- 1 runner runner 10596848 Oct 29 19:55 web_dlink_nothreads_debug.zip
+-rw-r--r-- 1 runner runner  9681918 Oct 29 19:55 web_dlink_nothreads_release.zip
+-rw-r--r-- 1 runner runner  9613206 Oct 29 19:55 web_dlink_release.zip
+-rw-r--r-- 1 runner runner  9082643 Oct 29 19:55 web_nothreads_debug.zip
+-rw-r--r-- 1 runner runner  8168102 Oct 29 19:55 web_nothreads_release.zip
+-rw-r--r-- 1 runner runner  8120251 Oct 29 19:55 web_release.zip
 === IMPORT ===
 Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
 
@@ -135,8 +135,8 @@ savepack: begin: Packing steps: 102
 	savepack: step 24: Storing File: res://docs/dunks/match_1v1_windmill_t95.png.import
 	savepack: step 24: Storing File: res://.godot/imported/rimcheck_tomahawk.png-6c05aa62513de1ec63467b27028f1d0b.ctex
 	savepack: step 24: Storing File: res://docs/dunks/rimcheck_tomahawk.png.import
-	savepack: step 25: Storing File: res://.godot/imported/rimcheck_windmill.png-73c583f2a396b424c8f1137093adb424.ctex
-	savepack: step 25: Storing File: res://docs/dunks/rimcheck_windmill.png.import
+	savepack: step 24: Storing File: res://.godot/imported/rimcheck_windmill.png-73c583f2a396b424c8f1137093adb424.ctex
+	savepack: step 24: Storing File: res://docs/dunks/rimcheck_windmill.png.import
 	savepack: step 25: Storing File: res://.godot/imported/sheet_page0.png-316d28a84e8501599891bb0871287b06.ctex
 	savepack: step 25: Storing File: res://docs/dunks/sheet_page0.png.import
 	savepack: step 25: Storing File: res://.godot/imported/sheet_page1.png-0244746fd0eb3dfdd1c97c5dc72c5e3f.ctex
@@ -159,8 +159,8 @@ savepack: begin: Packing steps: 102
 	savepack: step 29: Storing File: res://docs/v19/bench_overlay.png.import
 	savepack: step 29: Storing File: res://.godot/imported/fixture_benches.png-b3b13af4e123051f66c37fb8f23d232d.ctex
 	savepack: step 29: Storing File: res://docs/v19/fixture_benches.png.import
-	savepack: step 30: Storing File: res://.godot/imported/scrimmage_empty.png-e41bf816c2313d57dc3ed55801d4a654.ctex
-	savepack: step 30: Storing File: res://docs/v19/scrimmage_empty.png.import
+	savepack: step 29: Storing File: res://.godot/imported/scrimmage_empty.png-e41bf816c2313d57dc3ed55801d4a654.ctex
+	savepack: step 29: Storing File: res://docs/v19/scrimmage_empty.png.import
 	savepack: step 30: Storing File: res://.godot/imported/arena_bench_spalti.png-e9bd016bbd7003b2e9155768a6bee82e.ctex
 	savepack: step 30: Storing File: res://docs/v20/arena_bench_spalti.png.import
 	savepack: step 30: Storing File: res://.godot/imported/city_it.png-77ad0d66931766ad785c7593eb502b4c.ctex
@@ -183,8 +183,8 @@ savepack: begin: Packing steps: 102
 	savepack: step 34: Storing File: res://docs/v22/gear_equipped.png.import
 	savepack: step 34: Storing File: res://.godot/imported/match_static_crowd.png-63a815367f3d1fe659b735fcd6f8d234.ctex
 	savepack: step 34: Storing File: res://docs/v22/match_static_crowd.png.import
-	savepack: step 35: Storing File: res://.godot/imported/solo_empty.png-c942ebe233aebcabfc864fb70e73f982.ctex
-	savepack: step 35: Storing File: res://docs/v22/solo_empty.png.import
+	savepack: step 34: Storing File: res://.godot/imported/solo_empty.png-c942ebe233aebcabfc864fb70e73f982.ctex
+	savepack: step 34: Storing File: res://docs/v22/solo_empty.png.import
 	savepack: step 35: Storing File: res://.godot/imported/match_baked_crowd_faces.png-58c35e4c74d4355a7c834d3aa9c3e626.ctex
 	savepack: step 35: Storing File: res://docs/v23/match_baked_crowd_faces.png.import
 	savepack: step 35: Storing File: res://.godot/imported/rehab_lab_ok.png-a540338d3fc74ec52238f261977239ec.ctex
@@ -203,107 +203,108 @@ savepack: begin: Packing steps: 102
 	savepack: step 38: Storing File: res://src/city/CityEndTrees.gdc
 	savepack: step 39: Storing File: res://src/city/CityPet.gdc
 	savepack: step 39: Storing File: res://src/city/CityPlayer.gdc
-	savepack: step 40: Storing File: res://src/city/CityScene.gdc
+	savepack: step 39: Storing File: res://src/city/CityScene.gdc
 	savepack: step 40: Storing File: res://src/city/CityVisual.gdc
 	savepack: step 40: Storing File: res://src/city/CityWeatherHud.gdc
 	savepack: step 41: Storing File: res://src/city/Pedestrian.gdc
 	savepack: step 41: Storing File: res://src/core/BookText.gdc
 	savepack: step 42: Storing File: res://src/core/Career.gdc
 	savepack: step 42: Storing File: res://src/core/CareerEvents.gdc
-	savepack: step 43: Storing File: res://src/core/Contacts.gdc
+	savepack: step 42: Storing File: res://src/core/Contacts.gdc
 	savepack: step 43: Storing File: res://src/core/Events.gdc
 	savepack: step 43: Storing File: res://src/core/GameData.gdc
 	savepack: step 44: Storing File: res://src/core/Items.gdc
 	savepack: step 44: Storing File: res://src/core/Library.gdc
-	savepack: step 45: Storing File: res://src/core/Loc.gdc
+	savepack: step 44: Storing File: res://src/core/Loc.gdc
 	savepack: step 45: Storing File: res://src/core/MatchGoals.gdc
 	savepack: step 45: Storing File: res://src/core/Pets.gdc
 	savepack: step 46: Storing File: res://src/core/SaveSystem.gdc
 	savepack: step 46: Storing File: res://src/core/SceneRouter.gdc
 	savepack: step 47: Storing File: res://src/core/Season.gdc
 	savepack: step 47: Storing File: res://src/core/Settings.gdc
-	savepack: step 48: Storing File: res://src/core/Sfx.gdc
+	savepack: step 47: Storing File: res://src/core/Sfx.gdc
 	savepack: step 48: Storing File: res://src/core/ShopCatalog.gdc
 	savepack: step 48: Storing File: res://src/match/AIBrain.gdc
 	savepack: step 49: Storing File: res://src/match/Ball.gdc
 	savepack: step 49: Storing File: res://src/match/Commentary.gdc
-	savepack: step 50: Storing File: res://src/match/Court.gdc
+	savepack: step 49: Storing File: res://src/match/Court.gdc
 	savepack: step 50: Storing File: res://src/match/CourtStage.gdc
 	savepack: step 50: Storing File: res://src/match/CourtVisual.gdc
 	savepack: step 51: Storing File: res://.godot/exported/133200997/export-188c477a334726aa4eee8f2c47e41782-CourtVisual.scn
 	savepack: step 51: Storing File: res://src/match/DunkStyle.gdc
 	savepack: step 52: Storing File: res://src/match/FloatingText.gdc
 	savepack: step 52: Storing File: res://src/match/HoopArt.gdc
-	savepack: step 53: Storing File: res://src/match/MatchScene.gdc
+	savepack: step 52: Storing File: res://src/match/MatchScene.gdc
 	savepack: step 53: Storing File: res://.godot/exported/133200997/export-ce4d7407c29793b92f16761e8ee559e9-MatchScene.scn
 	savepack: step 53: Storing File: res://src/match/NetFront.gdc
 	savepack: step 54: Storing File: res://src/match/Player.gdc
 	savepack: step 54: Storing File: res://src/match/Referee.gdc
-	savepack: step 55: Storing File: res://src/match/ShotSystem.gdc
+	savepack: step 54: Storing File: res://src/match/ShotSystem.gdc
 	savepack: step 55: Storing File: res://src/net/NetLayer.gdc
 	savepack: step 55: Storing File: res://src/scenes/ApartmentRoom.gdc
 	savepack: step 56: Storing File: res://src/scenes/ArenaLobby.gdc
 	savepack: step 56: Storing File: res://.godot/exported/133200997/export-0d942d095299d5879184dc2f795a58df-ArenaLobby.scn
 	savepack: step 57: Storing File: res://src/scenes/BookShop.gdc
 	savepack: step 57: Storing File: res://.godot/exported/133200997/export-54422d3a69606b8803f1c93148840043-BookShop.scn
-	savepack: step 58: Storing File: res://src/scenes/CharacterCreator.gdc
+	savepack: step 57: Storing File: res://src/scenes/CharacterCreator.gdc
 	savepack: step 58: Storing File: res://.godot/exported/133200997/export-a9a85d2119ea3889f67b44a267cae155-CharacterCreator.scn
 	savepack: step 58: Storing File: res://.godot/exported/133200997/export-7f35700666ab81055698ca1634204d73-CityScene.scn
 	savepack: step 59: Storing File: res://src/scenes/DrillScene.gdc
 	savepack: step 59: Storing File: res://.godot/exported/133200997/export-e135b7311d038b9c04447039fd18a23a-DrillScene.scn
-	savepack: step 60: Storing File: res://src/scenes/DuelScene.gdc
+	savepack: step 59: Storing File: res://src/scenes/DuelScene.gdc
 	savepack: step 60: Storing File: res://.godot/exported/133200997/export-a242a0d42e6d7cf50c643c0f241544e6-DuelScene.scn
 	savepack: step 60: Storing File: res://src/scenes/FurnitureShop.gdc
 	savepack: step 61: Storing File: res://.godot/exported/133200997/export-8004708444600264b7459325d7aacb2e-FurnitureShop.scn
 	savepack: step 61: Storing File: res://src/scenes/GymScene.gdc
 	savepack: step 62: Storing File: res://.godot/exported/133200997/export-5a2a073bc9e0d5dd31bf311ed79ca11e-GymScene.scn
 	savepack: step 62: Storing File: res://src/scenes/HomeScene.gdc
-	savepack: step 63: Storing File: res://.godot/exported/133200997/export-5cf8a2730f692e76dd91acc5552e7702-HomeScene.scn
+	savepack: step 62: Storing File: res://.godot/exported/133200997/export-5cf8a2730f692e76dd91acc5552e7702-HomeScene.scn
 	savepack: step 63: Storing File: res://src/scenes/IntroScene.gdc
 	savepack: step 63: Storing File: res://.godot/exported/133200997/export-a430b14a3fdab8f49ef6c2e1a8465ce7-IntroScene.scn
 	savepack: step 64: Storing File: res://src/scenes/JobScene.gdc
 	savepack: step 64: Storing File: res://.godot/exported/133200997/export-9275fc9a59d3ef98689bf544257ae4f5-JobScene.scn
-	savepack: step 65: Storing File: res://src/scenes/KitPicker.gdc
+	savepack: step 64: Storing File: res://src/scenes/KitPicker.gdc
 	savepack: step 65: Storing File: res://.godot/exported/133200997/export-575fb0231c15d33a26959f08cdeb0975-KitPicker.scn
-	savepack: step 66: Storing File: res://src/scenes/LobbyScene.gdc
+	savepack: step 65: Storing File: res://src/scenes/LobbyScene.gdc
 	savepack: step 66: Storing File: res://.godot/exported/133200997/export-e0a69c1e0f2040ee3afd2516052f1bc6-LobbyScene.scn
 	savepack: step 66: Storing File: res://src/scenes/MainMenu.gdc
 	savepack: step 67: Storing File: res://.godot/exported/133200997/export-1a14cc83038d4947a0bad8256bece901-MainMenu.scn
 	savepack: step 67: Storing File: res://src/scenes/PetShop.gdc
-	savepack: step 68: Storing File: res://.godot/exported/133200997/export-3c9bbe4240b4105d05a09877bc02e16c-PetShop.scn
+	savepack: step 67: Storing File: res://.godot/exported/133200997/export-3c9bbe4240b4105d05a09877bc02e16c-PetShop.scn
 	savepack: step 68: Storing File: res://src/scenes/PhysioShop.gdc
 	savepack: step 68: Storing File: res://.godot/exported/133200997/export-ace65079feeba203bfafae33eeb2924e-PhysioShop.scn
 	savepack: step 69: Storing File: res://src/scenes/SettingsScene.gdc
 	savepack: step 69: Storing File: res://.godot/exported/133200997/export-d030218f086031255035486278135b2e-SettingsScene.scn
-	savepack: step 70: Storing File: res://src/scenes/ShopScene.gdc
+	savepack: step 69: Storing File: res://src/scenes/ShopScene.gdc
 	savepack: step 70: Storing File: res://.godot/exported/133200997/export-b11e9c243cff1702a81b68a02c19fb0b-ShopScene.scn
-	savepack: step 71: Storing File: res://src/scenes/SoloCourt.gdc
+	savepack: step 70: Storing File: res://src/scenes/SoloCourt.gdc
 	savepack: step 71: Storing File: res://.godot/exported/133200997/export-b2a88f9e2924983d5ae3f8d5fe5ee4a9-SoloCourt.scn
 	savepack: step 71: Storing File: res://src/scenes/TeamCourt.gdc
 	savepack: step 72: Storing File: res://.godot/exported/133200997/export-7833991f268a239e28c28917912fc2c8-TeamCourt.scn
 	savepack: step 72: Storing File: res://src/ui/Art.gdc
-	savepack: step 73: Storing File: res://src/ui/Avatar.gdc
+	savepack: step 72: Storing File: res://src/ui/Avatar.gdc
 	savepack: step 73: Storing File: res://.godot/exported/133200997/export-e3ec5fe9ce0e4594e564b166003616b8-HoopTheme.res
 	savepack: step 73: Storing File: res://src/ui/Hotspot.gdc
 	savepack: step 74: Storing File: res://src/ui/ItemIcon.gdc
 	savepack: step 74: Storing File: res://src/ui/KitPreview.gdc
-	savepack: step 75: Storing File: res://src/ui/News.gdc
+	savepack: step 74: Storing File: res://src/ui/News.gdc
 	savepack: step 75: Storing File: res://src/ui/Panel.gdc
-	savepack: step 76: Storing File: res://src/ui/PhoneUI.gdc
+	savepack: step 75: Storing File: res://src/ui/PhoneUI.gdc
 	savepack: step 76: Storing File: res://.godot/exported/133200997/export-8178a28ad4c43845ebbe67402eafbed7-PhoneUI.scn
 	savepack: step 76: Storing File: res://src/ui/PlayerPreview.gdc
 	savepack: step 77: Storing File: res://src/ui/PosterArt.gdc
 	savepack: step 77: Storing File: res://src/ui/PosterThumb.gdc
-	savepack: step 78: Storing File: res://src/ui/PostGame.gdc
+	savepack: step 77: Storing File: res://src/ui/PostGame.gdc
 	savepack: step 78: Storing File: res://.godot/exported/133200997/export-f2bafccb3d191c68c3ad99a55b39ebaf-PostGame.scn
 	savepack: step 78: Storing File: res://src/ui/ShotMeter.gdc
+	savepack: step 79: Storing File: res://src/ui/Spooky.gdc
 	savepack: step 79: Storing File: res://src/ui/StatusBar.gdc
 	savepack: step 79: Storing File: res://.godot/exported/133200997/export-e6dc955d8d0ac272ca01a049ee7a1c66-StatusBar.scn
 	savepack: step 80: Storing File: res://src/ui/TouchButton.gdc
 	savepack: step 80: Storing File: res://src/ui/TrophyIcon.gdc
 	savepack: step 81: Storing File: res://src/ui/UIKit.gdc
 	savepack: step 81: Storing File: res://src/ui/VirtualJoystick.gdc
-	savepack: step 81: Storing File: res://src/ui/WeatherArt.gdc
+	savepack: step 82: Storing File: res://src/ui/WeatherArt.gdc
 	savepack: step 82: Storing File: res://tools/ChatProbe.gdc
 	savepack: step 82: Storing File: res://.godot/exported/133200997/export-444835c172ea660b9d69054cae0a9e4e-ChatProbe.scn
 	savepack: step 83: Storing File: res://tools/ChatShot.gdc
@@ -315,7 +316,7 @@ savepack: begin: Packing steps: 102
 	savepack: step 85: Storing File: res://tools/IntroProbe.gdc
 	savepack: step 86: Storing File: res://.godot/exported/133200997/export-120bdc3185355da381d023d0c6256180-IntroProbe.scn
 	savepack: step 86: Storing File: res://tools/MenuProbe.gdc
-	savepack: step 86: Storing File: res://.godot/exported/133200997/export-7b96c7d658d583c91405f4cfb7c11277-MenuProbe.scn
+	savepack: step 87: Storing File: res://.godot/exported/133200997/export-7b96c7d658d583c91405f4cfb7c11277-MenuProbe.scn
 	savepack: step 87: Storing File: res://tools/ParityProbe.gdc
 	savepack: step 87: Storing File: res://.godot/exported/133200997/export-450e64c52e3be1d13b5984b94cb6111f-ParityProbe.scn
 	savepack: step 88: Storing File: res://tools/PhoneProbe.gdc
@@ -327,7 +328,7 @@ savepack: begin: Packing steps: 102
 	savepack: step 90: Storing File: res://tools/SceneSmoke.gdc
 	savepack: step 91: Storing File: res://.godot/exported/133200997/export-b3e5111d79cb735988bcd765fc361fb2-SceneSmoke.scn
 	savepack: step 91: Storing File: res://tools/SimRunner.gdc
-	savepack: step 91: Storing File: res://.godot/exported/133200997/export-18fcdc9875c9b212acca70a6f36a1c77-SimRunner.scn
+	savepack: step 92: Storing File: res://.godot/exported/133200997/export-18fcdc9875c9b212acca70a6f36a1c77-SimRunner.scn
 	savepack: step 92: Storing File: res://tools/SoloPostProbe.gdc
 	savepack: step 92: Storing File: res://.godot/exported/133200997/export-f0fab0b347aafac9f0e80a57d29570b5-SoloPostProbe.scn
 	savepack: step 93: Storing File: res://tools/V215Probe.gdc
@@ -339,7 +340,7 @@ savepack: begin: Packing steps: 102
 	savepack: step 95: Storing File: res://tools/V220Probe.gdc
 	savepack: step 96: Storing File: res://.godot/exported/133200997/export-848ea2f5f017f3d80582487561781fc7-V220Probe.scn
 	savepack: step 96: Storing File: res://tools/V221Probe.gdc
-	savepack: step 96: Storing File: res://.godot/exported/133200997/export-6bf5b595812b1f31121fa48494652877-V221Probe.scn
+	savepack: step 97: Storing File: res://.godot/exported/133200997/export-6bf5b595812b1f31121fa48494652877-V221Probe.scn
 	savepack: step 97: Storing File: res://tools/V222Probe.gdc
 	savepack: step 97: Storing File: res://.godot/exported/133200997/export-a8edbedc6c64c398ca25a65d48820ef6-V222Probe.scn
 	savepack: step 98: Storing File: res://tools/V223Probe.gdc
@@ -452,6 +453,7 @@ savepack: begin: Packing steps: 102
 	savepack: step 101: Storing File: res://src/ui/PostGame.gd.remap
 	savepack: step 101: Storing File: res://src/ui/PostGame.tscn.remap
 	savepack: step 101: Storing File: res://src/ui/ShotMeter.gd.remap
+	savepack: step 101: Storing File: res://src/ui/Spooky.gd.remap
 	savepack: step 101: Storing File: res://src/ui/StatusBar.gd.remap
 	savepack: step 101: Storing File: res://src/ui/StatusBar.tscn.remap
 	savepack: step 101: Storing File: res://src/ui/TouchButton.gd.remap
@@ -509,14 +511,14 @@ savepack: begin: Packing steps: 102
 	savepack: step 101: Storing File: res://project.binary
 savepack: end
 === OUT ===
-total 52372
-drwxr-xr-x  2 runner runner      200 Oct 21 11:26 .
-drwxrwxrwt 14 root   root        520 Oct 21 11:26 ..
--rw-rw-rw-  1 runner runner    24139 Oct 21 11:26 index.apple-touch-icon.png
--rw-rw-rw-  1 runner runner     7298 Oct 21 11:26 index.audio.worklet.js
--rw-rw-rw-  1 runner runner     4850 Oct 21 11:26 index.html
--rw-rw-rw-  1 runner runner    44517 Oct 21 11:26 index.icon.png
--rw-rw-rw-  1 runner runner   331495 Oct 21 11:26 index.js
--rw-rw-rw-  1 runner runner 17809056 Oct 21 11:26 index.pck
--rw-rw-rw-  1 runner runner    21443 Oct 21 11:26 index.png
--rw-rw-rw-  1 runner runner 35376909 Oct 21 11:26 index.wasm
+total 52408
+drwxr-xr-x  2 runner runner     4096 Oct 29 19:55 .
+drwxrwxrwt 24 root   root       4096 Oct 29 19:55 ..
+-rw-rw-rw-  1 runner runner    24139 Oct 29 19:55 index.apple-touch-icon.png
+-rw-rw-rw-  1 runner runner     7298 Oct 29 19:55 index.audio.worklet.js
+-rw-rw-rw-  1 runner runner     4850 Oct 29 19:55 index.html
+-rw-rw-rw-  1 runner runner    44517 Oct 29 19:55 index.icon.png
+-rw-rw-rw-  1 runner runner   331495 Oct 29 19:55 index.js
+-rw-rw-rw-  1 runner runner 17835168 Oct 29 19:55 index.pck
+-rw-rw-rw-  1 runner runner    21443 Oct 29 19:55 index.png
+-rw-rw-rw-  1 runner runner 35376909 Oct 29 19:55 index.wasm

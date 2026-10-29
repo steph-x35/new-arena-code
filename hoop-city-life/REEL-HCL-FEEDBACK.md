@@ -19,23 +19,18 @@ un segnale di sviluppo vero: quello che prende più voti lo costruisci.
 
 ---
 
-## Le due opzioni
+## Le due opzioni (verificate nel codice, si fanno in mezz'ora)
 
-**Le scegli tu**, tra quelle che sei davvero disposto a costruire. Non promettere
-niente che non fai: una promessa non mantenuta al video dopo è peggio di nessuna
-promessa (regola già scritta nel piano, dopo il caso «il prossimo sono le ferie»).
+Niente grafica nuova, niente campo nuovo: tutte e due partono da roba che nel
+gioco **c'è già** e si cambiano con poche righe. Ecco cosa riceve chi vota.
 
-Quattro candidate, tutte coerenti con quello che c'è già:
+| # | Opzione | Cos'è davvero | Cosa tocco |
+|---|---|---|---|
+| 1 | **SFIDA 60″ DA DOVE VUOI** | la SFIDA METÀ CAMPO di oggi ti teletrasporta sempre oltre metà campo: un tiro lungo, difficile. Con questa si parte **da dove sei** — sotto canestro o dai 9 metri, decidi tu | `_hc_teleport()`: non sposta più il giocatore |
+| 2 | **RECORD IN HOME** | il record della sfida (quanti GREEN in 60″) oggi si vede solo a fine partita. Con questa sta **nella schermata principale**, sempre in vista | due righe nel menu che leggono `hc_best` |
 
-| # | Opzione | Perché funziona |
-|---|---|---|
-| A | **Sfida a tempo**: 60 secondi, quanti canestri fai | c'è già la SFIDA METÀ CAMPO, si estende — zero rischio |
-| B | **Un campo nuovo** (parquet / playground di notte) | si vede in un fotogramma, è la più «estetica» da votare |
-| C | **Le divise** / personalizzazione del giocatore | piace a chi gioca da tempo, ma non si vede in 2 secondi |
-| D | **Il tiro da metà campo in allenamento libero** | piccolo, chiaro, verificabile |
-
-Consiglio: **A contro B**. Sono le due che si capiscono senza spiegazioni, e la
-differenza tra «gioco» e «grafica» è la scelta vera che deve fare chi sviluppa.
+Sono le due scelte che si capiscono senza spiegazioni: **1 è più gioco**, **2 è
+più vetrina**. Chi vota guarda il video e sa già cosa sta scegliendo.
 
 ---
 
@@ -46,8 +41,8 @@ differenza tra «gioco» e «grafica» è la scelta vera che deve fare chi svilu
 | 1 | 0-1,5 s | un GREEN vero, con lo swish — **niente intro, niente logo** | **COSA AGGIUNGO?** |
 | 2 | 1,5-6 s | 2-3 canestri di fila, tagli sul rilascio | — |
 | 3 | 6-11 s | la schiacciata / l'appeso al ferro (la scena che è piaciuta) | **PROSSIMA VERSIONE:** |
-| 4 | 11-15 s | card 1: **1 · SFIDA A TEMPO** | **1** |
-| 5 | 15-19 s | card 2: **2 · CAMPO NUOVO** | **2** |
+| 4 | 11-15 s | card 1: **1 · SFIDA 60″ DA DOVE VUOI** | **1** |
+| 5 | 15-19 s | card 2: **2 · IL TUO RECORD IN HOME** | **2** |
 | 6 | 19-22 s | ritorno identico al primo fotogramma (loop) | **SCRIVI 1 O 2 👇** |
 
 Le due card devono stare **almeno 4 secondi ciascuna**: sotto, non si fa in tempo
@@ -68,11 +63,11 @@ prima di qualsiasi parola. Musica solo dopo, al 15%.
 
 ## Caption
 
-Basket su Android, gratis. Nella prossima versione ci va una delle due: **1** sfida a tempo, **2** campo nuovo. Vota 👇 #basket #streetball #gamingitalia #gamedev
+Basket su Android, gratis. Nella prossima versione ci va una delle due: **1** sfida da 60 secondi che parte da dove vuoi, **2** il tuo record in home. Vota 👇 #basket #streetball #gamingitalia #gamedev
 
 ## Commento fissato
 
-Voto aperto fino a domenica: quello che prende più voti lo costruisco e lo mostro qui 👇 Il gioco è gratis, solo Android, link in bio (se chiede «origini sconosciute» è normale, è un APK).
+Voto aperto fino a domenica: quello che prende più voti lo costruisco e lo mostro qui 👇 Il gioco è gratis, solo Android: chiedimi il link e te lo mando (se dice «origini sconosciute» è normale, è un APK).
 
 ---
 
@@ -81,7 +76,7 @@ Voto aperto fino a domenica: quello che prende più voti lo costruisco e lo most
 | Commento | Risposta |
 |---|---|
 | «1» / «2» | «Segnato 👍» e basta. **Non** aggiungere altro: la brevità invita gli altri a votare |
-| «che gioco è?» | «Basket su Android, gratis. Link in bio» |
+| «che gioco è?» | «Basket su Android, gratis. Te lo mando, chiedimelo» |
 | «su iPhone?» | «Per ora solo Android, sto lavorando» — mai «arriva presto» |
 | «fa schifo la grafica» | «Cosa cambieresti per primo?» — trasforma l'insulto in un voto |
 | hater puro | niente risposta: like agli altri commenti e avanti |
