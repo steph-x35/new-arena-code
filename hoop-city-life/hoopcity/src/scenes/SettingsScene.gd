@@ -26,6 +26,28 @@ func _ready() -> void:
 
 	_lang_row(v)
 
+	# HALLOWEEN: zucche e pipistrelli. Di serie decide il calendario del
+	# telefono; questo interruttore scrive una scelta fissa (e la toglie).
+	_section(v, "HALLOWEEN")
+	var hbtn := Button.new()
+	hbtn.custom_minimum_size = Vector2(620, 62)
+	hbtn.add_theme_font_size_override("font_size", 22)
+	var paint_h := func():
+		hbtn.text = "%s    [%s]" % [Loc.t("spooky.title"),
+			"ON" if Spooky.active() else "OFF"]
+	paint_h.call()
+	hbtn.pressed.connect(func():
+		Settings.set_v("halloween", not Spooky.active())
+		Spooky.refresh()          # la cache di Spooky e' per frame
+		paint_h.call())
+	v.add_child(hbtn)
+	var hhint := Label.new()
+	hhint.text = Loc.t("spooky.hint")
+	hhint.add_theme_font_size_override("font_size", 16)
+	hhint.modulate = Color(1, 1, 1, 0.5)
+	hhint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	v.add_child(hhint)
+
 	# CAMPO: il colore del parquet indoor. Quattro scelte, un tasto che gira.
 	_section(v, Loc.t("floor.title"))
 	var flbl := Label.new()

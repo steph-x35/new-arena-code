@@ -49,6 +49,9 @@ var marquee_t := 0.0
 var _ad_i := 0
 var _ad_t := 7.0
 var floor_tint := Color(0.0, 0.0, 0.0, 0.0)
+## HALLOWEEN (v2.49.3): i fari del parco si scaldano verso l'arancio. Lo
+## accende SOLO il campetto (SoloCourt): il 1v1 resta con la sua luce.
+var spooky_floods := false
 
 func jumbo_say(txt: String, secs := 3.2) -> void:
 	marquee = txt
@@ -914,6 +917,9 @@ func _draw_street_floods() -> void:
 	var night: float = CourtStage.night_amount()
 	if night < 0.08:
 		return
+	# zucca-friendly: la luce dei fari vira al caldo d'arancio a fine ottobre
+	var warm: Color = Color(1.0, 0.72, 0.38) if spooky_floods else Color(1.0, 0.95, 0.72)
+	var pool: Color = Color(1.0, 0.62, 0.26) if spooky_floods else Color(1.0, 0.90, 0.55)
 	var poles := [
 		Vector2(-W * 0.42, -H * 0.48), Vector2(W * 0.42, -H * 0.48),
 		Vector2(-W * 0.18, H * 0.48), Vector2(W * 0.18, H * 0.48),
@@ -922,13 +928,13 @@ func _draw_street_floods() -> void:
 		var s: Vector2 = CourtStage.m_project(p, H)
 		_c().draw_line(s, s + Vector2(0, -210), Color(0.28, 0.28, 0.30), 7.0)
 		_c().draw_line(s + Vector2(0, -210), s + Vector2(36, -200), Color(0.28, 0.28, 0.30), 5.0)
-		_c().draw_circle(s + Vector2(36, -196), 12.0, Color(1.0, 0.95, 0.72, 0.95 * night))
+		_c().draw_circle(s + Vector2(36, -196), 12.0, Color(warm.r, warm.g, warm.b, 0.95 * night))
 		# v2.49.1: 7 aloni per palo erano 28 cerchi grandi semitrasparenti
 		# (fino a 368 px) ridisegnati ogni frame. Tre bastano allo stesso
 		# effetto: si erano aggiunti col campetto di notte e pesavano.
 		for k in 3:
 			_c().draw_circle(s + Vector2(10, 20), 90.0 + k * 120.0,
-				Color(1.0, 0.90, 0.55, 0.075 * night))
+				Color(pool.r, pool.g, pool.b, 0.075 * night))
 
 
 

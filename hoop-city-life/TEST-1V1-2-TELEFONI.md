@@ -1,6 +1,6 @@
-# COLLAUDO 1V1 — due telefoni (v2.49.2)
+# COLLAUDO 1V1 — due telefoni (v2.49.3)
 
-**APK:** https://github.com/steph-x35/new-arena-code/releases/download/v2.49.2/HoopCity-v2.49.2.apk
+**APK:** https://github.com/steph-x35/new-arena-code/releases/download/v2.49.3/HoopCity-v2.49.3.apk
 Stessa rete (WiFi di casa **o** hotspot di uno dei due). Porta 7777, scoperta UDP 47899.
 
 Installazione: se Android dice «origini sconosciute», è normale — è un APK, non Play Store.
@@ -48,6 +48,19 @@ Se l'anello non compare: Impostazioni → **grafica bassa** lo spegne apposta (p
 | 13 | in difesa premi **SALTA** (o fai saltare l'altro: basta che uno salti) | l'ombra resta **a terra** sotto i piedi e si **rimpicciolisce** salendo, poi torna grande. Il salto **non** ti fa arretrare di un metro. |
 | 14 | in difesa tieni **DIFENDI** e l'altro si muove | il difensore ha **le braccia aperte e le gambe piegate**, e mentre si sposta **muove le gambe** (passo strisciato): non scivola più fermo. |
 | 15 | Impostazioni → **CAMPO** → Cambia colore | parquet **classico → nero → blu notte → rovere scuro**. Vale dalla partita successiva (non dal campetto: quello è asfalto). |
+
+---
+
+## Halloween (v2.49.3) — un minuto, anche da soli
+
+| # | Cosa fai | Cosa DEVE succedere |
+|---|---|---|
+| 16 | apri la **città** di sera | sui marciapiedi, davanti alle vetrine, ci sono **zucche intagliate** di misure diverse; sui negozi alterni una **ragnatela** appesa alla tenda; **pipistrelli** che sbattono le ali sopra i tetti (non devono scattare: volano piano). |
+| 17 | entra nel **campetto del parco** (SFIDA o allenamento) | zucche **ai piedi delle panchine** e ai lati del prato, ragnatela sullo schienale, 3 pipistrelli sopra il muro. Se giochi di sera i **fari sono arancio caldo** e le zucche hanno **la faccia accesa**. |
+| 18 | Impostazioni → **HALLOWEEN** → tocca [ON] | diventa **[OFF]** e tornando in città/campetto le decorazioni **spariscono**; riaccendendolo **tornano**. (Da solo si accende dal 18/10 al 5/11.) |
+| 19 | apri il gioco dopo l'aggiornamento | pannello **NOVITÀ** con 8 voci corte, Halloween in cima. |
+
+Se i pipistrelli non si vedono: dimmi **dove** guardavi (città o campetto) e se eri in **verticale o orizzontale** — le quote sono calcolate sulla camera.
 
 ---
 

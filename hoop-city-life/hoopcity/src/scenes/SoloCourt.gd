@@ -159,6 +159,9 @@ func _ready() -> void:
 	else:
 		Sfx.play_music("music_rhythm")
 	court_art.modulate = Color.WHITE
+	# HALLOWEEN (v2.49.3): se e' periodo, i fari del parco si scaldano verso
+	# l'arancio e compaiono zucche e pipistrelli (piu' sotto, in _draw_park).
+	court_art.set("spooky_floods", outdoor and Spooky.active())
 	if court_art.has_method("apply_env"):
 		court_art.apply_env("street" if outdoor else "arena")
 	else:
@@ -1499,6 +1502,12 @@ func _draw_park() -> void:
 			draw_line(Vector2(bx2 + float(b) * 2.6 - 2.6, by2),
 				Vector2(bx2 + float(b) * 2.6 - 2.6 + lean2 + sway, by2 - hgt + float(b)),
 				col2, 1.4)
+	# HALLOWEEN: zucche ai piedi delle panchine e dei cestini, ragnatela sullo
+	# schienale, pipistrelli sopra il muro. Poche, ai bordi del campo: il
+	# campo resta campo.
+	if Spooky.active():
+		_draw_spooky_park(tt, g_top, g_bot)
+
 	# DUE panchine distanziate, DAVANTI a chi guarda (sempre in campo visivo
 	# quando la camera e' ferma: x -330 / +330, vista +/-615)
 	for bx in [-330.0, 330.0]:
@@ -1529,6 +1538,36 @@ func _draw_park() -> void:
 		draw_rect(Rect2(tx - 24.0, ty - 58.0, 48.0, 10.0), Color(0.13, 0.26, 0.19))
 		draw_circle(Vector2(tx + 6.0, ty - 60.0), 7.0, Color(0.65, 0.62, 0.55))
 		draw_circle(Vector2(tx - 8.0, ty - 62.0), 5.0, Color(0.72, 0.70, 0.62))
+
+## HALLOWEEN AL CAMPETTO. `tt` e' il tempo per le ali, la fascia e' quella
+## d'erba fra il bordo campo e il fondo schermo.
+func _draw_spooky_park(tt: float, g_top: float, g_bot: float) -> void:
+	var glow: float = clampf(CourtStage.night_amount() * 1.2, 0.0, 1.0)
+	var lit: bool = glow > 0.28
+	# le notti di fine ottobre sono lunghe: se il gioco dice "giorno" le
+	# zucche restano spente, ma sono li'.
+	var y: float = g_top + 96.0
+	# gruppo di zucche accanto a ogni panchina, e due vicino ai cestini
+	for bx in [-424.0, -236.0, 424.0, 236.0]:
+		Spooky.draw_pumpkin(self, Vector2(bx, y), 15.0, lit, glow)
+		Spooky.draw_pumpkin(self, Vector2(bx + (26.0 if bx < 0.0 else -26.0), y + 4.0),
+			10.0, lit, glow)
+	# due zucche grosse ai lati, sul prato davanti al campo: al centro
+	# finirebbero sotto i piedi di chi gioca
+	Spooky.draw_pumpkin(self, Vector2(-528.0, g_bot - 18.0), 19.0, lit, glow)
+	Spooky.draw_pumpkin(self, Vector2(512.0, g_bot - 12.0), 13.0, lit, glow)
+	# ragnatela sullo spigolo alto dello schienale delle due panchine
+	for bx2 in [-330.0, 330.0]:
+		Spooky.draw_cobweb(self, Vector2(bx2 + 66.0, 240.0), 40.0, -1.0, 1.0, 0.24)
+	# PIPISTRELLI: sopra il muro, cioe' nel cielo (lo schermo sopra y -370)
+	# y: la camera del campetto sta a -40 con zoom 1.04, quindi si vede fino
+	# a y ~ -386 -- la fascia di cielo e' -386..-260. A -430 i pipistrelli
+	# volavano fuori dallo schermo: qui stanno tutti dentro.
+	for i in 3:
+		var bx3: float = fmod(tt * (34.0 + float(i) * 9.0) + float(i) * 420.0, 1240.0) - 620.0
+		var by3: float = -302.0 - float(i) * 26.0 + sin(tt * 0.8 + float(i) * 2.0) * 12.0
+		Spooky.draw_bat(self, Vector2(bx3, by3), 20.0 - float(i) * 3.0, tt + float(i) * 1.9)
+
 
 func _draw_npcs() -> void:
 	for n in npcs:
