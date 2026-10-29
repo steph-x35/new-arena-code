@@ -8,19 +8,23 @@ web_nothreads_debug.zip
 web_nothreads_release.zip
 web_release.zip
 total 72960
-drwxr-xr-x 2 runner runner     4096 Oct 29 16:21 .
-drwxr-xr-x 3 runner runner     4096 Oct 29 16:20 ..
--rw-r--r-- 1 runner runner  8972312 Oct 29 16:21 web_debug.zip
--rw-r--r-- 1 runner runner 10450872 Oct 29 16:21 web_dlink_debug.zip
--rw-r--r-- 1 runner runner 10596848 Oct 29 16:21 web_dlink_nothreads_debug.zip
--rw-r--r-- 1 runner runner  9681918 Oct 29 16:21 web_dlink_nothreads_release.zip
--rw-r--r-- 1 runner runner  9613206 Oct 29 16:21 web_dlink_release.zip
--rw-r--r-- 1 runner runner  9082643 Oct 29 16:21 web_nothreads_debug.zip
--rw-r--r-- 1 runner runner  8168102 Oct 29 16:21 web_nothreads_release.zip
--rw-r--r-- 1 runner runner  8120251 Oct 29 16:21 web_release.zip
+drwxr-xr-x 2 runner runner     4096 Oct 29 17:24 .
+drwxr-xr-x 3 runner runner     4096 Oct 29 17:24 ..
+-rw-r--r-- 1 runner runner  8972312 Oct 29 17:24 web_debug.zip
+-rw-r--r-- 1 runner runner 10450872 Oct 29 17:24 web_dlink_debug.zip
+-rw-r--r-- 1 runner runner 10596848 Oct 29 17:24 web_dlink_nothreads_debug.zip
+-rw-r--r-- 1 runner runner  9681918 Oct 29 17:24 web_dlink_nothreads_release.zip
+-rw-r--r-- 1 runner runner  9613206 Oct 29 17:24 web_dlink_release.zip
+-rw-r--r-- 1 runner runner  9082643 Oct 29 17:24 web_nothreads_debug.zip
+-rw-r--r-- 1 runner runner  8168102 Oct 29 17:24 web_nothreads_release.zip
+-rw-r--r-- 1 runner runner  8120251 Oct 29 17:24 web_release.zip
 === IMPORT ===
 Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Expected end of statement after return statement, found "Identifier" instead.
+          at: GDScript::reload (res://src/scenes/DuelScene.gd:2044)
+ERROR: Failed to load script "res://src/scenes/DuelScene.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2936)
 === EXPORT ===
 Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
 
@@ -252,6 +256,10 @@ savepack: begin: Packing steps: 102
 	savepack: step 59: Storing File: res://src/scenes/DrillScene.gdc
 	savepack: step 59: Storing File: res://.godot/exported/133200997/export-e135b7311d038b9c04447039fd18a23a-DrillScene.scn
 	savepack: step 60: Storing File: res://src/scenes/DuelScene.gdc
+SCRIPT ERROR: Parse Error: Expected end of statement after return statement, found "Identifier" instead.
+          at: GDScript::reload (res://src/scenes/DuelScene.gd:2044)
+ERROR: Failed to load script "res://src/scenes/DuelScene.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2936)
 	savepack: step 60: Storing File: res://.godot/exported/133200997/export-a242a0d42e6d7cf50c643c0f241544e6-DuelScene.scn
 	savepack: step 60: Storing File: res://src/scenes/FurnitureShop.gdc
 	savepack: step 61: Storing File: res://.godot/exported/133200997/export-8004708444600264b7459325d7aacb2e-FurnitureShop.scn
@@ -509,14 +517,14 @@ savepack: begin: Packing steps: 102
 	savepack: step 101: Storing File: res://project.binary
 savepack: end
 === OUT ===
-total 52392
-drwxr-xr-x  2 runner runner     4096 Oct 29 16:21 .
-drwxrwxrwt 24 root   root       4096 Oct 29 16:21 ..
--rw-rw-rw-  1 runner runner    24139 Oct 29 16:21 index.apple-touch-icon.png
--rw-rw-rw-  1 runner runner     7298 Oct 29 16:21 index.audio.worklet.js
--rw-rw-rw-  1 runner runner     4850 Oct 29 16:21 index.html
--rw-rw-rw-  1 runner runner    44517 Oct 29 16:21 index.icon.png
--rw-rw-rw-  1 runner runner   331495 Oct 29 16:21 index.js
--rw-rw-rw-  1 runner runner 17820640 Oct 29 16:21 index.pck
--rw-rw-rw-  1 runner runner    21443 Oct 29 16:21 index.png
--rw-rw-rw-  1 runner runner 35376909 Oct 29 16:21 index.wasm
+total 52396
+drwxr-xr-x  2 runner runner     4096 Oct 29 17:24 .
+drwxrwxrwt 24 root   root       4096 Oct 29 17:24 ..
+-rw-rw-rw-  1 runner runner    24139 Oct 29 17:24 index.apple-touch-icon.png
+-rw-rw-rw-  1 runner runner     7298 Oct 29 17:24 index.audio.worklet.js
+-rw-rw-rw-  1 runner runner     4850 Oct 29 17:24 index.html
+-rw-rw-rw-  1 runner runner    44517 Oct 29 17:24 index.icon.png
+-rw-rw-rw-  1 runner runner   331495 Oct 29 17:24 index.js
+-rw-rw-rw-  1 runner runner 17822944 Oct 29 17:24 index.pck
+-rw-rw-rw-  1 runner runner    21443 Oct 29 17:24 index.png
+-rw-rw-rw-  1 runner runner 35376909 Oct 29 17:24 index.wasm
