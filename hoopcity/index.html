@@ -421,7 +421,9 @@
     /* il cartellino di stagione, sotto "Gratis · Android" */
     .hw-chip { display: none; }
     html.hw .hw-chip {
-      display: inline-flex; align-items: center; gap: 8px;
+      /* block-level con larghezza del contenuto: va a capo sotto il badge
+         e resta centrato, invece di finire di fianco a "Gratis · Android" */
+      display: flex; width: fit-content; align-items: center; gap: 8px;
       margin: 0 auto 18px; padding: 7px 14px 7px 11px;
       border: 1px solid rgba(139,92,246,.45); border-radius: 999px;
       background: rgba(139,92,246,.10); color: #d9c8ff;
