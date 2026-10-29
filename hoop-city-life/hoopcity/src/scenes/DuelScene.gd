@@ -2039,11 +2039,11 @@ func _duel_foe_scored() -> void:
 
 func _after_basket(i_off: bool) -> void:
 	## OFFLINE: canestro = palla morta e si torna al CHECK, tutti fermi nella
-	## formazione.
-	if duel_phase == "over":
-		return Online pero' la palla e' ancora in volo quando arriva il
+	## formazione. Online pero' la palla e' ancora in volo quando arriva il
 	## verdetto: la si lascia cadere nella rete (0,7 s) e POI si riparte,
 	## altrimenti spariva a meta' parabola.
+	if duel_phase == "over":
+		return
 	duel_phase = "reset"
 	_check_t = 0.9
 	_check_me = i_off
