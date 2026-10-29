@@ -1,6 +1,6 @@
-# COLLAUDO 1V1 — due telefoni (v2.48.2)
+# COLLAUDO 1V1 — due telefoni (v2.49.0)
 
-**APK:** https://github.com/steph-x35/new-arena-code/releases/download/v2.48.2/HoopCity-v2.48.2.apk
+**APK:** https://github.com/steph-x35/new-arena-code/releases/download/v2.49.0/HoopCity-v2.49.0.apk
 Stessa rete (WiFi di casa **o** hotspot di uno dei due). Porta 7777, scoperta UDP 47899.
 
 Installazione: se Android dice «origini sconosciute», è normale — è un APK, non Play Store.
@@ -25,6 +25,19 @@ formazione, fermi, e si riparte col CHECK. Se invece corri o tiri durante il
 check, quello è il bug da segnarmi.
 
 Poi: **FINE PARTITA** → tutti e due tornano ai tiri liberi, senza uscire dal campo.
+
+---
+
+## Le quattro cose nuove (v2.49.0) — 2 minuti
+
+| # | Cosa fai | Cosa DEVE succedere |
+|---|---|---|
+| 9 | carichi un tiro | sotto i piedi **12 trattini**: **verdi** se sei libero, gialli se hai una mano addosso, **rossi** (e pulsano) se sei coperto. Anche al campetto e nel 5v5 offline. |
+| 10 | sfondi verso il ferro con la corsia libera (SALTA quando sei già sotto) | l'anello diventa un **cronometro**: una pallina corre **e il tratto verde** è la finestra. **TIRA** col pallino nel verde → «PERFECT!»; troppo presto/tardi → la schiacciata è normale e chi salta addosso te la può **stoppare**. |
+| 11 | difendi e fai **3 difese buone di fila** (rubata, stoppata, o tiro sbagliato mentre gli stai addosso) | «LOCKDOWN!» + **anello azzurro** che gira: la rubata passa da 30% a 45% e il tuo contest pesa di più. Si spegne appena prendi canestro. |
+| 12 | in attacco: **FINTA** (o passo indietro/spin) mentre l'altro sta **correndo** | lui inciampa e resta fermo ~mezzo secondo («CAVIGLIE!» da te, «TI HA SEDUTO» da lui). Se sta fermo davanti a te non succede quasi mai. |
+
+Se l'anello non compare: Impostazioni → **grafica bassa** lo spegne apposta (per il telefono lento). Tienila alta per questa prova.
 
 ---
 
