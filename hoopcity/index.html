@@ -486,6 +486,19 @@
       .btn::after { display: none; }
     }
   </style>
+  <!-- HALLOWEEN: dal 18 ottobre al 5 novembre la pagina si veste da sola,
+       data del dispositivo come nel gioco. Prima del paint, cosi' non
+       lampeggia: negli altri giorni non si accende niente (html.hw). -->
+  <script>
+    (function () {
+      var d = new Date();
+      var m = d.getMonth() + 1;      /* 1..12 */
+      var day = d.getDate();
+      if ((m === 10 && day >= 18) || (m === 11 && day <= 5)) {
+        document.documentElement.classList.add('hw');
+      }
+    })();
+  </script>
 </head>
 <body>
 
@@ -812,19 +825,6 @@
   </footer>
 
   <script>
-    // ================================================================
-    // HALLOWEEN: dal 18 ottobre al 5 novembre la pagina si veste da sola.
-    // Data del dispositivo, come nel gioco. Negli altri giorni non si
-    // accende niente: tutte le regole sotto html.hw.
-    // ================================================================
-    (function () {
-      var d = new Date();
-      var m = d.getMonth() + 1;      // 1..12
-      var day = d.getDate();
-      var hw = (m === 10 && day >= 18) || (m === 11 && day <= 5);
-      if (hw) document.documentElement.classList.add('hw');
-    })();
-
     // ================================================================
     // LA PAGINA SI AGGIORNA DA SOLA: legge le release di Hoop City dal
     // repository GitHub e sceglie quella con il NUMERO DI VERSIONE PIU'
