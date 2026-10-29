@@ -664,6 +664,75 @@ static func _ellipse(c: Vector2, r: Vector2) -> PackedVector2Array:
 	return p
 
 
+## ------------------------------------------------------------ foot rings
+## L'anello sotto i piedi, come l'indicatore di NBA 2K: verde = libero,
+## giallo = una mano in faccia, rosso = coperto. Dodici trattini su
+## un'ellisse schiacciata come il campo, cosi' sta a terra e non a mezz'aria.
+## Minimale apposta: niente numeri, niente scritte — si legge di lato.
+static func _ell_arc(center: Vector2, rx: float, ry: float,
+		a0: float, a1: float, n := 12) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	for i in n + 1:
+		var a: float = lerpf(a0, a1, float(i) / float(n))
+		pts.append(center + Vector2(cos(a) * rx, sin(a) * ry))
+	return pts
+
+static func draw_contest_ring(c: CanvasItem, feet: Vector2, h: float,
+		contest: float, t := 0.0) -> void:
+	var k: float = clampf(contest, 0.0, 1.0)
+	var rx: float = maxf(h * 0.34, 15.0) * (1.0 + 0.10 * k)
+	var ry: float = rx * 0.36
+	var col := Color(0.30, 0.95, 0.45)          # libero
+	if k > 0.72:
+		col = Color(1.0, 0.30, 0.26)            # coperto
+	elif k > 0.38:
+		col = Color(1.0, 0.80, 0.22)            # contestato
+	var a: float = 0.72
+	if k > 0.72:
+		# quando e' rosso pulsa: si vede da lontano che stai forzando
+		a = 0.55 + 0.45 * (0.5 + 0.5 * sin(t * 9.0))
+	for i in 12:
+		var a0: float = TAU * float(i) / 12.0 + 0.09
+		var a1: float = TAU * float(i + 1) / 12.0 - 0.09
+		var pts: PackedVector2Array = _ell_arc(feet, rx, ry, a0, a1, 6)
+		c.draw_polyline(pts, Color(col, a * (0.55 + 0.45 * k)), maxf(h * 0.035, 2.0))
+
+## Anello della SCHIACCIATA A TEMPO (come il dunk meter di 2K27, ma a terra):
+## una pista grigia, la finestra verde, e una pallina che corre mentre sali.
+## Quando la pallina e' nel verde, TIRA: schiacciata pulita, non stoppabile.
+static func draw_dunk_ring(c: CanvasItem, feet: Vector2, h: float,
+		prog: float, lo: float, hi: float, graded := "") -> void:
+	var rx: float = maxf(h * 0.40, 18.0)
+	var ry: float = rx * 0.36
+	c.draw_polyline(_ell_arc(feet, rx, ry, 0.0, TAU, 40), Color(1, 1, 1, 0.13), maxf(h * 0.030, 2.0))
+	c.draw_polyline(_ell_arc(feet, rx, ry, TAU * lo, TAU * hi, 14),
+		Color(0.30, 1.0, 0.42, 0.95), maxf(h * 0.055, 3.0))
+	var a: float = TAU * clampf(prog, 0.0, 1.0)
+	var dot: Vector2 = feet + Vector2(cos(a) * rx, sin(a) * ry)
+	# la pallina: bianca mentre sali, verde quando sei nella finestra
+	var dc := Color(1, 1, 1, 0.95)
+	if prog >= lo and prog <= hi:
+		dc = Color(0.45, 1.0, 0.55)
+	elif graded == "perfect":
+		dc = Color(0.30, 1.0, 0.45)
+	elif graded != "":
+		dc = Color(1.0, 0.45, 0.38)
+	c.draw_circle(dot, maxf(h * 0.055, 3.0), dc)
+
+## LOCKDOWN: 3 difese buone di fila. Anello azzurro che gira piano, sotto i
+## piedi — il gemello freddo delle fiamme dell'attacco.
+static func draw_lockdown_ring(c: CanvasItem, feet: Vector2, h: float, t: float) -> void:
+	var rx: float = maxf(h * 0.36, 16.0)
+	var ry: float = rx * 0.36
+	var ph: float = fmod(t * 1.4, 1.0)
+	for i in 14:
+		var a0: float = TAU * (float(i) + ph) / 14.0
+		var pts: PackedVector2Array = _ell_arc(feet, rx, ry, a0, a0 + 0.16, 4)
+		c.draw_polyline(pts, Color(0.45, 0.85, 1.0, 0.55), maxf(h * 0.030, 2.0))
+	c.draw_polyline(_ell_arc(feet, rx + 3.0, ry + 2.0, 0.0, TAU, 40),
+		Color(0.45, 0.85, 1.0, 0.18 + 0.10 * sin(t * 6.0)), maxf(h * 0.018, 1.5))
+
+
 ## HEAT CHECK: lingue di fuoco disegnate a 3 strati (base arancio, pancia
 ## gialla, nucleo bianco-caldo sulla centrale) che ondeggiano e sfarfallano.
 ## UNA sola implementazione per tutto il gioco: solo e partita identici.

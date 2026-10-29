@@ -63,6 +63,11 @@ var npcs: Array = []          # i bambini dall'altro lato del campo
 
 # ---- la mia schiacciata (stessa coreografia del campetto solo)
 var dunk_phase := ""           # "" | rise | hang | drop
+var dunk_timed := ""           # "" | perfect | early | late (v2.49.0)
+var _lockdown := false         # v2.49.0: 3 difese buone di fila
+var _def_good := 0
+var _stumble_t := 0.0          # mi hanno rotto le caviglie: non mi muovo
+var _trick_cd := 0.0           # una rottura di caviglie ogni tanto, non a catena
 var dunk_anim := 0.0
 var dunk_style := ""
 var dunk_rise_t := 0.70
@@ -464,6 +469,8 @@ func _process(delta: float) -> void:
 	trick_t = maxf(0.0, trick_t - delta)
 	_jump_t = maxf(0.0, _jump_t - delta)
 	_steal_cd = maxf(0.0, _steal_cd - delta)
+	_stumble_t = maxf(0.0, _stumble_t - delta)
+	_trick_cd = maxf(0.0, _trick_cd - delta)
 	_steal_t = maxf(0.0, _steal_t - delta)
 	if _jump_t > 0.10:
 		# lo scatto del SALTO: verso chi ha la palla, come la stoppata
@@ -576,6 +583,9 @@ func _process(delta: float) -> void:
 
 func _my_move(delta: float) -> void:
 	_mv_now = 0.0
+	if _stumble_t > 0.0:
+		# SOPRAVVISSUTO (per ora): non mi muovo, la difesa mi ha steso.
+		return
 	if duel_on and (duel_phase == "count" or duel_phase == "reset" \
 	or duel_phase == "check"):
 		# OFFLINE: con play_live a false nessuno dei due si muove. Si resta
@@ -639,7 +649,65 @@ func _contest_now() -> float:
 		c *= 1.12
 	if bool(foe.get("jm", false)):
 		c *= 1.35
+	if bool(foe.get("ld", false)):
+		c *= 1.20   # e' in LOCKDOWN: la sua difesa pesa di piu'
 	return clampf(c, 0.0, 1.0)
+
+
+## SCHIACCIATA A TEMPO (v2.49.0, il dunk meter di 2K27): sali e premi TIRA
+## quando la pallina dell'anello e' nel verde. A tempo la schiacciata e'
+## pulita; fuori tempo un difensore che salta addosso (90 px, come offline)
+## la puo' stoppare.
+func _dunk_window() -> Vector2:
+	var rt: float = maxf(dunk_rise_t, 0.05)
+	return Vector2(maxf(1.0 - 0.17 / rt, 0.55), 1.0)
+
+func _dunk_prog() -> float:
+	return clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
+
+func _dunk_tap() -> void:
+	if dunk_timed != "":
+		return
+	var prog: float = _dunk_prog()
+	if prog < 0.45:
+		return
+	if prog >= _dunk_window().x:
+		dunk_timed = "perfect"
+		Events.popup.emit("PERFECT!", player_pos + Vector2(0, -110),
+			Color(0.30, 1.0, 0.45), true)
+		Sfx.haptic(40)
+	else:
+		dunk_timed = "early"
+
+
+## Quanto io sto addosso a lui mentre tira (lo specchio di _contest_now).
+func _my_contest_on_foe() -> float:
+	if not duel_on or i_attack:
+		return 0.0
+	var d: float = player_pos.distance_to(foe["pos"] as Vector2)
+	if d > 130.0:
+		return 0.0
+	var c: float = 1.0 - d / 130.0
+	if _def_held:
+		c *= 1.12
+	if _jump_t > 0.05:
+		c *= 1.35
+	return clampf(c, 0.0, 1.0)
+
+
+func _def_credit(n := 1) -> void:
+	## Difese buone: rubata o tiro sbagliato che ho contestato. A TRE di
+	## fila scatta il LOCKDOWN (il gemello difensivo dell'ON FIRE).
+	if not duel_on or duel_phase != "live":
+		return
+	_def_good += n
+	if _def_good >= 3 and not _lockdown:
+		_lockdown = true
+		_def_good = 0
+		Sfx.play("go", -2.0)
+		Sfx.haptic(35)
+		Events.popup.emit(Loc.t("duel.lockdown"), player_pos + Vector2(0, -120),
+			Color(0.45, 0.85, 1.0), true)
 
 
 func _can_dunk() -> bool:
@@ -785,6 +853,7 @@ func _do_trick() -> void:
 		trick_t = 0.45
 		Sfx.squeak()
 		_say("DROP STEP", 1.2)
+		_trick_on_defender()
 		return
 	# TRICK col joystick: hesi, cambio mano, stepback, spin, crossover
 	var mv: Vector2 = joystick.output if joystick != null else Vector2.ZERO
@@ -802,6 +871,31 @@ func _do_trick() -> void:
 	else:
 		trick_kind = ["cross", "behind"].pick_random()
 	trick_t = 0.45
+	_trick_on_defender()
+
+func _trick_on_defender() -> void:
+	## ROTTURA DI CAVIGLIE (v2.49.0, come gli ankle breaker di 2K27 che non
+	## sono piu' casuali): conta la mossa, la vicinanza e soprattutto se lui
+	## sta CORRENDO in quel momento. Fermo davanti a te non cade quasi mai.
+	if not duel_on or duel_phase != "live" or not i_attack:
+		return
+	if _trick_cd > 0.0:
+		return
+	var d: float = player_pos.distance_to(foe["pos"] as Vector2)
+	if d > 120.0:
+		return
+	_trick_cd = 1.2
+	var ch: float = 0.28
+	if trick_kind in ["stepback", "spin", "cross"]:
+		ch += 0.16                      # le mosse che spostano davvero
+	if _foe_vel.length() > 110.0:
+		ch += 0.22                      # in corsa: si va giu' molto piu' facile
+	if randf() < ch:
+		NetLayer.rpc("rpc_duel_ev", {"ev": "stumble"})
+		Events.popup.emit(Loc.t("duel.ankles"), player_pos + Vector2(0, -115),
+			Color(1.0, 0.82, 0.35), true)
+		Sfx.haptic(30)
+
 
 func _post_tap() -> void:
 	## POST UP: spalle al canestro. TIRA = fade/hook, TRICK = drop step.
@@ -891,7 +985,9 @@ func _try_steal() -> void:
 	_clamp_me()
 	if to.length() > 90.0:
 		return
-	if randf() < 0.30 * lerpf(1.05, 0.5, to.length() / 90.0):
+	# LOCKDOWN: la rubata passa da 30% a 45% vicino al portatore.
+	var sc: float = (0.45 if _lockdown else 0.30) * lerpf(1.05, 0.5, to.length() / 90.0)
+	if randf() < sc:
 		# portata via! palla a chi ha rubato — e si esce dalla linea
 		i_attack = true
 		must_clear = true
@@ -904,6 +1000,7 @@ func _try_steal() -> void:
 		Sfx.play("steal", -1.0)
 		Sfx.haptic(40)
 		NetLayer.rpc("rpc_duel_ev", {"ev": "steal"})
+		_def_credit(1)
 
 
 func _do_check() -> void:
@@ -987,6 +1084,9 @@ func _free_pick(mine: bool) -> void:
 
 
 func _shoot_down() -> void:
+	if dunk_phase == "rise":
+		_dunk_tap()
+		return
 	if duel_on and duel_phase == "live" and not i_attack and not ball_loose:
 		_do_jump()           # in difesa il primario e' SALTO, come indoor
 		return
@@ -1032,17 +1132,59 @@ func _shoot_down() -> void:
 func _start_dunk() -> void:
 	dunk_phase = "rise"
 	dunk_anim = 0.0
+	dunk_timed = ""
 	dunk_ball_t = 0.0
 	dunk_style = DunkStyle.pick()
 	dunk_rise_t = DunkStyle.rise_time(dunk_style)
 
 
 func _dunk_throw() -> void:
+	if dunk_timed == "":
+		dunk_timed = "late"
+	# STOPPATA AL FERRO: solo una schiacciata FUORI TEMPO si puo' stoppare,
+	# e solo se chi difende sta saltando addosso (90 px, la stessa distanza
+	# dello scrimmage offline). A tempo, nessuno la tocca: e' il premio.
+	var blocked := false
+	if duel_on and duel_phase == "live" and dunk_timed != "perfect":
+		var dd: float = player_pos.distance_to(foe["pos"] as Vector2)
+		if dd < 90.0 and bool(foe.get("jm", false)):
+			var ch: float = clampf(0.16 + 0.40 * (1.0 - dd / 90.0), 0.10, 0.55)
+			blocked = randf() < ch
+	if blocked:
+		NetLayer.rpc("rpc_duel_shot", {"dunk": true, "made": false, "pts": 0,
+			"style": dunk_style, "from": RIM})
+		Events.popup.emit(Loc.t("duel.blocked"), player_pos + Vector2(0, -110),
+			Color(0.87, 0.29, 0.26), true)
+		Sfx.play("block", -1.0)
+		Events.shake.emit(0.6)
+		Sfx.haptic(50)
+		hot = false
+		streak = 0
+		# Come un mio tiro sbagliato: la palla resta a terra e la prima
+		# mano che ci arriva riparte. Io ho appena tirato, quindi non
+		# posso riprenderla subito (my_rebound = true, come nel match).
+		ball_loose = true
+		my_rebound = true
+		_pick_ok = false
+		_loose_t = 0.0
+		ball_pos = RIM + Vector2(randf_range(-60.0, 60.0), randf_range(0.0, 70.0))
+		ball_h = 80.0
+		ball_vel = Vector2(randf_range(-120.0, 120.0), randf_range(-50.0, 30.0))
+		ball_vh = -60.0
+		ball_settled = 0.0
+		ball_ghost = false
+		through_rim = false
+		ball_live = true
+		dunk_phase = "drop"
+		dunk_anim = 0.30
+		dunk_ball_t = 0.0
+		return
 	net_wobble = 1.0
 	Sfx.haptic(60)
 	if court_art != null:
 		court_art.net_bump(1, 1.0)
-	Events.popup.emit("GREEN!", player_pos + Vector2(0, -95), Color(0.3, 1.0, 0.45), true)
+	Events.popup.emit("PERFECT!" if dunk_timed == "perfect" else "GREEN!",
+		player_pos + Vector2(0, -95), Color(0.3, 1.0, 0.45), true)
 	streak += 1
 	if streak >= 3 and not hot:
 		hot = true
@@ -1327,6 +1469,7 @@ func _send(delta: float) -> void:
 		"jm": _jump_t > 0.05,
 		"hd": i_hold,
 		"st": _steal_t > 0.05,
+		"ld": _lockdown,
 	}
 	_seq += 1
 	NetLayer.rpc("rpc_duel_me", d)
@@ -1453,6 +1596,27 @@ func _on_foe_shot(d: Dictionary) -> void:
 	## o errore, con popup sopra di lui.
 	var fpos: Vector2 = foe["pos"]
 	if bool(d.get("dunk", false)):
+		if not bool(d.get("made", true)):
+			# GLI HO STOPPATO LA SCHIACCIATA (v2.49.0): palla a terra sotto
+			# il ferro, e se ci arrivo prima io riparto in attacco — ma da
+			# dietro la linea, perche' ero in difesa.
+			Events.popup.emit(Loc.t("duel.blocked"), fpos + Vector2(0, -100),
+				Color(0.45, 0.85, 1.0), true)
+			Sfx.play("block", -1.0)
+			Sfx.haptic(45)
+			Events.shake.emit(0.5)
+			fb_pos = RIM + Vector2(randf_range(-60.0, 60.0), randf_range(0.0, 70.0))
+			fb_h = 80.0
+			fb_vel = Vector2(randf_range(-120.0, 120.0), randf_range(-50.0, 30.0))
+			fb_vh = -60.0
+			fb_settled = 0.0
+			fb_live = true
+			_fb_pick_ok = false
+			_loose_t = 0.0
+			ball_loose = true
+			my_rebound = false
+			_def_credit(1)
+			return
 		net_wobble = 1.0
 		if court_art != null:
 			court_art.net_bump(1, 1.0)
@@ -1492,6 +1656,10 @@ func _on_foe_shot(d: Dictionary) -> void:
 		my_rebound = false
 		_loose_t = 0.0
 		_fb_pick_ok = false
+		# Se gli stavo addosso (o saltato in faccia), quel ferro e' merito
+		# mio: conta per il LOCKDOWN. Un tiro sbagliato da solo, no.
+		if duel_on and _my_contest_on_foe() > 0.33:
+			_def_credit(1)
 	_foe_launch(d.get("from", fpos), d.get("aim", RIM), zone == "green")
 
 
@@ -1659,6 +1827,7 @@ func _duel_check(i_off: bool) -> void:
 	# NIENTE ANIMAZIONI A META': chi arriva al check con la schiacciata
 	# appesa o la finta in corso resta piantato a mezz'aria sul posto nuovo.
 	dunk_phase = ""
+	dunk_timed = ""
 	dunk_anim = 0.0
 	shot_anim = 0.0
 	pump_t = 0.0
@@ -1711,6 +1880,11 @@ func _duel_start(target: int, first_role: String) -> void:
 	_fb_pick_ok = false
 	_loose_t = 0.0
 	_count_t = 3.0
+	dunk_timed = ""
+	_lockdown = false
+	_def_good = 0
+	_stumble_t = 0.0
+	_trick_cd = 0.0
 	i_attack = (NetLayer.role == first_role)
 	# OFFLINE: durante il 3-2-1 i due sono GIA' nella formazione del check,
 	# fermi — non a meta' campo che si scaldano. Si muovono solo dopo il CHECK.
@@ -1755,6 +1929,9 @@ func _duel_foe_scored() -> void:
 	must_clear = false
 	ball_loose = false
 	_duel_update_top()
+	# Subire canestro chiude il LOCKDOWN: e' durato finche' la difesa ha tenuto.
+	_lockdown = false
+	_def_good = 0
 	if foe_score >= duel_target:
 		_duel_end(false)
 		return
@@ -1849,6 +2026,16 @@ func _on_foe_ev(d: Dictionary) -> void:
 		"checked":
 			if duel_phase == "check":
 				_go_live()
+		"stumble":
+			# Mi ha rotto le caviglie: mezzo secondo senza muovermi.
+			if duel_on and duel_phase == "live" and i_attack:
+				_stumble_t = 0.50
+				_steal_t = 0.0
+				_jump_t = 0.0
+				Events.popup.emit(Loc.t("duel.stumbled"), player_pos + Vector2(0, -105),
+					Color(1.0, 0.45, 0.38), true)
+				Sfx.squeak()
+				Sfx.haptic(25)
 		"steal":
 			if not (duel_on and duel_phase == "live"):
 				return
@@ -1891,6 +2078,11 @@ func _duel_free() -> void:
 	duel_phase = ""
 	_check_t = 0.0
 	_check_me = false
+	dunk_timed = ""
+	_lockdown = false
+	_def_good = 0
+	_stumble_t = 0.0
+	_trick_cd = 0.0
 	ball_loose = false
 	ball_live = false
 	fb_live = false
@@ -2213,6 +2405,23 @@ func _draw_char(mine: bool) -> void:
 		# mezza retina davanti, SOTTO il corpo appeso
 		HoopArt.draw_net_front(self, _rim_screen(), 22.0,
 			22.0 * HoopArt.RIM_SQUASH, net_wobble, net_t, 0.0, -1.0)
+	# ANELLI A TERRA (v2.49.0): sotto i piedi, seguono il giocatore.
+	# Mio: la schiacciata a tempo mentre salgo, il contest mentre carico,
+	# il LOCKDOWN quando la difesa tiene. Suo: il LOCKDOWN, se ce l'ha.
+	if not bool(Settings.get_v("lowgfx", false)):
+		var feet: Vector2 = _screen(draw_base)
+		var tt: float = Time.get_ticks_msec() / 1000.0
+		if mine:
+			if dunk_phase == "rise":
+				var dw: Vector2 = _dunk_window()
+				Avatar.draw_dunk_ring(self, feet, h, _dunk_prog(), dw.x, dw.y, dunk_timed)
+			elif charging:
+				Avatar.draw_contest_ring(self, feet, h,
+					_contest_now() if duel_on else 0.0, tt)
+			if _lockdown and duel_on:
+				Avatar.draw_lockdown_ring(self, feet, h, tt)
+		elif bool(foe.get("ld", false)):
+			Avatar.draw_lockdown_ring(self, feet, h, tt)
 	if hang_body:
 		draw_set_transform_matrix(Transform2D(hang_theta, hang_pivot))
 		Avatar.draw_body(self, hang_feet_off, h, f, po, cols, false, false, mine, BALL_R)

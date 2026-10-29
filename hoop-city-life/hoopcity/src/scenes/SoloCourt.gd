@@ -51,6 +51,7 @@ var dunk_anim := 0.0        # progress within the current phase
 var dust_t := 0.0           # nuvolette all'atterraggio
 var dust_big := false       # atterraggio da slam
 var dunk_phase := ""        # "" | "rise" | "hang" | "drop"
+var dunk_timed := ""        # "" | "perfect" | "early" | "late" (v2.49.0)
 var hang_swing_t := 0.0    # tempo appeso: oscilla dx/sx come un pendolo
 var hang_cam := 0.0        # 0..1: zoom della camera della schiacciata (v2.40.2)
 var hang_lift_now := 0.0   # lift reale dell'hang (il corpo e' piu' basso del rise)
@@ -913,6 +914,9 @@ func _pickup_loose() -> void:
 
 
 func _shoot_down() -> void:
+	if dunk_phase == "rise":
+		_dunk_tap()
+		return
 	if shot_anim > 0.0 or dunk_phase != "":
 		return
 	if solo_loose:
@@ -943,11 +947,39 @@ func _shoot_down() -> void:
 		meter.perfect_window = float(w["perfect"]) * 0.72
 		meter.good_window = float(w["good"]) * 0.85
 
+## SCHIACCIATA A TEMPO (v2.49.0, come il dunk meter di 2K27): sali, e premi
+## TIRA quando la pallina dell'anello e' nel verde. A tempo la schiacciata
+## e' pulita e NESSUNA difesa la tocca; fuori tempo la va a schiacciare un
+## uomo che salta addosso (online) e la puo' stoppare.
+func _dunk_window() -> Vector2:
+	## La finestra e' l'ultimo tratto della salita, in frazione 0..1.
+	var rt: float = maxf(dunk_rise_t, 0.05)
+	return Vector2(maxf(1.0 - 0.17 / rt, 0.55), 1.0)
+
+func _dunk_prog() -> float:
+	return clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
+
+func _dunk_tap() -> void:
+	if dunk_timed != "":
+		return
+	var prog: float = _dunk_prog()
+	if prog < 0.45:
+		return          # primo tocco troppo presto: si ignora, non si punisce
+	if prog >= _dunk_window().x:
+		dunk_timed = "perfect"
+		Events.popup.emit("PERFECT!", player_pos + Vector2(0, -110),
+			Color(0.30, 1.0, 0.45), true)
+		Sfx.haptic(40)
+	else:
+		dunk_timed = "early"
+
+
 ## Dunk: drive at the rim, rise to the iron, throw it down -- then HANG there
 ## until the dunk button is released.
 func _start_dunk() -> void:
 	dunk_phase = "rise"
 	dunk_anim = 0.0
+	dunk_timed = ""
 	dunk_ball_t = 0.0
 	want_hang = true
 	shot_made = true
@@ -974,8 +1006,16 @@ func _dunk_throw() -> void:
 	_drain_energy(-1.6)
 	session_score += 2
 	dunk_ball_t = 0.0
-	lbl_mid.text = "%s!  x%d" % [DunkStyle.label(dunk_style), streak]
-	lbl_mid.modulate = Color(1.0, 0.75, 0.25)
+	# VERDETTO DEL TEMPO: al campetto non c'e' nessuno che stoppa, quindi la
+	# schiacciata va sempre dentro — ma solo quella a tempo e' "pulita".
+	if dunk_timed == "":
+		dunk_timed = "late"
+	lbl_mid.text = ("PERFECT!  " if dunk_timed == "perfect" else "") \
+		+ "%s!  x%d" % [DunkStyle.label(dunk_style), streak]
+	lbl_mid.modulate = Color(1.0, 0.75, 0.25) if dunk_timed == "perfect" \
+		else Color(0.95, 0.88, 0.70)
+	if dunk_timed == "perfect":
+		Game.add_xp(3, "solo_shots")
 
 func _drop_from_rim() -> void:
 	if dunk_phase == "hang":
@@ -1653,6 +1693,18 @@ func _draw_player() -> void:
 			var ang: float = TAU * float(i) / 20.0
 			pts.append(sh_base + Vector2(cos(ang) * rw, sin(ang) * rh))
 		draw_colored_polygon(pts, Color(0, 0, 0, 0.40))
+	# ANELLO A TERRA (v2.49.0): la schiacciata a tempo mentre sali, il
+	# contest mentre carichi il tiro. Sta sotto i piedi, segue il giocatore.
+	var feet: Vector2 = _screen(draw_base)
+	if not bool(Settings.get_v("lowgfx", false)):
+		if dunk_phase == "rise":
+			var dw: Vector2 = _dunk_window()
+			Avatar.draw_dunk_ring(self, feet, h, _dunk_prog(), dw.x, dw.y, dunk_timed)
+		elif charging:
+			# al campetto nessuno difende: verde, cioe' "sei libero". La
+			# stessa lingua del 1v1, cosi' si impara in un posto e vale
+			# nell'altro.
+			Avatar.draw_contest_ring(self, feet, h, 0.0, Time.get_ticks_msec() / 1000.0)
 	# SCIA PALLA in volo (stessa del match): fantasmi che svaniscono.
 	# Scia rimossa su richiesta utente.
 	var hold_ball: bool = carry and not ball_live and not solo_loose and trick_t <= 0.0

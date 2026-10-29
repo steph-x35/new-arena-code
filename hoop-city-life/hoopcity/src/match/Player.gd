@@ -65,6 +65,8 @@ var hang_t := 0.0
 var dunk_held := false         # true while the dunk button is held
 var hang_saw_hold := false     # saw the button held AFTER we grabbed the rim
 var dunk_charge := 0.0
+var lockdown := false                 # v2.49.0: 3 difese buone di fila
+var def_good := 0
 var shot_anim := 0.0           # follow-through timer after a released shot
 var fade_t := 0.0              # animazione FADEAWAY: schienata indietro
 var euro_t := 0.0              # EUROSTEP a due tempi: 1 laterale, 2 verso il ferro
@@ -851,6 +853,7 @@ func try_steal() -> void:
 			Sfx.haptic(35)
 		Events.toast.emit("STEAL!")
 		Events.popup.emit("STEAL!", global_position, Color(0.45, 0.85, 1.0), false)
+		def_credit()
 		if is_user: court.stat_add("stl", 1)
 	else:
 		var foul_risk := 0.05 * (1.0 if not has_badge("pickpocket") else 0.7)
@@ -869,7 +872,24 @@ func contest_value_against(shooter_pos: Vector2) -> float:
 	# whole point of the block is the timing.
 	if block_window > 0.0:
 		c *= 1.35
+	if lockdown: c *= 1.20   # LOCKDOWN: la difesa pesa di piu'
 	return clampf(c, 0.0, 1.0)
+
+func def_credit() -> void:
+	## LOCKDOWN (v2.49.0): tre difese buone di fila — rubata, stoppata o un
+	## tiro sbagliato che ho contestato forte. Il gemello difensivo dell'ON FIRE.
+	def_good += 1
+	if def_good >= 3 and not lockdown:
+		lockdown = true
+		def_good = 0
+		if is_user:
+			Events.popup.emit("LOCKDOWN!", global_position + Vector2(0, -80),
+				Color(0.45, 0.85, 1.0), true)
+			Sfx.haptic(30)
+
+func clear_lockdown() -> void:
+	lockdown = false
+	def_good = 0
 
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
@@ -883,6 +903,15 @@ func _draw() -> void:
 	var dscale: float = CourtStage.m_scale(position.y, ch)
 	draw_set_transform(proj - position, 0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale)
 	var h := 64.0 * height_f
+	# ANELLI A TERRA (v2.49.0): il contest mentre carico il tiro (solo per il
+	# giocatore umano, per non riempire il campo di cerchi) e il LOCKDOWN.
+	if not bool(Settings.get_v("lowgfx", false)):
+		var feet: Vector2 = proj
+		var tt: float = Time.get_ticks_msec() / 1000.0
+		if is_user and shot_charge >= 0.0 and court != null:
+			Avatar.draw_contest_ring(self, feet, h, court.pressure_on(self), tt)
+		if lockdown:
+			Avatar.draw_lockdown_ring(self, feet, h, tt)
 	# Pass aim: a blue disc on the floor under the teammate the joystick
 	# is pointing at.
 	if court != null and court.aimed == self:
