@@ -151,6 +151,7 @@ var _foe_vel := Vector2.ZERO  # px/s dell'altro, lisciata
 var _foe_rx := 0.0            # quando e' arrivato l'ultimo pacchetto (s)
 var _foe_hist: Array = []     # [{t, p}] ultime posizioni vere dell'altro
 var _foe_delay := 0.08        # quanto indietro lo si mostra (s)
+var _foe_jump_t := 0.0        # arco del suo salto (0,45 s), parte dal pacchetto
 # DIAGNOSTICA (v2.49.1): FPS vero accanto al ping. Serve a distinguere "il
 # telefono non ce la fa" (FPS bassi) da "il WiFi e' lento" (ping alto).
 var _ping_ms := 0
@@ -489,6 +490,7 @@ func _process(delta: float) -> void:
 	_jump_t = maxf(0.0, _jump_t - delta)
 	_steal_cd = maxf(0.0, _steal_cd - delta)
 	_stumble_t = maxf(0.0, _stumble_t - delta)
+	_foe_jump_t = maxf(0.0, _foe_jump_t - delta)
 	_trick_cd = maxf(0.0, _trick_cd - delta)
 	_steal_t = maxf(0.0, _steal_t - delta)
 	if _jump_t > 0.10:
@@ -1532,15 +1534,15 @@ func _my_kind() -> String:
 	var no_ball: bool = (duel_on and (not i_attack or ball_loose) and duel_phase != "over") \
 		or (not duel_on and not i_hold)
 	if no_ball:
-		if duel_on and not ball_loose and not i_attack and _def_held \
-		and _mv_now <= 0.12:
-			# OFFLINE: la posa da difesa e' quella di chi e' FERMO in
-			# posizione davanti all'uomo (stance + velocity < 14). Mentre ci
-			# arriva corre, con le gambe che camminano: la stessa regola, non
-			# "DEFEND sempre entro 95 px" come prima (sembrava scivolare).
+		if duel_on and not ball_loose and not i_attack and _def_held:
+			# POSA DI DIFESA (v2.49.2): braccia aperte e gambe piegate, e la
+			# tiene anche MENTRE si sposta. Prima la stance arrivava solo da
+			# fermo: appena il DIFENDI lo muoveva per agganciare l'uomo,
+			# tornava a correre — e sembrava scivolare senza gambe.
+			# Da lontano invece corre davvero (sta inseguendo).
 			var fpos_k: Vector2 = foe["pos"] as Vector2
 			var gp_k: Vector2 = fpos_k + (RIM - fpos_k).normalized() * 46.0
-			if player_pos.distance_to(gp_k) < 95.0:
+			if player_pos.distance_to(gp_k) < 170.0:
 				return Avatar.DEFEND
 		return Avatar.RUN if _my_walking() else Avatar.IDLE
 	return Avatar.DRIBBLE
@@ -1566,8 +1568,10 @@ func _my_amount() -> float:
 
 
 func _my_walking() -> bool:
-	return joystick != null and joystick.output.length() > 0.12 \
-		and dunk_phase == "" and shot_anim <= 0.0 and not charging
+	# v2.49.2: conta il movimento VERO (mv_now), non solo il joystick. Con
+	# DIFENDI premuto il difensore si sposta da solo: leggendo il joystick
+	# restava "fermo" e scivolava sul campo senza muovere le gambe.
+	return _mv_now > 0.12 and dunk_phase == "" and shot_anim <= 0.0 and not charging
 
 
 func _hang_one() -> bool:
@@ -1646,7 +1650,10 @@ func _on_foe_state(d: Dictionary) -> void:
 	foe["tk"] = d.get("tk", "")
 	foe["ta"] = d.get("ta", 0.0)
 	foe["ct"] = d.get("ct", false)
+	var was_jm: bool = bool(foe.get("jm", false))
 	foe["jm"] = d.get("jm", false)
+	if bool(foe["jm"]) and not was_jm:
+		_foe_jump_t = 0.45   # e' saltato adesso: parte l'arco anche per me
 	foe["hd"] = d.get("hd", true)
 	foe["st"] = d.get("st", false)
 	foe["ld"] = d.get("ld", false)
@@ -2394,9 +2401,14 @@ func _draw_ball_at(p: Vector2, r: float, spin := 0.0) -> void:
 ## pose, stesse proporzioni, camminata e trick compresi.
 func _draw_char(mine: bool) -> void:
 	var world: Vector2 = player_pos if mine else (foe["pos"] as Vector2)
+	# IL SALTO E' UN LIFT, NON UN PASSO: prima si spostava `world.y` e il
+	# giocatore sembrava arretrare di un metro mentre l'ombra lo seguiva a
+	# mezz'aria. Ora sale e basta, e l'ombra resta dove ha i piedi.
+	var jump_lift := 0.0
 	if mine and _jump_t > 0.0:
-		# il SALTO: stacco da terra a arco, come la stoppata dell'indoor
-		world.y -= 90.0 * sin(PI * (1.0 - _jump_t / 0.45))
+		jump_lift = 92.0 * sin(PI * (1.0 - _jump_t / 0.45))
+	elif not mine and _foe_jump_t > 0.0:
+		jump_lift = 92.0 * sin(PI * (1.0 - _foe_jump_t / 0.45))
 	var f: float = facing if mine else float(foe.get("facing", -1.0))
 	var kind: String = _my_kind() if mine else String(foe.get("kind", Avatar.DRIBBLE))
 	var amount: float = _my_amount() if mine else float(foe.get("amount", 0.0))
@@ -2479,18 +2491,11 @@ func _draw_char(mine: bool) -> void:
 	if tk == "spin" and ta > 0.0:
 		po["yaw"] = 2.2 * (1.0 - ta)
 
-	# ombra a terra
-	var sh: Vector2 = _screen(world)
-	var grow: float = 1.15 + clampf(lift / 240.0, 0.0, 0.35)
-	var rw: float = 14.0 * grow
-	var rh: float = 5.5 * grow
-	var pts := PackedVector2Array()
-	for i in 20:
-		var ang: float = TAU * float(i) / 20.0
-		pts.append(sh + Vector2(cos(ang) * rw, sin(ang) * rh))
-	draw_colored_polygon(pts, Color(0, 0, 0, 0.40))
+	# OMBRA A TERRA (v2.49.2): sotto i PIEDI, non sotto il corpo sollevato,
+	# e RIMPICCIOLISCE mentre sale — schiacciata, salto e stoppata uguali.
+	Avatar.draw_ground_shadow(self, _screen(draw_base), h, lift + jump_lift)
 
-	var screen: Vector2 = _screen(draw_base) - Vector2(0.0, lift)
+	var screen: Vector2 = _screen(draw_base) - Vector2(0.0, lift + jump_lift)
 	# polvere d'atterraggio (solo la mia: la sua arriva con le pose)
 	if mine and dust_t > 0.0:
 		var kk: float = clampf(1.0 - dust_t / 0.45, 0.0, 1.0)
@@ -2529,7 +2534,7 @@ func _draw_char(mine: bool) -> void:
 		Avatar.draw_body(self, hang_feet_off, h, f, po, cols, false, false, mine, BALL_R)
 		draw_set_transform_matrix(Transform2D())
 	else:
-		Avatar.draw_body(self, screen, h, f, po, cols, hold_ball, true, mine, BALL_R)
+		Avatar.draw_body(self, screen, h, f, po, cols, hold_ball, false, mine, BALL_R)
 	# TRICK: la palla passa da una mano all'altra (come nel campetto solo)
 	if tk != "" and ta > 0.0:
 		var ftk: float = 1.0 - ta

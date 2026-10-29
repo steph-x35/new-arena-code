@@ -165,8 +165,8 @@ jobs:
           echo "Importing project assets in headless mode..."
           godot -v --headless --import 2>&1 | tee /tmp/import.log || true
           echo "Exporting Android APK..."
-          godot -v --headless --export-release "Android" build/HoopCity-v2.49.1.apk 2>&1 | tee /tmp/export.log || true
-          if [ ! -f "build/HoopCity-v2.49.1.apk" ]; then
+          godot -v --headless --export-release "Android" build/HoopCity-v2.49.2.apk 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/HoopCity-v2.49.2.apk" ]; then
             echo "=== EXPORT FAILED! Printing log: ==="
             cat /tmp/export.log | tail -n 80
             cp /tmp/export.log $GITHUB_WORKSPACE/build_error.log
@@ -183,15 +183,15 @@ jobs:
             --ks-pass pass:android \
             --ks-key-alias androiddebugkey \
             --key-pass pass:android \
-            build/HoopCity-v2.49.1.apk
+            build/HoopCity-v2.49.2.apk
           echo "Verifying APK signature..."
-          apksigner verify --verbose build/HoopCity-v2.49.1.apk
+          apksigner verify --verbose build/HoopCity-v2.49.2.apk
           echo "Checking APK launcher icons..."
-          unzip -l build/HoopCity-v2.49.1.apk | grep -i "mipmap" | head -n 20
-          ls -lh build/HoopCity-v2.49.1.apk
+          unzip -l build/HoopCity-v2.49.2.apk | grep -i "mipmap" | head -n 20
+          ls -lh build/HoopCity-v2.49.2.apk
           echo "Verifica permessi APK (la stanza WiFi li richiede)..."
-          aapt dump permissions build/HoopCity-v2.49.1.apk
-          if ! aapt dump permissions build/HoopCity-v2.49.1.apk | grep -q "android.permission.INTERNET"; then
+          aapt dump permissions build/HoopCity-v2.49.2.apk
+          if ! aapt dump permissions build/HoopCity-v2.49.2.apk | grep -q "android.permission.INTERNET"; then
             echo "!!! MANCA android.permission.INTERNET: la stanza condivisa non può aprirsi"
             exit 1
           fi
@@ -200,21 +200,21 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp hoop-city-life/hoopcity/build/HoopCity-v2.49.1.apk /tmp/HoopCity-v2.49.1.apk
-          gh release delete v2.49.1 -y --cleanup-tag || true
+          cp hoop-city-life/hoopcity/build/HoopCity-v2.49.2.apk /tmp/HoopCity-v2.49.2.apk
+          gh release delete v2.49.2 -y --cleanup-tag || true
           # TAG ORFANO: se la create e' morta a meta' (tag creato, release no),
           # --cleanup-tag non lo rimuove perche' la release non esiste — e ogni
           # tentativo dopo fallisce con "tag already exists". Via il tag a mano.
-          git push origin --delete v2.49.1 || true
+          git push origin --delete v2.49.2 || true
           sleep 5
           # L'API delle release ogni tanto perde colpi (race delete/create):
           # tre tentativi prima di arrendersi.
           ok=0
           for i in 1 2 3; do
-            if gh release create v2.49.1 /tmp/HoopCity-v2.49.1.apk \
-              --title "Hoop City Life v2.49.1" \
+            if gh release create v2.49.2 /tmp/HoopCity-v2.49.2.apk \
+              --title "Hoop City Life v2.49.2" \
               --prerelease \
-              --notes "v2.49.1 (prova, non pubblica) — IL CAMPETTO TORNA FLUIDO + 1v1 PIU' STABILE. Il fondale della strada veniva ridisegnato ogni frame con quasi mille comandi (la rete del campo da sola erano 560 linee): ora sono un quarto, ed e' la stessa immagine. Gli aloni delle luci notturne erano sei cerchi grandi quanto lo schermo, ora sono tre piu' piccoli. Nel 1v1 l'avversario non si pianta piu' e non salta avanti: si mostra il suo passato di due-tre pacchetti e si interpola fra due posizioni vere, quindi scorre anche quando il WiFi perde colpi. Schiacciata stoppata: prima suonava comunque il canestro e restavi appeso al ferro, ora no. In alto a destra c'e' anche il numero di FPS e, se la rete e' in ritardo, NET -ms: cosi' si capisce se e' il telefono o il WiFi."
+              --notes "v2.49.2 (prova, non pubblica) — OMBRA VERA, DIFESA CHE CAMMINA, PARQUET A SCELTA. L'ombra sta sempre a terra sotto i piedi e RIMPICCIOLISCE quando salti (prima cresceva: era il contrario). Il salto non ti sposta piu' indietro di un metro: sale e basta. Il difensore online tiene la posa di difesa — braccia aperte, gambe piegate — anche mentre si sposta, con le gambe che camminano: prima scivolava fermo. E nelle Impostazioni c'e' CAMPO: il parquet indoor si puo' cambiare in classico, NERO, blu notte o rovere scuro (vale dalla partita dopo)."
               --target ${GITHUB_SHA}; then
               ok=1
               break
@@ -226,8 +226,8 @@ jobs:
             # RACE API: la create puo' riuscire lato server e tornare comunque
             # errore; i tentativi dopo falliscono perche' la release esiste gia'.
             # Se la release c'e' (con l'APK), e' andata bene.
-            if gh release view v2.49.1 > /dev/null 2>&1 \
-            && gh release view v2.49.1 --json assets -q '.assets | length' | grep -q -v "^0$"; then
+            if gh release view v2.49.2 > /dev/null 2>&1 \
+            && gh release view v2.49.2 --json assets -q '.assets | length' | grep -q -v "^0$"; then
               echo "Release creata (il primo tentativo era riuscito lato server)."
             else
               echo "!!! IMPOSSIBILE CREARE LA RELEASE"

@@ -891,6 +891,21 @@ func clear_lockdown() -> void:
 	lockdown = false
 	def_good = 0
 
+func _near_ball_handler() -> bool:
+	## Sto difendendo QUALCUNO (non il vuoto): serve a tenere la posa di
+	## difesa mentre mi muovo, invece di correre impettito.
+	if court == null:
+		return false
+	if not court.has_method("ball_handler"):
+		return false
+	var bh = court.ball_handler()
+	if bh == null or bh == self:
+		return false
+	if not is_instance_valid(bh):
+		return false
+	return global_position.distance_to((bh as Node2D).global_position) < 190.0
+
+
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
 	# Kit colours chosen before tip-off. Team 0 is you, team 1 the opponent.
@@ -985,6 +1000,11 @@ func _draw() -> void:
 			kind = Avatar.IDLE
 	elif has_ball:
 		kind = Avatar.DRIBBLE
+	elif stance and _near_ball_handler():
+		# v2.49.2: la posa di difesa si tiene anche mentre si SCIVOLA di
+		# lato a inseguire l'uomo (gambe che camminano, braccia aperte).
+		# Prima si correva in piedi appena ci si muoveva: sembrava pattinare.
+		kind = Avatar.DEFEND
 	else:
 		kind = Avatar.RUN
 
@@ -1062,37 +1082,25 @@ func _draw() -> void:
 	if hanging:
 		# appeso: oscillazione dx/sx (pendolo attorno al ferro)
 		feet.x = sin(Time.get_ticks_msec() * 0.003) * 12.0
-	# OMBRA REALE (richiesta utente): durante la schiacciata sta A TERRA,
-	# scorre al centro della semicirconferenza sotto il ferro e DIVENTA
-	# PIU' GRANDE mentre sali. Mai in aria con il corpo.
-	var air_norm: float = clampf(air_draw / 240.0, 0.0, 1.2)
+	# OMBRA A TERRA (v2.49.2): UNA sola regola in tutto il gioco — sta sui
+	# piedi (o sotto il ferro, se sta schiacciando) e RIMPICCIOLISCE mentre
+	# sale. Prima cresceva con l'altezza: era il contrario della fisica, e
+	# chi saltava per stoppare sembrava gonfiarsi.
 	if dunking and court != null:
 		var rim_g: Vector2 = court.hoop_for(team)
 		var sh_pos: Vector2 = global_position.lerp(rim_g, clampf(dunk_t * 0.85, 0.0, 1.0)) - global_position
-		var shs2: float = 1.2 + clampf(air_norm, 0.0, 1.0) * 0.45
-		draw_colored_polygon(PackedVector2Array([
-			sh_pos + Vector2(-h * 0.20 * shs2, 8.0), sh_pos + Vector2(h * 0.20 * shs2, 8.0),
-			sh_pos + Vector2(h * 0.09, 17.0), sh_pos + Vector2(-h * 0.09, 17.0)]),
-			Color(0, 0, 0, 0.40))
+		Avatar.draw_ground_shadow(self, sh_pos, h, air_draw, 1.15, 0.36)
 	elif hanging and court != null:
 		h *= 1.08
 		var rim_g2: Vector2 = court.hoop_for(team)
-		var sh2: Vector2 = rim_g2 - global_position
-		var shs: float = 2.0
-		draw_colored_polygon(PackedVector2Array([
-			sh2 + Vector2(-h * 0.22 * shs, 8.0), sh2 + Vector2(h * 0.22 * shs, 8.0),
-			sh2 + Vector2(h * 0.10, 18.0), sh2 + Vector2(-h * 0.10, 18.0)]),
-			Color(0, 0, 0, 0.42))
-	elif air_draw > 12.0:
-		var shs3: float = 1.0 + air_norm * 0.6
-		draw_colored_polygon(PackedVector2Array([
-			Vector2(-h * 0.20 * shs3, 8.0), Vector2(h * 0.20 * shs3, 8.0),
-			Vector2(h * 0.09, 17.0), Vector2(-h * 0.09, 17.0)]),
-			Color(0, 0, 0, 0.36))
+		Avatar.draw_ground_shadow(self, rim_g2 - global_position, h, air_draw, 1.0, 0.34)
+	else:
+		# a terra, in salto o in caduta: sempre sotto i piedi, sempre reale
+		Avatar.draw_ground_shadow(self, Vector2.ZERO, h, air_draw, 1.0, 0.32)
 	# The caller's court transform is handed to the avatar so a spinning slam
 	# can compose its own turn on top of the projection.
 	_low = bool(Settings.get_v("lowgfx", false))
-	Avatar.draw_body(self, feet, h, facing, po, cols, false, air_draw < 12.0 and not dunking, is_user,
+	Avatar.draw_body(self, feet, h, facing, po, cols, false, false, is_user,
 		-1.0, Transform2D(0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale, 0.0, proj - position))
 	# HEAT CHECK: lingue di fuoco sopra la testa (stesse del court solo)
 	if court != null and court.user_heat and is_user and not bool(Settings.get_v("lowgfx", false)):

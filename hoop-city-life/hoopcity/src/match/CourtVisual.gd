@@ -474,11 +474,26 @@ func _draw_floor() -> void:
 	# Indoors the maple leans a few percent toward the home club's colour
 	# (floor_tint set by MatchScene), so every building reads its own way.
 	var wood: bool = env != "street"
-	var base := Color(0.86, 0.68, 0.42) if wood else Color(0.44, 0.46, 0.50)
-	var plank_col := Color(0.83, 0.64, 0.39) if wood else Color(0.42, 0.44, 0.48)
+	# PARQUET (v2.49.2): il colore del pavimento indoor arriva dalle
+	# Impostazioni, un solo posto che lo definisce (CourtStage.floor_colours).
+	var pf: Dictionary = {}
 	if wood:
-		base = _tint(base)
-		plank_col = _tint(plank_col)
+		pf = CourtStage.floor_colours()
+	var base: Color = Color(0.44, 0.46, 0.50)
+	var plank_col: Color = Color(0.42, 0.44, 0.48)
+	var seam: Color = Color(0.55, 0.36, 0.18, 0.30)
+	var seam2: Color = Color(0.55, 0.36, 0.18, 0.22)
+	var paint: Color = Color(0.20, 0.42, 0.38, 0.75)
+	var paint2: Color = Color(0.62, 0.40, 0.22, 0.35)
+	var frame: Color = Color(0.30, 0.22, 0.16)
+	if wood:
+		base = _tint(pf["base"])
+		plank_col = _tint(pf["plank"])
+		seam = pf["seam"]
+		seam2 = pf["seam2"]
+		paint = pf["paint"]
+		paint2 = pf["paint2"]
+		frame = pf["frame"]
 	_pfill(Rect2(-W * 0.5, -H * 0.5, W, H), base)
 	# Painted lane: from the BASELINE to the free-throw line (FIBA 5.80 m).
 	for s2 in [-1.0, 1.0]:
@@ -486,7 +501,7 @@ func _draw_floor() -> void:
 		var ftx: float = bx - s2 * Court.FIBA_KEY_LEN
 		_pfill(Rect2(minf(bx, ftx), -Court.FIBA_PAINT_W * 0.5,
 			Court.FIBA_KEY_LEN, Court.FIBA_PAINT_W),
-			Color(0.35, 0.22, 0.55, 0.85) if wood else Color(0.20, 0.42, 0.38, 0.75))
+			paint if wood else Color(0.20, 0.42, 0.38, 0.75))
 	# Parquet: alternating plank blocks with seams, matching the tone of the
 	# perspective court so the venue reads as the same building.
 	var plank := 26.0
@@ -495,18 +510,17 @@ func _draw_floor() -> void:
 		var y: float = -H * 0.5 + i * plank
 		if i % 2 == 0:
 			_pfill(Rect2(-W * 0.5, y, W, plank), plank_col)
-		_pline(Vector2(-W * 0.5, y), Vector2(W * 0.5, y), Color(0.55, 0.36, 0.18, 0.30), 1.5)
+		_pline(Vector2(-W * 0.5, y), Vector2(W * 0.5, y), seam, 1.5)
 	var cols: int = int(W / 150.0) + 1
 	for i in range(cols):
 		var x: float = -W * 0.5 + i * 150.0
-		_pline(Vector2(x, -H * 0.5), Vector2(x, H * 0.5), Color(0.55, 0.36, 0.18, 0.22), 1.5)
+		_pline(Vector2(x, -H * 0.5), Vector2(x, H * 0.5), seam2, 1.5)
 	for s in [-1.0, 1.0]:
 		var bx: float = s * W * 0.5
 		var ftx: float = bx - s * Court.FIBA_KEY_LEN
 		_pfill(Rect2(minf(bx, ftx), -Court.FIBA_PAINT_W * 0.5, Court.FIBA_KEY_LEN,
-			Court.FIBA_PAINT_W), Color(0.62, 0.40, 0.22, 0.35))
-	_prect(Rect2(-W * 0.5 - 60, -H * 0.5 - 40, W + 120, H + 80),
-		Color(0.30, 0.22, 0.16), 34.0)
+			Court.FIBA_PAINT_W), paint2)
+	_prect(Rect2(-W * 0.5 - 60, -H * 0.5 - 40, W + 120, H + 80), frame, 34.0)
 
 # ------------------------------------------------------------------ markings
 func _draw_lines() -> void:

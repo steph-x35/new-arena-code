@@ -263,6 +263,7 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	var swing := 0.0         # leg cycle
 	var arm_swing := 0.0     # arm cycle (walking swings the arms too)
 	var arm_up := 0.0        # 0 = down, 1 = fully extended overhead
+	var spread := 0.0        # 0 = braccia addosso, 1 = aperte di lato (difesa)
 	var lean := 0.0
 	var leg_tuck := 0.0      # knees pulled up (dunk sample)
 
@@ -282,8 +283,11 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			crouch = 0.0
 			lean = 0.0
 		DEFEND:
-			crouch = h * 0.03
-			arm_up = 0.22
+			# POSA DI DIFESA VERA: gambe piegate (il bacino scende di un
+			# quinto della gamba) e braccia APERTE di lato, non davanti.
+			crouch = h * 0.095
+			arm_up = 0.16
+			spread = 1.0
 			lean = 0.0
 			# in movimento la posa difensiva CAMMINA (passo strisciato):
 			# senza ciclo delle gambe il difensore scivolerebbe sul campo.
@@ -394,11 +398,10 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	var sh_y: float = floor_y - h * 0.80 + crouch * 0.6
 	var head_y: float = floor_y - h * 0.90 - head_r * 0.35 + crouch * 0.5
 
-	# --- shadow stays on the ground and shrinks as he rises
+	# --- shadow stays on the ground and shrinks as he rises (una sola
+	#     implementazione per tutto il gioco: Avatar.draw_ground_shadow)
 	if shadow:
-		var s: float = clampf(1.0 - lift / (h * 1.2), 0.30, 1.0)
-		c.draw_colored_polygon(_ellipse(Vector2(base.x, base.y + h * 0.04),
-			Vector2(h * 0.26 * s, h * 0.075 * s)), Color(0, 0, 0, 0.28 * s))
+		draw_ground_shadow(c, base, h, lift, 1.0, 0.28)
 
 	# --- legs: opposite stride ONLY while walking. Standing still = planted.
 	var tuck: float = (lift / maxf(h, 1.0)) * h * 0.16 + leg_tuck
@@ -490,6 +493,13 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			# Reach with the character's own strong-side arm.
 			hand = Vector2(base.x + sx * h * 0.55 + lean, hip_y - h * 0.18)
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.45), lerpf(sh_p.y, hand.y, 0.40))
+		elif spread > 0.01 and not slam_pose:
+			# DIFESA, BRACCIA APERTE: la mano esce di lato all'altezza del
+			# fianco, il gomito leggermente piegato in fuori. Camminando
+			# oscillano appena, cosi' il passo strisciato si legge.
+			var sw2: float = arm_swing * 0.35 * sx
+			hand = Vector2(sh_p.x + sx * h * 0.40 + sw2, hip_y - h * 0.10 + absf(sw2) * 0.25)
+			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.55), lerpf(sh_p.y, hand.y, 0.42) - h * 0.03)
 		elif kind == DRIBBLE and strong:
 			# Hand rides the ball: bounce and palm stay glued.
 			var br0: float = h * 0.105 if ball_r < 0.0 else ball_r
@@ -662,6 +672,19 @@ static func _ellipse(c: Vector2, r: Vector2) -> PackedVector2Array:
 		var a: float = TAU * i / 18.0
 		p.append(c + Vector2(cos(a) * r.x, sin(a) * r.y))
 	return p
+
+
+## OMBRA A TERRA, UNA SOLA PER TUTTO IL GIOCO.
+## Sta sempre sui piedi (mai in aria col corpo) e RIMPICCIOLISCE man mano che
+## il giocatore sale: a terra e' piena, a un metro e' meta', in cima al salto
+## e' un nocciolo sbiadito. Prima cresceva — era il contrario della fisica.
+static func draw_ground_shadow(c: CanvasItem, feet: Vector2, h: float,
+		lift: float, wide := 1.0, alpha := 0.32) -> void:
+	var k: float = clampf(lift / maxf(h * 2.4, 1.0), 0.0, 0.78)
+	var s: float = 1.0 - k
+	var a: float = alpha * (1.0 - 0.42 * k)
+	c.draw_colored_polygon(_ellipse(feet + Vector2(0.0, h * 0.02),
+		Vector2(h * 0.27 * s * wide, h * 0.078 * s * wide)), Color(0, 0, 0, a))
 
 
 ## ------------------------------------------------------------ foot rings

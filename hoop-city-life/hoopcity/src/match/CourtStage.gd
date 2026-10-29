@@ -424,6 +424,49 @@ static func _full_street_backdrop(c: CanvasItem, w: float, h: float,
 	c.draw_polyline(fence_dn, fence_col, 1.5)
 	c.draw_polyline(fence_up, fence_col, 1.5)
 
+## ============================================================ PARQUET
+## Il colore del parquet indoor, scelto nelle Impostazioni. Quattro scelte e
+## basta: classico, nero, blu notte, rovere scuro. Un solo posto che le
+## definisce — il campo le legge da qui, quindi nessun "colore mio" sparso.
+const FLOOR_STYLES := 4
+
+static func floor_style() -> int:
+	return clampi(int(Settings.get_v("floor_style", 0)), 0, FLOOR_STYLES - 1)
+
+## Chiave di traduzione del nome (l'indice e' quello salvato in Settings).
+static func floor_name_key(i: int) -> String:
+	match clampi(i, 0, FLOOR_STYLES - 1):
+		1: return "floor.black"
+		2: return "floor.navy"
+		3: return "floor.walnut"
+		_: return "floor.classic"
+
+## Tutti i colori del pavimento in un dizionario: base, doghe, fughe, due
+## strati della vernice del pitturato, cornice.
+static func floor_colours() -> Dictionary:
+	match floor_style():
+		1:
+			return {"base": Color(0.155, 0.155, 0.175), "plank": Color(0.125, 0.125, 0.145),
+				"seam": Color(0.62, 0.62, 0.66, 0.16), "seam2": Color(0.62, 0.62, 0.66, 0.12),
+				"paint": Color(0.60, 0.14, 0.18, 0.85), "paint2": Color(0.22, 0.22, 0.26, 0.38),
+				"frame": Color(0.075, 0.075, 0.09)}
+		2:
+			return {"base": Color(0.13, 0.17, 0.28), "plank": Color(0.11, 0.145, 0.245),
+				"seam": Color(0.45, 0.55, 0.75, 0.20), "seam2": Color(0.45, 0.55, 0.75, 0.14),
+				"paint": Color(0.80, 0.52, 0.18, 0.78), "paint2": Color(0.20, 0.26, 0.40, 0.40),
+				"frame": Color(0.07, 0.09, 0.15)}
+		3:
+			return {"base": Color(0.42, 0.285, 0.185), "plank": Color(0.385, 0.255, 0.16),
+				"seam": Color(0.25, 0.16, 0.09, 0.35), "seam2": Color(0.25, 0.16, 0.09, 0.26),
+				"paint": Color(0.55, 0.18, 0.20, 0.80), "paint2": Color(0.30, 0.20, 0.13, 0.40),
+				"frame": Color(0.16, 0.11, 0.08)}
+		_:
+			return {"base": Color(0.86, 0.68, 0.42), "plank": Color(0.83, 0.64, 0.39),
+				"seam": Color(0.55, 0.36, 0.18, 0.30), "seam2": Color(0.55, 0.36, 0.18, 0.22),
+				"paint": Color(0.35, 0.22, 0.55, 0.85), "paint2": Color(0.62, 0.40, 0.22, 0.35),
+				"frame": Color(0.30, 0.22, 0.16)}
+
+
 static func _full_floor(c: CanvasItem, w: float, h: float, env: String) -> void:
 	var wood: bool = env != "street"
 	var base: Color = Color(0.86, 0.68, 0.42) if wood else Color(0.44, 0.46, 0.50)

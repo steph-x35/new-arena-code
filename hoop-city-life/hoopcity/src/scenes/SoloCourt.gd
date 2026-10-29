@@ -1679,20 +1679,15 @@ func _draw_player() -> void:
 			var py: float = screen.y - 6.0 - (i % 2) * (7.0 if dust_big else 5.0)
 			var rr: float = lerpf(9.0, 2.5, kk) if dust_big else lerpf(7.0, 2.5, kk)
 			draw_circle(Vector2(px, py), rr, Color(0.85, 0.80, 0.68, da))
-	# OMBRA REALE durante la schiacciata: a terra, scorre al centro della
-	# semicirconferenza sotto il ferro e cresce con l'altezza.
-	if dunk_phase != "":
-		var sh_world: Vector2 = player_pos.lerp(RIM, clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)) \
-			if dunk_phase == "rise" else RIM
-		var sh_base: Vector2 = _screen(sh_world)
-		var grow: float = 1.15 + clampf(lift / 240.0, 0.0, 0.35)
-		var rw: float = 14.0 * grow
-		var rh: float = 5.5 * grow
-		var pts: PackedVector2Array = []
-		for i in 20:
-			var ang: float = TAU * float(i) / 20.0
-			pts.append(sh_base + Vector2(cos(ang) * rw, sin(ang) * rh))
-		draw_colored_polygon(pts, Color(0, 0, 0, 0.40))
+	# OMBRA A TERRA (v2.49.2): una sola regola in tutto il gioco — sta sotto
+	# i piedi (o sotto il ferro, in schiacciata) e RIMPICCIOLISCE mentre
+	# sale. Prima cresceva con l'altezza: contro la fisica.
+	var sh_world: Vector2 = draw_base
+	if dunk_phase == "rise":
+		sh_world = player_pos.lerp(RIM, clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0))
+	elif dunk_phase != "":
+		sh_world = RIM
+	Avatar.draw_ground_shadow(self, _screen(sh_world), h, lift, 1.0, 0.36)
 	# ANELLO A TERRA (v2.49.0): la schiacciata a tempo mentre sali, il
 	# contest mentre carichi il tiro. Sta sotto i piedi, segue il giocatore.
 	var feet: Vector2 = _screen(draw_base)
@@ -1751,7 +1746,7 @@ func _draw_player() -> void:
 				* Transform2D(0.09 * facing, Vector2(1.0, 0.93)) \
 				* Transform2D(0.0, Vector2.ONE, 0.0, -screen)
 		Avatar.draw_body(self, screen, h, facing, po, Avatar.colours(true), hold_ball,
-			dunk_phase == "", true, BALL_R, xf)
+			false, true, BALL_R, xf)
 	# HEAT CHECK: stesse lingue di fuoco del match (helper condiviso).
 	if hot and not bool(Settings.get_v("lowgfx", false)):
 		Avatar.draw_flames(self, screen + Vector2(0.0, -h * 1.16), Time.get_ticks_msec() / 1000.0)

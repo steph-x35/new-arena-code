@@ -26,6 +26,30 @@ func _ready() -> void:
 
 	_lang_row(v)
 
+	# CAMPO: il colore del parquet indoor. Quattro scelte, un tasto che gira.
+	_section(v, Loc.t("floor.title"))
+	var flbl := Label.new()
+	flbl.add_theme_font_size_override("font_size", 21)
+	flbl.text = "%s:  %s" % [Loc.t("floor.title"),
+		Loc.t(CourtStage.floor_name_key(CourtStage.floor_style()))]
+	v.add_child(flbl)
+	var fbtn := Button.new()
+	fbtn.text = Loc.t("floor.change")
+	fbtn.custom_minimum_size = Vector2(420, 64)
+	fbtn.add_theme_font_size_override("font_size", 20)
+	fbtn.pressed.connect(func():
+		var n: int = (CourtStage.floor_style() + 1) % CourtStage.FLOOR_STYLES
+		Settings.set_v("floor_style", n)
+		flbl.text = "%s:  %s" % [Loc.t("floor.title"), Loc.t(CourtStage.floor_name_key(n))]
+		Events.toast.emit(Loc.t(CourtStage.floor_name_key(n))))
+	v.add_child(fbtn)
+	var fhint := Label.new()
+	fhint.text = Loc.t("floor.hint")
+	fhint.add_theme_font_size_override("font_size", 16)
+	fhint.modulate = Color(1, 1, 1, 0.5)
+	fhint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	v.add_child(fhint)
+
 	_section(v, Loc.t("settings.controls"))
 	_row_slider(v, Loc.t("settings.stick"), "joystick_sensitivity", 0.4, 2.0, 0.1)
 	_row_toggle(v, Loc.t("settings.vibration"), "vibration", true, false)
