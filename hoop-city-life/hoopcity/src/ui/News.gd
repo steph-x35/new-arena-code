@@ -15,6 +15,7 @@ class_name News
 
 ## Titolo grosso (colore caldo) e corpo, uno dopo l'altro.
 const ITEMS := [
+	["news.v1", "news.v1.b"],
 	["news.hallow", "news.hallow.b"],
 	["news.n1", "news.n1.b"],
 	["news.n2", "news.n2.b"],

@@ -160,48 +160,52 @@ func _draw_spooky_street() -> void:
 		i += 1
 
 
-## I PIPISTRELLI: un layer a parte che ridisegna solo se stesso. Volano
-## piano da sinistra a destra DAVANTI ai palazzi, ognuno con la sua quota e
-## la sua velocita' (deterministiche: nessun salto quando rientri in citta').
+## I PIPISTRELLI: un layer a parte (la citta' sotto non si ridisegna).
 ##
-## La quota NON e' un numero fisso. La citta' si vede dal marciapiede alle
-## insegne (y -270) e la striscia di cielo in alto si sposta col giocatore:
-## a y=-560 i pipistrelli volavano fuori dallo schermo, sempre. Quindi ogni
-## volta che ridisegna chiede alla camera dov'e' il bordo alto e si mette
-## 60-130 px sotto: sopra i tetti quando il cielo si vede, davanti alle
-## facciate quando la camera e' bassa. Stessa cosa per la x: l'orizzonte
-## utile e' quello che si guarda, non tutta la strada.
+## v2.49.4: volano in COORDINATE DEL MONDO, cioè ognuno per la sua strada
+## lungo la via. Prima erano appesi al centro della camera: restavano
+## fermi sullo schermo mentre il marciapiede scorreva sotto, e sembravano
+## seguire il personaggio (e "laggare" rispetto ai palazzi). Ora, se tu
+## cammini, sono loro a passare di lato, come i palazzi: nessuno li spinge.
+##
+## Quota: i tetti arrivano a y -280 e la fascia di cielo visibile e' circa
+## -283..-419, quindi stanno fra -296 e -345. Negli altri punti della
+## strada non volano: sono pipistrelli, non un fondale.
 class SpookySky extends Node2D:
-	# x/y relativi al CENTRO della camera; v = px al secondo; s = apertura.
+	# v = px al secondo; s = apertura alare; off = punto di partenza sulla
+	# rotta (la stessa strada per tutti, sfalsata: mai a grappolo).
 	const BATS := [
-		{"dy": -330.0, "s": 24.0, "v": 46.0},
-		{"dy": -296.0, "s": 17.0, "v": 34.0},
-		{"dy": -318.0, "s": 20.0, "v": 58.0},
-		{"dy": -286.0, "s": 14.0, "v": 30.0},
+		{"y": -298.0, "s": 24.0, "v": 78.0, "off": 0.0},
+		{"y": -320.0, "s": 17.0, "v": 58.0, "off": 1400.0},
+		{"y": -306.0, "s": 20.0, "v": 96.0, "off": 2800.0},
+		{"y": -340.0, "s": 14.0, "v": 66.0, "off": 4200.0},
+		{"y": -330.0, "s": 18.0, "v": 84.0, "off": 5600.0},
 	]
+	# La rotta: da 3400 px fuori il negozio piu' a sinistra a 3600 fuori
+	# quello piu' a destra. Fuori da qui si riavvolgono, cioe' sempre FUORI
+	# dal campo visivo: nessun pipistrello che sparisce sotto gli occhi.
+	const X0 := -3400.0
+	const SPAN := 7000.0
 	var t := 0.0
+
 	var _acc := 0.0
 
 	func _process(delta: float) -> void:
 		t += delta
 		_acc += delta
-		if _acc < 0.08:
+		# 5 pipistrelli costano una manciata di comandi; 30 ridisegni al
+		# secondo (non 12) bastano perche' le ali non scattino, e il layer e'
+		# solo loro: la citta' sotto non si tocca.
+		if _acc < 0.033:
 			return
 		_acc = 0.0
 		queue_redraw()
 
 	func _draw() -> void:
-		var c: Vector2 = Vector2.ZERO
-		var cam := get_viewport().get_camera_2d()
-		if cam != null:
-			c = cam.get_screen_center_position()
 		for i in BATS.size():
 			var b: Dictionary = BATS[i]
-			# ognuno parte in un punto diverso della corsia: 4 pipistrelli
-			# sparsi, mai tutti nello stesso palmo di cielo
-			var span: float = 1180.0
-			var x: float = c.x + fmod(t * float(b["v"]) + float(i) * 295.0, span) - 590.0
-			var y: float = c.y + float(b["dy"]) + sin(t * 0.9 + float(i) * 2.1) * 12.0
+			var x: float = X0 + fmod(float(b["off"]) + t * float(b["v"]), SPAN)
+			var y: float = float(b["y"]) + sin(t * 0.9 + float(i) * 2.1) * 12.0
 			Spooky.draw_bat(self, Vector2(x, y), float(b["s"]), t + float(i) * 1.7)
 
 

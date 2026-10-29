@@ -1563,8 +1563,10 @@ func _draw_spooky_park(tt: float, g_top: float, g_bot: float) -> void:
 	# y: la camera del campetto sta a -40 con zoom 1.04, quindi si vede fino
 	# a y ~ -386 -- la fascia di cielo e' -386..-260. A -430 i pipistrelli
 	# volavano fuori dallo schermo: qui stanno tutti dentro.
+	# Rotta larga 1900 px, cioe' piu' dello schermo: si riavvolgono fuori
+	# campo, non davanti al canestro.
 	for i in 3:
-		var bx3: float = fmod(tt * (34.0 + float(i) * 9.0) + float(i) * 420.0, 1240.0) - 620.0
+		var bx3: float = fmod(tt * (34.0 + float(i) * 9.0) + float(i) * 640.0, 1900.0) - 950.0
 		var by3: float = -302.0 - float(i) * 26.0 + sin(tt * 0.8 + float(i) * 2.0) * 12.0
 		Spooky.draw_bat(self, Vector2(bx3, by3), 20.0 - float(i) * 3.0, tt + float(i) * 1.9)
 

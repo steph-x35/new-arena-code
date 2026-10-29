@@ -38,6 +38,9 @@ const STR := {
 	"news.b7":        ["• The dunk camera: a zoom that sways with your swing on the rim.", "• La camera della schiacciata: zoom che ondeggia col tuo dondolio sul ferro."],
 	"news.outro":     ["And yes — dunks still hang on the rim.", "E sì: le schiacciate si appendono ancora al ferro."],
 	# --- v2.49.x: le cose che si VEDONO appena apri il gioco
+	# v2.49.4: non e' piu' una prova, e' la regola.
+	"news.v1":         ["THE 1V1 IS OFFICIAL", "IL 1v1 E' UFFICIALE"],
+	"news.v1.b":       ["One ball, two phones, points that count: 2 inside the arc, 3 behind the line, whoever concedes starts on offence, CHECK to get going. It is the way the game is played now — street court and shared court, same rules.", "Una palla, due telefoni, punti che contano davvero: 2 dentro l'arco, 3 da fuori, chi subisce riparte in attacco, CHECK per partire. Ora si gioca così, campetto e campo condiviso con le stesse regole."],
 	"news.hallow":     ["HALLOWEEN — TILL 5 NOVEMBER", "HALLOWEEN — FINO AL 5 NOVEMBRE"],
 	"news.hallow.b":   ["Carved pumpkins along the street and around the park court, cobwebs on the awnings and bats over the rooftops. The floodlights go warm orange at night. You can switch it off in Settings.", "Zucche intagliate lungo la strada e attorno al campetto, ragnatele sulle tende e pipistrelli sui tetti. Di notte i fari diventano arancio caldo. Si spegne dalle Impostazioni."],
 	"news.n1":         ["THE STREET COURT AT NIGHT", "IL CAMPETTO DI NOTTE"],
