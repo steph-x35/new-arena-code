@@ -541,8 +541,15 @@ func _process(delta: float) -> void:
 			meter.frozen = false
 			meter.charge = charge
 			meter.ideal = ideal
+			# CONTEST: il metro ha gia' il segnale (anello rosso + pallino
+			# verde/giallo/rosso) e nel match lo accende court.pressure_on.
+			# Nel 1v1 non veniva MAI impostato: la finestra si stringeva
+			# quando l'altro ti metteva le mani in faccia e tu non vedevi
+			# nulla. Stessa formula di Player.contest_value_against.
+			meter.contest = _contest_now()
 		elif not meter.frozen:
 			meter.visible = false
+			meter.contest = 0.0
 		_place_meter()
 	if btn_shoot:
 		# Il primario cambia con la fase — STESSI nomi e STESSE icone del
@@ -617,6 +624,22 @@ func _my_move(delta: float) -> void:
 		if fx_g != 0.0:
 			facing = fx_g
 	_clamp_me()
+
+
+func _contest_now() -> float:
+	## Quanto mi sta addosso chi difende, 0..1 — la stessa scala del match:
+	## 130 px di raggio, la posa DIFENDI pesa, il SALTO pesa di piu'.
+	if not duel_on or not i_attack:
+		return 0.0
+	var d: float = player_pos.distance_to(foe["pos"] as Vector2)
+	if d > 130.0:
+		return 0.0
+	var c: float = 1.0 - d / 130.0
+	if bool(foe.get("ct", false)):
+		c *= 1.12
+	if bool(foe.get("jm", false)):
+		c *= 1.35
+	return clampf(c, 0.0, 1.0)
 
 
 func _can_dunk() -> bool:

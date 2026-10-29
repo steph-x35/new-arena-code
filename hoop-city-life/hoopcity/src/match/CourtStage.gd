@@ -294,22 +294,59 @@ static func _full_arena_backdrop(c: CanvasItem, w: float, h: float) -> void:
 	# advertising hoarding along the front of the stand
 	c.draw_rect(Rect2(-w, far_y - 58.0, w * 2.0, 56.0), Color(0.11, 0.16, 0.30))
 
+## Quanto e' notte, 0..1, dall'orologio del gioco. Un solo posto che lo
+## calcola: le luci del campetto e il cielo devono raccontare la stessa ora.
+static func night_amount() -> float:
+	var tday: float = Game.day_t() * 24.0 if Game != null else 12.0
+	if tday < 6.5 or tday > 19.5:
+		return 1.0
+	if tday < 8.0:
+		return 1.0 - (tday - 6.5) / 1.5
+	if tday > 18.0:
+		return (tday - 18.0) / 1.5
+	return 0.0
+
 static func _full_street_backdrop(c: CanvasItem, w: float, h: float,
 		t: float) -> void:
 	var far_y: float = m_project(Vector2(0.0, -h * 0.5), h).y
+	# v2.48.3: IL CIELO SEGUE L'OROLOGIO. Prima restava azzurro a mezzanotte
+	# mentre i fari si accendevano: campetto di giorno con le luci accese.
+	var night: float = night_amount()
+	var sky: Color = Color(0.53, 0.71, 0.86).lerp(Color(0.045, 0.06, 0.14), night)
+	c.draw_rect(Rect2(-w, far_y - 900.0, w * 2.0, 900.0), sky)
+	if night > 0.02:
+		# la citta' accesa rischiara l'orizzonte
+		c.draw_rect(Rect2(-w, far_y - 300.0, w * 2.0, 300.0),
+			Color(0.42, 0.26, 0.22, 0.22 * night))
+		# stelle: deterministiche (nessun randf: il fondale si ridisegna)
+		for k in 70:
+			var sx: float = -w + fmod(float(k) * 271.3 + 40.0, w * 2.0)
+			var sy: float = far_y - 880.0 + fmod(float(k) * 137.7, 560.0)
+			var br: float = 0.25 + 0.60 * absf(sin(float(k) * 12.9898))
+			c.draw_circle(Vector2(sx, sy), 1.7, Color(1, 0.97, 0.88, br * night))
 	# sky and city block
-	c.draw_rect(Rect2(-w, far_y - 900.0, w * 2.0, 900.0), Color(0.53, 0.71, 0.86))
 	var bx: float = -w
 	var i := 0
 	while bx < w:
 		var bh: float = 150.0 + fmod(float(i) * 97.0, 220.0)
+		var bcol: Color = Color(0.38, 0.42, 0.50).lerp(
+			Color(0.30, 0.33, 0.42), fmod(float(i) * 0.3, 1.0))
 		c.draw_rect(Rect2(bx, far_y - 120.0 - bh, 150.0, bh),
-			Color(0.38, 0.42, 0.50).lerp(Color(0.30, 0.33, 0.42), fmod(float(i) * 0.3, 1.0)))
+			bcol.lerp(Color(0.05, 0.06, 0.11), night))
+		if night > 0.02:
+			# finestre accese: e' quello che rende "citta' di notte" in 4 px
+			for wy in 4:
+				for wx in 3:
+					if int(i * 7 + wy * 3 + wx) % 3 != 0:
+						continue
+					c.draw_rect(Rect2(bx + 22.0 + wx * 46.0,
+						far_y - 100.0 - bh + 26.0 + wy * 42.0, 18.0, 22.0),
+						Color(1.0, 0.86, 0.52, 0.55 * night))
 		bx += 175.0
 		i += 1
 	# trees behind the fence — foliage follows season (dry + drop in autumn)
 	var fol: float = WeatherArt.foliage()
-	var leaf: Color = WeatherArt.leaf_color()
+	var leaf: Color = WeatherArt.leaf_color().lerp(Color(0.04, 0.08, 0.07), night)
 	var tx: float = -w + 120.0
 	while tx < w:
 		c.draw_rect(Rect2(tx - 9.0, far_y - 190.0, 18.0, 120.0), Color(0.32, 0.23, 0.15))
@@ -335,7 +372,8 @@ static func _full_street_backdrop(c: CanvasItem, w: float, h: float,
 	if WeatherArt.weather() == "snow" or WeatherArt.season() == "winter":
 		c.draw_rect(Rect2(-w, far_y - 40.0, w * 2.0, 50.0), Color(0.92, 0.94, 0.98, 0.40))
 	# graffiti wall + chain fence
-	c.draw_rect(Rect2(-w, far_y - 120.0, w * 2.0, 120.0), Color(0.60, 0.58, 0.55))
+	c.draw_rect(Rect2(-w, far_y - 120.0, w * 2.0, 120.0),
+		Color(0.60, 0.58, 0.55).lerp(Color(0.17, 0.18, 0.22), night))
 	var tags := [Color(0.86, 0.25, 0.30), Color(0.25, 0.55, 0.82), Color(0.95, 0.72, 0.20)]
 	var gx: float = -w + 90.0
 	var gi := 0
@@ -383,3 +421,13 @@ static func _full_floor(c: CanvasItem, w: float, h: float, env: String) -> void:
 				tone)
 		y = y2
 		row += 1
+	# v2.48.3: di notte l'asfalto e' quello che i fari illuminano. Una pozza
+	# di luce calda al centro (prima il campo restava giorno pieno anche a
+	# mezzanotte, mentre le luci erano accese).
+	if not wood:
+		var nn: float = night_amount()
+		if nn > 0.02:
+			var ctr: Vector2 = m_project(Vector2(0.0, 0.0), h)
+			for k in 6:
+				var rad: float = 240.0 + float(k) * 190.0
+				c.draw_circle(ctr, rad, Color(1.0, 0.92, 0.68, 0.022 * nn))

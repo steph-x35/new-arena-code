@@ -895,14 +895,9 @@ func _draw_light_pools() -> void:
 
 func _draw_street_floods() -> void:
 	## A handful of park floodlights so the outdoor court stays playable at night.
-	var night: float = 0.0
-	var tday: float = Game.day_t() * 24.0 if Game != null else 12.0
-	if tday < 6.5 or tday > 19.5:
-		night = 1.0
-	elif tday < 8.0:
-		night = 1.0 - (tday - 6.5) / 1.5
-	elif tday > 18.0:
-		night = (tday - 18.0) / 1.5
+	## v2.48.3: la notte la calcola CourtStage, una volta sola, cosi' fari e
+	## cielo raccontano la stessa ora.
+	var night: float = CourtStage.night_amount()
 	if night < 0.08:
 		return
 	var poles := [
