@@ -17,7 +17,16 @@ const BALL_R := Court.BALL_R
 const CAM_ZOOM := 1.04
 const MOVE_SPEED := 255.0
 const LEFT_RIM := Vector2(-Court.COURT_W * 0.5 + Court.FIBA_HOOP_INSET, 0.0)
-const SEND_HZ := 60.0          # v2.47.6: era 30 — a 60 la posa dell'altro
+const SEND_HZ := 60.0
+## INTERPOLAZIONE DELL'ALTRO (v2.49.1). Prima si PROIETTAVA nel futuro:
+## posizione + velocita' per 0,18 s, poi si piantava, poi un lerp esponenziale
+## (26*delta) la riportava indietro. Risultato: l'avversario avanzava a
+## scatti, si fermava e saltava avanti — e a chi difende sembrava lag.
+## Ora si mostra il PASSATO di ~2-3 pacchetti e si interpola FRA DUE
+## posizioni vere: movimento continuo qualunque sia il ritmo del WiFi.
+const FOE_MIN_DELAY := 0.045
+const FOE_MAX_DELAY := 0.16
+const FOE_TELEPORT := 120.0     # px in un pacchetto: e' un teletrasporto          # v2.47.6: era 30 — a 60 la posa dell'altro
                                # e' vecchia di 8 ms invece di 17, e le due
                                # registrazioni del reel restano allineate.
 const DUNK_R := 132.0          # ~7 piedi dal ferro
@@ -64,6 +73,7 @@ var npcs: Array = []          # i bambini dall'altro lato del campo
 # ---- la mia schiacciata (stessa coreografia del campetto solo)
 var dunk_phase := ""           # "" | rise | hang | drop
 var dunk_timed := ""           # "" | perfect | early | late (v2.49.0)
+var dunk_blocked := false      # l'ultima schiacciata e' stata stoppata
 var _lockdown := false         # v2.49.0: 3 difese buone di fila
 var _def_good := 0
 var _stumble_t := 0.0          # mi hanno rotto le caviglie: non mi muovo
@@ -139,6 +149,16 @@ var _seq := 0                 # numero del prossimo pacchetto che spedisco
 var _foe_seq := -1            # ultimo numero arrivato dall'altro telefono
 var _foe_vel := Vector2.ZERO  # px/s dell'altro, lisciata
 var _foe_rx := 0.0            # quando e' arrivato l'ultimo pacchetto (s)
+var _foe_hist: Array = []     # [{t, p}] ultime posizioni vere dell'altro
+var _foe_delay := 0.08        # quanto indietro lo si mostra (s)
+# DIAGNOSTICA (v2.49.1): FPS vero accanto al ping. Serve a distinguere "il
+# telefono non ce la fa" (FPS bassi) da "il WiFi e' lento" (ping alto).
+var _ping_ms := 0
+var _fps_acc := 0.0
+var _fps_n := 0
+var _fps := 0
+var _hud_t := 0.0
+var _gap_ms := 0
 var _foe_rej := 0             # pacchetti vecchi scartati di fila
 
 # ---- SFIDA 1V1 (v2.45.0): una palla sola, punteggio e possesso.
@@ -241,8 +261,7 @@ func _exit_tree() -> void:
 
 func _on_ping_ms(ms: int) -> void:
 	## 0-40 ms: si gioca. 40-80: si sente. Oltre 80: e' il WiFi, non il gioco.
-	if lbl_ping != null:
-		lbl_ping.text = "PING %d ms" % ms
+	_ping_ms = ms
 
 
 func _my_look() -> Dictionary:
@@ -489,17 +508,7 @@ func _process(delta: float) -> void:
 		# Quattro pacchetti di silenzio: si e' fermato, o la rete ha perso
 		# colpi sul serio. Niente proiezione: si resta sull'ultima vera.
 		_foe_vel = Vector2.ZERO
-	# v2.48.1: la proiezione arriva fino a 0,18 s. Prima si fermava a 0,10 e
-	# dopo 0,15 azzerava la velocita': un pacchetto perso = l'altro si
-	# PIANTAVA per un decimo di secondo, e a chi difende sembrava lag.
-	var tp: Vector2 = (foe["t_pos"] as Vector2) + _foe_vel * clampf(since, 0.0, 0.18)
-	var cur: Vector2 = foe["pos"] as Vector2
-	if cur.distance_to(tp) > 90.0:
-		# stacco vero (lag spike, teletrasporto del 1v1): si salta, non si
-		# scivola per mezzo campo. Un lerp qui sarebbe una scivolata.
-		foe["pos"] = tp
-	else:
-		foe["pos"] = cur.lerp(tp, clampf(26.0 * delta, 0.0, 1.0))
+	foe["pos"] = _foe_render_pos(_now())
 	# EUROSTEP: due tempi — laterale, poi esplosione verso il ferro — e
 	# chiusura automatica (schiacciata se vicino, layup se no)
 	if euro_t > 0.0:
@@ -536,6 +545,27 @@ func _process(delta: float) -> void:
 		if _look_t <= 0.0:
 			_look_t = 1.2
 			NetLayer.rpc("rpc_duel_look", _my_look())
+	# DIAGNOSTICA: fps medi + ritardo dell'ultimo pacchetto dell'altro.
+	_fps_acc += delta
+	_fps_n += 1
+	_hud_t -= delta
+	if _hud_t <= 0.0:
+		_hud_t = 0.4
+		if _fps_acc > 0.0001:
+			_fps = int(round(float(_fps_n) / _fps_acc))
+		_fps_acc = 0.0
+		_fps_n = 0
+		if _net_ok and _foe_rx > 0.0:
+			_gap_ms = int(clampf((_now() - _foe_rx) * 1000.0, 0.0, 999.0))
+		if lbl_ping != null and _net_ok:
+			var txt: String = "PING %d ms · %d FPS" % [_ping_ms, _fps]
+			if _gap_ms > 140:
+				# la rete e' in ritardo: e' questo che si sente come scatto
+				txt += " · NET -%d" % _gap_ms
+			if lbl_ping.text != txt:
+				lbl_ping.text = txt
+				lbl_ping.add_theme_color_override("font_color",
+					Color(1.0, 0.55, 0.40, 0.9) if _gap_ms > 140 else Color(1, 1, 1, 0.55))
 	_camera(delta)
 	_send(delta)
 	_duel_tick(delta)
@@ -801,10 +831,21 @@ func _dunk_flow(delta: float) -> void:
 				through_rim = false
 				ball_live = true
 	if dunk_phase == "rise" and dunk_anim >= dunk_rise_t:
-		_dunk_throw()
+		# v2.49.1: _dunk_throw() dice se e' ENTRATA. Prima una schiacciata
+		# stoppata finiva comunque appesa al ferro con lo swish: il bug piu'
+		# brutto del 1v1, il canestro si sentiva anche quando non c'era.
+		var made_dunk: bool = _dunk_throw()
+		if not made_dunk:
+			dunk_phase = "drop"
+			dunk_anim = 0.20
+			dunk_blocked = true
+			dunk_ball_t = 0.0
+			hang_swing_t = 0.0
+			return
 		# La rete canta ESATTAMENTE una volta: al momento della schiacciata.
 		Sfx.play("swish", -1.0, randf_range(0.84, 0.90))
 		dunk_phase = "hang"
+		dunk_blocked = false
 		dunk_anim = 0.0
 		hang_swing_t = 0.0
 		dunk_ball_t = 0.0
@@ -1133,12 +1174,13 @@ func _start_dunk() -> void:
 	dunk_phase = "rise"
 	dunk_anim = 0.0
 	dunk_timed = ""
+	dunk_blocked = false
 	dunk_ball_t = 0.0
 	dunk_style = DunkStyle.pick()
 	dunk_rise_t = DunkStyle.rise_time(dunk_style)
 
 
-func _dunk_throw() -> void:
+func _dunk_throw() -> bool:
 	if dunk_timed == "":
 		dunk_timed = "late"
 	# STOPPATA AL FERRO: solo una schiacciata FUORI TEMPO si puo' stoppare,
@@ -1178,7 +1220,7 @@ func _dunk_throw() -> void:
 		dunk_phase = "drop"
 		dunk_anim = 0.30
 		dunk_ball_t = 0.0
-		return
+		return false
 	net_wobble = 1.0
 	Sfx.haptic(60)
 	if court_art != null:
@@ -1196,6 +1238,7 @@ func _dunk_throw() -> void:
 		_duel_scored()
 	else:
 		i_hold = false
+	return true
 
 
 func _drop_from_rim() -> void:
@@ -1550,20 +1593,40 @@ func _on_foe_state(d: Dictionary) -> void:
 		_foe_rej = 0
 		_foe_seq = q
 	var prev_dp: String = String(foe.get("dp", ""))
-	# velocita' dell'altro: differenza fra due posizioni divisa per il tempo
-	# VERO passato fra i due pacchetti (se ne manca uno, il conto torna)
 	var now := _now()
 	var np: Vector2 = d.get("p", foe["t_pos"])
-	var gap: float = now - _foe_rx
-	if _foe_rx > 0.0 and gap > 0.004 and gap < 0.25:
-		var v: Vector2 = (np - (foe["t_pos"] as Vector2)) / gap
-		if _foe_vel == Vector2.ZERO:
-			_foe_vel = v
-		else:
-			# 0,75 = risposta rapida: se l'altro frena o cambia direzione la
-			# proiezione lo segue subito, senza scivolargli davanti.
-			_foe_vel = _foe_vel.lerp(v, 0.75)
+	# TELETRASPORTO (check, rimessa dopo canestro): non si interpola niente,
+	# si azzera la storia e si appare dove si e' davvero.
+	var snapped := false
+	if not _foe_hist.is_empty():
+		var last: Dictionary = _foe_hist[_foe_hist.size() - 1]
+		if np.distance_to(last["p"] as Vector2) > FOE_TELEPORT \
+		or now - float(last["t"]) > 0.60:
+			_foe_hist.clear()
+			snapped = true
+	if snapped:
+		foe["pos"] = np
+		_foe_vel = Vector2.ZERO
+	else:
+		# velocita' dell'altro (serve solo se la rete tace: si proietta al
+		# massimo per 0,14 s, poi si tiene la posizione vera)
+		var gap: float = now - _foe_rx
+		if _foe_rx > 0.0 and gap > 0.004 and gap < 0.25:
+			var v: Vector2 = (np - (foe["t_pos"] as Vector2)) / gap
+			if _foe_vel == Vector2.ZERO:
+				_foe_vel = v
+			else:
+				_foe_vel = _foe_vel.lerp(v, 0.75)
 	_foe_rx = now
+	_foe_hist.append({"t": now, "p": np})
+	while _foe_hist.size() > 16:
+		_foe_hist.pop_front()
+	# ritardo di lisciatura: 1,5 volte il distacco medio fra due pacchetti
+	if _foe_hist.size() >= 3:
+		var a3: Dictionary = _foe_hist[_foe_hist.size() - 3]
+		var b3: Dictionary = _foe_hist[_foe_hist.size() - 1]
+		var avg: float = (float(b3["t"]) - float(a3["t"])) / 2.0
+		_foe_delay = clampf(avg * 1.5, FOE_MIN_DELAY, FOE_MAX_DELAY)
 	foe["t_pos"] = np
 	foe["facing"] = d.get("f", foe["facing"])
 	foe["kind"] = d.get("k", Avatar.DRIBBLE)
@@ -1586,8 +1649,34 @@ func _on_foe_state(d: Dictionary) -> void:
 	foe["jm"] = d.get("jm", false)
 	foe["hd"] = d.get("hd", true)
 	foe["st"] = d.get("st", false)
+	foe["ld"] = d.get("ld", false)
 	foe["live"] = true
 	# (la palla dell'altro non viaggia nello stato: la simula il suo tiro)
+
+
+func _foe_render_pos(now: float) -> Vector2:
+	## Dove disegnare l'altro ADESSO: si guarda un po' indietro nel tempo
+	## (_foe_delay) e si interpola fra i due campioni veri che lo circondano.
+	## Se la rete tace si proietta per 0,14 s al massimo, poi si tiene.
+	if _foe_hist.is_empty():
+		return foe["t_pos"] as Vector2
+	var n: int = _foe_hist.size()
+	var rt: float = now - _foe_delay
+	var last: Dictionary = _foe_hist[n - 1]
+	if rt >= float(last["t"]):
+		var ahead: float = minf(rt - float(last["t"]), 0.14)
+		return (last["p"] as Vector2) + _foe_vel * ahead
+	var first: Dictionary = _foe_hist[0]
+	if rt <= float(first["t"]):
+		return first["p"] as Vector2
+	for i in range(n - 1):
+		var a: Dictionary = _foe_hist[i]
+		var b: Dictionary = _foe_hist[i + 1]
+		if rt >= float(a["t"]) and rt <= float(b["t"]):
+			var span: float = maxf(float(b["t"]) - float(a["t"]), 0.001)
+			var k: float = clampf((rt - float(a["t"])) / span, 0.0, 1.0)
+			return (a["p"] as Vector2).lerp(b["p"], k)
+	return last["p"] as Vector2
 
 
 func _on_foe_shot(d: Dictionary) -> void:
@@ -1828,6 +1917,7 @@ func _duel_check(i_off: bool) -> void:
 	# appesa o la finta in corso resta piantato a mezz'aria sul posto nuovo.
 	dunk_phase = ""
 	dunk_timed = ""
+	dunk_blocked = false
 	dunk_anim = 0.0
 	shot_anim = 0.0
 	pump_t = 0.0
@@ -1847,6 +1937,9 @@ func _duel_check(i_off: bool) -> void:
 	foe["pos"] = dfn if i_off else atk
 	foe["t_pos"] = foe["pos"]
 	_foe_vel = Vector2.ZERO
+	# il check e' un TELETRASPORTO: la storia dell'interpolazione va buttata,
+	# altrimenti per un frame l'altro tornerebbe al punto di prima.
+	_foe_hist.clear()
 	facing = 1.0 if i_off else -1.0
 	_duel_update_top()
 	_say(Loc.t("duel.checkgo") if i_off else Loc.t("duel.checkwait"), 4.0)
@@ -1895,6 +1988,8 @@ func _duel_start(target: int, first_role: String) -> void:
 	foe["pos"] = dfn if i_attack else atk
 	foe["t_pos"] = foe["pos"]
 	_foe_vel = Vector2.ZERO
+	_foe_hist.clear()
+	_foe_delay = 0.08
 	if meter != null:
 		meter.visible = false
 	_duel_update_top()
@@ -1913,6 +2008,8 @@ func _duel_update_top() -> void:
 func _duel_scored() -> void:
 	## Ho segnato io. OFFLINE: dopo OGNI canestro si torna al CHECK, con i due
 	## rimessi nella formazione e FERMI — non si riparte a giocare subito.
+	if not duel_on or duel_phase == "over":
+		return   # la partita e' finita: un verdetto in ritardo non la riapre
 	i_attack = false
 	must_clear = false
 	ball_loose = false
@@ -1925,6 +2022,8 @@ func _duel_scored() -> void:
 
 func _duel_foe_scored() -> void:
 	## Ha segnato lui: stessa cosa, palla a me e CHECK prima di giocare.
+	if not duel_on or duel_phase == "over":
+		return   # canestro arrivato dopo il fischio finale: si ignora
 	i_attack = true
 	must_clear = false
 	ball_loose = false
@@ -1940,7 +2039,9 @@ func _duel_foe_scored() -> void:
 
 func _after_basket(i_off: bool) -> void:
 	## OFFLINE: canestro = palla morta e si torna al CHECK, tutti fermi nella
-	## formazione. Online pero' la palla e' ancora in volo quando arriva il
+	## formazione.
+	if duel_phase == "over":
+		return Online pero' la palla e' ancora in volo quando arriva il
 	## verdetto: la si lascia cadere nella rete (0,7 s) e POI si riparte,
 	## altrimenti spariva a meta' parabola.
 	duel_phase = "reset"
@@ -2090,6 +2191,7 @@ func _duel_free() -> void:
 	must_clear = false
 	charging = false
 	dunk_phase = ""
+	dunk_blocked = false
 	shot_anim = 0.0
 	pump_t = 0.0
 	_def_held = false
@@ -2442,7 +2544,7 @@ func _draw_char(mine: bool) -> void:
 			bp.y = screen.y - h * 0.30 + low * h * 0.06
 		_draw_ball_at(bp, BALL_R)
 	# la palla della schiacciata che cade nella retina
-	if dp == "hang" or dp == "drop":
+	if (dp == "hang" or dp == "drop") and not dunk_blocked:
 		var fdt: float = clampf(dbt * 1.7, 0.0, 1.0)
 		_draw_ball_at(_rim_screen().lerp(_screen(RIM), fdt * fdt), BALL_R)
 	# fiamme quando e' HOT (le mie in locale, le sue dal suo stato)

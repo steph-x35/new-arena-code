@@ -909,9 +909,12 @@ func _draw_street_floods() -> void:
 		_c().draw_line(s, s + Vector2(0, -210), Color(0.28, 0.28, 0.30), 7.0)
 		_c().draw_line(s + Vector2(0, -210), s + Vector2(36, -200), Color(0.28, 0.28, 0.30), 5.0)
 		_c().draw_circle(s + Vector2(36, -196), 12.0, Color(1.0, 0.95, 0.72, 0.95 * night))
-		for k in 7:
-			_c().draw_circle(s + Vector2(10, 20), 80.0 + k * 48.0,
-				Color(1.0, 0.90, 0.55, 0.045 * night))
+		# v2.49.1: 7 aloni per palo erano 28 cerchi grandi semitrasparenti
+		# (fino a 368 px) ridisegnati ogni frame. Tre bastano allo stesso
+		# effetto: si erano aggiunti col campetto di notte e pesavano.
+		for k in 3:
+			_c().draw_circle(s + Vector2(10, 20), 90.0 + k * 120.0,
+				Color(1.0, 0.90, 0.55, 0.075 * night))
 
 
 
