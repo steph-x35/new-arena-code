@@ -1,6 +1,6 @@
-# COLLAUDO 1V1 — due telefoni (v2.48.1)
+# COLLAUDO 1V1 — due telefoni (v2.48.2)
 
-**APK:** https://github.com/steph-x35/new-arena-code/releases/download/v2.48.1/HoopCity-v2.48.1.apk
+**APK:** https://github.com/steph-x35/new-arena-code/releases/download/v2.48.2/HoopCity-v2.48.2.apk
 Stessa rete (WiFi di casa **o** hotspot di uno dei due). Porta 7777, scoperta UDP 47899.
 
 Installazione: se Android dice «origini sconosciute», è normale — è un APK, non Play Store.
@@ -14,11 +14,15 @@ Installazione: se Android dice «origini sconosciute», è normale — è un APK
 | 1 | Menu → SFIDA UN AMICO su A, l'altro si collega | tutti e due sul campetto, vi vedete muovere |
 | 2 | aspetti 2 secondi | compare **SFIDA 1V1** in alto al centro, su **tutti e due** |
 | 3 | A: SFIDA 1V1 → **A 11** | su B si apre la card «... ti sfida — a 11» con ACCETTA / RIFIUTA |
-| 4 | B: ACCETTA | countdown 3-2-1 su tutti e due, poi **CHECK** solo su chi attacca; l'altro legge «aspetta il check...» |
-| 5 | chi attacca: CHECK | «VIA!», palla in mano |
+| 4 | B: ACCETTA | countdown 3-2-1 su tutti e due — i due sono **già fermi nella formazione**: attaccante a 22 piedi, difensore 120 px davanti a lui — poi **CHECK** solo su chi attacca; l'altro legge «aspetta il check...» e non ha altri tasti |
+| 5 | chi attacca: CHECK (tondo, oro, con l'icona) | «VIA!», e solo lì i due si muovono |
 | 6 | tiro sbagliato apposta | palla a terra: chi la prende attacca; se la prende in difesa deve **prima uscire dalla linea** |
 | 7 | in difesa: **DIFENDI** (si aggancia da solo, si resta incollati), **RUBA** a contatto, **SALTA** sul tiro | 30% di rubata, popup «RUBATA!» / «PALLA PERSA!» |
 | 8 | arriva a 11 | **HAI VINTO** / **HAI PERSO** coi punteggi; chi ha perso vede **RIVINCITA** (e riparte in attacco) |
+
+Dopo **ogni** canestro si torna al punto 4: palla morta, i due rimessi nella
+formazione, fermi, e si riparte col CHECK. Se invece corri o tiri durante il
+check, quello è il bug da segnarmi.
 
 Poi: **FINE PARTITA** → tutti e due tornano ai tiri liberi, senza uscire dal campo.
 
