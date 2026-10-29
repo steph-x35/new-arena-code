@@ -1,7 +1,7 @@
 # 📈 Strategia Reel — Hoop City Life
 
 > Playbook di LavoroFacile (`PIANO-CRESCITA.md`) applicato a Hoop City Life.
-> Aggiornato: 2026-10-21 · versione gioco: **v2.47.7** (solo tiri liberi in due, 1v1 spento)
+> Aggiornato: 2026-10-29 · versione gioco: **v2.48.0** (1v1 online riacceso, in prova su due telefoni)
 
 ---
 
@@ -155,7 +155,7 @@ Scheletro identico per tutti: domanda-identità → numero → escalation → CT
 - [ ] Durata **18-22s**, non 40
 - [ ] Ultimo frame **identico** al primo (loop)
 - [ ] Testi fuori dai **320px in basso** e **120px a destra** (interfaccia TikTok)
-- [ ] **Nessun fotogramma con «SFIDA 1V1»** — in v2.47.7 non esiste
+- [ ] **Nessun fotogramma con «SFIDA 1V1»** — la filata del reel è quella dei tiri, non del 1v1
 - [ ] Audio di gioco nei primi 2s, musica ≤ 20%
 - [ ] Export **1080x1920**, salvata anche la versione senza watermark
 - [ ] Caption + commento fissato già scritti e incollati
