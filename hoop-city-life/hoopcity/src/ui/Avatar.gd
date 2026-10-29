@@ -106,16 +106,25 @@ static func accessory_col(slot: String) -> Color:
 ## `front` selects the two-lens glasses (face toward camera) vs one lens
 ## (profile). Called after the head so the hat covers the hair.
 static func draw_accessories(c: CanvasItem, head: Vector2, r: float,
-		dir := 1.0, front := true) -> void:
+		dir := 1.0, front := true, look := {}) -> void:
 	# Draw even on the small match figures (their heads are ~6 px, so the old
 	# 7 px threshold silently dropped the hat and glasses on the court).
 	if r < 3.0:
 		return
+	# v2.48.1: se chi disegna SA chi sta disegnando (il `look` che arriva
+	# dall'altro telefono, o il proprio cols), cappello e occhiali vengono da
+	# li'. Senza `look` resta il profilo salvato qui, come prima: cosi' ogni
+	# altro posto del gioco continua a funzionare identico.
 	var hat_id: String = outfit_id("hat")
 	var hat_col: Color = accessory_col("hat")
+	if look.has("hat"):
+		hat_id = String(look.get("hat", ""))
+		hat_col = Color(look.get("hat_col", Color(0, 0, 0, 0)))
 	if not hat_id.is_empty() and hat_col.a > 0.0:
 		draw_hat(c, head, r, dir, hat_col, hat_id)
 	var gl_col: Color = accessory_col("glasses")
+	if look.has("glasses"):
+		gl_col = Color(look.get("glasses_col", Color(0, 0, 0, 0)))
 	if gl_col.a > 0.0:
 		draw_glasses(c, head, r, front, gl_col, dir)
 
@@ -602,7 +611,7 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 
 	# --- equipped hat & glasses, over the hair and eyes
 	if acc:
-		draw_accessories(c, head_c, head_r, facing, turn < 0.5)
+		draw_accessories(c, head_c, head_r, facing, turn < 0.5, cols)
 
 	# --- ball. One consistent radius everywhere (a caller may pin it so the
 	#     dribble and the shot use the SAME size).

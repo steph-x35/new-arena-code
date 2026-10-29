@@ -33,6 +33,7 @@ var meter: ShotMeter
 var btn_shoot: TouchButton
 var lbl_top: Label
 var lbl_mid: Label
+var lbl_ping: Label
 var court_art: Node
 var _net_ok := false
 
@@ -113,6 +114,7 @@ var ball_ghost := false       # tiro verde: passa pulito, niente ferro
 var net_wobble := 0.0
 var net_t := 0.0
 var _send_t := 0.0
+var _mv_now := 0.0             # quanto si sta muovendo DAVVERO in questo frame
 var _msg_t := 0.0
 var _look_t := 0.0   # invia l'aspetto ogni 1,2 s: se arriva mentre l'altro
                       # sta ancora caricando la scena, il prossimo passa
@@ -205,6 +207,7 @@ func _ready() -> void:
 	NetLayer.duel_ev_rx.connect(_on_foe_ev)
 	NetLayer.duel_look_rx.connect(_on_foe_look)
 	NetLayer.disconnected.connect(_on_net_lost)
+	NetLayer.ping_ms.connect(_on_ping_ms)
 	if not _net_ok:
 		lbl_mid.text = Loc.t("duel.nolink")
 		return
@@ -225,6 +228,14 @@ func _exit_tree() -> void:
 		NetLayer.duel_look_rx.disconnect(_on_foe_look)
 	if NetLayer.disconnected.is_connected(_on_net_lost):
 		NetLayer.disconnected.disconnect(_on_net_lost)
+	if NetLayer.ping_ms.is_connected(_on_ping_ms):
+		NetLayer.ping_ms.disconnect(_on_ping_ms)
+
+
+func _on_ping_ms(ms: int) -> void:
+	## 0-40 ms: si gioca. 40-80: si sente. Oltre 80: e' il WiFi, non il gioco.
+	if lbl_ping != null:
+		lbl_ping.text = "PING %d ms" % ms
 
 
 func _my_look() -> Dictionary:
@@ -238,6 +249,16 @@ func _my_look() -> Dictionary:
 		"shoes": c.get("shoes", Color(0.9, 0.9, 0.92)),
 		"num": int(Game.profile.get("jersey", 7)),
 		"hf": Game.height_factor(),
+		# v2.48.1: il TAGLIO di capelli viaggia con l'aspetto. Senza, Avatar
+		# ripiegava sul taglio salvato in QUESTO telefono: ognuno vedeva il
+		# proprio taglio addosso all'altro (i capelli "si scambiavano").
+		"hst": Game.hair_style(),
+		# ...e con lui cappello e occhiali, che prima erano letti dal profilo
+		# di chi GUARDA: se avevi il cappello, lo portava anche l'altro.
+		"hat": Avatar.outfit_id("hat"),
+		"hat_col": Avatar.accessory_col("hat"),
+		"glasses": Avatar.outfit_id("glasses") != "",
+		"glasses_col": Avatar.accessory_col("glasses"),
 	}
 
 
@@ -265,6 +286,19 @@ func _build_hud() -> void:
 	lbl_top.position = Vector2(28, 22)
 	root.add_child(lbl_top)
 
+	# PING: il numero che dice se la colpa e' del WiFi o del gioco. Si vede
+	# sempre, piccolo, sotto il tasto Esci: nella prossima prova basta
+	# leggerlo per sapere dove guardare.
+	lbl_ping = Label.new()
+	lbl_ping.add_theme_font_size_override("font_size", 16)
+	lbl_ping.add_theme_color_override("font_color", Color(1, 1, 1, 0.55))
+	lbl_ping.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	lbl_ping.position = Vector2(-212.0, 90.0)
+	lbl_ping.custom_minimum_size = Vector2(200, 24)
+	lbl_ping.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	lbl_ping.text = ""
+	root.add_child(lbl_ping)
+
 	lbl_mid = Label.new()
 	lbl_mid.add_theme_font_size_override("font_size", 36)
 	lbl_mid.set_anchors_preset(Control.PRESET_TOP_WIDE)
@@ -280,7 +314,12 @@ func _build_hud() -> void:
 	var slot_left := Vector2(-292.0, -258.0)
 	var slot_right := Vector2(-128.0, -258.0)
 	btn_shoot = TouchButton.new()
-	btn_shoot.text = "SHOOT"
+	# v2.48.1: gli stessi tasti dell'1v1 offline, parola per parola e icona
+	# per icona (MatchScene): TIRA / FINTA / POST in attacco, SALTA / RUBA /
+	# DIFENDI in difesa. Prima erano scritti a mano in inglese e senza icona,
+	# e TouchButton ripiegava sul pallone per tutte le voci tradotte.
+	btn_shoot.text = Loc.t("match.shoot")
+	btn_shoot.icon = Art.icon_for("SHOOT")
 	btn_shoot.hold_mode = true
 	btn_shoot.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	btn_shoot.position = slot_primary
@@ -291,7 +330,8 @@ func _build_hud() -> void:
 	root.add_child(btn_shoot)
 
 	btn_trick = TouchButton.new()
-	btn_trick.text = "TRICK"
+	btn_trick.text = Loc.t("match.trick")
+	btn_trick.icon = Art.icon_for("TRICK")
 	btn_trick.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	btn_trick.position = slot_left
 	btn_trick.custom_minimum_size = Vector2(108, 108)
@@ -300,7 +340,8 @@ func _build_hud() -> void:
 	root.add_child(btn_trick)
 
 	btn_post = TouchButton.new()
-	btn_post.text = "POST"
+	btn_post.text = Loc.t("match.post")
+	btn_post.icon = Art.icon_for("POST")
 	btn_post.accent = Color(0.980, 0.780, 0.260)
 	btn_post.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	btn_post.position = slot_right
@@ -312,7 +353,8 @@ func _build_hud() -> void:
 	# DIFENDI: stessa casella del POST, ma in difesa — come l'indoor, dove
 	# attacco e difesa si scambiano le stesse tre caselle.
 	btn_guard = TouchButton.new()
-	btn_guard.text = Loc.t("duel.def")
+	btn_guard.text = Loc.t("match.defend")
+	btn_guard.icon = Art.icon_for("DEFEND")
 	btn_guard.hold_mode = true
 	btn_guard.accent = Color(0.870, 0.290, 0.260)
 	btn_guard.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -326,7 +368,8 @@ func _build_hud() -> void:
 
 	# RUBATA: la casella sinistra in difesa, come lo STEAL dell'indoor.
 	btn_steal = TouchButton.new()
-	btn_steal.text = Loc.t("duel.steal")
+	btn_steal.text = Loc.t("match.steal")
+	btn_steal.icon = Art.icon_for("STEAL")
 	btn_steal.accent = Color(0.870, 0.290, 0.260)
 	btn_steal.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	btn_steal.position = slot_left
@@ -430,11 +473,14 @@ func _process(delta: float) -> void:
 	if court_art != null:
 		court_art.solo_hang = (dunk_phase == "hang")
 	var since: float = _now() - _foe_rx
-	if since > 0.15:
-		# tre pacchetti di silenzio: si e' fermato, o la rete ha perso colpi.
-		# Niente proiezione: si resta sull'ultima posizione vera.
+	if since > 0.20:
+		# Quattro pacchetti di silenzio: si e' fermato, o la rete ha perso
+		# colpi sul serio. Niente proiezione: si resta sull'ultima vera.
 		_foe_vel = Vector2.ZERO
-	var tp: Vector2 = (foe["t_pos"] as Vector2) + _foe_vel * clampf(since, 0.0, 0.10)
+	# v2.48.1: la proiezione arriva fino a 0,18 s. Prima si fermava a 0,10 e
+	# dopo 0,15 azzerava la velocita': un pacchetto perso = l'altro si
+	# PIANTAVA per un decimo di secondo, e a chi difende sembrava lag.
+	var tp: Vector2 = (foe["t_pos"] as Vector2) + _foe_vel * clampf(since, 0.0, 0.18)
 	var cur: Vector2 = foe["pos"] as Vector2
 	if cur.distance_to(tp) > 90.0:
 		# stacco vero (lag spike, teletrasporto del 1v1): si salta, non si
@@ -494,23 +540,30 @@ func _process(delta: float) -> void:
 			meter.visible = false
 		_place_meter()
 	if btn_shoot:
-		var want: String = "SHOOT"
+		# Il primario cambia con la fase — STESSI nomi e STESSE icone del
+		# pad offline: TIRA, SALTA (in difesa), PRENDI PALLA (nel libero).
+		var want: String = Loc.t("match.shoot")
+		var want_icon: String = Art.icon_for("SHOOT")
 		if duel_on and duel_phase == "live" and not i_attack and not ball_loose:
-			want = Loc.t("duel.jump")
+			want = Loc.t("match.jump")
+			want_icon = Art.icon_for("JUMP")
 		elif not duel_on and not _pad_holding() and not ball_recall:
 			want = Loc.t("duel.grab")
+			want_icon = "ball"
 		elif dunk_phase == "hang":
 			want = "LET GO"
-		elif dunk_phase == "rise":
-			want = "DUNK!"
-		elif _can_dunk():
-			want = "DUNK"
+		elif dunk_phase == "rise" or _can_dunk():
+			want = Loc.t("match.dunk")
+			want_icon = Art.icon_for("DUNK")
 		if btn_shoot.text != want:
 			btn_shoot.text = want
+		if btn_shoot.icon != want_icon:
+			btn_shoot.icon = want_icon
 	queue_redraw()
 
 
 func _my_move(delta: float) -> void:
+	_mv_now = 0.0
 	if dunk_phase == "rise":
 		var rim_x: Vector2 = RIM - Vector2(20.0, 0.0)
 		var f: float = clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
@@ -532,9 +585,18 @@ func _my_move(delta: float) -> void:
 		var gp: Vector2 = fpos_g + (RIM - fpos_g).normalized() * 46.0
 		var gd: Vector2 = gp - player_pos
 		if gd.length() > 9.0:
-			mv = gd.normalized() * clampf(gd.length() / 60.0, 0.35, 1.0)
+			# OFFLINE, riga per riga: si va al punto a PIENA velocita', il
+			# passo da difesa arriva solo quando si e' in posizione. Prima
+			# rallentava gia' da lontano (0.35) e sembrava di scivolare.
+			mv = gd.normalized()
 			if gd.length() < 95.0:
 				mv *= 0.74   # in posizione: passo da difesa, come offline
+		else:
+			# OFFLINE: in posizione il joystick non conta piu' — si resta
+			# incollati all'uomo (wish = ZERO). Prima si poteva scappare
+			# tenendo premuto DIFENDI.
+			mv = Vector2.ZERO
+	_mv_now = mv.length()
 	player_pos += mv * (155.0 if posting else MOVE_SPEED) * delta
 	if absf(mv.x) > 0.12 and not posting:
 		facing = signf(mv.x)
@@ -1250,10 +1312,12 @@ func _my_kind() -> String:
 	var no_ball: bool = (duel_on and (not i_attack or ball_loose) and duel_phase != "over") \
 		or (not duel_on and not i_hold)
 	if no_ball:
-		if duel_on and not ball_loose and not i_attack and _def_held:
-			# posa difensiva SOLO quando sono in posizione davanti all'uomo
-			# (come lo stance offline): mentre ci arrivo corro, con le gambe
-			# che camminano — prima scivolavo sul campo.
+		if duel_on and not ball_loose and not i_attack and _def_held \
+		and _mv_now <= 0.12:
+			# OFFLINE: la posa da difesa e' quella di chi e' FERMO in
+			# posizione davanti all'uomo (stance + velocity < 14). Mentre ci
+			# arriva corre, con le gambe che camminano: la stessa regola, non
+			# "DEFEND sempre entro 95 px" come prima (sembrava scivolare).
 			var fpos_k: Vector2 = foe["pos"] as Vector2
 			var gp_k: Vector2 = fpos_k + (RIM - fpos_k).normalized() * 46.0
 			if player_pos.distance_to(gp_k) < 95.0:
@@ -1300,9 +1364,11 @@ func _on_foe_state(d: Dictionary) -> void:
 		if q <= _foe_seq:
 			_foe_rej += 1
 			# Il WiFi inverte qualche pacchetto: 2-3 di fila e si accetta il
-			# successivo. Trenta di fila NO: vuol dire che l'altro ha
-			# ricaricato la scena e ha ripreso a contare da zero — si riparte.
-			if _foe_rej < 30:
+			# successivo. Centoventi di fila NO (due secondi a 60 Hz): vuol
+			# dire che l'altro ha ricaricato la scena e ha ripreso a contare
+			# da zero. A 30 la soglia scattava mezzo secondo dopo un salto di
+			# rete e il giocatore tornava indietro di colpo.
+			if _foe_rej < 120:
 				return
 		_foe_rej = 0
 		_foe_seq = q
@@ -1407,6 +1473,11 @@ func _on_foe_look(d: Dictionary) -> void:
 		"shorts": j.darkened(0.45),
 		"shoes": d.get("shoes", Color(0.9, 0.9, 0.92)),
 		"num": str(int(d.get("num", 7))),
+		"hst": int(d.get("hst", 0)),
+		"hat": String(d.get("hat", "")),
+		"hat_col": d.get("hat_col", Color(0, 0, 0, 0)),
+		"glasses": bool(d.get("glasses", false)),
+		"glasses_col": d.get("glasses_col", Color(0, 0, 0, 0)),
 		"kit": false,
 		"trim": Color(0.95, 0.95, 0.97),
 	}
@@ -1944,7 +2015,9 @@ func _draw_char(mine: bool) -> void:
 	if not mine and cols.is_empty():
 		cols = {"skin": Color(0.72, 0.53, 0.38), "hair": Color(0.16, 0.13, 0.12),
 			"jersey": Color(0.45, 0.22, 0.22), "shorts": Color(0.28, 0.14, 0.14),
-			"shoes": Color(0.9, 0.9, 0.92), "num": "7", "kit": false}
+			"shoes": Color(0.9, 0.9, 0.92), "num": "7", "kit": false, "hst": 0,
+			"hat": "", "hat_col": Color(0, 0, 0, 0), "glasses": false,
+			"glasses_col": Color(0, 0, 0, 0)}
 	var h: float = 64.0 * Game.height_factor() if mine \
 		else 64.0 * float((foe.get("look") as Dictionary).get("hf", 1.0))
 
