@@ -165,8 +165,8 @@ jobs:
           echo "Importing project assets in headless mode..."
           godot -v --headless --import 2>&1 | tee /tmp/import.log || true
           echo "Exporting Android APK..."
-          godot -v --headless --export-release "Android" build/HoopCity-v2.48.1.apk 2>&1 | tee /tmp/export.log || true
-          if [ ! -f "build/HoopCity-v2.48.1.apk" ]; then
+          godot -v --headless --export-release "Android" build/HoopCity-v2.48.2.apk 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/HoopCity-v2.48.2.apk" ]; then
             echo "=== EXPORT FAILED! Printing log: ==="
             cat /tmp/export.log | tail -n 80
             cp /tmp/export.log $GITHUB_WORKSPACE/build_error.log
@@ -183,15 +183,15 @@ jobs:
             --ks-pass pass:android \
             --ks-key-alias androiddebugkey \
             --key-pass pass:android \
-            build/HoopCity-v2.48.1.apk
+            build/HoopCity-v2.48.2.apk
           echo "Verifying APK signature..."
-          apksigner verify --verbose build/HoopCity-v2.48.1.apk
+          apksigner verify --verbose build/HoopCity-v2.48.2.apk
           echo "Checking APK launcher icons..."
-          unzip -l build/HoopCity-v2.48.1.apk | grep -i "mipmap" | head -n 20
-          ls -lh build/HoopCity-v2.48.1.apk
+          unzip -l build/HoopCity-v2.48.2.apk | grep -i "mipmap" | head -n 20
+          ls -lh build/HoopCity-v2.48.2.apk
           echo "Verifica permessi APK (la stanza WiFi li richiede)..."
-          aapt dump permissions build/HoopCity-v2.48.1.apk
-          if ! aapt dump permissions build/HoopCity-v2.48.1.apk | grep -q "android.permission.INTERNET"; then
+          aapt dump permissions build/HoopCity-v2.48.2.apk
+          if ! aapt dump permissions build/HoopCity-v2.48.2.apk | grep -q "android.permission.INTERNET"; then
             echo "!!! MANCA android.permission.INTERNET: la stanza condivisa non può aprirsi"
             exit 1
           fi
@@ -200,21 +200,21 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp hoop-city-life/hoopcity/build/HoopCity-v2.48.1.apk /tmp/HoopCity-v2.48.1.apk
-          gh release delete v2.48.1 -y --cleanup-tag || true
+          cp hoop-city-life/hoopcity/build/HoopCity-v2.48.2.apk /tmp/HoopCity-v2.48.2.apk
+          gh release delete v2.48.2 -y --cleanup-tag || true
           # TAG ORFANO: se la create e' morta a meta' (tag creato, release no),
           # --cleanup-tag non lo rimuove perche' la release non esiste — e ogni
           # tentativo dopo fallisce con "tag already exists". Via il tag a mano.
-          git push origin --delete v2.48.1 || true
+          git push origin --delete v2.48.2 || true
           sleep 5
           # L'API delle release ogni tanto perde colpi (race delete/create):
           # tre tentativi prima di arrendersi.
           ok=0
           for i in 1 2 3; do
-            if gh release create v2.48.1 /tmp/HoopCity-v2.48.1.apk \
-              --title "Hoop City Life v2.48.1" \
+            if gh release create v2.48.2 /tmp/HoopCity-v2.48.2.apk \
+              --title "Hoop City Life v2.48.2" \
               --prerelease \
-              --notes "v2.48.1 (prova, non pubblica) — 1v1: i tasti e la difesa come offline. Il pad ora e' identico all'1v1 offline, parola e icona: TIRA, FINTA, POST in attacco; SALTA, RUBA, DIFENDI in difesa (prima erano scritti in inglese e senza icona). DIFENDI si aggancia a piena velocita' e in posizione non ti lascia piu' scappare; la posa da difesa e' quella di chi e' fermo sull'uomo, come nello scrimmage. Capelli: viaggia anche il taglio, non solo il colore — non si scambiano piu' (con cappello e occhiali). Rete: la proiezione dell'altro arriva a 0,18 s invece di piantarsi dopo un pacchetto perso, e il PING e' scritto in alto a destra."
+              --notes "v2.48.2 (prova, non pubblica) — 1v1: il CHECK come offline. Dopo OGNI canestro (e all'inizio) la palla e' morta e i due tornano nella formazione del 1v1 offline: attaccante a 22 piedi dal ferro, difensore 120 px davanti a lui sulla linea, girati uno verso l'altro e FERMI — non si corre piu' durante il check. Il tasto CHECK ora e' quello offline: tondo, con l'icona, oro, 128 px, sopra il pad; durante il check spariscono tutti gli altri tasti e resta solo quello per chi ha la palla. DIFENDI si aggancia come offline."
               --target ${GITHUB_SHA}; then
               ok=1
               break
@@ -226,8 +226,8 @@ jobs:
             # RACE API: la create puo' riuscire lato server e tornare comunque
             # errore; i tentativi dopo falliscono perche' la release esiste gia'.
             # Se la release c'e' (con l'APK), e' andata bene.
-            if gh release view v2.48.1 > /dev/null 2>&1 \
-            && gh release view v2.48.1 --json assets -q '.assets | length' | grep -q -v "^0$"; then
+            if gh release view v2.48.2 > /dev/null 2>&1 \
+            && gh release view v2.48.2 --json assets -q '.assets | length' | grep -q -v "^0$"; then
               echo "Release creata (il primo tentativo era riuscito lato server)."
             else
               echo "!!! IMPOSSIBILE CREARE LA RELEASE"

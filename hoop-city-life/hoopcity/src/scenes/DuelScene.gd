@@ -115,6 +115,8 @@ var net_wobble := 0.0
 var net_t := 0.0
 var _send_t := 0.0
 var _mv_now := 0.0             # quanto si sta muovendo DAVVERO in questo frame
+var _check_t := 0.0            # palla morta dopo un canestro: quanto manca al CHECK
+var _check_me := false         # ...e chi riparte con la palla
 var _msg_t := 0.0
 var _look_t := 0.0   # invia l'aspetto ogni 1,2 s: se arriva mentre l'altro
                       # sta ancora caricando la scena, il prossimo passa
@@ -173,7 +175,7 @@ var _recall_from := Vector2.ZERO
 var _recall_h := 0.0
 var btn_guard: TouchButton
 var btn_steal: TouchButton
-var btn_check: Button
+var btn_check: TouchButton
 var _steal_cd := 0.0
 var _steal_t := 0.0
 var _jump_dir := Vector2.ZERO
@@ -379,16 +381,19 @@ func _build_hud() -> void:
 	btn_steal.visible = false
 	root.add_child(btn_steal)
 
-	# CHECK: sopra il pad, come il 1v1 indoor — la palla parte solo quando
-	# chi attacca da il via.
-	btn_check = Button.new()
-	btn_check.text = Loc.t("duel.check")
-	btn_check.modulate = Color(0.98, 0.78, 0.26)
+	# CHECK: COPIATO DAL 1V1 OFFLINE (MatchScene, btn_check): stesso tasto
+	# tondo con l'icona, stesso oro, stessa misura e stessa casella sopra il
+	# pad. Prima era un Button rettangolare senza icona: si vedeva che era
+	# un'altra cosa.
+	btn_check = TouchButton.new()
+	btn_check.text = Loc.t("match.check")
+	btn_check.icon = Art.icon_for("CHECK")
+	btn_check.accent = Color(0.980, 0.780, 0.260)
 	btn_check.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	btn_check.position = Vector2(-214.0, -500.0)
 	btn_check.custom_minimum_size = Vector2(128, 128)
-	btn_check.add_theme_font_size_override("font_size", 24)
-	btn_check.pressed.connect(_do_check)
+	btn_check.size = Vector2(128, 128)
+	btn_check.pressed_down.connect(_do_check)
 	btn_check.visible = false
 	root.add_child(btn_check)
 
@@ -564,6 +569,12 @@ func _process(delta: float) -> void:
 
 func _my_move(delta: float) -> void:
 	_mv_now = 0.0
+	if duel_on and (duel_phase == "count" or duel_phase == "reset" \
+	or duel_phase == "check"):
+		# OFFLINE: con play_live a false nessuno dei due si muove. Si resta
+		# piantati dove ti mette il gioco finche' il CHECK non apre l'azione
+		# (prima, online, si poteva correre anche durante il check).
+		return
 	if dunk_phase == "rise":
 		var rim_x: Vector2 = RIM - Vector2(20.0, 0.0)
 		var f: float = clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
@@ -1517,10 +1528,14 @@ func _duel_tick(delta: float) -> void:
 	var defending := duel_on and duel_phase == "live" and not i_attack and not ball_loose
 	var holding := _pad_holding()
 	var checking := duel_on and duel_phase == "check"
+	# OFFLINE (MatchScene): quando si aspetta il CHECK resta SOLO il tasto
+	# CHECK, per chi ha la palla. Tutti gli altri spariscono — in attacco e
+	# in difesa — e nessuno dei due si muove finche' il check non da' il via.
+	var frozen := duel_on and (duel_phase == "count" or duel_phase == "reset" or checking)
 	if btn_trick != null:
-		btn_trick.visible = holding and not checking
+		btn_trick.visible = holding and not frozen
 	if btn_post != null:
-		btn_post.visible = holding and not checking
+		btn_post.visible = holding and not frozen
 	if btn_guard != null:
 		btn_guard.visible = defending
 	if btn_steal != null:
@@ -1528,7 +1543,7 @@ func _duel_tick(delta: float) -> void:
 	if btn_check != null:
 		btn_check.visible = checking and i_attack
 	if btn_shoot != null:
-		btn_shoot.visible = not (checking and i_attack)
+		btn_shoot.visible = not frozen
 	if not duel_on:
 		# CAMPO LIBERO: DUE PALLE, una a testa. Dopo ogni tiro la palla
 		# finisce a terra e RESTA: si riprende andandoci sopra — o dopo
@@ -1565,25 +1580,22 @@ func _duel_tick(delta: float) -> void:
 				clampf(fb_pos.y, -(Court.COURT_H * 0.5 - 80.0), Court.COURT_H * 0.5 - 80.0))
 			fb_vel = Vector2.ZERO
 		return
+	if _check_t > 0.0:
+		_check_t -= delta
+		if _check_t <= 0.0:
+			_duel_check(_check_me)
+		return
 	if duel_phase == "count":
 		_count_t -= delta
 		if _count_t <= 0.0:
 			# COME IL 1V1 INDOOR: il countdown porta al CHECK — la palla
 			# parte solo quando chi attacca da il via.
-			duel_phase = "check"
-			var atk := Vector2(RIM.x - 420.0, 0.0)
-			var dfn := Vector2(RIM.x - 300.0, 0.0)
-			player_pos = atk if i_attack else dfn
-			facing = 1.0 if i_attack else -1.0
-			foe["pos"] = dfn if i_attack else atk
-			foe["t_pos"] = foe["pos"]
-			_duel_update_top()
-			_say(Loc.t("duel.checkgo") if i_attack else Loc.t("duel.checkwait"), 4.0)
+			_duel_check(i_attack)
 		else:
 			lbl_mid.text = str(clampi(int(ceil(_count_t)), 1, 3))
 			_msg_t = 0.0
 		return
-	if duel_phase == "check":
+	if duel_phase == "check" or duel_phase == "reset":
 		return
 	if duel_phase != "live":
 		return
@@ -1603,10 +1615,56 @@ func _duel_tick(delta: float) -> void:
 			_take_ball(false)
 
 
+func _duel_check(i_off: bool) -> void:
+	## COPIATO DAL 1V1 OFFLINE (Court._check_ball): chi attacca si mette a
+	## 420 px dal ferro, chi difende 120 px piu' avanti sulla stessa linea,
+	## tutti e due FERMI e girati uno verso l'altro. La palla e' in mano a
+	## chi attacca ma non e' viva: parte solo col CHECK.
+	duel_phase = "check"
+	_check_t = 0.0
+	i_attack = i_off
+	must_clear = false
+	ball_loose = false
+	ball_live = false
+	fb_live = false
+	ball_recall = false
+	_pick_ok = false
+	_fb_pick_ok = false
+	_loose_t = 0.0
+	charging = false
+	charge = 0.0
+	# NIENTE ANIMAZIONI A META': chi arriva al check con la schiacciata
+	# appesa o la finta in corso resta piantato a mezz'aria sul posto nuovo.
+	dunk_phase = ""
+	dunk_anim = 0.0
+	shot_anim = 0.0
+	pump_t = 0.0
+	trick_t = 0.0
+	euro_t = 0.0
+	posting = false
+	_def_held = false
+	_jump_t = 0.0
+	_steal_t = 0.0
+	_steal_cd = 0.0
+	my_rebound = false
+	if meter != null:
+		meter.visible = false
+	var atk := Vector2(RIM.x - 420.0, 0.0)
+	var dfn := Vector2(RIM.x - 300.0, 0.0)
+	player_pos = atk if i_off else dfn
+	foe["pos"] = dfn if i_off else atk
+	foe["t_pos"] = foe["pos"]
+	_foe_vel = Vector2.ZERO
+	facing = 1.0 if i_off else -1.0
+	_duel_update_top()
+	_say(Loc.t("duel.checkgo") if i_off else Loc.t("duel.checkwait"), 4.0)
+
+
 func _duel_start(target: int, first_role: String) -> void:
 	_hide_panels()
 	duel_on = true
 	duel_phase = "count"
+	_check_t = 0.0
 	duel_target = target
 	my_score = 0
 	foe_score = 0
@@ -1631,12 +1689,15 @@ func _duel_start(target: int, first_role: String) -> void:
 	_loose_t = 0.0
 	_count_t = 3.0
 	i_attack = (NetLayer.role == first_role)
-	var atk := Vector2(RIM.x - 500.0, -240.0)
-	var dfn := Vector2(RIM.x - 180.0, -60.0)
+	# OFFLINE: durante il 3-2-1 i due sono GIA' nella formazione del check,
+	# fermi — non a meta' campo che si scaldano. Si muovono solo dopo il CHECK.
+	var atk := Vector2(RIM.x - 420.0, 0.0)
+	var dfn := Vector2(RIM.x - 300.0, 0.0)
 	player_pos = atk if i_attack else dfn
-	facing = 1.0
+	facing = 1.0 if i_attack else -1.0
 	foe["pos"] = dfn if i_attack else atk
 	foe["t_pos"] = foe["pos"]
+	_foe_vel = Vector2.ZERO
 	if meter != null:
 		meter.visible = false
 	_duel_update_top()
@@ -1653,23 +1714,42 @@ func _duel_update_top() -> void:
 
 
 func _duel_scored() -> void:
-	## Ho segnato io: cambio palla (chi subisce attacca) e se serve e' finita.
+	## Ho segnato io. OFFLINE: dopo OGNI canestro si torna al CHECK, con i due
+	## rimessi nella formazione e FERMI — non si riparte a giocare subito.
 	i_attack = false
 	must_clear = false
 	ball_loose = false
 	_duel_update_top()
 	if my_score >= duel_target:
 		_duel_end(true)
+		return
+	_after_basket(false)
 
 
 func _duel_foe_scored() -> void:
-	## Ha segnato lui: palla mia, ma prima devo uscire dalla linea.
+	## Ha segnato lui: stessa cosa, palla a me e CHECK prima di giocare.
 	i_attack = true
-	must_clear = true
+	must_clear = false
 	ball_loose = false
 	_duel_update_top()
 	if foe_score >= duel_target:
 		_duel_end(false)
+		return
+	_after_basket(true)
+
+
+func _after_basket(i_off: bool) -> void:
+	## OFFLINE: canestro = palla morta e si torna al CHECK, tutti fermi nella
+	## formazione. Online pero' la palla e' ancora in volo quando arriva il
+	## verdetto: la si lascia cadere nella rete (0,7 s) e POI si riparte,
+	## altrimenti spariva a meta' parabola.
+	duel_phase = "reset"
+	_check_t = 0.9
+	_check_me = i_off
+	charging = false
+	charge = 0.0
+	must_clear = false
+	_duel_update_top()
 
 
 func _take_ball(off: bool) -> void:
@@ -1786,6 +1866,8 @@ func _duel_free() -> void:
 	## tenuto o un'animazione in corso si ritroverebbe i tasti morti.
 	duel_on = false
 	duel_phase = ""
+	_check_t = 0.0
+	_check_me = false
 	ball_loose = false
 	ball_live = false
 	fb_live = false
