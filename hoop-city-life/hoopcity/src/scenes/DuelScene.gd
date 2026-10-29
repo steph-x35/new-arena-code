@@ -22,11 +22,11 @@ const SEND_HZ := 60.0          # v2.47.6: era 30 — a 60 la posa dell'altro
                                # registrazioni del reel restano allineate.
 const DUNK_R := 132.0          # ~7 piedi dal ferro
 
-## QUESTA BUILD (v2.47.6 "solo tiri liberi"): il 1v1 e' finito e NON va
-## mostrato. Il codice resta tutto qui sotto, ma spento: niente pulsante
-## SFIDA 1V1, niente sfide in arrivo, niente partita che parte da sola.
-## Si riaccende mettendo true (una riga, nessun'altra modifica).
-const ONEV_ONE := false
+## v2.48.0: IL 1V1 E' ACCESO. Pulsante SFIDA 1V1 quando l'altro e' sul
+## campo, sfida in arrivo da accettare o rifiutare, partita a 11/15/21 con
+## countdown e CHECK, rivincita immediata. Sta tutto qui sotto: il flag
+## resta per poterlo spegnere in un attimo se il collaudo va male.
+const ONEV_ONE := true
 
 var joystick: VirtualJoystick
 var meter: ShotMeter
