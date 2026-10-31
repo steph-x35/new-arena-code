@@ -1,89 +1,59 @@
 ================================================================================
-MODELLO 2: LETTERA DI DIMISSIONI PER GIUSTA CAUSA (SENZA PREAVVISO)
-LavoroFacile — Strumenti e Modelli Pronti per i Lavoratori
+MODELLO 2: COMUNICAZIONE DI DIMISSIONI PER GIUSTA CAUSA
+LavoroFacile — Strumenti e modelli per i lavoratori
 ================================================================================
 
-ATTENZIONE: Le dimissioni per "giusta causa" (art. 2119 Codice Civile) si hanno quando
-il datore di lavoro compie una violazione talmente grave da non consentire la prosecuzione,
-anche provvisoria, del rapporto.
-VANTAGGI PER IL LAVORATORE:
-1) Non devi dare alcun preavviso (puoi andartene immediatamente);
-2) Hai diritto a ricevere dall'azienda l'INDENNITÀ SOSTITUTIVA DEL PREAVVISO;
-3) HAI PIENO DIRITTO ALLA DISOCCUPAZIONE INPS (NASpI)!
+PRIMA DI COMPILARE
 
-Motivi tipici di giusta causa:
-- Mancato pagamento di 2 o più mensilità di stipendio;
-- Mancato versamento sistematico dei contributi previdenziali INPS;
-- Mobbing o condotte lesive della dignità/salute;
-- Modifiche peggiorative ingiustificate delle mansioni (demansionamento).
+La giusta causa richiede una valutazione concreta dei fatti: non basta scegliere
+un motivo da una lista. Prima di dimetterti, raccogli la documentazione e
+confrontati con un sindacato o un professionista qualificato. Questo modello è
+informativo, va adattato e non garantisce il riconoscimento della giusta causa.
+
+Se la giusta causa sussiste, il recesso può avvenire senza preavviso e può
+spettare l'indennità sostitutiva a carico del datore; contestazioni e importi
+vanno verificati. Le dimissioni per giusta causa possono consentire l'accesso
+alla NASpI, ma occorrono domanda e requisiti INPS: non è automatica.
+
+Per molti rapporti privati è necessaria anche la procedura telematica del
+Ministero, selezionando la causale corretta. La lettera non la sostituisce.
+Esistono eccezioni, tra cui lavoro domestico e casi che richiedono convalida
+presso l'Ispettorato: fatti assistere nella scelta della procedura.
+
+Descrivi soltanto fatti veri e documentabili. Non dichiarare di aver inviato
+solleciti o di aver subito condotte che non puoi verificare. Definisci con chi
+ti assiste le date, le somme richieste e i documenti da allegare.
 
 --------------------------------------------------------------------------------
 
-Spett.le Azienda:
-[Ragione Sociale Azienda]
-Indirizzo: [Via, Numero Civico, CAP, Città]
-Alla c.a. del Legale Rappresentante
+Spett.le [Ragione sociale del datore di lavoro]
+[Indirizzo oppure PEC verificata]
 
-Inviata tramite PEC all'indirizzo: [PEC dell'azienda]
-oppure Raccomandata A/R
+Luogo e data: [Città, data]
 
-Luogo e Data: [Città], [Data]
+Oggetto: comunicazione di dimissioni per giusta causa
 
-Oggetto: Dimissioni per GIUSTA CAUSA ai sensi dell'art. 2119 c.c. con effetto immediato
+Io sottoscritto/a [Nome e cognome], dipendente di [Azienda] dal [data],
+con qualifica [qualifica e livello], comunico le mie dimissioni per giusta
+causa in relazione ai seguenti fatti:
 
-Io sottoscritto/a:
-Nome e Cognome: [Il tuo Nome e Cognome]
-Codice Fiscale: [Il tuo Codice Fiscale]
-Inquadrato/a con qualifica di: [Tua qualifica e livello]
-Presso la sede/unità locale di: [Città della sede di lavoro];
+[Descrivere con precisione circostanze, date e documenti disponibili. Inserire
+soltanto informazioni reali; chiedere assistenza per la valutazione dei fatti.]
 
-PREMESSO CHE
+Ritengo che tali circostanze non consentano la prosecuzione, neppure
+provvisoria, del rapporto. Indico come ultimo giorno del rapporto [data] e
+come primo giorno successivo alla cessazione [data], da verificare con chi mi
+assiste e con l'eventuale procedura telematica.
 
-[SCEGLIERE UNA DELLE SEGUENTI OPZIONI E CANCELLARE LE ALTRE]
+Chiedo il prospetto e la liquidazione delle competenze effettivamente dovute,
+compresa l'eventuale indennità sostitutiva del preavviso, ove spettante.
 
-[OPZIONE A - MANCATO PAGAMENTO STIPENDI]:
-Nonostante i ripetuti solleciti verbali e scritti, ad oggi codesta spettabile azienda
-risulta gravemente inadempiente all'obbligazione principale della corresponsione della
-retribuzione, avendo omesso il pagamento delle seguenti mensilità:
-- Mensilità di [es. Giugno 2026] per l'importo netto di € [importo];
-- Mensilità di [es. Luglio 2026] per l'importo netto di € [importo];
-- [eventuali altre mensilità o ratei arretrati].
+[Se applicabile: provvederò alla comunicazione telematica con la causale
+appropriata. Eliminare o adattare in caso di procedura diversa.]
 
-[OPZIONE B - MANCATO VERSAMENTO CONTRIBUTI]:
-Dall'estratto conto contributivo INPS aggiornato risulta il reiterato e grave omesso
-versamento dei contributi previdenziali e assistenziali obbligatori per il periodo
-dal [Data inizio] al [Data fine], pregiudicando gravemente la mia posizione previdenziale.
+Mi riservo di far valere i miei diritti nelle sedi competenti.
 
-[OPZIONE C - COMPORTAMENTI LESIVI / MOBBING]:
-Nel corso degli ultimi mesi si sono reiterate condotte oggettivamente lesive della mia
-dignità personale e professionale, consistenti in [descrivere brevemente fatti specifici],
-che hanno compromesso irreparabilmente il vincolo fiduciario e la mia salute psicofisica.
-
-TUTTO CIÒ PREMESSO E CONSIDERATO
-
-che il gravissimo inadempimento sopra descritto integra pienamente la fattispecie di
-cui all'art. 2119 del Codice Civile, non consentendo la prosecuzione, neppure in via
-provvisoria, del rapporto di lavoro;
-
-COMUNICO
-
-le mie irrevocabili DIMISSIONI PER GIUSTA CAUSA, con effetto immediato a far data da oggi
-[Data odierna], che costituisce l'ultimo giorno del rapporto di lavoro.
-
-CHIEDO CONTESTUALMENTE
-
-1. La liquidazione immediata di tutte le retribuzioni ordinarie e straordinarie arretrate;
-2. La corresponsione dell'INDENNITÀ SOSTITUTIVA DEL PREAVVISO ai sensi dell'art. 2118 c.c.,
-   pari a mensilità [es. 1, 2 o giorni di preavviso previsti dal CCNL];
-3. Il pagamento integrale del Trattamento di Fine Rapporto (TFR) maturato;
-4. La liquidazione dei ratei di tredicesima, eventuale quattordicesima e delle ferie/permessi
-   non goduti.
-
-Avviso che provvederò a indicare la causale "Dimissioni per giusta causa" nell'apposita
-procedura telematica ministeriale e all'INPS per la richiesta della NASpI.
-
-Con riserva di adire l'Autorità Giudiziaria per il risarcimento di ogni ulteriore danno subito.
-
-Firma del Lavoratore:
-_________________________________
-[Tuo Nome e Cognome]
+[Nome e cognome]
+[Recapito]
+[Firma, se necessaria]
+Allegati, se utili: [elencare solo i documenti effettivamente allegati]

@@ -1,81 +1,63 @@
 ================================================================================
-MODELLO 3: DIFFIDA AD ADEMPIERE E COSTITUZIONE IN MORA PER MANCATO PAGAMENTO TFR
+MODELLO 3: SOLLECITO SCRITTO PER IL PAGAMENTO DEL TFR
 LavoroFacile — Strumenti e Modelli Pronti per i Lavoratori
 ================================================================================
 
-ISTRUZIONI:
-Questo documento è una formale DIFFIDA AD ADEMPIERE e COSTITUZIONE IN MORA (art. 1219 c.c.).
-Da inviare quando sono trascorsi i termini contrattuali (di solito 30 o 45 giorni dalla fine
-del rapporto) e l'ex datore di lavoro non ha ancora accreditato il TFR né consegnato il prospetto.
-Invio consigliato: TRAMITE PEC (Posta Elettronica Certificata) o RACCOMANDATA A/R.
-Ha valore legale immediato e fa decorrere gli INTERESSI LEGALI e la RIVALUTAZIONE MONETARIA
-a favore del lavoratore ai sensi dell'art. 429, comma 3, del Codice di Procedura Civile.
+PRIMA DI USARE QUESTO MODELLO
+
+Questo è un modello informativo da personalizzare: non è consulenza legale e non
+garantisce il pagamento. Prima dell'invio, valuta il tuo caso con un sindacato,
+un patronato o un professionista, soprattutto se vuoi costituire formalmente in
+mora il debitore o intraprendere azioni legali.
+
+- Verifica dove si trova il TFR: la quota lasciata secondo il regime ordinario e
+  quella eventualmente destinata a un fondo pensione possono seguire procedure
+  diverse. Questo modello è rivolto al datore di lavoro e non sostituisce la
+  richiesta al fondo pensione.
+- Verifica chi deve pagare, quali importi sono dovuti e le scadenze applicabili
+  al tuo rapporto, al contratto collettivo e alla tua situazione. Non esiste un
+  termine unico di 30 o 45 giorni valido per tutti.
+- Inserisci solo circostanze vere e documentabili. Conserva cedolini, conteggi,
+  contratto e comunicazioni già inviate. Non dichiarare di avere sollecitato o
+  di non avere ricevuto documenti se non è vero.
+- Chiedi assistenza per valutare il canale di invio, per esempio PEC o
+  raccomandata A/R, e conservare la prova della consegna. Un sollecito non
+  assicura da solo il pagamento né un decreto immediatamente esecutivo.
+- Interessi, rivalutazione, eventuale costituzione in mora e iniziative successive
+  dipendono dalla situazione concreta: chiedi una verifica prima di indicarli.
 
 --------------------------------------------------------------------------------
 
-Spett.le Azienda:
-[Ragione Sociale Ex Datore di Lavoro]
-Indirizzo: [Via / Piazza, Civico, CAP, Città]
-Alla c.a. del Legale Rappresentante
+Spett.le [Ragione sociale del datore di lavoro]
+[Indirizzo completo / indirizzo PEC verificato]
 
-Inviata tramite PEC all'indirizzo: [indirizzo-pec-azienda@pec.it]
-oppure Raccomandata A/R
+Luogo e data: [Città, data]
 
-Luogo e Data: [Città], [Data]
+Oggetto: richiesta di informazioni e sollecito di pagamento del TFR
 
-Oggetto: FORMALE DIFFIDA AD ADEMPIERE E COSTITUZIONE IN MORA (ex art. 1219 c.c.) per omesso
-pagamento del Trattamento di Fine Rapporto (T.F.R.) e competenze di fine rapporto.
+Io sottoscritto/a [Nome e cognome], già dipendente di [Ragione sociale],
+con rapporto di lavoro terminato il [data di cessazione],
 
-Io sottoscritto/a:
-Nome e Cognome: [Il tuo Nome e Cognome]
-Codice Fiscale: [Il tuo Codice Fiscale]
-Residente a: [Città e Indirizzo completo]
-Recapito telefonico: [Tuo Numero] - Email/PEC: [Tua Email o PEC];
+CHIEDO
 
-PREMESSO CHE
+- un prospetto del TFR maturato e delle eventuali somme già liquidate;
+- conferma delle quote dovute e dei tempi previsti per il pagamento;
+- il pagamento delle somme eventualmente dovute e già esigibili.
 
-1. In data [Data fine rapporto, es. 31/07/2026] si è definitivamente risolto il rapporto
-   di lavoro subordinato intercorso con codesta spettabile società, regolato dal CCNL
-   [es. Metalmeccanico / Terziario e Commercio / Chimico / Turismo];
-2. Ai sensi dell'art. 2120 del Codice Civile e delle vigenti disposizioni del CCNL di categoria,
-   il Trattamento di Fine Rapporto (TFR) e le relative competenze di chiusura (ratei di
-   tredicesima/quattordicesima, indennità ferie e permessi non fruiti) avrebbero dovuto
-   essere liquidate e accreditate entro il termine perentorio di [es. 30 giorni / con la
-   busta paga del mese successivo];
-3. Ad oggi, a distanza di oltre [Numero giorni o mesi trascorsi, es. 45 giorni] dalla cessazione
-   del rapporto di lavoro, codesta società non ha provveduto né al bonifico delle somme
-   dovute, né alla consegna dell'ultimo prospetto paga/cedolino riepilogativo, nonostante
-   i precedenti solleciti informali;
+[Se noto e verificato: importo richiesto, periodo di riferimento e indicazione
+dei documenti su cui si basa il conteggio. Eliminare se non applicabile.]
 
-TUTTO CIÒ PREMESSO
+Vi chiedo di fornire un riscontro scritto entro [data da valutare in base al
+caso] ai recapiti indicati sotto.
 
-costituisco formalmente in MORA codesta spettabile società ai sensi e per gli effetti
-dell'art. 1219 del Codice Civile, e contestualmente
-
-VI DIFFIDO FORMALMENTE AD ADEMPIERE
-
-entro e non oltre il termine perentorio di GIORNI 7 (SETTE) dal ricevimento della presente,
-provvedendo all'integrale corresponsione a mio favore di:
-a) Trattamento di Fine Rapporto (T.F.R.) netto spettante;
-b) Competenze accessorie di fine rapporto maturate e non corrisposte;
-c) Maggiorazione per interessi legali e rivalutazione monetaria ex art. 429, comma 3, c.p.c.,
-   calcolati dal giorno della maturazione del diritto sino al giorno del saldo effettivo.
-
-Le predette somme dovranno essere accreditate mediante bonifico bancario sulle seguenti coordinate:
-IBAN: [Il tuo codice IBAN completo]
-Intestato a: [Tuo Nome e Cognome]
-Banca: [Nome della tua Banca]
-
-AVVERTENZA:
-Decorso infruttuosamente il termine assegnato di 7 giorni, mi vedrò costretto/a, senza
-ulteriore preavviso, ad adire la competente Autorità Giudiziaria tramite il mio legale di
-fiducia ovvero mediante ricorso per DECRETO INGIUNTIVO IMMEDIATAMENTE ESECUTIVO ex artt.
-633 e segg. c.p.c., con conseguente aggravio a Vostro totale carico di tutte le spese legali,
-interessi di mora e oneri di giudizio.
+Mi riservo di valutare con un professionista o un sindacato eventuali ulteriori
+iniziative e gli accessori di legge, ove spettanti.
 
 Distinti saluti.
 
+[Nome e cognome]
+[Indirizzo]
+[Email / PEC / recapito]
+[Firma, se necessaria]
 
-Firma del Lavoratore:
-_________________________________
-[Tuo Nome e Cognome]
+Allegati, se utili: [elencare i soli documenti effettivamente allegati]

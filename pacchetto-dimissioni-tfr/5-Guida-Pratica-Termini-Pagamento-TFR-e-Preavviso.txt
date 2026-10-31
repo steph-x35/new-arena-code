@@ -1,60 +1,73 @@
 ================================================================================
-GUIDA PRATICA: TERMINI DI PAGAMENTO TFR, PREAVVISO E DIRITTI DEL LAVORATORE
-LavoroFacile — La Guida Completa per Tutelarti quando Lasci l'Azienda
+GUIDA PRATICA: TFR, DIMISSIONI E PREAVVISO
+LavoroFacile — Indicazioni e controlli da fare prima di inviare una richiesta
 ================================================================================
 
-1. ENTRO QUANDO DEVE ESSERE PAGATO IL TFR? (I TERMINI PER CCNL)
-Molti datori di lavoro prendono tempo dicendo "ci vogliono mesi": NON È VERO.
-La legge e i principali contratti collettivi nazionali fissano termini perentori precisi:
+Questa guida è informativa e non sostituisce consulenza legale, fiscale o
+previdenziale. Regole e situazioni possono cambiare: verifica sempre i tuoi
+documenti e chiedi assistenza a sindacato, patronato o professionista.
 
-- CCNL COMMERCIO E TERZIARIO: Il TFR deve essere corrisposto con la normale busta
-  paga di fine rapporto, e comunque non oltre il 30° giorno dalla data di cessazione.
-- CCNL METALMECCANICO (INDUSTRIA): Entro 30 giorni dalla pubblicazione dell'indice
-  ISTAT del mese di cessazione.
-- CCNL CHIMICO-FARMACEUTICO: Entro 30 giorni dalla data di cessazione.
-- CCNL TURISMO E PUBBLICI ESERCIZI: Entro il giorno di pagamento della retribuzione
-  del mese successivo a quello di cessazione (max 30-40 giorni).
-- CCNL STUDI PROFESSIONALI: Entro 30 giorni dalla cessazione del rapporto.
-- EDILIZIA: Entro 30 giorni (gestito in parte con la Cassa Edile).
+1. DOVE SI TROVA IL TFR E QUANDO ARRIVA?
 
-COSA SUCCEDE SE RITARDANO?
-Se l'azienda non paga entro i termini previsti dal CCNL, è formalmente inadempiente:
-scatta il diritto a percepire gli INTERESSI LEGALI e la RIVALUTAZIONE MONETARIA
-(art. 429 Codice di Procedura Civile) calcolati giorno per giorno dal momento della
-cessazione fino all'effettivo accredito!
+Inizia distinguendo il TFR rimasto nel regime ordinario dalle quote destinate a
+un fondo pensione. Per il fondo, chiedi direttamente al gestore quali prestazioni
+o riscatti sono disponibili e con quale procedura: il pagamento alla fine del
+rapporto non va dato per automatico.
 
+Per la quota nel regime ordinario verifica a chi chiedere, il contratto e il
+CCNL applicato. Non c'è una scadenza unica di 30 o 45 giorni valida per tutti.
+Nel pubblico impiego possono applicarsi regole e tempi specifici: chiedi
+informazioni all'ente o all'INPS competente.
 
-2. COME FUNZIONANO LE DIMISSIONI TELEMATICHE OBBLIGATORIE
-Dal 2016 le dimissioni presentate solo su carta non hanno valore legale contro le
-"dimissioni in bianco".
-La procedura da seguire è:
-1) Munisciti di SPID, CIE (Carta d'Identità Elettronica) o CNS;
-2) Accedi al portale www.cliclavoro.gov.it oppure al portale INPS nella sezione
-   "Dimissioni Volontarie";
-3) Compila i dati del rapporto di lavoro (data di inizio, data di decorrenza
-   delle dimissioni, cioè il primo giorno in cui NON lavori più);
-4) Invia il modulo: il sistema trasmette automaticamente una PEC all'Ispettorato
-   del Lavoro e al datore di lavoro.
-NOTA BENE: Hai 7 giorni di tempo per ripensarci e revocare le dimissioni con un click!
+Se la scadenza applicabile sembra trascorsa, chiedi per iscritto un prospetto e
+una risposta sui tempi di liquidazione. Conserva copia e prova della consegna.
+La spettanza di interessi, rivalutazione e ulteriori azioni va verificata nel
+caso concreto: un sollecito non garantisce automaticamente il pagamento.
 
+2. DOCUMENTI UTILI DA RACCOGLIERE
 
-3. IL PERIODO DI PREAVVISO: COME EVITARE DI PERDERE SOLDI
-Se dai le dimissioni volontarie (senza giusta causa), devi rispettare il preavviso
-previsto dal tuo CCNL (varia da 8 giorni per i livelli base fino a 2-4 mesi per i quadri).
-ATTENZIONE:
-Se non rispetti il preavviso e te ne vai prima, il datore di lavoro ha il diritto di
-trattenerti dalla busta paga finale o dal TFR l'INDENNITÀ MANCATO PREAVVISO
-(pari alle giornate di stipendio non lavorate).
-Se invece ti dimetti PER GIUSTA CAUSA (es. non ti pagano lo stipendio da 2 mesi),
-NON devi dare alcun preavviso e l'azienda deve pagare a TE l'indennità!
+- Contratto individuale e indicazione del CCNL e del livello.
+- Comunicazione di cessazione e ricevuta delle eventuali dimissioni telematiche.
+- Cedolini, conteggi di fine rapporto ed eventuali pagamenti già ricevuti.
+- Documentazione sulla destinazione del TFR e comunicazioni del fondo, se c'è.
+- Eventuali richieste e risposte precedenti, con prova dell'invio e della consegna.
 
+3. DIMISSIONI E PREAVVISO
 
-4. COME RECUPERARE IL TFR SE L'AZIENDA È IN CRISI O FALLISCE
-Se l'azienda fallisce, chiude o apre una procedura concorsuale e non ha soldi:
-NON DISPERARE!
-I tuoi soldi sono garantiti dallo Stato tramite il FONDO DI GARANZIA INPS:
-L'INPS si sostituisce al datore di lavoro e liquida direttamente sul tuo conto corrente:
-- Il 100% del TFR maturato;
-- Fino alle ultime 3 mensilità di stipendio arretrate non pagate!
-Basta presentare domanda telematica al Fondo di Garanzia INPS tramite patronato o legale.
-================================================================================
+Per molti rapporti privati le dimissioni vanno comunicate con la procedura
+telematica del Ministero del Lavoro, direttamente con SPID o CIE oppure tramite
+un soggetto abilitato. Le lettere del pacchetto non sostituiscono la procedura.
+Sono previste eccezioni e procedure diverse, per esempio per lavoro domestico,
+pubblico impiego e casi soggetti a convalida presso l'Ispettorato.
+
+Nel modulo telematico ordinario, la decorrenza è il primo giorno successivo alla
+fine del rapporto. La revoca è prevista entro sette giorni dalla trasmissione,
+secondo le regole del servizio; controlla subito la ricevuta e le istruzioni.
+
+Durata e decorrenza del preavviso dipendono dal CCNL, dall'inquadramento e dalla
+situazione. Se non lo rispetti, verifica le conseguenze economiche applicabili.
+Le dimissioni per giusta causa richiedono una valutazione dei fatti: non
+presumere che NASpI o indennità di preavviso siano automatiche.
+
+4. SE IL DATORE DI LAVORO È INSOLVENTE
+
+Il Fondo di garanzia INPS può intervenire per il TFR e, nei limiti previsti,
+per alcuni crediti relativi agli ultimi tre mesi, se ricorrono i requisiti.
+Le condizioni e i documenti cambiano a seconda della procedura e del datore di
+lavoro. La sola chiusura dell'azienda non assicura il pagamento automatico.
+Chiedi a un patronato o a un legale di verificare la tua situazione e l'iter.
+
+5. PRIMA DI INVIARE UN MODELLO
+
+Compila solo informazioni vere, controlla il destinatario e scegli un recapito
+verificato. Non allegare dati sensibili non necessari. Chiedi assistenza per
+adattare il testo e scegliere la modalità di invio, anche per conservare la
+prova della consegna. I modelli non assicurano l'esito della richiesta.
+
+FONTI ISTITUZIONALI DA CONSULTARE
+
+- Ministero del Lavoro: servizio «Dimissioni volontarie» su lavoro.gov.it.
+- Ministero del Lavoro: informazioni sulla previdenza complementare.
+- INPS: scheda «Fondo di garanzia del TFR e dei crediti di lavoro» su inps.it.
+- COVIP: informazioni su fondi pensione e posizione individuale su covip.it.
+- Contratto collettivo applicato e regolamento dell'eventuale fondo pensione.
