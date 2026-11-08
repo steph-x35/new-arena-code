@@ -439,6 +439,8 @@ const STR := {
 	"rule.v_illegal":  ["FOUL L · ILLEGAL DEFENCE", "FALLO L · DIFESA IRREGOLARE"],
 	"toast.foul_l": ["FOUL L · ILLEGAL DEFENCE #%d", "FALLO L di #%d · DIFESA IRREGOLARE"],
 	"match.inbound.transition": ["THROW-IN", "RIMESSA"],
+	"match.foul.transition": ["FOUL · THROW-IN", "FALLO · RIMESSA"],
+	"match.ft.transition": ["FREE THROWS ×%d", "TIRI LIBERI ×%d"],
 	"rule.v_illegal.body": ["Defence only: guard your role or HIGHER (a 5 only takes a 5); the R2 pivot is taken by an R3, the R1 pivot never. Standing off is legal. L foul: 2 free throws + possession (R3 shoots from the dashed arc).",
 	                   "SOLO IN DIFESA: si marca un ruolo PARI o SUPERIORE (il 5 solo il 5); il pivot R2 lo prende un R3, il pivot R1 mai. Stare fermi è lecito. Fallo \"L\": 2 liberi + possesso (R3 batte dal tratteggiato)."],
 	"rule.tutor":      ["THE TUTOR", "IL TUTOR"],

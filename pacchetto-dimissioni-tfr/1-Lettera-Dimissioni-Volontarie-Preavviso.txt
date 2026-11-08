@@ -1,73 +1,55 @@
 ================================================================================
-MODELLO 1: LETTERA DI DIMISSIONI VOLONTARIE CON PREAVVISO
-LavoroFacile — Strumenti e Modelli Pronti per i Lavoratori
+MODELLO 1: COMUNICAZIONE DI DIMISSIONI VOLONTARIE CON PREAVVISO
+LavoroFacile — Strumenti e modelli per i lavoratori
 ================================================================================
 
-ISTRUZIONI:
-Ricorda che per legge (D.Lgs. 151/2015), oltre a questa comunicazione per iscritto
-al datore di lavoro, è obbligatorio compilare la procedura telematica sul portale
-Cliclavoro / INPS (o tramite CAF / Patronato).
-Questo modello serve come comunicazione formale interna per concordare l'ultimo
-giorno lavorativo nel rispetto del preavviso previsto dal tuo CCNL.
+PRIMA DI COMPILARE
+
+Questo è un modello informativo da adattare: non sostituisce la consulenza di un
+professionista. Verifica il tuo contratto, il livello e il CCNL applicato per
+calcolare durata e decorrenza del preavviso. Le date di questo modello sono
+esempi da sostituire, non una conferma che il preavviso sia corretto.
+
+Per molti rapporti di lavoro privati occorre presentare le dimissioni anche con
+la procedura telematica del Ministero del Lavoro: questa lettera, da sola, non
+la sostituisce. Si può procedere personalmente con SPID o CIE oppure tramite un
+soggetto abilitato, come un patronato o un sindacato.
+
+Esistono eccezioni e procedure particolari, ad esempio per lavoro domestico,
+pubblico impiego e dimissioni che richiedono convalida presso l'Ispettorato.
+Chiedi assistenza se non sai quale procedura si applica a te.
+
+Per la procedura telematica ordinaria la data di decorrenza è il primo giorno
+successivo alla fine del rapporto. Verifica le date prima di inviare: nei casi
+previsti si può revocare il modulo entro sette giorni dalla trasmissione.
 
 --------------------------------------------------------------------------------
 
-Spett.le Azienda / Datore di Lavoro:
-[Nome Ragione Sociale Azienda]
-Indirizzo: [Via / Piazza, Numero]
-CAP, Città: [CAP, Città, Provincia]
-Alla c.a. della Direzione del Personale / Risorse Umane
+Spett.le [Nome azienda / datore di lavoro]
+[Indirizzo oppure PEC verificata]
+Alla cortese attenzione di [Ufficio / referente]
 
-Raccomandata A/R oppure Consegna a mano con firma per ricevuta / PEC
+Luogo e data: [Città, data]
 
-Luogo e Data: [Città], [Data]
+Oggetto: comunicazione di dimissioni volontarie
 
-Oggetto: Comunicazione di dimissioni volontarie e decorrenza del preavviso
+Io sottoscritto/a [Nome e cognome], dipendente presso [Azienda] dal [data],
+con qualifica [qualifica e livello] e CCNL [contratto applicato], comunico la
+mia volontà di rassegnare le dimissioni dal rapporto di lavoro.
 
-Io sottoscritto/a:
-Nome e Cognome: [Il tuo Nome e Cognome]
-Codice Fiscale: [Il tuo Codice Fiscale]
-Nato/a a: [Luogo di nascita] il [Data di nascita]
-Residente in: [Indirizzo completo di residenza]
-Assunto/a presso la Vostra azienda in data [Data di assunzione] con la qualifica di
-[Tua Qualifica / Livello di inquadramento, es. Impiegato 3° Livello], CCNL applicato
-[es. Commercio / Metalmeccanico];
+In base al preavviso da me verificato, l'ultimo giorno del rapporto è previsto
+per il [data]; il primo giorno successivo alla cessazione è il [data].
 
-CON LA PRESENTE COMUNICO
+[Se applicabile: provvederò a trasmettere le dimissioni tramite la procedura
+telematica prevista. Eliminare o adattare in caso di procedura diversa.]
 
-le mie dimissioni volontarie dal rapporto di lavoro in essere con codesta spettabile
-azienda per motivi personali.
+Chiedo cortesemente il prospetto delle competenze di fine rapporto e la
+liquidazione delle somme effettivamente dovute secondo le regole applicabili.
 
-Nel rispetto dei termini di preavviso previsti dal vigente Contratto Collettivo
-Nazionale di Lavoro (pari a giorni [Numero giorni di preavviso, es. 15, 30, 45]),
-comunico che il mio ultimo giorno effettivo di servizio sarà il:
+Cordiali saluti.
 
-[Giorno, Mese, Anno dell'ultimo giorno lavorato]
+[Nome e cognome]
+[Recapito]
+[Firma, se necessaria]
 
-Pertanto, il rapporto di lavoro dovrà intendersi definitivamente risolto a decorrere
-dal giorno successivo, ovvero dal [Data del primo giorno di cessazione].
-
-Provvederò contestualmente all'inoltro della comunicazione telematica obbligatoria
-tramite il portale del Ministero del Lavoro (Cliclavoro / INPS).
-
-Vi invito a provvedere, nei termini contrattuali e di legge, al conguaglio delle
-competenze di fine rapporto spettanti, ivi compresi:
-- Trattamento di Fine Rapporto (T.F.R.) maturato e rivalutato;
-- Ratei di tredicesima (ed eventuale quattordicesima) mensilità;
-- Indennità sostitutiva per ferie e permessi (ROL/ex festività) non goduti.
-
-Ringraziando per la collaborazione professionale ricevuta durante il periodo di lavoro,
-porgo cordiali saluti.
-
-
-Firma del Lavoratore:
-_________________________________
-[Tuo Nome e Cognome]
-
-
-PER RICEVUTA E ACCETTAZIONE DA PARTE DELL'AZIENDA:
-(Solo in caso di consegna a mano)
-
-Timbro dell'Azienda e Firma per ricevuta:
-Data: ____________________
-Firma: ___________________
+Per ricevuta, se consegnata a mano: ____________________  Data: __________

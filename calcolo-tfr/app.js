@@ -45,12 +45,13 @@
   function irpefTeorica(reddito) {
     let tax = 0;
     if (reddito <= 0) return 0;
+    // aliquote 2026: 23% / 33% / 43% (L. 199/2025)
     if (reddito <= 28000) {
       tax = reddito * 0.23;
     } else if (reddito <= 50000) {
-      tax = 28000 * 0.23 + (reddito - 28000) * 0.35;
+      tax = 28000 * 0.23 + (reddito - 28000) * 0.33;
     } else {
-      tax = 28000 * 0.23 + 22000 * 0.35 + (reddito - 50000) * 0.43;
+      tax = 28000 * 0.23 + 22000 * 0.33 + (reddito - 50000) * 0.43;
     }
     return tax;
   }

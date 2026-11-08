@@ -5,10 +5,12 @@
   const $ = (s) => document.querySelector(s);
 
   // Parametri 2026 (indicativi, editabili dall'utente)
+  // Scaglioni IRPEF 2026 (L. 199/2025): la seconda aliquota e' scesa
+  // dal 35% al 33% dal 1 gennaio 2026. Struttura a TRE scaglioni, non
+  // quattro: il 25% sulla fascia 15.000-28.000 non esiste piu' dal 2024.
   const IRPEF_BRACKETS = [
-    { upTo: 15000, rate: 0.23 },
-    { upTo: 28000, rate: 0.25 },  // scaglione 25% dal 2024
-    { upTo: 50000, rate: 0.35 },
+    { upTo: 28000, rate: 0.23 },
+    { upTo: 50000, rate: 0.33 },
     { upTo: Infinity, rate: 0.43 },
   ];
 
