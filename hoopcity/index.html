@@ -543,21 +543,24 @@
     /* Il piccolo giocatore saluta dal bordo del tasto: niente livelli sui link. */
     .hero .cta { padding-top:116px; }
     .download-stage { position:relative; min-width:0; }
-    .mascot { position:absolute; bottom:calc(100% + 12px); right:13px; width:72px; height:98px; padding:0; border:0; background:transparent; cursor:pointer; z-index:3; overflow:visible; -webkit-tap-highlight-color:transparent; }
+    .mascot { position:absolute; bottom:100%; right:13px; width:72px; height:98px; padding:0; border:0; background:transparent; cursor:pointer; z-index:3; overflow:visible; -webkit-tap-highlight-color:transparent; }
     .mascot:focus-visible { outline:2px solid #ffe0a3; outline-offset:3px; border-radius:8px; }
     .mascot svg { display:block; width:100%; height:100%; overflow:visible; }
     .mascot .figure { animation:mascot-stand 16s ease-in-out infinite; }
-    .mascot .leg { transform-box:fill-box; transform-origin:top center; animation:mascot-legs 16s ease-in-out infinite; }
+    .mascot .standing-legs { animation:mascot-standing-legs 16s step-end infinite; }
+    .mascot .sitting-legs { animation:mascot-sitting-legs 16s step-end infinite; }
     .mascot .wave-arm { transform-origin:52px 51px; animation:mascot-wave 16s ease-in-out infinite; }
     .mascot-bubble { position:absolute; right:92px; bottom:calc(100% + 36px); width:155px; padding:9px 11px; color:#1d1520; background:#fff4e6; border-radius:12px; font-size:12px; font-weight:800; line-height:1.25; text-align:center; box-shadow:0 4px 0 #8c4d6d; pointer-events:none; transform-origin:bottom right; animation:mascot-message 16s ease-in-out infinite; z-index:3; }
     .mascot-bubble::after { content:""; position:absolute; bottom:8px; right:-7px; border-top:7px solid transparent; border-bottom:7px solid transparent; border-left:9px solid #fff4e6; }
-    @keyframes mascot-stand { 0%,18%,80%,100% { transform:translateY(16px); } 25%,65% { transform:translateY(0); } 72% { transform:translateY(16px); } }
-    @keyframes mascot-legs { 0%,18%,80%,100% { transform:rotate(-60deg); } 25%,65% { transform:rotate(0); } 72% { transform:rotate(-60deg); } }
+    @keyframes mascot-stand { 0%,18%,80%,100% { transform:translateY(26px); } 25%,65% { transform:translateY(0); } 72% { transform:translateY(26px); } }
+    @keyframes mascot-standing-legs { 0%, 19% { opacity:0; } 25%, 65% { opacity:1; } 72%, 100% { opacity:0; } }
+    @keyframes mascot-sitting-legs { 0%, 19% { opacity:1; } 25%, 65% { opacity:0; } 72%, 100% { opacity:1; } }
     @keyframes mascot-wave { 0%,26%,65%,100% { transform:rotate(0); } 32%,42%,52% { transform:rotate(-105deg); } 37%,47%,57% { transform:rotate(-135deg); } }
     @keyframes mascot-message { 0%,27% { opacity:0; transform:translateY(9px) scale(.7); } 33% { opacity:1; transform:translateY(-4px) scale(1.07); } 37%,57% { opacity:1; transform:translateY(0) scale(1); } 66%,100% { opacity:0; transform:translateY(5px) scale(.9); } }
-    .download-stage.is-greeting .mascot .figure, .download-stage.is-greeting .mascot .leg, .download-stage.is-greeting .mascot .wave-arm, .download-stage.is-greeting .mascot-bubble { animation-delay:-4.3s; }
+    .download-stage.is-greeting .mascot .figure, .download-stage.is-greeting .mascot .standing-legs, .download-stage.is-greeting .mascot .sitting-legs, .download-stage.is-greeting .mascot .wave-arm, .download-stage.is-greeting .mascot-bubble { animation-delay:-4.3s; }
     @media (prefers-reduced-motion:reduce) {
-      .mascot .figure, .mascot .leg, .mascot .wave-arm, .mascot-bubble { animation:none !important; }
+      .mascot .figure, .mascot .standing-legs, .mascot .sitting-legs, .mascot .wave-arm, .mascot-bubble { animation:none !important; }
+      .mascot .sitting-legs { opacity:0; }
       .mascot-bubble { opacity:1; transform:none; }
     }
   </style>
@@ -681,7 +684,8 @@
             <button class="mascot" type="button" aria-label="Saluta il giocatore di Hoop City">
               <svg viewBox="0 0 80 112" aria-hidden="true" focusable="false">
                 <g class="figure">
-                  <g class="leg"><path d="M32 78 L31 93 L29 101 M46 78 L49 93 L51 101" fill="none" stroke="#b88762" stroke-width="6" stroke-linecap="round"/><path d="M23 101h11v5H22zM47 101h12v5H47z" fill="#ececee"/></g>
+                  <g class="standing-legs"><path d="M32 78 L31 93 L29 101 M46 78 L49 93 L51 101" fill="none" stroke="#b88762" stroke-width="6" stroke-linecap="round"/><path d="M23 101h11v5H22zM47 101h12v5H47z" fill="#ececee"/></g>
+                  <g class="sitting-legs"><path d="M32 78 L29 86 L29 100 M46 78 L49 86 L49 100" fill="none" stroke="#b88762" stroke-width="6" stroke-linecap="round"/><path d="M24 100h11v5H23zM45 100h12v5H44z" fill="#ececee"/></g>
                   <path d="M27 69h24l-1 13H28z" fill="#252e48"/>
                   <path d="M26 45 L21 62 L19 71" fill="none" stroke="#b88762" stroke-width="6" stroke-linecap="round"/>
                   <g class="wave-arm"><path d="M52 51 L58 64 L61 72" fill="none" stroke="#b88762" stroke-width="6" stroke-linecap="round"/><circle cx="61" cy="72" r="3" fill="#b88762"/></g>
@@ -1001,7 +1005,10 @@
               }
             }
           }
-          if (rel && asset) {
+          // Il valore statico e' la versione pubblicata nota: non retrocedere
+          // se l'API restituisce solo release stabili piu' vecchie.
+          var minimumKey = 2 * 1000000 + 49 * 1000 + 4;
+          if (rel && asset && bestKey >= minimumKey) {
             var links = document.querySelectorAll('.js-dl');
             var sub = document.getElementById('dl-sub');
             var meta = document.getElementById('dl-meta');
