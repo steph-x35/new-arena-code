@@ -539,6 +539,27 @@
     .winter-trees svg:nth-child(2) { width:36px; height:60px; opacity:.8; }
     @media (max-width:600px) { .winter-snow i:nth-child(n+11) { display:none; } .winter-trees { right:5%; } }
     @media (prefers-reduced-motion:reduce) { html.winter .winter-snow { display:none; } }
+
+    /* Il piccolo giocatore saluta dal bordo del tasto: niente livelli sui link. */
+    .hero .cta { padding-top:116px; }
+    .download-stage { position:relative; min-width:0; }
+    .mascot { position:absolute; bottom:calc(100% + 12px); right:13px; width:72px; height:98px; padding:0; border:0; background:transparent; cursor:pointer; z-index:3; overflow:visible; -webkit-tap-highlight-color:transparent; }
+    .mascot:focus-visible { outline:2px solid #ffe0a3; outline-offset:3px; border-radius:8px; }
+    .mascot svg { display:block; width:100%; height:100%; overflow:visible; }
+    .mascot .figure { animation:mascot-stand 16s ease-in-out infinite; }
+    .mascot .leg { transform-box:fill-box; transform-origin:top center; animation:mascot-legs 16s ease-in-out infinite; }
+    .mascot .wave-arm { transform-origin:52px 51px; animation:mascot-wave 16s ease-in-out infinite; }
+    .mascot-bubble { position:absolute; right:92px; bottom:calc(100% + 36px); width:155px; padding:9px 11px; color:#1d1520; background:#fff4e6; border-radius:12px; font-size:12px; font-weight:800; line-height:1.25; text-align:center; box-shadow:0 4px 0 #8c4d6d; pointer-events:none; transform-origin:bottom right; animation:mascot-message 16s ease-in-out infinite; z-index:3; }
+    .mascot-bubble::after { content:""; position:absolute; bottom:8px; right:-7px; border-top:7px solid transparent; border-bottom:7px solid transparent; border-left:9px solid #fff4e6; }
+    @keyframes mascot-stand { 0%,18%,80%,100% { transform:translateY(16px); } 25%,65% { transform:translateY(0); } 72% { transform:translateY(16px); } }
+    @keyframes mascot-legs { 0%,18%,80%,100% { transform:rotate(-60deg); } 25%,65% { transform:rotate(0); } 72% { transform:rotate(-60deg); } }
+    @keyframes mascot-wave { 0%,26%,65%,100% { transform:rotate(0); } 32%,42%,52% { transform:rotate(-105deg); } 37%,47%,57% { transform:rotate(-135deg); } }
+    @keyframes mascot-message { 0%,27% { opacity:0; transform:translateY(9px) scale(.7); } 33% { opacity:1; transform:translateY(-4px) scale(1.07); } 37%,57% { opacity:1; transform:translateY(0) scale(1); } 66%,100% { opacity:0; transform:translateY(5px) scale(.9); } }
+    .download-stage.is-greeting .mascot .figure, .download-stage.is-greeting .mascot .leg, .download-stage.is-greeting .mascot .wave-arm, .download-stage.is-greeting .mascot-bubble { animation-delay:-4.3s; }
+    @media (prefers-reduced-motion:reduce) {
+      .mascot .figure, .mascot .leg, .mascot .wave-arm, .mascot-bubble { animation:none !important; }
+      .mascot-bubble { opacity:1; transform:none; }
+    }
   </style>
   <!-- Il sito veste il Natale subito, fino al 6 gennaio 2027. Negli anni
        successivi Halloween e Natale seguono il calendario del dispositivo. -->
@@ -655,12 +676,27 @@
 
       <div class="cta">
         <div class="cta-row">
-          <a class="btn js-dl" id="dl"
-             href="https://github.com/steph-x35/new-arena-code/releases/download/v2.49.4/HoopCity-v2.49.4.apk"
-             rel="noopener">
-            Scarica l'APK gratuita
-            <small id="dl-sub">Versione 2.49.4 · 58,9 MB</small>
-          </a>
+          <div class="download-stage">
+            <span class="mascot-bubble" aria-hidden="true">Scopri il nostro sito! 🏀</span>
+            <button class="mascot" type="button" aria-label="Saluta il giocatore di Hoop City">
+              <svg viewBox="0 0 80 112" aria-hidden="true" focusable="false">
+                <g class="figure">
+                  <g class="leg"><path d="M32 78 L31 93 L29 101 M46 78 L49 93 L51 101" fill="none" stroke="#b88762" stroke-width="6" stroke-linecap="round"/><path d="M23 101h11v5H22zM47 101h12v5H47z" fill="#ececee"/></g>
+                  <path d="M27 69h24l-1 13H28z" fill="#252e48"/>
+                  <path d="M26 45 L21 62 L19 71" fill="none" stroke="#b88762" stroke-width="6" stroke-linecap="round"/>
+                  <g class="wave-arm"><path d="M52 51 L58 64 L61 72" fill="none" stroke="#b88762" stroke-width="6" stroke-linecap="round"/><circle cx="61" cy="72" r="3" fill="#b88762"/></g>
+                  <path d="M27 43 L51 43 L49 70 L29 70z" fill="#f17627"/><path d="M29 46v21M49 46v21" stroke="#ffe1a0" stroke-width="2"/><text x="39" y="62" text-anchor="middle" fill="#fff3dd" font-size="13" font-family="sans-serif" font-weight="bold">7</text>
+                  <path d="M36 40h7v6h-7z" fill="#b88762"/><circle cx="39.5" cy="29" r="12" fill="#b88762"/><path d="M28 28c-2-9 4-15 12-15 9 0 13 6 12 15l-4-3c-5 1-9-1-11-3-2 3-5 4-9 4z" fill="#29211f"/><circle cx="35" cy="29" r="1.15" fill="#191619"/><circle cx="44" cy="29" r="1.15" fill="#191619"/><path d="M36 35q4 3 8 0" fill="none" stroke="#654336" stroke-width="1.2" stroke-linecap="round"/>
+                </g>
+              </svg>
+            </button>
+            <a class="btn js-dl" id="dl"
+               href="https://github.com/steph-x35/new-arena-code/releases/download/v2.49.4/HoopCity-v2.49.4.apk"
+               rel="noopener">
+              Scarica l'APK gratuita
+              <small id="dl-sub">Versione 2.49.4 · 58,9 MB</small>
+            </a>
+          </div>
           <a class="btn ghost" href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">
             Canale Telegram
             <small style="display:block;font-size:12px;font-weight:700;opacity:.7;margin-top:3px">avvisi delle nuove versioni</small>
@@ -920,6 +956,20 @@
     </div>
   </footer>
 
+  <script>
+    // Il tocco riavvia il saluto, senza interferire con il download.
+    (function () {
+      var mascot = document.querySelector('.mascot');
+      if (!mascot) return;
+      mascot.addEventListener('click', function () {
+        var stage = mascot.parentElement;
+        stage.classList.remove('is-greeting');
+        void stage.offsetWidth;
+        stage.classList.add('is-greeting');
+        window.setTimeout(function () { stage.classList.remove('is-greeting'); }, 11500);
+      });
+    })();
+  </script>
   <script>
     // ================================================================
     // LA PAGINA SI AGGIORNA DA SOLA: legge le release di Hoop City dal
