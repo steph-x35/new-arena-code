@@ -679,6 +679,10 @@ func _deadball_watchdog(delta: float) -> void:
 ## the quarter log, scoring runs and per-player points in one place, so the
 ## broadcast card at the end always agrees with the scoreboard.
 func _add_score(p: BallPlayer, pts: int) -> void:
+	# Canestro subito: il LOCKDOWN di chi difendeva si chiude qui.
+	for d in players:
+		if d.team != p.team:
+			d.clear_lockdown()
 	score[p.team] += pts
 	p.pts_total += pts
 	_q_pts[p.team] += pts
@@ -858,6 +862,14 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 
 	shooter.combo_pullup = false   # la combo vive per un tiro solo
 	total_attempts += 1
+	# LOCKDOWN (v2.49.0): un tiro sbagliato che ho contestato forte vale come
+	# difesa buona, esattamente come una stoppata o una rubata.
+	if not bool(res["made"]) and contest > 0.65:
+		for d in players:
+			if d.team == shooter.team: continue
+			if d.contest_value_against(shooter.global_position) > 0.65:
+				d.def_credit()
+				break
 	# blocked?
 	var blocker := _block_check(shooter, contest, _floater_shot)
 	if blocker != null:
@@ -867,6 +879,7 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 		Sfx.haptic(45)
 		Events.shake.emit(0.7)
 		Events.popup.emit("BLOCK!", blocker.global_position, Color(1.0, 0.45, 0.3), true)
+		blocker.def_credit()
 		res["made"] = false
 		if shooter.is_user:
 			_user_break_heat()
