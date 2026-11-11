@@ -38,7 +38,9 @@ func _ready() -> void:
 	if victim == null:
 		victim = u
 	var hoop: Vector2 = court.hoop_for(victim.team)
-	court._start_free_throws(victim, 2)
+	# Versione senza velo: la foto deve scattare con la fila GIA' sistemata
+	# nello stesso frame (la transizione normale impiega ~0,3 s).
+	court._start_free_throws_instant(victim, 2)
 	for p in court.players:
 		p.set_physics_process(false)      # la fila non si sposta per la foto
 	# inquadratura: la telecamera si mette davanti alla corsia

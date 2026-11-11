@@ -282,7 +282,7 @@ Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) �
 
 ---
 
-## 📋 PUBBLICATI + RISULTATI a 48h (aggiornato al 2026-10-15)
+## 📋 PUBBLICATI + RISULTATI (aggiornato al 2026-10-25)
 
 | Reel | Views | Lettura |
 |---|---|---|
@@ -292,7 +292,217 @@ Nota hang: per il perfecto, appendersi con 2 mani (presa sul rosso del ferro) �
 | LF «8 ore / 6 pagate» (rabbia+giustizia) | **967 · 1 like · 1 save · 5,3s tempo medio** | NON e' il formato ad aver fallito: con 5,3s di retention la gente se ne va' DURANTE l'hook → TikTok smette di spingere prima ancora di mostrare il contenuto. Malattia = primi 2 secondi. Istruzione per il prossimo: il NUMERO enorme e' gia' nel primo fotogramma, domanda-identita' come «5 anni», zero introduzione |
 | LF «8 ore / 6 pagate» — YouTube Shorts (canale NUOVO, 0 iscritti) | **1.300 views in 24h · 1,8h di watch time (≈5s a view)** | canale a zero distribuito subito: la macchina YouTube FUNZIONA. Stesso crollo a ~5s di TikTok = conferma incrociata: il problema e' l'hook, non la piattaforma. UNA riparazione (primi 2s) vale per entrambi i canali. Ogni reel TikTok si ricarica qui: costo zero, pubblico da ricerca |
 | LF «Ferie non godute» (v7: 13s, 5 card, zero cedolino, soggetto vergine) | **pubblicato 2026-10-18 19:00** | primo reel con tutti i pro caricati: hook <1,5s, framing perdita, scala 65→650→2.000, CTA commenti+save, loop. Lettura a 48h: % >3s target >50%, tempo medio >7s, salvataggi |
+| **LF «TI LICENZI DOPO 7 ANNI?»** (v9, screencast 20s, 22/10 ore 20) | **19.000 views al 26/10** · 30 like · 20 commenti · 10 save · tasso like **0,158%** | primo reel in formato REGISTRAZIONE DELLO SCHERMO dopo il 209k. 6.510 il primo giorno da 458 follower = distribuzione sana. Commenti arrivati con anni+stipendio ("anni 7 stipendio 2300", "1700 x8 mesi") = la gente usa il profilo come calcolatore, che e' esattamente il comportamento cercato. Da NON leggere come vittoria: 7 like su 6.510 = 0,1%, il pubblico prende il numero e va via senza motivo per restare. **Linktree «Calcola il TFR»: 121 -> 122 = UN solo click su 6.510 views (0,015%).** Il modello del piano ne prevedeva 2-10: siamo sotto anche al caso pessimista. **Il dato del 26/10: views x2,9 (6.510 -> 19.000), like x1,0 (30 -> 30).** Dodicimila persone in piu' hanno guardato e NON hanno messo like. Linktree 121 -> 125 = +4 click su 19.000 views (0,021%). Payhip: 1 sola visita prodotto in piu' su 19.000 views -> 1 ogni 19.000. |
+| **LF «UN ANNO DI LAVORO = 2.267 €»** (v26, screencast 21s + voce sintetica, 25/10) | **pubblicato 25/10 ore 19:00/19:10** | soggetto nato dal commento di Operatore 25 («stipendio netto 1690, un anno di lavoro quant'è?»). Primo reel con **voce** (InShot TTS) e primo con il **CTA nuovo** (like subito dopo il numero + follow con promessa). Numeri: digiti 2525 -> RAL 32.825 -> TFR 1 anno 2.267,36 lordi / 1.745,86 netti. Lettura a 48h: tasso di like sopra l'1% = il formato con la voce funziona |
 | HCL POV «appeso al ferro» | **790 CON boost gratis** | organico reale piu' basso: le views sponsorizzate sono pubblico freddo, non misurano il video. Il boost non si usa per TESTARE ma per SPINGERE un video che cammina da solo |
+
+**Stato account LF al 2026-10-23: 458 follower · 1.495 like totali · 0 seguiti.**
+Serve 1.000 follower per il campo sito nel profilo (= link diretto, senza
+Linktree che si mangia meta' dei tap) e per i Creator Rewards. 458 = 46%.
+Le 6.510 views di v9 hanno reso ~0 follower: il video informa, non da' un
+motivo per restare. Da qui in avanti ogni reel chiude con un motivo
+(anticipazione del video dopo), e il fissato lo ripete.
+
+### 🔴 23/10 — IL DATO CHE CAMBIA LE REGOLE: 6.510 views, 1 click
+
+| Passaggio | Modello del piano | Reale |
+|---|---|---|
+| 6.510 views -> visite profilo (1-2%) | 65-130 | n.d. |
+| visite profilo -> click Linktree (3-8%) | 2-10 | **1** |
+| click -> acquisto (1-5%) | 0-0,5 | **0** |
+
+Causa fisica, gia' scritta in PIANO-CRESCITA.md: **sotto i 1.000 follower
+il campo sito del profilo TikTok non esiste**, quindi "calcolatore in bio"
+manda a una cosa che non si puo' toccare. Non e' colpa del video: e' un
+ponte che non c'e'.
+
+**Conseguenza operativa (vale da subito):**
+1. Su TikTok **si smette di dire "in bio"**. Il CTA diventa il commento
+   ("scrivi gli anni") + il follow. Il commento e' gratis e si puo' toccare.
+2. Il traffico verso il sito **si prende solo su YouTube**, dove il link in
+   descrizione e' cliccabile senza soglie. TikTok -> icona YouTube nel
+   profilo -> Short -> descrizione.
+3. Non si giudica piu' un reel TikTok dai click: si giudica da
+   (a) commenti con anni+stipendio (b) follower nuovi.
+4. Ogni view TikTok senza follow e' un view sprecato: 6.510 views hanno
+   reso ~0 follower. Il video deve chiedere il follow, non il click.
+
+### 🔴 23/10 — IL VERO DATO: 0,1% di like su ENTRAMBE le piattaforme
+
+| Piattaforma | Views | Like | Tasso | Iscritti/follower resi |
+|---|---|---|---|---|
+| TikTok v9 | 6.510 | 7 | **0,11%** | ~0 |
+| YouTube v9 | 1.000 | 1 | **0,10%** | 2 (canale a 2 totale) |
+
+Due algoritmi diversi, due pubblici diversi, **lo stesso 0,1%**. La media di
+settore e' 2-5%. Siamo 20-40 volte sotto. Questo esclude la piattaforma e la
+distribuzione: **e' il video**. Viene guardato, non viene amato.
+
+Perche': il reel e' **utile**, non **simpatico**. L'utile si salva, il simpatico
+si mette il like. Il like e' il segnale che fa spingere il video: senza like
+si ferma a 1-6k invece di esplodere. Ecco perche' il 209k non ha lasciato
+ne' follower ne' una community — ha lasciato solo views.
+
+**Il paradosso da tenere a mente:** il format che fa VIEWS e' lo screencast
+senza volto. Il format che fa FOLLOWERS probabilmente richiede un volto o
+una voce. Non si risolve oggi: prima si ripara il like sul format attuale.
+
+**Bug di produzione trovato (da correggere su ogni YouTube):**
+il video finiva con «Calcolatore gratis **in bio**». Su YouTube la bio non
+esiste: il link sta nella **descrizione**. Chi ha guardato su YouTube ha
+letto un'istruzione che non poteva eseguire. Testo corretto:
+- TikTok -> «Calcolatore gratis nel link in bio 🔗» (e solo dopo 1.000 follower)
+- YouTube -> «Calcolatore gratis: link in descrizione 👇»
+
+### CTA STANDARD da qui in avanti (testo a schermo, 2 righe)
+
+Il like va chiesto **subito dopo la rivelazione del numero** (quando l'emozione
+e' alta), non alla fine (dove c'e' il vuoto). Il follow va chiesto **con una
+promessa**, mai da solo: la gente si iscrive per quello che arriva, non per
+quello che ha appena visto.
+
+Riga 1 (grande):  Ti spettano anche a te?
+Riga 2 (piccola): ❤️ + iscriviti — ogni settimana un conto che nessuno ti fa
+
+⚠️ La promessa NON deve essere un argomento specifico. «Il prossimo sono le
+ferie» era la prima idea ed e' sbagliata: le ferie sono gia' uscite il 18/10
+(v7) e non hanno un calcolatore, quindi in questo format non si possono
+rifare. Una promessa che non mantieni al video dopo e' peggio di nessuna
+promessa. La formula «ogni settimana un conto che nessuno ti fa» e' sempre
+vera e non scade.
+
+Vietato: «metti like e seguici» (generico, invisibile, non dice perche').
+Vietato: chiedere il like senza aver prima dato il numero.
+
+### 🔴 26/10 — LA MISURA DEFINITIVA: 19.000 views, 4 click, 1 visita prodotto
+
+| | 22/10 | 26/10 | Δ |
+|---|---|---|---|
+| Views TikTok | 6.510 | **19.000** | **+12.490** |
+| Like | 7 | 30 | +23 |
+| Commenti | 3 | 20 | +17 |
+| Save | 1 | 10 | +9 |
+| Linktree «Calcola il TFR» | 121 | **125** | **+4** |
+| Linktree totale (6 link) | 162 | 166 | +4 |
+| Payhip — visite prodotto | 45 | **47** | **+2** |
+| Payhip — ordini | 0 | **0** | 0 |
+
+**1. Il like non si e' mosso.** Views x2,9, like x1,0. Dodicimila persone
+nuove hanno guardato e non hanno messo like. Il tasso e' sceso da 0,46% a
+**0,158%**: la crescita delle views non ha portato nessun segnale positivo.
+
+**2. Il like e' distribuito in modo anomalo: 1 save ogni 3 like.** Il rapporto
+normale e' 1 save ogni 10-20 like. Significa che una fetta piccolissima ma
+reale vuole il contenuto (10 persone), mentre la massa lo consuma e va via.
+
+**3. Il ponte non esiste, e ora c'e' la misura.** 19.000 views -> 4 click
+sullo strumento (**0,021%**) e **1** visita prodotto in piu'.
+
+> **19.000 views : 1 visita prodotto.** Per arrivare alle 100 visite prodotto
+> che servono a leggere un tasso di conversione, con questo rapporto servono
+> **1,9 milioni di views**.
+
+Non e' un funnel con una perdita: e' un muro. Nessun ritocco alla CTA lo
+sposta, perche' la causa e' **fisica**: sotto i 1.000 follower il campo sito
+di TikTok non esiste, e il link in descrizione di YouTube lo vede solo chi
+apre la descrizione.
+
+**Conseguenza: smettere di ottimizzare i reel per le views.** Tre sole
+direzioni restano aperte, in quest'ordine:
+1. **1.000 follower** (458 oggi, 46%): e' l'unico evento che crea il ponte
+2. **YouTube** (link cliccabile): l'unico posto dove il click esiste gia'
+3. **Vendere dentro il video**: mostrare il prodotto e il prezzo nel reel,
+   perche' senza ponte il pubblico deve arrivarci da solo
+
+### 🛒 26/10 — LE PAGINE PRODOTTO: cosa vede chi arriva su Payhip
+
+Lette le tre pagine live (Payhip). Il contenuto e' buono: il pacchetto
+Dimissioni sono **2.330 parole** in 5 documenti, con istruzioni, riferimenti
+normativi (D.Lgs. 151/2015, art. 1219 c.c., art. 429 c.p.c.) e campi da
+compilare. **Il problema non e' il contenuto: e' come e' confezionato.**
+
+| Cosa vede il compratore | Perche' e' un problema |
+|---|---|
+| **«You will get a ZIP (10KB) file»** | e' l'ULTIMA riga prima del pulsante. 10 KB = "un file di testo". Azzera il valore percepito di un prodotto legale da 3,90 € |
+| **«On Sale — €3,90 — €3,90»** | prezzo doppio identico: sembra un finto sconto o un errore. Uccide la fiducia |
+| Formato **.txt** | per un modello legale ci si aspetta un PDF. Il .txt sembra un blocco note |
+| Nessuna recensione | nessuna prova sociale su nessuno dei 3 prodotti |
+| Nessuna FAQ / garanzia | nessuna risposta a "e se non fa per me?" |
+| Nessun disclaimer legale | manca "non e' consulenza legale", che e' anche una tutela per chi vende |
+
+**Il dato che conta:** 47 visite prodotto in totale, 0 ordini. Su 47 visite
+l'atteso statistico e' 0-1 vendita, quindi lo zero **non** dimostra ancora che
+i prodotti non piacciano. Ma la riga «ZIP 10KB» e' gratuita da togliere.
+
+**Correzione preparata:** i 5 documenti sono stati impaginati in **PDF**
+(`tools/txt2pdf.py` -> `prodotti-pdf/dimissioni-tfr/`). Ogni PDF ha copertina,
+intestazioni, piè di pagina con numerazione, e contiene gli stessi testi.
+Restano da caricare su Payhip al posto (o insieme) al .txt.
+
+### 🕖 25/10 — ORARI: 19:00 TikTok, 19:10 YouTube
+
+Corretto il vecchio «mai lo stesso minuto». Quella regola vale **dentro la
+stessa piattaforma** (tre reel TikTok insieme si cannibalizzano), **non tra
+piattaforme diverse**: chi guarda su YouTube non e' pubblico tolto a TikTok.
+
+Vantaggio pratico: con 10 minuti di scarto si presidia **una sola ora**
+(19:00-20:00) invece di due, e la prima ora e' quella in cui si risponde ai
+commenti.
+
+Su YouTube l'orario conta ancora meno: gli Shorts non hanno feed cronologico,
+vengono testati nelle ore e nei giorni successivi. Spostare YouTube di 10
+minuti non costa niente.
+
+**Orario standard da qui in avanti: 19:00 TikTok -> 19:10 YouTube.**
+
+### 🎙️ 25/10 — PRODUZIONE: niente faccia, niente voce (InShot TTS)
+
+L'utente non mostra ne' volto ne' voce. La voce si genera in **InShot**
+(Text to Speech), cosi' l'export e' **un file unico** valido per TikTok E per
+YouTube. Con la voce interna di TikTok il video su YouTube resterebbe muto:
+due versioni da gestire, due lavori.
+
+**Regole della voce sintetica (provate):**
+1. I numeri **a lettere** (`duemiladuecentosessantasette`), mai le cifre
+2. `euro` per esteso, mai `€`
+3. La punteggiatura e' il ritmo: punto = pausa piena, virgola = breve, `...` = lunga
+4. Velocita' **1,1-1,2x** (le voci sintetiche partono sempre troppo lente)
+
+⚠️ Le battute che funzionano solo con una voce umana (es. «ventottomila... anzi,
+trentaduemilaottocento») vanno **tolte**: la voce sintetica le legge piatte e
+diventano un errore, non una gag.
+
+Limite accettato: una voce vera è l'unica cosa che distingue il canale da altri
+cento. Ma il problema ora non e' l'identita', e' il **tasso di like** (0,46%):
+la voce sintetica lo alza comunque perche' da' ritmo a un video che prima era
+solo musica.
+
+### 💰 25/10 — PAYHIP: 46 visite, 0 ordini. Campione troppo piccolo.
+
+| Prodotto | Visite | Ordini |
+|---|---|---|
+| Busta Paga Decodificata (2,90) | 15 | 0 |
+| Pacchetto Dimissioni (3,90) | 15 | 0 |
+| Kit Carriera (4,90) | 16 | 0 |
+| **Totale** | **46** | **0** |
+
+Con 46 visite ci si aspettano statisticamente **0-2 vendite**: lo zero rientra
+nel normale. **Non toccare prezzi ne' pagine**: servono **150-200 visite** per
+avere un campione che dica qualcosa. Se a quel punto resta zero, allora e' il
+prodotto.
+
+### ⚠️ 25/10 — TRAPPOLA 12 MENSILITA' (da usare nelle risposte)
+
+Il tool sincronizza **mensile -> RAL con x13**. Chi e' pagato su **12 mensilita'**
+e digita lo stipendio mensile ottiene un TFR **gonfiato**.
+
+Caso reale (commento Operatore 25, 1.690 netti x 12):
+- digita 2.483 nel mensile -> RAL 32.279 -> TFR **2.230** (SBAGLIATO)
+- digita la RAL **29.793** -> TFR **2.058** (GIUSTO)
+- differenza: **172 € in piu'**, e poi si sente preso in giro dal prospetto
+
+**Regola per le risposte:** prima si chiede "quante mensilita'?", poi si dice
+cosa digitare. Se sono 12, si fa scrivere la RAL, mai il mensile.
 
 **Decisioni da questi numeri:**
 - LF: la serie «quanti anni» TIRA IL FIOATO → si cambia arma: formato RABBIA+GIUSTIZIA (Pietro, part-time) che vende la Busta Paga Decodificata. Le video-risposte restano priorita' SOLO se arrivano commenti con anni+stipendio.
@@ -674,18 +884,42 @@ Calendario (ore 19:00, TikTok + YouTube insieme):
 - LUN 20/10 → v8 BOMBA 14ma (anticipata da mar: mano calda)
 - MER 22/10 → v9 CASO FRANCESCO (anonimo)
 - GIO 23/10 → 312 ore (caso commento, gia' pronto)
-- SAB 25/10 → v10 SCATTI DI ANZIANITÀ
+- SAB 25/10 → **STIPENDIO NETTO** (REEL-25, screencast) — scatti spostati
 
-### v9 — «MI LICENZIO: COSA MI SPETTA?» (caso reale #1, TUTTO anonimo)
-Hook (0-1,5s): «Uno mi ha scritto: mi licenzio.» + rosso «COSA TI SPETTA?»
-Card 2 (1,5-4s): «7 anni e 8 mesi nello stesso lavoro. Ecco i numeri veri.»
-Card 3 (4-7s): scala rossa: «Ferie = 72,76€ al GIORNO» / «14ma = fino a 5 STIPENDI» / «TFR = ~12.500 lordi»
-Card 4 (7-10s): «La cifra esatta sta nel prospetto di liquidazione: è tuo DIRITTO chiederlo.»
-Card 5 (10-13s): «Stai pensando di andartene? 👇 Scrivi quanti anni fai + SALVA» (loop card 1)
-Numeri: presi dal calcolo reale del 19/10 (paga 9,0956€/h, 7y8m, rivalutazioni).
-MAI nome, azienda, IBAN o busta nel video ne' altrove. Framing: caso vero.
+### v9 — «TI LICENZI: QUANTO TI SPETTA?» (caso reale #1, TUTTO anonimo)
+FORMATO: **registrazione del sito** (calcolatore TFR), 20s — NON card scure.
+Struttura (quella del 209k):
+- 0-1,5s  fermo sul calcolatore vuoto · testo «Ti licenzi dopo 7 anni?»
+- 1,5-4,5 digiti 1577 nel mensile lordo
+- 4,5-6,5 la RAL si compila da sola: 20.501  <-- il momento bello (1s fermo)
+- 6,5-9s  7 anni e 8 mesi
+- 11-15s  zoom su 8.359,64 € netti (10.856,67 lordi sotto)
+- 15-18s  «E tu? Scrivi anni + stipendio 👇»
+- 18-20s  ritorno al primo fotogramma = loop invisibile (mai finire sul CTA)
+Numeri: dal calcolo del 19/10 (paga 9,0956€/h, 7y8m), riverificati col
+codice del sito il 22/10. MAI nome, azienda, IBAN o busta nel video.
+Copione completo (testi, montaggio, metriche): REEL-22-LICENZIAMENTO.md.
 
-### v10 — SCATTI DI ANZIANITÀ (sab 25/10)
+> ⚠️ 22/10 — CORREZIONE NUMERI **E FORMATO**.
+> 1) Il TFR lordo e' **10.857** (netto 8.360), non 12.500: i 12.500 includevano
+>    le rivalutazioni ISTAT, che il calcolatore NON calcola.
+> 2) Attenzione alla sincronizzazione: `app.js` fa mensile -> RAL con **x13**.
+>    Il caso (1.576,54 mensili) da' RAL 20.501 -> TFR 10.857. Il calcolo a 14
+>    mensilita' (11.689) NON e' riproducibile sullo schermo di chi guarda.
+> 3) **Il reel va girato come REGISTRAZIONE DEL SITO, 22-28s** — non come
+>    card su fondo scuro. Il 209k e' venuto dalla registrazione del calcolatore;
+>    le card scure hanno gia' fatto 967 e 1.389 e non vanno piu' usate.
+> Copione completo, testi, montaggio e metriche: vedi **REEL-22-LICENZIAMENTO.md**.
+
+### ⇄ v10 — SCATTI DI ANZIANITÀ (SPOSTATO — vedi nota)
+
+> ⚠️ 22/10 — **Spostato fuori dallo slot di sabato 25/10.**
+> Motivo: gli scatti **non hanno un calcolatore sul sito**, quindi non si
+> possono girare come registrazione dello schermo e si torna alle card scure
+> (967 e 1.389 views, 4 tentativi). Lo slot di sabato va a
+> **REEL-25-STIPENDIO-NETTO.md** (calcolatore stipendio netto, stesso format
+> del 209k). Il testo qui sotto resta valido e si gira appena esiste un modo
+> di mostrare gli scatti a schermo.
 Hook: «La tua busta ha la riga "SCATTI"?» + rosso «SE MANCA, SONO INDIETRO»
 Card 2: «Quasi ogni CCNL dà uno scatto ogni 2-3 anni. Se la tua paga non sale...»
 Card 3: scala in ANNI: «2 anni = 1 scatto» / «4 anni = 2 scatti» / «6 anni = 3 scatti»
@@ -809,3 +1043,57 @@ messaggio sta nei testi, lo schermo deve solo muoversi e fare numeri.
 - Messaggio Francesco: inviato (calcolo TFR/ferie/14ma + link Fiscozen).
   In attesa di: nome CCNL, giorni ferie, TFR azienda/fondo.
 - Prossimi: v9 caso Francesco (mer) -> 312 (gio) -> v10 scatti (sab), ore 19.
+
+---
+
+## 🎬 REEL 27 — «IL CONTROLLO DA 10 MINUTI» (26/10, 19:00/19:10)
+
+Primo reel che mostra **le pagine vere del PDF** invece di raccontare il
+prodotto. Gancio verificabile: l'INPS al 9,19% (punto 7 della cheat sheet),
+che chi guarda può controllare sulla propria busta in dieci secondi.
+Screencast dal telefono + voce sintetica, 21 secondi.
+Scheda completa: `REEL-27-BUSTA-PAGA-PDF.md`.
+
+---
+
+## 🎬 REEL 28 — «650 € IN FERME» (27/10, 19:00/19:10)
+
+Stesso soggetto del reel ferie del 18/10 (che aveva funzionato) ma con il
+prodotto dietro: prima non c'era niente da vendere. Screencast delle pagine
+vere del PDF nuovo, numero già verificato (65 €/giorno, 10 giorni = 650 €).
+Scheda completa: `REEL-28-FERIE-ROL.md`.
+
+---
+
+## 🎬 REEL 30 — «LA TREDICESIMA NON È UN REGALO» (28/10, 19:00/19:10)
+
+Soggetto stagionale (da novembre si cerca), numero verificabile a mente
+(30.000 ÷ 13 = 2.308) e prodotto dimostrato: il cedolino del sito ha la riga
+«Rateo 13ª mensilità», quindi il video apre il prodotto invece di raccontarlo.
+Numeri ricalcolati con le aliquote 2026 vere (23/33/43): netto ≈1.570.
+Scheda completa: `REEL-30-TREDICESIMA.md`.
+
+**Esito (27/10):** pubblicato il 26/10 alle 17:08, non il 28. TikTok 519 views
+(3 like, 3 save), YouTube 790 views. Tasso di save 0,58% = 11x il reel «7 anni»,
+ma reach 40x inferiore. Causa probabile: carosello di immagini ferme +
+etichetta «Contenuto promozionale». Dettaglio in `PIANO-CRESCITA.md`.
+
+---
+
+## 🎬 REEL 31 — «QUANTO TI RESTA DI 100 € DI STRAORDINARI?» (29/10, 19:00/19:10)
+
+Torna la struttura del 209k (domanda che riguarda chi guarda + numero che non
+sa di avere) su un soggetto mai usato: gli straordinari.
+
+Perché non un altro episodio «anni»: 5 anni 209k, 10 anni già pubblicato,
+36 anni 1.389 — la serie è esaurita. Perché non il carosello di pagine del
+reel 30: cinque immagini ferme = 519 views, TikTok non raccomanda i caroselli.
+
+Il video mostra uno strumento nuovo e gratuito del sito
+(`/quanto-resta/`): il numero grande scende da 68,11 a 59,03 a 49,95 mentre si
+cambia il lordo. Niente prodotto nel video, prodotto solo nel commento fissato.
+
+Numeri: 100 € lordi → INPS 9,19 → IRPEF marginale 23% (fino a ~30.840 € di
+lordo) o 33% → addizionali 2% → **68,11 / 59,03 / 49,95 €**.
+
+Scheda completa: `REEL-31-STRAORDINARI.md`.

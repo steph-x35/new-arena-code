@@ -1,58 +1,84 @@
 ====================================================================
-🎉 BENVENUTO NEL TUO KIT COLLOQUIO & CV PROFESSIONALE!
+BENVENUTO NEL KIT CARRIERA LAVOROFACILE
 ====================================================================
-Grazie per aver acquistato il Kit Ufficiale di LavoroFacile!
+Grazie per aver acquistato il Kit Carriera di LavoroFacile.
 
-All'interno di questo archivio trovi tutto il necessario per candidarti
-con successo e presentarti ai colloqui nel modo più preparato ed efficace.
-
---------------------------------------------------------------------
-📁 COSA TROVI NELLE CARTELLE:
---------------------------------------------------------------------
-
-1. 📂 guida-colloquio/
-   - "Guida-20-Domande-Colloquio.html": versione interattiva pronta da stampare
-     o salvare in formato PDF (basta aprirla con Chrome, Edge o Safari e cliccare
-     il pulsante blu "Stampa o Salva in PDF").
-   - "Guida-20-Domande-Colloquio.md": versione testo puro leggibile su qualsiasi
-     dispositivo o smartphone.
-
-2. 📂 lettere-presentazione/ (10 Lettere pronte all'uso)
-   - 1-Impiegato-Amministrativo.txt
-   - 2-Addetto-Vendite-Commesso.txt
-   - 3-Magazziniere-Logistica.txt
-   - 4-Ristorazione-Cameriere-Barista.txt
-   - 5-Receptionist-Front-Office.txt
-   - 6-Junior-Primo-Impiego.txt
-   - 7-Operaio-Tecnico-Manutentore.txt
-   - 8-Servizio-Clienti-Call-Center.txt
-   - 9-Autista-Corriere.txt
-   - 10-Candidatura-Spontanea-Generale.txt
-
-   👉 Come usarle: Apri il file corrispondente al tuo settore, sostituisci
-      le parti tra parentesi quadre [Nome, Città, Esperienza] con i tuoi dati
-      e allegala alla tua candidatura via email o sul portale aziendale.
-
-3. 📂 modelli-cv/ (5 Template pronti)
-   - Modello-1-Classico-ATS.html (Il più apprezzato dai selezionatori,
-     compatibile con Microsoft Word e Google Docs).
-   - Modello-2-Moderno-Due-Colonne.html (Con elegante colonna laterale).
-   - Modello-3-Minimal-Elegante.html (Design pulito e tipografico).
-   - Modello-4-Professionale-Senior.html (Strutturato per profili con esperienza).
-   - Modello-5-Junior-Formativo.html (Ideale per neodiplomati o primo impiego).
-
-   👉 Come modificarli:
-      - Puoi aprirli direttamente nel browser e stamparli come PDF.
-      - Oppure puoi aprirli con Microsoft Word / LibreOffice / Google Docs
-        (tasto destro sul file -> "Apri con Word") per modificare testi e colori.
+Qui dentro trovi tutto quello che serve per candidarti: i modelli di
+curriculum, dieci lettere di presentazione gia' scritte e la guida alle
+domande del colloquio.
 
 --------------------------------------------------------------------
-💡 CONSIGLIO D'ORO PER IL TUO SUCCESSO:
+COSA TROVI
 --------------------------------------------------------------------
-Prima di entrare a qualsiasi colloquio di lavoro, leggi con attenzione
-la "Guida alle 20 Domande Trabocchetto": ti darà la sicurezza e le risposte
-esatte che i datori di lavoro stanno cercando.
 
-In bocca al lupo per la tua carriera!
+1. COME-USARE-IL-KIT.pdf
+   Il file che stai leggendo.
+
+2. GUIDA-20-DOMANDE-COLLOQUIO.pdf
+   Le venti domande che fanno quasi sempre, con la risposta da dare e
+   l'errore da evitare. Sei pagine da leggere il giorno prima.
+
+3. DIECI-LETTERE-DI-PRESENTAZIONE.pdf
+   Dieci lettere, una per settore: amministrazione, vendite, magazzino,
+   ristorazione, reception, primo impiego, operaio, call center, autista
+   e candidatura spontanea. Da leggere per capire la struttura.
+
+4. DIECI-LETTERE-MODIFICABILI.docx
+   Le stesse dieci lettere, editabili. Sostituisci i campi tra parentesi
+   quadre con i tuoi dati e la lettera e' pronta. Una lettera per pagina.
+
+5. CINQUE MODELLI DI CURRICULUM (.docx)
+   - 1-Modello-Classico-ATS.docx   il piu' sicuro per i portali di lavoro
+   - 2-Modello-Moderno-Due-Colonne.docx   con colonna laterale scura
+   - 3-Modello-Minimal-Elegante.docx   sobrio, molto leggibile
+   - 4-Modello-Professionale-Senior.docx   per chi ha gia' anni di lavoro
+   - 5-Modello-Junior-Formativo.docx   per neodiplomati e primo impiego
+
+--------------------------------------------------------------------
+COME SI MODIFICANO I FILE DOCX
+--------------------------------------------------------------------
+Sono file Word. Si aprono con:
+
+   - Microsoft Word (doppio clic sul file)
+   - Google Docs (carica il file, poi "Apri con Google Documenti")
+   - LibreOffice Writer, gratuito
+   - Pages su Mac
+
+Cosa cambiare: tutto quello che e' tra parentesi quadre.
+Per esempio [Nome e Cognome] diventa il tuo nome, [Mese Anno - Presente]
+diventa il periodo in cui lavori, e cosi' via.
+
+Cancella le righe che non ti servono: se non hai fatto un tirocinio,
+togli quella sezione. Un curriculum corto e' meglio di uno pieno di
+righe vuote.
+
+--------------------------------------------------------------------
+COME SALVARLI IN PDF
+--------------------------------------------------------------------
+Quando hai finito:
+
+   - Word: File > Salva con nome > tipo "PDF"
+   - Google Docs: File > Scarica > Documento PDF
+
+Manda il PDF, non il file Word: il PDF non cambia impaginazione quando
+lo apre il selezionatore.
+
+--------------------------------------------------------------------
+QUALE MODELLO SCEGLIERE
+--------------------------------------------------------------------
+Se ti candidi tramite un portale o un annuncio online, usa il Modello 1:
+e' quello che i sistemi automatici leggono senza errori.
+
+Se consegni il curriculum a mano o lo mandi per email a una persona,
+vanno bene anche gli altri.
+
+--------------------------------------------------------------------
+UN CONSIGLIO
+--------------------------------------------------------------------
+Prima del colloquio rileggi la guida alle venti domande. La maggior
+parte delle persone perde il posto non per quello che non sa, ma per
+quello che non riesce a spiegare con calma.
+
+In bocca al lupo.
 Il Team di LavoroFacile
 ====================================================================
