@@ -563,6 +563,61 @@
       .mascot .sitting-legs { opacity:0; }
       .mascot-bubble { opacity:1; transform:none; }
     }
+
+    /* Liquid-glass: luce e profondità, mantenendo colori e struttura del sito. */
+    .nav, .nav.scrolled {
+      background: rgba(20, 17, 30, .88);
+      border-bottom: 1px solid rgba(242, 235, 255, .15);
+      -webkit-backdrop-filter: blur(16px) saturate(130%);
+      backdrop-filter: blur(16px) saturate(130%);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, .16), inset 0 -1px rgba(255, 255, 255, .03);
+    }
+    .nav-logo img { border: 1px solid rgba(255,255,255,.42); }
+    .nav-heart {
+      border: 1px solid rgba(255,255,255,.15); border-radius: 14px;
+      background: linear-gradient(145deg, rgba(255,255,255,.11), rgba(255,255,255,.035));
+      box-shadow: inset 0 1px rgba(255,255,255,.16);
+    }
+    .nav-dl, .btn:not(.ghost) {
+      color: #281309;
+      border: 1px solid rgba(255,222,183,.6);
+      border-radius: 16px;
+      background: linear-gradient(160deg, #ffb077 0%, #ff863c 42%, #f06a29 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 -3px 6px rgba(132,49,16,.16), 0 8px 22px rgba(0,0,0,.24), 0 0 26px rgba(255,112,43,.15);
+    }
+    .btn.ghost {
+      color: #fff5ed;
+      border: 1px solid rgba(224,232,255,.18);
+      border-radius: 16px;
+      background: linear-gradient(150deg, rgba(90,95,118,.30), rgba(36,33,48,.52));
+      box-shadow: inset 0 1px rgba(255,255,255,.22), inset 0 -1px rgba(255,255,255,.035), 0 8px 22px rgba(0,0,0,.18);
+    }
+    .badge, html.winter .winter-chip, html.hw .hw-chip {
+      border-radius: 999px;
+      background: linear-gradient(145deg,rgba(94,99,120,.32),rgba(31,28,43,.58));
+      border-color: rgba(234,238,255,.22);
+      box-shadow: inset 0 1px rgba(255,255,255,.18), 0 5px 18px rgba(0,0,0,.15);
+    }
+    .challenge, html.hw .challenge, .stat, ul.feats li, .step, details {
+      background: linear-gradient(145deg, rgba(74,72,91,.34), rgba(29,25,39,.68));
+      border: 1px solid rgba(225,230,255,.15);
+      border-radius: 19px;
+      box-shadow: inset 0 1px rgba(255,255,255,.14), 0 10px 28px rgba(0,0,0,.14);
+    }
+    .challenge, html.hw .challenge {
+      background: linear-gradient(145deg,rgba(149,85,61,.32),rgba(56,48,73,.52));
+      border-color: rgba(255,197,150,.24);
+    }
+    .shot .frame { border-color:rgba(236,237,255,.22); border-radius:20px; box-shadow:0 14px 32px rgba(0,0,0,.22), 0 0 0 4px rgba(255,255,255,.035); }
+    .car-nav { border:1px solid rgba(255,255,255,.25); background:rgba(38,35,50,.9); box-shadow:inset 0 1px rgba(255,255,255,.2),0 6px 18px rgba(0,0,0,.25); }
+    .mascot-bubble { border:1px solid rgba(255,255,255,.7); box-shadow:inset 0 1px rgba(255,255,255,.9),0 6px 18px rgba(0,0,0,.25); }
+    @media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+      .btn:not(.ghost):hover, .nav-dl:hover { box-shadow:inset 0 1px rgba(255,255,255,.65),0 12px 28px rgba(0,0,0,.25),0 0 30px rgba(255,112,43,.28); }
+      .btn.ghost:hover, .nav-heart:hover { background:linear-gradient(145deg,rgba(113,116,138,.38),rgba(45,41,56,.65)); border-color:rgba(255,231,210,.38); }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .btn, .nav-dl, .nav-heart, .stat, ul.feats li { transition:none; }
+    }
   </style>
   <!-- Il sito veste il Natale subito, fino al 6 gennaio 2027. Negli anni
        successivi Halloween e Natale seguono il calendario del dispositivo. -->
