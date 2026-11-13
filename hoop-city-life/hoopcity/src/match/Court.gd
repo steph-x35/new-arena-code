@@ -385,6 +385,7 @@ func give_ball(p: BallPlayer) -> void:
 	var changed_hands: bool = possession != p.team
 	for q in players: q.has_ball = false
 	p.has_ball = true
+	p.clear_defensive_pose()
 	ball.attach(p)
 	possession = p.team
 	# In 1v1 a change of possession means you must take it back past the arc.
@@ -1205,27 +1206,31 @@ func on_dunk_started(p: BallPlayer) -> void:
 			if p.is_user:
 				stop *= [0.80, 1.00, 1.20, 1.40][Game.difficulty()]
 			if randf() < stop:
+				# Anche nei campi con HUD: il messaggio non va sovrascritto dal
+				# CHECK nello stesso frame, e la palla esce davvero dalla mano.
 				Events.toast.emit("BLOCKED AT THE RIM!")
-				Events.popup.emit("BLOCK!", o.global_position, Color(1.0, 0.45, 0.3), true)
+				Events.popup.emit("BLOCKED!", p.global_position, Color(1.0, 0.45, 0.3), true)
+				Sfx.play("block", -1.0)
 				Events.shake.emit(0.7)
 				p.has_ball = false
+				if o.is_user: box["blk"] += 1
+				if ball:
+					ball.detach()
+					ball.shot_result_pending = false
+					ball.global_position = p.global_position + Vector2(-p.facing * 90.0, 0.0)
+					ball.h = 120.0
+					ball.vel = Vector2(-p.facing * 260.0, -80.0)
+					ball.vh = -70.0
 				if one_on_one:
 					p.dunking = false
 					p.jumping = false
 					p.air = 0.0
 					p.air_v = 0.0
-					if o.is_user: box["blk"] += 1
-					_check_ball(o.team)
-					return
-				if o.is_user:
-					box["blk"] += 1
-				# Ball squirts loose away from the rim; whoever grabs it, gets it.
-				if ball:
-					ball.live = true
-					ball.shot_result_pending = false
-					ball.global_position = p.global_position + Vector2(-p.facing * 90.0, 0.0)
-					ball.h = 120.0
-					ball.vel = Vector2(-p.facing * 260.0, -80.0)
+					play_live = false
+					restarting = true
+					await get_tree().create_timer(1.2).timeout
+					if is_inside_tree() and not finished:
+						_check_ball(o.team)
 				return
 	p.grab_rim()
 	# Rim-rattler: the impact carries the whole stack -- shake, rim clang and
@@ -1388,6 +1393,7 @@ func _check_ball(team: int) -> void:
 	for p in players:
 		p.has_ball = false
 	off.has_ball = true
+	off.clear_defensive_pose()
 	if ball:
 		ball.attach(off)
 		ball.live = false

@@ -120,6 +120,11 @@ func _ready() -> void:
 	add_to_group("players")
 	add_to_group("team_%d" % team)
 
+func clear_defensive_pose() -> void:
+	stance = false
+	block_window = 0.0
+	steal_t = 0.0
+
 func setup_from_profile() -> void:
 	ratings = Game.profile["attrs"].duplicate()
 	badges = Game.profile["badges"].duplicate()
@@ -279,6 +284,7 @@ func _physics_process(delta: float) -> void:
 	dribble_intensity = 1.0 if has_ball else clampf(velocity.length() / 200.0, 0.4, 1.4)
 
 	if has_ball:
+		clear_defensive_pose()
 		possession_time += delta
 		guarding = false
 		_check_pressure(delta)
@@ -968,10 +974,10 @@ func _draw() -> void:
 		kind = Avatar.DUNK
 		amount = clampf(dunk_t, 0.0, 1.0)
 		slam = DunkStyle.sample(dunk_style, dunk_t)
-	elif block_window > 0.0 or air > 4.0:
+	elif not has_ball and (block_window > 0.0 or air > 4.0):
 		kind = Avatar.REACH
 		amount = clampf(air / 150.0, 0.0, 1.0)
-	elif steal_t > 0.0:
+	elif not has_ball and steal_t > 0.0:
 		kind = Avatar.STEAL
 		amount = 1.0
 	elif shot_charge >= 0.0:

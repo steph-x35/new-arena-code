@@ -12,6 +12,10 @@ func _ready() -> void:
 	var defender: BallPlayer = c.players.filter(func(p): return p.team == 1)[0]
 	defender.ratings["block"] = 99
 	var blocked := false
+	var notices := [0]
+	var capture := func(msg: String):
+		if msg == "BLOCKED AT THE RIM!": notices[0] += 1
+	Events.toast.connect(capture)
 	for i in 100:
 		c.awaiting_check = false
 		attacker.global_position = Vector2.ZERO
@@ -23,7 +27,9 @@ func _ready() -> void:
 		if c.awaiting_check:
 			blocked = true
 			break
-	var ok: bool = blocked and c.possession == 1 and c.ball.holder == defender and not attacker.has_ball and not attacker.dunking
+	Events.toast.disconnect(capture)
+	var ok: bool = blocked and int(notices[0]) > 0 and c.possession == 1 and c.ball.holder == defender and not attacker.has_ball and not attacker.dunking
+	ok = ok and defender.block_window == 0.0 and not defender.stance and defender.steal_t == 0.0
 	print("BLOCK_TEST=", ok, " blocked=", blocked, " possession=", c.possession, " ball_holder=", c.ball.holder, " defender=", defender)
 	c.queue_free()
 	Sfx.start_crowd()
@@ -55,5 +61,6 @@ func _ready() -> void:
 	duel._on_foe_shot({"dunk": true, "made": false})
 	print("DUEL_TEST=", duel.duel_phase, " attack=", duel.i_attack, " loose=", duel.ball_loose, " live=", duel.fb_live)
 	ok = ok and duel.duel_phase == "check" and duel.i_attack and not duel.ball_loose and not duel.fb_live
+	ok = ok and duel.lbl_mid.text.contains(Loc.t("duel.blocked"))
 	print("COURT_POLISH_OK=", ok)
 	get_tree().quit(0 if ok else 1)

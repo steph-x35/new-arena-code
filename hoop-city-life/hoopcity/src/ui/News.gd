@@ -1,23 +1,15 @@
 extends Object
 class_name News
 
-## Finestra NOVITA': elenco puntato dei miglioramenti della versione, mostrata
-## UNA volta sola per versione quando l'INTRO si assesta (subito dopo lo
-## splash di Godot, coi bottoni del menu gia' visibili).
-## Il flag viene scritto SUBITO alla creazione: anche chiudendo l'app senza
-## toccare la finestra, quella versione non la mostra piu'.
-##
-## v2.49.3: la finestra non e' piu' "tutto quello che e' cambiato dalla
-## 2.39.1" (un muro di testo che nessuno legge): e' quello che si VEDE nei
-## primi dieci secondi di gioco, in ordine di quanto salta all'occhio.
-## Il testo vive in Loc, le righe qui sotto dicono solo quali chiavi e che
-## colore — cosi' aggiungere una voce e' una riga, non un blocco.
+## Mostrata una sola volta per installazione, anche se si cambia carriera.
+## Le installazioni che l'avevano gia' vista conservano la loro scelta.
 
 ## Titolo grosso (colore caldo) e corpo, uno dopo l'altro.
 const ITEMS := [
 	["news.builder", "news.builder.b"],
 	["news.season", "news.season.b"],
 	["news.gameplay", "news.gameplay.b"],
+	["news.courts", "news.courts.b"],
 	["news.v1", "news.v1.b"],
 ]
 
@@ -26,8 +18,13 @@ const BODY_COL := Color(1, 1, 1, 0.92)
 
 
 static func maybe_show(host_tree: SceneTree) -> void:
-	if bool(Game.profile.get("news_builder_seen", false)):
+	if bool(Settings.get_v("news_install_seen", false)):
 		return
+	# Migrazione dal flag di carriera usato dalle vecchie anteprime.
+	if bool(Game.profile.get("news_builder_seen", false)):
+		Settings.set_v("news_install_seen", true)
+		return
+	Settings.set_v("news_install_seen", true)
 	Game.profile["news_builder_seen"] = true
 	Game.profile["changelog_seen"] = Game.VERSION
 	SaveSystem.save_game()

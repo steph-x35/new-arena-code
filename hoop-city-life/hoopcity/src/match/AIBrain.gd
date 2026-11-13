@@ -353,7 +353,7 @@ func _attack_on_ball(delta: float) -> void:
 	# Beat the on-ball defender with the handle before driving on. Drives throw
 	# crossovers and behind-the-back moves, spot-up men jab into a stepback to
 	# make room, and an occasional hesitation freezes the defender's feet.
-	if p.cooldown_move <= 0.0 and (not court.one_on_one or _one_on_one_trick_wait <= 0.0):
+	if p.cooldown_move <= 0.0 and not court.one_on_one:
 		var nd: BallPlayer = null
 		var ndist := 1e9
 		for d in court.players:

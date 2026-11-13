@@ -1215,6 +1215,7 @@ func _dunk_throw() -> bool:
 		streak = 0
 		# Stoppata: possesso al difensore, entrambi ripartono dal check.
 		_duel_check(false)
+		_say("%s  ·  CHECK" % Loc.t("duel.blocked"), 3.0)
 		return false
 	net_wobble = 1.0
 	Sfx.haptic(60)
@@ -1693,6 +1694,7 @@ func _on_foe_shot(d: Dictionary) -> void:
 			_def_credit(1)
 			if duel_on and duel_phase == "live":
 				_duel_check(true)
+				_say("%s  ·  CHECK" % Loc.t("duel.blocked"), 3.0)
 			return
 		net_wobble = 1.0
 		if court_art != null:
