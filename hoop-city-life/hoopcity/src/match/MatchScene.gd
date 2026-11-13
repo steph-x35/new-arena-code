@@ -57,7 +57,6 @@ var intermission_left := 0.0
 var _hinted := false          # one-time controls hint when the ball goes live
 var _trick_tap_ms := -999     # last TRICK press: double tap = SPIN MOVE
 var _neutral_trick_i := 0     # (storico) non piu usato: fermo = HESI come nel court solo
-var _perf_checked := false
 var _shake := 0.0
 var _hang_cam := 0.0                # 0..1: zoom sul giocatore appeso al ferro
 var _hang_p: BallPlayer = null      # chi si sta dondolando dopo la schiacciata
@@ -104,19 +103,6 @@ func _ready() -> void:
 	court.play_live = false
 	tip_left = 3.0
 
-func _maybe_perf_check() -> void:
-	# Auto-rilevamento anche in PARTITA: un dispositivo puo' tenere il menu
-	# e affogare nel match (10 avatar + folla). Una sola volta, dopo 4s.
-	if _perf_checked or court == null or not court.play_live:
-		return
-	_perf_checked = true
-	get_tree().create_timer(4.0).timeout.connect(func():
-		if Engine.get_frames_per_second() < 25 \
-		and not bool(Settings.get_v("lowgfx", false)):
-			Settings.set_v("target_fps", 30)
-			Settings.set_v("lowgfx", true)
-			Events.toast.emit("Modalita performance attiva (30 fps)"))
-
 ## 1v1 DI CARRIERA: la regola dell'uscita dalla linea dei tre esiste gia'
 ## (take it back past the arc) — la linea LAMPEGGIA finche' chi ha preso
 ## palla non e' uscito. Line2D con z_index ALTO: il pavimento disegnato
@@ -155,7 +141,6 @@ func _flash_tick() -> void:
 func _process(delta: float) -> void:
 	_flash_t += delta
 	_flash_tick()
-	_maybe_perf_check()
 	var u := court.user
 	if u == null or stamina_bar == null: return
 	_update_goal_tracker()

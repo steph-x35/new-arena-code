@@ -175,8 +175,8 @@ jobs:
           echo "Importing project assets in headless mode..."
           godot -v --headless --import 2>&1 | tee /tmp/import.log || true
           echo "Exporting Android APK..."
-          godot -v --headless --export-release "Android" build/HoopCity-v2.49.6.apk 2>&1 | tee /tmp/export.log || true
-          if [ ! -f "build/HoopCity-v2.49.6.apk" ]; then
+          godot -v --headless --export-release "Android" build/HoopCity-v2.49.7.apk 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/HoopCity-v2.49.7.apk" ]; then
             echo "=== EXPORT FAILED! Printing log: ==="
             cat /tmp/export.log | tail -n 80
             cp /tmp/export.log $GITHUB_WORKSPACE/build_error.log
@@ -193,15 +193,15 @@ jobs:
             --ks-pass pass:android \
             --ks-key-alias androiddebugkey \
             --key-pass pass:android \
-            build/HoopCity-v2.49.6.apk
+            build/HoopCity-v2.49.7.apk
           echo "Verifying APK signature..."
-          apksigner verify --verbose build/HoopCity-v2.49.6.apk
+          apksigner verify --verbose build/HoopCity-v2.49.7.apk
           echo "Checking APK launcher icons..."
-          unzip -l build/HoopCity-v2.49.6.apk | grep -i "mipmap" | head -n 20
-          ls -lh build/HoopCity-v2.49.6.apk
+          unzip -l build/HoopCity-v2.49.7.apk | grep -i "mipmap" | head -n 20
+          ls -lh build/HoopCity-v2.49.7.apk
           echo "Verifica permessi APK (la stanza WiFi li richiede)..."
-          aapt dump permissions build/HoopCity-v2.49.6.apk
-          if ! aapt dump permissions build/HoopCity-v2.49.6.apk | grep -q "android.permission.INTERNET"; then
+          aapt dump permissions build/HoopCity-v2.49.7.apk
+          if ! aapt dump permissions build/HoopCity-v2.49.7.apk | grep -q "android.permission.INTERNET"; then
             echo "!!! MANCA android.permission.INTERNET: la stanza condivisa non può aprirsi"
             exit 1
           fi
@@ -211,6 +211,15 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: HoopCity-anteprima-android
-          path: hoop-city-life/hoopcity/build/HoopCity-v2.49.6.apk
+          path: hoop-city-life/hoopcity/build/HoopCity-v2.49.7.apk
           if-no-files-found: error
           retention-days: 7
+
+      - name: Pubblica versione ufficiale 2.49.7
+        if: github.ref == 'refs/heads/arena/2aabea0a-new-arena-code'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v2.49.7 hoop-city-life/hoopcity/build/HoopCity-v2.49.7.apk \
+            --target "$GITHUB_SHA" --title "Hoop City Life v2.49.7" --latest \
+            --notes "I volti restano visibili in modalita prestazioni. Il gioco non riduce piu automaticamente il frame rate: 60 FPS restano il valore predefinito."

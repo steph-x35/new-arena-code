@@ -100,5 +100,17 @@ func _ready() -> void:
 	var slow: float = Game.speed_factor()
 	Game.profile["attrs"]["speed"] = 99
 	ok = ok and Game.speed_factor() > slow
+	# Simula un dispositivo lento: menu e partita non devono cambiare le
+	# preferenze anche se il frame rate effettivo scende sotto le vecchie soglie.
+	Settings.data["target_fps"] = 60
+	Settings.data["lowgfx"] = false
+	Settings.data["fps_auto_done"] = false
+	Engine.max_fps = 10
+	var menu = load("res://src/scenes/MainMenu.tscn").instantiate()
+	add_child(menu)
+	court.play_live = true
+	await get_tree().create_timer(5.5).timeout
+	ok = ok and int(Settings.get_v("target_fps")) == 60 and not bool(Settings.get_v("lowgfx"))
+	Engine.max_fps = 60
 	print("GAMEPLAY_REGRESSION_OK=", ok, " CPU_actions=", actions, " scrimmage_actions=", scrim_actions)
 	get_tree().quit(0 if ok else 1)
