@@ -214,12 +214,3 @@ jobs:
           path: hoop-city-life/hoopcity/build/HoopCity-v2.49.6.apk
           if-no-files-found: error
           retention-days: 7
-
-      - name: Pubblica versione ufficiale 2.49.6
-        if: github.ref == 'refs/heads/arena/2aabea0a-new-arena-code'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create v2.49.6 hoop-city-life/hoopcity/build/HoopCity-v2.49.6.apk \
-            --target "$GITHUB_SHA" --title "Hoop City Life v2.49.6" --latest \
-            --notes "Correzione: i volti dei giocatori restano visibili anche quando si attiva la modalita prestazioni."
