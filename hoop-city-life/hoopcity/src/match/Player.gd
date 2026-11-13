@@ -133,7 +133,7 @@ func max_speed() -> float:
 	# stamina or ball-carriage scaling -- the same number the shoot-around and
 	# the street court use, so a scrimmage never feels like a different speed.
 	if is_user:
-		return 205.0
+		return 205.0 * Game.speed_factor()
 	# Velocita' base alzata (+5% su tutti, stesso moltiplicatore AI/utente:
 	# nessuna squilibratura, solo meno "pendenza" dopo la rimessa).
 	var s: float = BASE_SPEED * (0.76 + float(ratings["speed"]) / 99.0 * 0.55)
@@ -609,7 +609,7 @@ func do_shot_release() -> void:
 	# actually scores.
 	if court != null:
 		var ft: float = court.px_to_ft(global_position.distance_to(court.hoop_for(team)))
-		var w: Dictionary = ShotSystem.shot_windows(ft, court != null and court.user_heat)
+		var w: Dictionary = ShotSystem.shot_windows(ft, court != null and court.user_heat, Game.shot_skill(ft) if is_user else 60.0)
 		err *= ShotSystem.PERFECT_WINDOW / maxf(float(w["perfect"]), 0.001)
 	# FADEAWAY: rilascio andando VIA dal ferro (post hop o combo stick
 	# indietro): l'animazione della schienata parte col follow-through.
@@ -918,6 +918,11 @@ func _draw() -> void:
 	var dscale: float = CourtStage.m_scale(position.y, ch)
 	draw_set_transform(proj - position, 0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale)
 	var h := 64.0 * height_f
+	if bool(Settings.get_v("show_player_names", true)):
+		var label: String = Season.short_player_name(display_name)
+		var font: Font = ThemeDB.fallback_font
+		draw_rect(Rect2(-57, 12, 114, 21), Color(0.04, 0.04, 0.06, 0.72), true)
+		draw_string(font, Vector2(-57, 28), label, HORIZONTAL_ALIGNMENT_CENTER, 114, 14, Color.WHITE)
 	# ANELLI A TERRA (v2.49.0): il contest mentre carico il tiro (solo per il
 	# giocatore umano, per non riempire il campo di cerchi) e il LOCKDOWN.
 	if not bool(Settings.get_v("lowgfx", false)):

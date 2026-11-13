@@ -186,6 +186,32 @@ func _refresh() -> void:
 
 func _start() -> void:
 	Game.profile["name"] = name_edit.text.strip_edges() if name_edit.text.strip_edges() != "" else "Alex Reyes"
+	var panel: GamePanel = GamePanel.new().build("SCHEDA GIOCATORE", Vector2(1020, 660))
+	$UI.add_child(panel)
+	panel.add_text("%s  ·  %s  ·  %d cm  ·  %d kg" % [Game.profile["name"], Game.profile["position"], Game.profile["height_cm"], Game.profile["weight_kg"]], 24, Color(1.0, 0.69, 0.35))
+	panel.add_text("Attributi iniziali: crescono usando i punti nel telefono.", 18)
+	var grid: GridContainer = panel.add_grid(2)
+	for key in Game.ATTRS:
+		var a: String = String(key)
+		var box := VBoxContainer.new()
+		box.custom_minimum_size = Vector2(350, 0)
+		grid.add_child(box)
+		var title := Label.new()
+		title.text = "%s  %d" % [Game.ATTR_LABELS[a], Game.attr(a)]
+		title.add_theme_font_size_override("font_size", 19)
+		box.add_child(title)
+		var bar := ProgressBar.new()
+		bar.min_value = 0
+		bar.max_value = 99
+		bar.value = Game.attr(a)
+		bar.show_percentage = false
+		bar.custom_minimum_size = Vector2(0, 13)
+		box.add_child(bar)
+	panel.add_button("INIZIA LA CARRIERA", func():
+		panel.close()
+		_confirm_start(), true)
+
+func _confirm_start() -> void:
 	Contacts.seed_intro()
 	# Fix the league schedule for this career, then build it once.
 	Game.profile["seed"] = randi()

@@ -632,7 +632,7 @@ func _my_move(delta: float) -> void:
 		return
 	if charging or dunk_phase != "":
 		if charging and dunk_phase == "":
-			player_pos += joystick.output * 0.25 * MOVE_SPEED * delta
+			player_pos += joystick.output * 0.25 * MOVE_SPEED * Game.speed_factor() * delta
 		_clamp_me()
 		return
 	var mv: Vector2 = joystick.output
@@ -657,7 +657,7 @@ func _my_move(delta: float) -> void:
 			# tenendo premuto DIFENDI.
 			mv = Vector2.ZERO
 	_mv_now = mv.length()
-	player_pos += mv * (155.0 if posting else MOVE_SPEED) * delta
+	player_pos += mv * (155.0 if posting else MOVE_SPEED) * Game.speed_factor() * delta
 	if absf(mv.x) > 0.12 and not posting:
 		facing = signf(mv.x)
 	# in difesa agguantata: guarda sempre l'uomo, non la direzione di marcia
@@ -1155,7 +1155,7 @@ func _shoot_down() -> void:
 	charging = true
 	charge = 0.0
 	ideal = clampf(0.42 + _distance_ft() * 0.012, 0.42, 0.78)
-	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
+	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot, Game.shot_skill(_distance_ft()))
 	meter.perfect_window = float(w["perfect"])
 	meter.good_window = float(w["good"])
 	# FADEAWAY: levetta INDIETRO mentre carichi -> schienata: la finestra
@@ -1283,7 +1283,7 @@ func _shoot_up() -> void:
 		fade_t = 0.75
 		fade_dir = (player_pos - RIM).normalized()
 		fade_pending = false
-	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
+	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot, Game.shot_skill(_distance_ft()))
 	var pw: float = float(w["perfect"])
 	var gw: float = float(w["good"])
 	var err: float = absf(charge - ideal)
@@ -2373,17 +2373,18 @@ func _draw() -> void:
 		if fb_h < RIM_HEIGHT + 30.0 and (fb_pos - RIM).length() < 70.0:
 			HoopArt.draw_net_front(self, _rim_screen(), 22.0,
 				22.0 * HoopArt.RIM_SQUASH, net_wobble, net_t, 0.0, -1.0)
-	# nomi sopra la testa: ci si conosce, al campetto
-	_draw_name(player_pos, Loc.t("duel.you"), Color(0.55, 0.85, 1.0))
-	if foe["seen"]:
-		_draw_name(foe["pos"], String(foe.get("name", "?")), Color(1.0, 0.82, 0.35))
+	# Nomi sotto i piedi, lontani dallo shot meter.
+	if bool(Settings.get_v("show_player_names", true)):
+		_draw_name(player_pos, String(Game.profile.get("name", "Player")), Color(0.55, 0.85, 1.0))
+		if foe["seen"]:
+			_draw_name(foe["pos"], String(foe.get("name", "?")), Color(1.0, 0.82, 0.35))
 
 
 func _draw_name(world: Vector2, txt: String, col: Color) -> void:
 	var s: Vector2 = _screen(world)
-	var h: float = 64.0 * Game.height_factor()
 	var f: Font = ThemeDB.fallback_font
-	draw_string(f, Vector2(s.x - 60.0, s.y - h - 26.0), txt,
+	draw_rect(Rect2(s.x - 60.0, s.y + 12.0, 120.0, 22.0), Color(0.04, 0.04, 0.06, 0.72), true)
+	draw_string(f, Vector2(s.x - 60.0, s.y + 28.0), Season.short_player_name(txt),
 		HORIZONTAL_ALIGNMENT_CENTER, 120.0, 15, col)
 
 

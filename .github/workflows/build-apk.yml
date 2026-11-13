@@ -196,6 +196,15 @@ jobs:
             exit 1
           fi
 
+      - name: Upload APK di prova
+        if: github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: HoopCity-anteprima-android
+          path: hoop-city-life/hoopcity/build/HoopCity-v2.49.4.apk
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Create or Update GitHub Release with APK
         # Solo un avvio manuale su main puo' sostituire la release pubblica.
         # I build dei branch di lavoro non devono toccare tag o APK pubblicati.

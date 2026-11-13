@@ -155,6 +155,7 @@ const STR := {
 	"settings.save":  ["SAVE", "SALVATAGGIO"],
 	"settings.fps":   ["Target 60 FPS", "Target 60 FPS"],
 	"settings.meter": ["Show shot meter", "Mostra indicatore di tiro"],
+	"settings.names": ["Show player names", "Mostra nomi giocatori"],
 	"settings.left":  ["Left-handed buttons", "Pulsanti per mancini"],
 	"settings.stick": ["Joystick sensitivity", "Sensibilità joystick"],
 	"settings.vibration": ["Vibration feedback", "Feedback vibrazione"],

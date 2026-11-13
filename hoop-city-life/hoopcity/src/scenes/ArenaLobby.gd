@@ -97,9 +97,9 @@ func _show_contract() -> void:
 		for i in offers.size():
 			var o: Dictionary = offers[i]
 			var is_stay: bool = String(o["club"]) == Season.my_team()
-			var label: String = "%s  ·  %d$/partita  ·  bonus %d$" % [
+			var label: String = "%s  ·  %d$/gara  ·  %d gare  ·  firma %d$" % [
 				String(o["club"]) + (Loc.tx("  (resta)") if is_stay else ""),
-				int(o["weekly"]), int(o["bonus"])]
+				int(o["weekly"]), int(o.get("games", 12)), int(o["bonus"])]
 			var idx := i
 			p.add_button(label, func():
 				Career.accept_offer(idx)
@@ -113,6 +113,23 @@ func _show_contract() -> void:
 				Career.extend_contract()
 				p.close()
 				Events.toast.emit(Loc.tx("Contratto esteso")), true)
+	p.add_text("", 8)
+	p.add_text("SPONSOR", 24, Color(1.0, 0.7, 0.4))
+	var sponsor: Dictionary = Game.profile.get("sponsor_deal", {})
+	if sponsor.is_empty():
+		p.add_text("Scegli una collaborazione per 5 partite ufficiali. Nessun obbligo di firmare.", 18)
+		for i in Career.SPONSOR_DEALS.size():
+			var deal: Dictionary = Career.SPONSOR_DEALS[i]
+			var objective: String = "%d vittorie" % int(deal["target"]) if String(deal["goal"]) == "wins" else "%d punti" % int(deal["target"])
+			var idx: int = i
+			p.add_button("%s  ·  %d$/gara  ·  %s: +%d$" % [deal["name"], deal["pay"], objective, deal["bonus"]], func():
+				if Career.sign_sponsor(idx):
+					p.close()
+					Events.toast.emit("Sponsor firmato!"))
+	else:
+		var objective: String = "vittorie" if String(sponsor.get("goal", "")) == "wins" else "punti"
+		p.add_text("%s  ·  %d$/gara  ·  %d gare rimaste" % [sponsor.get("name", ""), sponsor.get("pay", 0), sponsor.get("left", 0)], 20)
+		p.add_text("Obiettivo: %d/%d %s  ·  bonus %d$ %s" % [sponsor.get("progress", 0), sponsor.get("target", 0), objective, sponsor.get("bonus", 0), "(incassato)" if bool(sponsor.get("bonus_paid", false)) else ""], 18)
 	p.add_text("", 8)
 	# --- obiettivi stagione
 	p.add_text(Loc.tx("Obiettivi stagione"), 24, Color(0.6, 0.9, 1.0))

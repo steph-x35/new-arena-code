@@ -151,6 +151,25 @@ func shooting_hand() -> float:
 	## dribbled and released from.
 	return -1.0 if String(profile.get("hand", "R")) == "L" else 1.0
 
+const ATTR_LABELS := {
+	"close": "Finalizzazione", "mid": "Tiro dalla media", "three": "Tiro da tre",
+	"handle": "Palleggio", "pass": "Passaggi", "speed": "Velocità", "accel": "Accelerazione",
+	"stamina": "Resistenza", "defense": "Difesa", "steal": "Rubata", "block": "Stoppata", "rebound": "Rimbalzo"
+}
+const ATTR_EFFECTS := {
+	"close": "Finestra di tiro vicino al ferro", "mid": "Finestra dalla media distanza",
+	"three": "Finestra oltre l'arco", "handle": "Protezione palla e finte", "pass": "Velocità del passaggio",
+	"speed": "Velocità in partita", "accel": "Rapidità di partenza", "stamina": "Consumo e recupero energia in campo",
+	"defense": "Pressione sul tiratore", "steal": "Probabilità di rubare palla",
+	"block": "Possibilità di stoppata", "rebound": "Possibilità di rimbalzo"
+}
+
+func shot_skill(distance_ft: float) -> float:
+	return float(attr("three" if distance_ft > 22.15 else ("mid" if distance_ft > 15.0 else "close")))
+
+func speed_factor() -> float:
+	return lerpf(0.92, 1.08, clampf((float(attr("speed")) - 30.0) / 69.0, 0.0, 1.0))
+
 func attr(a: String) -> int:
 	return int(profile["attrs"].get(a, 50))
 

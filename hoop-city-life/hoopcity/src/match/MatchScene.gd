@@ -404,7 +404,7 @@ func _process(delta: float) -> void:
 	# The green band tightens with distance (from half court it is a sliver),
 	# and it always matches what the sim scores.
 	var mft: float = court.px_to_ft(u.global_position.distance_to(court.hoop_for(u.team)))
-	var mw: Dictionary = ShotSystem.shot_windows(mft)
+	var mw: Dictionary = ShotSystem.shot_windows(mft, court.user_heat, Game.shot_skill(mft))
 	meter.perfect_window = float(mw["perfect"])
 	meter.good_window = float(mw["good"])
 	_place_meter()

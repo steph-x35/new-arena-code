@@ -618,7 +618,7 @@ func _profile() -> void:
 	for a in Game.ATTRS:
 		var h := HBoxContainer.new()
 		var l := Label.new()
-		l.text = "%s %d" % [a.capitalize(), Game.attr(a)]
+		l.text = "%s %d  ·  %s" % [Game.ATTR_LABELS[a], Game.attr(a), Game.ATTR_EFFECTS[a]]
 		l.add_theme_font_size_override("font_size", 18)
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		h.add_child(l)
@@ -627,7 +627,9 @@ func _profile() -> void:
 		b.custom_minimum_size = Vector2(58, 48)
 		b.disabled = p["attr_points"] <= 0
 		b.pressed.connect(func():
-			if Game.spend_point(a): _refresh())
+			if Game.spend_point(a):
+				SaveSystem.save_game()
+				_refresh())
 		h.add_child(b)
 		body.add_child(h)
 	_sep()

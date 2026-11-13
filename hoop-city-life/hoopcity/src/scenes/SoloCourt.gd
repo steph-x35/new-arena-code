@@ -554,7 +554,7 @@ func _process(delta: float) -> void:
 			shot_anim = 0.0
 	elif not charging and dunk_phase == "":
 		var mv: Vector2 = joystick.output
-		player_pos += mv * (155.0 if posting else 255.0) * delta
+		player_pos += mv * (155.0 if posting else 255.0) * Game.speed_factor() * delta
 		# The movement boundary IS the court's painted rectangle.
 		var m := 40.0
 		player_pos.x = clampf(player_pos.x, -Court.COURT_W * 0.5 + m, Court.COURT_W * 0.5 - m)
@@ -938,7 +938,7 @@ func _shoot_down() -> void:
 	charge = 0.0
 	ideal = clampf(0.42 + _distance_ft() * 0.012, 0.42, 0.78)
 	# The green band tightens with distance and matches the scoring windows.
-	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
+	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot, Game.shot_skill(_distance_ft()))
 	meter.perfect_window = float(w["perfect"])
 	meter.good_window = float(w["good"])
 	# FADEAWAY: levetta INDIETRO mentre carichi -> schienata (stile Kobe):
@@ -1067,7 +1067,7 @@ func _shoot_up() -> void:
 		if away.length() > 1.0:
 			player_pos += away.normalized() * 46.0
 
-	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
+	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot, Game.shot_skill(_distance_ft()))
 	var pw: float = float(w["perfect"])
 	var gw: float = float(w["good"])
 	var err: float = absf(charge - ideal)

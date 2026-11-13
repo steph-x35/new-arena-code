@@ -178,19 +178,22 @@ func _spawn_teams() -> void:
 				p.setup_from_profile()
 				user = p
 			else:
-				_randomize_npc(p, t)
+				_randomize_npc(p, t, i)
 				var brain := preload("res://src/match/AIBrain.gd").new()
 				p.add_child(brain)
 				brain.setup(p, self)
 			p.global_position = _formation_pos(t, i)
 			players.append(p)
 
-func _randomize_npc(p: BallPlayer, t: int) -> void:
+func _randomize_npc(p: BallPlayer, t: int, slot: int) -> void:
+	var club: String = Season.my_team() if t == 0 else String(Game.profile.get("next_opponent", ""))
+	var roster_rng := RandomNumberGenerator.new()
+	roster_rng.seed = hash("%s|%d" % [club, slot])
 	var lvl: int = 48 + int(Game.profile["level"]) * 2
 	if bool(Game.profile.get("playoff", {}).get("live", false)):
 		lvl += 8   # i playoff si giocano contro squadre al top
 	for k in p.ratings:
-		p.ratings[k] = clampi(lvl + randi_range(-12, 14), 30, 92)
+		p.ratings[k] = clampi(lvl + roster_rng.randi_range(-12, 14), 30, 92)
 	# The opposing CLUB has a style of play: ratings tilt gently toward it and
 	# the roster draws from that club's name pool, so playing at the Foundry
 	# against the Kings reads (and plays) differently than hosting the Tide.
@@ -206,18 +209,18 @@ func _randomize_npc(p: BallPlayer, t: int) -> void:
 		var club_names: Array = Season.roster_names(opp)
 		if not club_names.is_empty():
 			pool = club_names
-	p.display_name = pool.pick_random()
-	p.height_f = randf_range(0.92, 1.14)
-	p.mass_f = randf_range(0.85, 1.12)
+	p.display_name = Season.roster_full_name(club, slot)
+	p.height_f = roster_rng.randf_range(0.92, 1.14)
+	p.mass_f = roster_rng.randf_range(0.85, 1.12)
 	var skins := [Color(0.72, 0.53, 0.38), Color(0.55, 0.36, 0.26),
 		Color(0.86, 0.69, 0.52), Color(0.40, 0.27, 0.19), Color(0.94, 0.79, 0.64)]
 	var hairs := [Color(0.12, 0.09, 0.08), Color(0.30, 0.20, 0.12),
 		Color(0.10, 0.10, 0.12), Color(0.55, 0.42, 0.24), Color(0.75, 0.70, 0.66)]
-	p.skin_col = skins.pick_random()
-	p.hair_col = hairs.pick_random()
+	p.skin_col = skins[roster_rng.randi_range(0, skins.size() - 1)]
+	p.hair_col = hairs[roster_rng.randi_range(0, hairs.size() - 1)]
 	# Ogni NPC ha il PROPRIO taglio (pesato sul normale): non deve mai
 	# comparire con lo stile scelto dal giocatore nel creator.
-	p.hair_style_v = [0, 0, 0, 0, 1, 2, 3, 4, 5].pick_random()
+	p.hair_style_v = [0, 0, 0, 0, 1, 2, 3, 4, 5][roster_rng.randi_range(0, 8)]
 	p.shoe_col = Items.random_wear_col("shoes")
 
 func _formation_pos(t: int, i: int) -> Vector2:
@@ -749,6 +752,7 @@ func _finish() -> void:
 	var won: bool = score[0] > score[1]
 	var res := box.duplicate()
 	res["won"] = won
+	res["fixture"] = is_fixture
 	res["score"] = score.duplicate()
 	# Broadcast extras: quarter splits, the headline run, top scorer per team
 	# and where the game was played. The card degrades gracefully if a key is
@@ -1762,7 +1766,7 @@ func _build_bench_roster() -> void:
 		for i in 5:
 			bench_roster[t].append({
 				"jersey": 21 + i * 2 + t,
-				"name": pool.pick_random(),
+				"name": Season.roster_full_name(Season.my_team() if t == 0 else String(Game.profile.get("next_opponent", "")), 5 + i),
 			})
 
 func seat_world(t: int, i: int) -> Vector2:
@@ -1838,7 +1842,7 @@ func bench_user() -> void:
 	var sub := preload("res://src/match/Player.gd").new()
 	sub.team = 0
 	add_child(sub)
-	_randomize_npc(sub, 0)
+	_randomize_npc(sub, 0, PARTNER_SEAT)
 	var r: Dictionary = bench_roster[0][PARTNER_SEAT]
 	sub.jersey_num = int(r["jersey"])
 	sub.display_name = String(r["name"])

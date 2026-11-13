@@ -87,7 +87,9 @@ func apply_match_result(res: Dictionary) -> void:
 	if Game.profile["last_games"].size() > 20:
 		Game.profile["last_games"].resize(20)
 
-	_apply_contract()
+	if bool(res.get("fixture", false)):
+		_apply_contract()
+		_apply_sponsor(res)
 	_update_sgoals(res)
 	_playoff_result(bool(res.get("won", false)))
 	_social_reaction(pts, res.get("won", false), grade, perf)
@@ -131,7 +133,7 @@ func _make_offers() -> void:
 		pool.shuffle()
 		for t in pool.slice(0, 2):
 			offers.append({"club": t, "weekly": stay_week + 90 + rep * 3,
-				"bonus": 500 + rep * 12, "games": 12})
+				"bonus": 500 + rep * 12, "games": 8 if offers.size() == 1 else 16})
 	Game.profile["offers"] = offers
 
 func accept_offer(i: int) -> void:
@@ -139,6 +141,7 @@ func accept_offer(i: int) -> void:
 	if i < 0 or i >= offers.size():
 		return
 	var o: Dictionary = offers[i]
+	var old_team: String = Season.my_team()
 	Game.add_money(int(o.get("bonus", 0)))
 	Game.profile["team"] = String(o["club"])
 	Game.profile["contract"] = {"club": String(o["club"]),
@@ -146,8 +149,51 @@ func accept_offer(i: int) -> void:
 	Game.profile["offers"] = []
 	Contacts.receive(Contacts.AGENT, "Firmato per %s: %d$/settimana. Ora vai la' e giustificalo in campo."
 		% [String(o["club"]), int(o["weekly"])])
-	if String(o["club"]) != Season.my_team():
+	if String(o["club"]) != old_team:
 		Game.add_rep(2)
+		# Non puoi affrontare il tuo nuovo club nel calendario già salvato.
+		for entry in Season.schedule():
+			if not bool(entry.get("done", false)) and String(entry.get("opponent", "")) == Season.my_team():
+				entry["opponent"] = old_team
+	SaveSystem.save_game()
+
+## Sponsor: una sola collaborazione alla volta, pagata sulle gare ufficiali.
+const SPONSOR_DEALS := [
+	{"id": "street", "name": "Street Supply", "pay": 80, "games": 5, "goal": "wins", "target": 2, "bonus": 250},
+	{"id": "volt", "name": "Volt Athletics", "pay": 40, "games": 5, "goal": "points", "target": 50, "bonus": 500},
+]
+
+func sign_sponsor(index: int) -> bool:
+	var active: Dictionary = Game.profile.get("sponsor_deal", {})
+	if not active.is_empty() or index < 0 or index >= SPONSOR_DEALS.size():
+		return false
+	var deal: Dictionary = SPONSOR_DEALS[index].duplicate(true)
+	deal["left"] = deal["games"]
+	deal["progress"] = 0
+	deal["bonus_paid"] = false
+	Game.profile["sponsor_deal"] = deal
+	SaveSystem.save_game()
+	return true
+
+func _apply_sponsor(res: Dictionary) -> void:
+	var deal: Dictionary = Game.profile.get("sponsor_deal", {})
+	if deal.is_empty() or int(deal.get("left", 0)) <= 0:
+		return
+	Game.add_money(int(deal.get("pay", 0)))
+	if String(deal.get("goal", "")) == "wins" and bool(res.get("won", false)):
+		deal["progress"] = int(deal.get("progress", 0)) + 1
+	elif String(deal.get("goal", "")) == "points":
+		deal["progress"] = int(deal.get("progress", 0)) + int(res.get("pts", 0))
+	if not bool(deal.get("bonus_paid", false)) and int(deal.get("progress", 0)) >= int(deal.get("target", 1)):
+		Game.add_money(int(deal.get("bonus", 0)))
+		deal["bonus_paid"] = true
+		Events.toast.emit("SPONSOR: bonus +%d$" % int(deal["bonus"]))
+	deal["left"] = int(deal["left"]) - 1
+	if int(deal["left"]) <= 0:
+		Contacts.receive(Contacts.AGENT, "Collaborazione con %s conclusa. Nuove offerte in Arena." % String(deal.get("name", "sponsor")))
+		Game.profile["sponsor_deal"] = {}
+	else:
+		Game.profile["sponsor_deal"] = deal
 
 ## ------------------------------------------------------------------ OBIETTIVI STAGIONE
 ## Tre traguardi generati sulla rep: vittorie, punti totali, partita grossa.
@@ -349,7 +395,6 @@ func skip_to_game() -> void:
 		target = mini(day + 3, Season.SEASON_DAYS)
 	Game.profile["day"] = target
 	Game.profile["minutes"] = 540
-	Game.profile["battery"] = maxf(float(Game.profile.get("battery", 0.0)), 80.0)
 	Game.profile["energy"] = maxf(float(Game.profile.get("energy", 0.0)), 80.0)
 	Game._roll_weather()
 	Career.check_season()

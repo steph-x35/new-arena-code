@@ -63,6 +63,22 @@ func style_of(team: String) -> String:
 func roster_names(team: String) -> Array:
 	return _meta(team)["names"]
 
+## Nomi stabili per squadra e posizione in roster, senza dipendere dal caso.
+func roster_full_name(team: String, slot: int) -> String:
+	var names: Array = roster_names(team)
+	if names.is_empty():
+		names = ["Blake", "Vance", "Okoye", "Reyes", "Silva", "Duarte", "Bran", "Kolo"]
+	var first := ["Miles", "Alex", "Jordan", "Leo", "Marcus", "Noah", "Chris", "David"]
+	var index: int = posmod(slot, names.size())
+	var first_index: int = posmod(hash(team) + index, first.size())
+	return "%s %s" % [first[first_index], names[index]]
+
+func short_player_name(full_name: String) -> String:
+	var parts := full_name.strip_edges().split(" ", false)
+	if parts.size() < 2:
+		return full_name.strip_edges()
+	return "%s. %s" % [parts[0].left(1).to_upper(), parts[parts.size() - 1]]
+
 ## The kit a club wears. The user's club always wears what was picked in the
 ## kit picker; everyone else wears club colours — unless that would clash
 ## with ours, in which case the first different kit in the catalogue wins.
