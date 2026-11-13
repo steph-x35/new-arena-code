@@ -1214,6 +1214,8 @@ func on_dunk_started(p: BallPlayer) -> void:
 			continue
 		if o.block_window > 0.0 and o.global_position.distance_to(p.global_position) < 90.0:
 			var stop: float = clampf(float(o.ratings["block"]) / 140.0, 0.05, 0.55)
+			# Chi schiaccia meglio resiste un po' di più alla stoppata.
+			stop *= lerpf(1.15, 0.75, clampf((float(p.ratings.get("dunk", 52)) - 30.0) / 69.0, 0.0, 1.0))
 			if p.is_user:
 				stop *= [0.80, 1.00, 1.20, 1.40][Game.difficulty()]
 			if randf() < stop:

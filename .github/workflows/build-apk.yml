@@ -162,6 +162,7 @@ jobs:
         run: |
           cd hoop-city-life/hoopcity
           timeout 90 godot --headless res://tools/TimeoutInboundProbe.tscn
+          timeout 90 godot --headless res://tools/AttributeBuilderProbe.tscn
 
       - name: Export Android APK
         run: |

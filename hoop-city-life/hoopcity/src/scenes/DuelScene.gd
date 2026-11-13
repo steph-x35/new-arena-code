@@ -692,7 +692,9 @@ func _contest_now() -> float:
 ## la puo' stoppare.
 func _dunk_window() -> Vector2:
 	var rt: float = maxf(dunk_rise_t, 0.05)
-	return Vector2(maxf(1.0 - 0.17 / rt, 0.55), 1.0)
+	var dunk_skill: float = float(Game.attr("dunk"))
+	var window: float = lerpf(0.13, 0.21, clampf((dunk_skill - 30.0) / 69.0, 0.0, 1.0))
+	return Vector2(maxf(1.0 - window / rt, 0.55), 1.0)
 
 func _dunk_prog() -> float:
 	return clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
@@ -2078,6 +2080,10 @@ func _take_ball(off: bool) -> void:
 
 
 func _duel_end(win: bool) -> void:
+	if duel_phase == "over": return
+	Game.profile["attr_points"] = int(Game.profile.get("attr_points", 0)) + 4
+	SaveSystem.save_game()
+	Events.toast.emit("PARTITA: +4 punti attributo")
 	duel_phase = "over"
 	_win = win
 	charging = false

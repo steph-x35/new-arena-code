@@ -13,7 +13,7 @@ signal turnover(by: BallPlayer)
 
 # --- ratings 1..99 (copied in from Game profile or generated for NPCs) ---
 var ratings := {
-	"close": 55, "mid": 52, "three": 48, "handle": 58, "pass": 55,
+	"close": 55, "dunk": 52, "mid": 52, "three": 48, "handle": 58, "pass": 55,
 	"speed": 62, "accel": 60, "stamina": 60, "defense": 50,
 	"steal": 48, "block": 40, "rebound": 45,
 }

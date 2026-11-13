@@ -7,6 +7,7 @@ var name_edit: LineEdit
 var info: Label
 var h_lbl: Label
 var w_lbl: Label
+var builder_started := false
 const POSITIONS := ["PG", "SG", "SF", "PF", "C"]
 const POS_PRESETS := {
 	"PG": {"h": 185, "w": 80, "handle": 8, "pass": 8, "speed": 6, "rebound": -8, "block": -8},
@@ -141,6 +142,11 @@ func _cycle_team() -> void:
 	_refresh()
 
 func _apply_position(pos: String) -> void:
+	# Cambiare ruolo nel creator ricomincia la distribuzione iniziale.
+	Game.profile.erase("attribute_base")
+	Game.profile.erase("attribute_alloc")
+	Game.profile["attr_points"] = 0
+	builder_started = false
 	var base := Game.default_profile()
 	Game.profile["position"] = pos
 	Game.profile["attrs"] = base["attrs"].duplicate()
@@ -189,24 +195,14 @@ func _start() -> void:
 	var panel: GamePanel = GamePanel.new().build("SCHEDA GIOCATORE", Vector2(1020, 660))
 	$UI.add_child(panel)
 	panel.add_text("%s  ·  %s  ·  %d cm  ·  %d kg" % [Game.profile["name"], Game.profile["position"], Game.profile["height_cm"], Game.profile["weight_kg"]], 24, Color(1.0, 0.69, 0.35))
-	panel.add_text("Attributi iniziali: crescono usando i punti nel telefono.", 18)
-	var grid: GridContainer = panel.add_grid(2)
-	for key in Game.ATTRS:
-		var a: String = String(key)
-		var box := VBoxContainer.new()
-		box.custom_minimum_size = Vector2(350, 0)
-		grid.add_child(box)
-		var title := Label.new()
-		title.text = "%s  %d" % [Game.ATTR_LABELS[a], Game.attr(a)]
-		title.add_theme_font_size_override("font_size", 19)
-		box.add_child(title)
-		var bar := ProgressBar.new()
-		bar.min_value = 0
-		bar.max_value = 99
-		bar.value = Game.attr(a)
-		bar.show_percentage = false
-		bar.custom_minimum_size = Vector2(0, 13)
-		box.add_child(bar)
+	Game.ensure_attribute_builder()
+	if not builder_started:
+		Game.profile["attr_points"] = int(Game.profile.get("attr_points", 0)) + 95
+		builder_started = true
+	panel.add_text("Scegli la tua specialità: le valutazioni alte costano più punti.", 18)
+	var editor = preload("res://src/ui/AttributeBuilder.gd").new()
+	panel.body.add_child(editor)
+	editor.build(2, false)
 	panel.add_button("INIZIA LA CARRIERA", func():
 		panel.close()
 		_confirm_start(), true)

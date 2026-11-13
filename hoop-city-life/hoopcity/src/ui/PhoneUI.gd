@@ -614,24 +614,10 @@ func _profile() -> void:
 	if (p.get("season_archive", []) as Array).is_empty() and tro == 0:
 		_txt("Ancora nessuna stagione completata.", 16, Color(1, 1, 1, 0.45))
 	_sep()
-	_txt("ATTRIBUTES   (points: %d)" % p["attr_points"], 20, Color(0.7, 0.9, 1.0))
-	for a in Game.ATTRS:
-		var h := HBoxContainer.new()
-		var l := Label.new()
-		l.text = "%s %d  ·  %s" % [Game.ATTR_LABELS[a], Game.attr(a), Game.ATTR_EFFECTS[a]]
-		l.add_theme_font_size_override("font_size", 18)
-		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		h.add_child(l)
-		var b := Button.new()
-		b.text = "+"
-		b.custom_minimum_size = Vector2(58, 48)
-		b.disabled = p["attr_points"] <= 0
-		b.pressed.connect(func():
-			if Game.spend_point(a):
-				SaveSystem.save_game()
-				_refresh())
-		h.add_child(b)
-		body.add_child(h)
+	_txt("ATTRIBUTI", 20, Color(0.7, 0.9, 1.0))
+	var editor = preload("res://src/ui/AttributeBuilder.gd").new()
+	body.add_child(editor)
+	editor.build(1, true)
 	_sep()
 	_txt("BADGES", 20, Color(1.0, 0.8, 0.4))
 	if p["badges"].is_empty():

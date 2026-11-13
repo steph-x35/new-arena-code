@@ -56,6 +56,9 @@ func apply_match_result(res: Dictionary) -> void:
 	var grade := grade_from_score(perf)
 	var xp := int(60 + perf * 260 + (60 if res.get("won", false) else 0))
 	Game.add_xp(xp, "match")
+	# Punti garantiti per ogni partita conclusa, oltre ai livelli XP.
+	Game.profile["attr_points"] = int(Game.profile.get("attr_points", 0)) + 4
+	Events.toast.emit("PARTITA: +4 punti attributo")
 
 	# v2.3: pay scalato per rep + forma
 	var rep: int = int(Game.profile.get("rep", 0))
@@ -491,8 +494,7 @@ func apply_drill_result(drill: String, score01: float) -> void:
 		}.get(drill, ["stamina"])
 		var a: String = pool.pick_random()
 		if Game.attr(a) < 99 and randf() < score01:
-			Game.profile["attrs"][a] += 1
-			Events.attribute_up.emit(a, Game.profile["attrs"][a])
+			Game.add_attribute_bonus(a, 1)
 			Events.toast.emit("%s +1" % a.to_upper())
 		# (Il progresso perfect3 resta legato SOLO ai rilasci PERFECT veri
 		# del drill, come voluto: niente doppio conteggio dal voto sessione.)
