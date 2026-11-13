@@ -179,9 +179,7 @@ func read_chapter(id: String) -> String:
 			# a spent skill point.
 			var a: String = String(rw["attr"])
 			var amt: int = int(rw.get("amount", 1))
-			Game.profile["attrs"][a] = mini(int(Game.profile["attrs"].get(a, 50)) + amt, 99)
-			Events.attribute_up.emit(a, int(Game.profile["attrs"][a]))
-			Game.check_badges()
+			Game.add_attribute_bonus(a, amt)
 			msg += "  +%d %s" % [amt, a.to_upper()]
 		if rw.has("rep"):
 			Game.add_rep(int(rw["rep"]))

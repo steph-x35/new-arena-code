@@ -16,7 +16,7 @@ const TEAMS := [
 	"Northgate Wolves", "Old Mill Saints", "Bayview Tide", "Cedar Park Rangers",
 ]
 const DEFAULT_TEAM := "Riverside Ravens"
-const SEASON_DAYS := 60
+const SEASON_DAYS := 30 # 10 gare, ogni terzo giorno
 
 # ------------------------------------------------------------------ club identity
 ## Who each club IS, beyond a name: scoreboard abbreviation, colours it wears,
@@ -62,6 +62,22 @@ func style_of(team: String) -> String:
 
 func roster_names(team: String) -> Array:
 	return _meta(team)["names"]
+
+## Nomi stabili per squadra e posizione in roster, senza dipendere dal caso.
+func roster_full_name(team: String, slot: int) -> String:
+	var names: Array = roster_names(team)
+	if names.is_empty():
+		names = ["Blake", "Vance", "Okoye", "Reyes", "Silva", "Duarte", "Bran", "Kolo"]
+	var first := ["Miles", "Alex", "Jordan", "Leo", "Marcus", "Noah", "Chris", "David"]
+	var index: int = posmod(slot, names.size())
+	var first_index: int = posmod(hash(team) + index, first.size())
+	return "%s %s" % [first[first_index], names[index]]
+
+func short_player_name(full_name: String) -> String:
+	var parts := full_name.strip_edges().split(" ", false)
+	if parts.size() < 2:
+		return full_name.strip_edges()
+	return "%s. %s" % [parts[0].left(1).to_upper(), parts[parts.size() - 1]]
 
 ## The kit a club wears. The user's club always wears what was picked in the
 ## kit picker; everyone else wears club colours — unless that would clash
@@ -116,6 +132,13 @@ func schedule() -> Array:
 	if not Game.profile.has("schedule") or Game.profile["schedule"].is_empty():
 		Game.profile["schedule"] = _generate()
 	return Game.profile["schedule"]
+
+func season_end_day() -> int:
+	# I calendari già in corso mantengono la durata salvata.
+	var end := SEASON_DAYS
+	for entry in schedule():
+		end = maxi(end, int(entry.get("day", 0)))
+	return end
 
 func _generate() -> Array:
 	var rng := RandomNumberGenerator.new()
@@ -229,6 +252,8 @@ func _on_day(_d: int) -> void:
 		Game.profile["skipped_practices"] = int(Game.profile.get("skipped_practices", 0)) + 1
 		Contacts.receive(Contacts.COACH, "Missed practice yesterday. Where were you?")
 	elif String(e["kind"]) == "game":
+		if int(Game.profile.get("match_day", -1)) == prev:
+			return # partita in corso, si segna solo al fischio finale
 		e["done"] = true
 		e["skipped"] = true
 		add_followers(-int(followers() * 0.10))

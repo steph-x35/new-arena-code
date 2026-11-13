@@ -325,7 +325,10 @@ func _open_bed() -> void:
 ## nap buttons and the sleep-through button can never drift apart.
 func _do_sleep(mins: int, energy_gain: float, hunger_cost: float) -> void:
 	var day_before: int = int(Game.profile["day"])
+	var battery_before: float = float(Game.profile.get("battery", 100.0))
 	Game.advance_time(mins)
+	# Durante il sonno la ricarica sostituisce il normale consumo del tempo.
+	Game.profile["battery"] = clampf(battery_before + float(mins) * (100.0 / 480.0), 0.0, 100.0)
 	Game.add_energy(energy_gain)
 	Game.add_hunger(-hunger_cost)
 	# Rest is what undoes a junk-food diet: every hour of sleep heals a little.
@@ -545,22 +548,22 @@ func _open_window() -> void:
 # ---------------------------------------------------------------- DESK
 func _open_desk() -> void:
 	var p: GamePanel = _panel(Loc.tx("💻  Desk"), Vector2(880, 620))
-	p.add_text("Lavori da casa: ogni turno ricarica anche il telefono "
+	p.add_text("Lavori da casa: guadagni soldi. Il telefono si ricarica dormendo "
 		+ "(%d%% adesso)." % int(Game.profile.get("battery", 100.0)), 20,
 		Color(1, 1, 1, 0.6))
 	p.add_text("")
 	if Game.profile["energy"] < 15:
 		p.add_text("You are too tired to focus.", 24, Color(1, 0.6, 0.5))
 	else:
-		p.add_text("Scegli il lavoro: ogni tipo paga e ricarica in modo diverso.",
+		p.add_text("Scegli il lavoro: ogni tipo paga in modo diverso.",
 			19, Color(1, 1, 1, 0.55))
-		p.add_button(Loc.tx("Correzione bozze  ·  6 quiz logici  (2h, −20 energia, +35% batteria)"), func():
+		p.add_button(Loc.tx("Correzione bozze  ·  6 quiz logici  (2h, −20 energia)"), func():
 			p.close()
 			_start_work(), true)
-		p.add_button(Loc.tx("Contabilita'  ·  4 conti a mente  (2h, −15 energia, +30% batteria)"), func():
+		p.add_button(Loc.tx("Contabilita'  ·  4 conti a mente  (2h, −15 energia)"), func():
 			p.close()
 			_start_accounting(), true)
-		p.add_button(Loc.tx("Consegne in bici  ·  4 codici a memoria  (2h, −15 energia, +20% batteria)"), func():
+		p.add_button(Loc.tx("Consegne in bici  ·  4 codici a memoria  (2h, −15 energia)"), func():
 			p.close()
 			_start_delivery(), true)
 	p.add_button(Loc.tx("Review attributes & badges"), func():
@@ -703,10 +706,9 @@ func _finish_acct() -> void:
 	if _acct_right == 4:
 		pay += 10
 	Game.add_money(pay)
-	Game.profile["battery"] = clampf(float(Game.profile.get("battery", 100.0)) + 30.0, 0.0, 100.0)
 	SaveSystem.save_game()
 	var p: GamePanel = _panel(Loc.tx("💻  Shift over"), Vector2(760, 480))
-	p.add_text("%d/4 correct  ·  +%d$  ·  phone +30%%" % [_acct_right, pay],
+	p.add_text("%d/4 correct  ·  +%d$" % [_acct_right, pay],
 		24, Color(0.7, 1.0, 0.7))
 	p.add_button(Loc.tx("Done"), func(): p.close())
 
@@ -812,10 +814,9 @@ func _finish_mem() -> void:
 	if _mem_right == 4:
 		pay += 14
 	Game.add_money(pay)
-	Game.profile["battery"] = clampf(float(Game.profile.get("battery", 100.0)) + 20.0, 0.0, 100.0)
 	SaveSystem.save_game()
 	var p: GamePanel = _panel(Loc.tx("📦  Turno finito"), Vector2(760, 480))
-	p.add_text("%d/4 codici corretti  ·  +%d$  ·  telefono +20%%" % [_mem_right, pay],
+	p.add_text("%d/4 codici corretti  ·  +%d$" % [_mem_right, pay],
 		24, Color(0.7, 1.0, 0.7))
 	p.add_button(Loc.tx("Done"), func(): p.close())
 
@@ -829,7 +830,6 @@ func _finish_work() -> void:
 	if _work_right == 6:
 		pay += 25
 	Game.add_money(pay)
-	Game.profile["battery"] = clampf(float(Game.profile.get("battery", 100.0)) + 35.0, 0.0, 100.0)
 	SaveSystem.save_game()
 	var p: GamePanel = _panel(Loc.tx("💻  Shift over"), Vector2(760, 480))
 	p.add_text("%d of 6 correct" % _work_right, 34,

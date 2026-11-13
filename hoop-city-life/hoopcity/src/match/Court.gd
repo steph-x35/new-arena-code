@@ -80,6 +80,8 @@ var _voice_cd := {}                 # per-shout cooldowns
 var _shoot_call := false            # one "shoot!" per possession
 var _inbounder: BallPlayer = null
 var _inbound_receiver: BallPlayer = null
+var _pass_serial := 0
+var pass_target: BallPlayer = null
 var pnr_screening := false
 var jump_pending := false      # true: al GO si esegue la palla a due
 var _jump_run := false
@@ -178,19 +180,22 @@ func _spawn_teams() -> void:
 				p.setup_from_profile()
 				user = p
 			else:
-				_randomize_npc(p, t)
+				_randomize_npc(p, t, i)
 				var brain := preload("res://src/match/AIBrain.gd").new()
 				p.add_child(brain)
 				brain.setup(p, self)
 			p.global_position = _formation_pos(t, i)
 			players.append(p)
 
-func _randomize_npc(p: BallPlayer, t: int) -> void:
+func _randomize_npc(p: BallPlayer, t: int, slot: int) -> void:
+	var club: String = Season.my_team() if t == 0 else String(Game.profile.get("next_opponent", ""))
+	var roster_rng := RandomNumberGenerator.new()
+	roster_rng.seed = hash("%s|%d" % [club, slot])
 	var lvl: int = 48 + int(Game.profile["level"]) * 2
 	if bool(Game.profile.get("playoff", {}).get("live", false)):
 		lvl += 8   # i playoff si giocano contro squadre al top
 	for k in p.ratings:
-		p.ratings[k] = clampi(lvl + randi_range(-12, 14), 30, 92)
+		p.ratings[k] = clampi(lvl + roster_rng.randi_range(-12, 14), 30, 92)
 	# The opposing CLUB has a style of play: ratings tilt gently toward it and
 	# the roster draws from that club's name pool, so playing at the Foundry
 	# against the Kings reads (and plays) differently than hosting the Tide.
@@ -206,18 +211,18 @@ func _randomize_npc(p: BallPlayer, t: int) -> void:
 		var club_names: Array = Season.roster_names(opp)
 		if not club_names.is_empty():
 			pool = club_names
-	p.display_name = pool.pick_random()
-	p.height_f = randf_range(0.92, 1.14)
-	p.mass_f = randf_range(0.85, 1.12)
+	p.display_name = Season.roster_full_name(club, slot)
+	p.height_f = roster_rng.randf_range(0.92, 1.14)
+	p.mass_f = roster_rng.randf_range(0.85, 1.12)
 	var skins := [Color(0.72, 0.53, 0.38), Color(0.55, 0.36, 0.26),
 		Color(0.86, 0.69, 0.52), Color(0.40, 0.27, 0.19), Color(0.94, 0.79, 0.64)]
 	var hairs := [Color(0.12, 0.09, 0.08), Color(0.30, 0.20, 0.12),
 		Color(0.10, 0.10, 0.12), Color(0.55, 0.42, 0.24), Color(0.75, 0.70, 0.66)]
-	p.skin_col = skins.pick_random()
-	p.hair_col = hairs.pick_random()
+	p.skin_col = skins[roster_rng.randi_range(0, skins.size() - 1)]
+	p.hair_col = hairs[roster_rng.randi_range(0, hairs.size() - 1)]
 	# Ogni NPC ha il PROPRIO taglio (pesato sul normale): non deve mai
 	# comparire con lo stile scelto dal giocatore nel creator.
-	p.hair_style_v = [0, 0, 0, 0, 1, 2, 3, 4, 5].pick_random()
+	p.hair_style_v = [0, 0, 0, 0, 1, 2, 3, 4, 5][roster_rng.randi_range(0, 8)]
 	p.shoe_col = Items.random_wear_col("shoes")
 
 func _formation_pos(t: int, i: int) -> Vector2:
@@ -375,9 +380,12 @@ func _reset_possession(full := false) -> void:
 	Events.possession_changed.emit(possession)
 
 func give_ball(p: BallPlayer) -> void:
+	_pass_serial += 1
+	pass_target = null
 	var changed_hands: bool = possession != p.team
 	for q in players: q.has_ball = false
 	p.has_ball = true
+	p.clear_defensive_pose()
 	ball.attach(p)
 	possession = p.team
 	# In 1v1 a change of possession means you must take it back past the arc.
@@ -395,7 +403,8 @@ func try_grab(p: BallPlayer) -> bool:
 	if not play_live or restarting or awaiting_check: return false
 	if ball.holder != null or p.stun > 0.0: return false
 	var d := p.global_position.distance_to(ball.global_position)
-	if d > 90.0 or ball.h > 210.0: return false
+	var reach: float = lerpf(70.0, 90.0, clampf(float(p.ratings.get("rebound", 50)) / 99.0, 0.0, 1.0))
+	if d > reach or ball.h > 210.0: return false
 	# A shot still resolving above/at the ring is no one's rebound yet: let it
 	# fall through for the bucket or bounce clear off the iron. Grabbing a
 	# descending shot at the rim used to eat made baskets outright.
@@ -592,6 +601,10 @@ func _physics_process(delta: float) -> void:
 		if (play_live and _jump_watch > 0.2) or _jump_watch > 6.0:
 			_run_jump_ball()
 	if not play_live or finished: return
+	# Una palla libera che esce non deve trascinare tutti nell'angolo.
+	if ball != null and ball.live and not ball.practice_shot and not ball.shot_result_pending and pass_target == null 	and (absf(ball.global_position.x) > COURT_W * 0.5 + 30.0 or absf(ball.global_position.y) > COURT_H * 0.5 + 30.0):
+		_restart_play(1 - ball.last_touch_team)
+		return
 	game_clock -= delta
 	shot_clock -= delta
 	# A screen that is never released must still resolve: the screener rolls
@@ -633,6 +646,9 @@ func _physics_process(delta: float) -> void:
 ## "within 3 seconds there is always either a holder or a ball in flight".
 func _deadball_watchdog(delta: float) -> void:
 	if ball == null: return
+	if ball.practice_shot and ball.live:
+		_dead_time = 0.0
+		return # palla reale a terra: la si raccoglie, senza teletrasporti
 	if restarting:
 		_dead_time = 0.0
 		return
@@ -653,7 +669,11 @@ func _deadball_watchdog(delta: float) -> void:
 		if d < bd:
 			bd = d
 			best = p
-	if best != null:
+	if best != null and not one_on_one:
+		# Un recupero di sicurezza non può teletrasportare la palla a un
+		# giocatore: si riprende con rimessa per la squadra avversaria.
+		_restart_play(1 - ball.last_touch_team)
+	elif best != null:
 		give_ball(best)
 		shot_clock = maxf(shot_clock, 14.0)
 		Events.toast.emit("Loose ball recovered")
@@ -749,6 +769,8 @@ func _finish() -> void:
 	var won: bool = score[0] > score[1]
 	var res := box.duplicate()
 	res["won"] = won
+	res["fixture"] = is_fixture
+	res["fixture_day"] = int(Game.profile.get("match_day", Game.profile.get("day", 1)))
 	res["score"] = score.duplicate()
 	# Broadcast extras: quarter splits, the headline run, top scorer per team
 	# and where the game was played. The card degrades gracefully if a key is
@@ -892,6 +914,8 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 		ball.shooter = shooter
 		shooter.has_ball = false
 		if shooter.is_user: box["fga"] += 1
+		if one_on_one:
+			_check_ball(blocker.team)
 		return
 
 	shooter.has_ball = false
@@ -1117,30 +1141,9 @@ func check_ball_collisions(b: Ball) -> void:
 		var cx: float = lerpf(b.prev_pos.x, b.global_position.x, clampf(f, 0.0, 1.0))
 		var cy: float = lerpf(b.prev_pos.y, b.global_position.y, clampf(f, 0.0, 1.0))
 		var dist: float = Vector2(cx, cy).distance_to(hoop)
-		# Una palla "rattled" ricade con deriva orizzontale: entro 48 px dal
-		# ferro il canestro resta valido (il ferro la sputata dentro).
-		if dist < 24.0 or (b.rattled and dist < 48.0):
-			# RIM-RATTLE: capita che il tiro "giusto" prima sbatta sul ferro,
-			# salti su ed entri comunque: suono del ferro, poi lo swish della
-			# rete quando cade. Cosi' non ogni canestro e' pulito.
-			# RIM-RATTLE sempre sui canestri ravvicinati: e' il momento
-			# "firma" richiesto dall'utente e due round al 30-35% non lo ha
-			# MAI visto. Salto alto (picco 69-114 px), ferro fortissimo,
-			# shake forte: deve leggersi a colpo d'occhio.
-			if not b.rattled:
-				b.rattled = true
-				var rn: Vector2 = (Vector2(cx, cy) - hoop).normalized()
-				if rn.length() < 0.1:
-					rn = Vector2(1, 0)
-				b.kill_analytic()
-				b.global_position = hoop - rn * 9.0
-				b.vh = randf_range(500.0, 640.0)
-				b.vel = rn * randf_range(30.0, 60.0) + Vector2(randf_range(-35, 35), randf_range(-35, 35))
-				Sfx.play("rim", -0.5, randf_range(0.95, 1.08))
-				Events.shake.emit(0.60)
-				_rim_fx("rattle", hoop)
-				_net_bump(0 if hoop.x < 0 else 1, 0.9)
-				return
+		if dist < 24.0:
+			# Un tiro centrale attraversa direttamente il ferro: niente
+			# rimbalzo artificiale verso l'alto su ogni canestro.
 			_score_basket(b)
 			return
 		if dist < 42.0:
@@ -1198,22 +1201,36 @@ func on_dunk_started(p: BallPlayer) -> void:
 			continue
 		if o.block_window > 0.0 and o.global_position.distance_to(p.global_position) < 90.0:
 			var stop: float = clampf(float(o.ratings["block"]) / 140.0, 0.05, 0.55)
+			# Chi schiaccia meglio resiste un po' di più alla stoppata.
+			stop *= lerpf(1.15, 0.75, clampf((float(p.ratings.get("dunk", 52)) - 30.0) / 69.0, 0.0, 1.0))
 			if p.is_user:
 				stop *= [0.80, 1.00, 1.20, 1.40][Game.difficulty()]
 			if randf() < stop:
+				# Anche nei campi con HUD: il messaggio non va sovrascritto dal
+				# CHECK nello stesso frame, e la palla esce davvero dalla mano.
 				Events.toast.emit("BLOCKED AT THE RIM!")
-				Events.popup.emit("BLOCK!", o.global_position, Color(1.0, 0.45, 0.3), true)
+				Events.popup.emit("BLOCKED!", p.global_position, Color(1.0, 0.45, 0.3), true)
+				Sfx.play("block", -1.0)
 				Events.shake.emit(0.7)
 				p.has_ball = false
-				if o.is_user:
-					box["blk"] += 1
-				# Ball squirts loose away from the rim; whoever grabs it, gets it.
+				if o.is_user: box["blk"] += 1
 				if ball:
-					ball.live = true
+					ball.detach()
 					ball.shot_result_pending = false
 					ball.global_position = p.global_position + Vector2(-p.facing * 90.0, 0.0)
 					ball.h = 120.0
 					ball.vel = Vector2(-p.facing * 260.0, -80.0)
+					ball.vh = -70.0
+				if one_on_one:
+					p.dunking = false
+					p.jumping = false
+					p.air = 0.0
+					p.air_v = 0.0
+					play_live = false
+					restarting = true
+					await get_tree().create_timer(1.2).timeout
+					if is_inside_tree() and not finished:
+						_check_ball(o.team)
 				return
 	p.grab_rim()
 	# Rim-rattler: the impact carries the whole stack -- shake, rim clang and
@@ -1285,6 +1302,8 @@ func _score_basket(b: Ball) -> void:
 		b.live = false
 		b.dunk_drop = 1.0
 		b.global_position = hoop
+		b.dunk_from = hoop
+		b.dunk_to = hoop
 		b.h = RIM_HEIGHT + 8.0
 		Sfx.play("swish", -4.0)
 		Sfx.cheer(false)
@@ -1292,7 +1311,10 @@ func _score_basket(b: Ball) -> void:
 		_net_bump(0 if hoop.x < 0 else 1, 1.0)
 		_rim_fx("swish", hoop)
 		b.is_free_throw = false
-		_on_ft_result(true)
+		ft_timer = 10.0
+		await get_tree().create_timer(0.70).timeout
+		if is_inside_tree() and ft_active:
+			_on_ft_result(true)
 		return
 	var shooter: BallPlayer = b.shooter
 	var beyond_arc: bool = px_to_ft(shooter.global_position.distance_to(hoop_for(shooter.team))) > Court.THREE_FT
@@ -1331,11 +1353,14 @@ func _score_basket(b: Ball) -> void:
 	# Drop THROUGH the net like the street court, then inbound.
 	var hoop: Vector2 = hoop_for(shooter.team)
 	b.dunk_drop = 1.0
+	b.dunk_from = hoop
+	b.dunk_to = hoop
 	b.global_position = hoop
 	b.h = RIM_HEIGHT + 8.0
+	play_live = false
 	_net_bump(0 if hoop.x < 0.0 else 1, 1.0)
 	_rim_fx("swish", hoop)
-	await get_tree().create_timer(0.55).timeout
+	await get_tree().create_timer(0.70).timeout
 	if not is_instance_valid(self) or finished:
 		return
 	if one_on_one:
@@ -1368,6 +1393,7 @@ func _check_ball(team: int) -> void:
 	for p in players:
 		p.has_ball = false
 	off.has_ball = true
+	off.clear_defensive_pose()
 	if ball:
 		ball.attach(off)
 		ball.live = false
@@ -1407,6 +1433,11 @@ func resolve_missed_shot(b: Ball) -> void:
 		return
 	momentum = lerpf(momentum, 0.0, 0.2)
 	_rim_fx("miss", b.global_position)
+	if b.practice_shot:
+		# Il rimbalzo continua sulla fisica della palla: un giocatore deve
+		# raggiungerla e raccoglierla, senza assegnazioni a distanza.
+		shot_clock = maxf(shot_clock, 14.0)
+		return
 	# rebound: nearest players contest, weighted by rebound rating + height
 	var best: BallPlayer = null
 	var best_w := -1.0
@@ -1437,6 +1468,11 @@ func _inbound(team: int) -> void:
 	var mates: Array = players.filter(func(p): return p.team == team)
 	var inbounder: BallPlayer = mates[mates.size() - 1]
 	var receiver: BallPlayer = mates[0]
+	# La rimessa automatica non manda sempre la palla al giocatore umano.
+	for mate in mates:
+		if mate != inbounder and not mate.is_user:
+			receiver = mate
+			break
 	inbounder.global_position = Vector2(baseline_x, 0.0)
 	inbounder.velocity = Vector2.ZERO
 	if receiver != inbounder:
@@ -1453,12 +1489,9 @@ func _inbound(team: int) -> void:
 	# inbounder gives it to a team-mate on his own.
 	var human_wait: bool = team == 0 and user != null and bool(user.is_user) \
 		and user_on_court and user != inbounder and not one_on_one
+	inbound_wait = 3.0 if human_wait else 2.5
 	if human_wait:
-		inbound_wait = 3.0
 		Events.toast.emit(Loc.tx("Call it! (pass button)"))
-		return
-	await get_tree().create_timer(0.85).timeout
-	_finish_inbound(null)
 
 ## Ends the inbound wait: pass to `caller` if he called for it, otherwise to
 ## the default receiver (a team-mate, never the inbounder himself).
@@ -1478,6 +1511,9 @@ func _finish_inbound(caller: BallPlayer) -> void:
 
 # ------------------------------------------------------------------ passing / turnovers
 func do_pass(from: BallPlayer, to: BallPlayer) -> void:
+	_pass_serial += 1
+	var serial: int = _pass_serial
+	pass_target = to
 	last_passer = from
 	last_pass_time = Time.get_ticks_msec() / 1000.0
 	var speed: float = lerpf(560.0, 920.0, from.ratings["pass"] / 99.0)
@@ -1493,13 +1529,17 @@ func do_pass(from: BallPlayer, to: BallPlayer) -> void:
 		if off < 18.0 and t > 0.25 and t < 0.75 \
 		and randf() < (d.ratings["steal"] / 99.0) * 0.035 * (1.0 - off / 18.0):
 			await get_tree().create_timer(0.18).timeout
-			if finished: return
+			if finished or serial != _pass_serial or not play_live: return
 			give_ball(d)
 			Events.toast.emit("Intercepted!")
 			if from.is_user: box["tov"] += 1
 			return
 	await get_tree().create_timer(maxf(from.global_position.distance_to(to.global_position) / speed, 0.12)).timeout
-	if finished or ball.holder != null: return
+	if finished or serial != _pass_serial or not play_live or ball.holder != null: return
+	pass_target = null
+	if not is_instance_valid(to): return
+	if to.global_position.distance_to(ball.global_position) > 110.0:
+		return # passaggio mancato: palla libera, niente teletrasporto
 	give_ball(to)
 
 func on_turnover(from: BallPlayer, to: BallPlayer) -> void:
@@ -1522,8 +1562,7 @@ func _restart_play(team: int) -> void:
 		_inbound(team)
 
 func _turnover_to(team: int) -> void:
-	possession = team
-	_reset_possession(false)
+	_restart_play(team)
 
 func call_foul(defender: BallPlayer, victim: BallPlayer, pts_attempt := 0) -> void:
 	Events.toast.emit("Foul on #%d" % defender.jersey_num)
@@ -1762,7 +1801,7 @@ func _build_bench_roster() -> void:
 		for i in 5:
 			bench_roster[t].append({
 				"jersey": 21 + i * 2 + t,
-				"name": pool.pick_random(),
+				"name": Season.roster_full_name(Season.my_team() if t == 0 else String(Game.profile.get("next_opponent", "")), 5 + i),
 			})
 
 func seat_world(t: int, i: int) -> Vector2:
@@ -1838,7 +1877,7 @@ func bench_user() -> void:
 	var sub := preload("res://src/match/Player.gd").new()
 	sub.team = 0
 	add_child(sub)
-	_randomize_npc(sub, 0)
+	_randomize_npc(sub, 0, PARTNER_SEAT)
 	var r: Dictionary = bench_roster[0][PARTNER_SEAT]
 	sub.jersey_num = int(r["jersey"])
 	sub.display_name = String(r["name"])
@@ -1935,7 +1974,10 @@ func _process_subs(delta: float) -> void:
 
 # ================================================================== timeouts
 func call_timeout(team: int) -> bool:
-	if one_on_one or finished or timeout_active > 0.0 or restarting or ft_active:
+	if one_on_one or finished or timeout_active > 0.0 or restarting or ft_active or not play_live:
+		return false
+	if ball_handler() == null or possession != team:
+		Events.toast.emit(Loc.tx("Timeout: serve il possesso della palla"))
 		return false
 	if timeouts_left[team] <= 0:
 		Events.toast.emit(Loc.tx("No timeouts left!"))
@@ -1943,7 +1985,9 @@ func call_timeout(team: int) -> bool:
 		return false
 	timeouts_left[team] -= 1
 	timeout_team = team
-	timeout_active = 4.0
+	timeout_active = 7.0
+	_pass_serial += 1
+	pass_target = null
 	play_live = false
 	if ball != null and ball.live:
 		ball.kill_analytic()
@@ -1957,22 +2001,8 @@ func call_timeout(team: int) -> bool:
 func _resume_after_timeout() -> void:
 	if finished:
 		return
-	var team := timeout_team
-	possession = team
-	shot_clock = 18.0
-	must_clear = false
-	var mates: Array = players.filter(func(q): return q.team == team)
-	if mates.is_empty():
-		_play_on()
-		return
-	var pg: BallPlayer = mates[0]
-	for q in players:
-		q.has_ball = false
-	pg.global_position = Vector2(-140.0 if team == 0 else 140.0, 60.0)
-	pg.velocity = Vector2.ZERO
-	give_ball(pg)
-	play_live = true
-	Sfx.play("go")
+	# La squadra che aveva il possesso riprende con una vera rimessa.
+	_inbound(timeout_team)
 
 func _play_on() -> void:
 	play_live = true
@@ -1981,6 +2011,20 @@ func _process_bench_and_timeouts(delta: float) -> void:
 	if finished:
 		return
 	if timeout_active > 0.0:
+		# Prima raduno in panchina, poi rientro in campo prima della rimessa.
+		var to_bench: bool = timeout_active > 3.5
+		var slots := [0, 0]
+		for player in players:
+			var slot: int = slots[player.team]
+			slots[player.team] += 1
+			var target: Vector2 = seat_world(player.team, slot) if to_bench else _formation_pos(player.team, slot)
+			var d: Vector2 = target - player.global_position
+			if d.length() > 8.0:
+				player.global_position += d.normalized() * minf(410.0 * delta, d.length())
+				player.velocity = d.normalized() * 220.0
+				player.facing = signf(d.x) if absf(d.x) > 4.0 else player.facing
+			else:
+				player.velocity = Vector2.ZERO
 		timeout_active -= delta
 		if timeout_active <= 0.0:
 			_resume_after_timeout()

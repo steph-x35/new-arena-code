@@ -632,7 +632,7 @@ func _my_move(delta: float) -> void:
 		return
 	if charging or dunk_phase != "":
 		if charging and dunk_phase == "":
-			player_pos += joystick.output * 0.25 * MOVE_SPEED * delta
+			player_pos += joystick.output * 0.25 * MOVE_SPEED * Game.speed_factor() * delta
 		_clamp_me()
 		return
 	var mv: Vector2 = joystick.output
@@ -657,7 +657,7 @@ func _my_move(delta: float) -> void:
 			# tenendo premuto DIFENDI.
 			mv = Vector2.ZERO
 	_mv_now = mv.length()
-	player_pos += mv * (155.0 if posting else MOVE_SPEED) * delta
+	player_pos += mv * (155.0 if posting else MOVE_SPEED) * Game.speed_factor() * delta
 	if absf(mv.x) > 0.12 and not posting:
 		facing = signf(mv.x)
 	# in difesa agguantata: guarda sempre l'uomo, non la direzione di marcia
@@ -692,7 +692,9 @@ func _contest_now() -> float:
 ## la puo' stoppare.
 func _dunk_window() -> Vector2:
 	var rt: float = maxf(dunk_rise_t, 0.05)
-	return Vector2(maxf(1.0 - 0.17 / rt, 0.55), 1.0)
+	var dunk_skill: float = float(Game.attr("dunk"))
+	var window: float = lerpf(0.13, 0.21, clampf((dunk_skill - 30.0) / 69.0, 0.0, 1.0))
+	return Vector2(maxf(1.0 - window / rt, 0.55), 1.0)
 
 func _dunk_prog() -> float:
 	return clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
@@ -838,6 +840,8 @@ func _dunk_flow(delta: float) -> void:
 		# brutto del 1v1, il canestro si sentiva anche quando non c'era.
 		var made_dunk: bool = _dunk_throw()
 		if not made_dunk:
+			if duel_on and duel_phase == "check":
+				return
 			dunk_phase = "drop"
 			dunk_anim = 0.20
 			dunk_blocked = true
@@ -910,10 +914,15 @@ func _do_trick() -> void:
 		player_pos += (player_pos - RIM).normalized() * 70.0
 		_clamp_me()
 	elif mv.y < -0.35:
-		trick_kind = "spin"
+		trick_kind = "behind"
+		hand_left = not hand_left
+		if absf(mv.x) > 0.15: facing = signf(mv.x)
 	else:
-		trick_kind = ["cross", "behind"].pick_random()
+		trick_kind = "crossover"
+		hand_left = not hand_left
+		if absf(mv.x) > 0.15: facing = signf(mv.x)
 	trick_t = 0.45
+	Sfx.squeak()
 	_trick_on_defender()
 
 func _trick_on_defender() -> void:
@@ -929,7 +938,7 @@ func _trick_on_defender() -> void:
 		return
 	_trick_cd = 1.2
 	var ch: float = 0.28
-	if trick_kind in ["stepback", "spin", "cross"]:
+	if trick_kind in ["stepback", "spin", "crossover"]:
 		ch += 0.16                      # le mosse che spostano davvero
 	if _foe_vel.length() > 110.0:
 		ch += 0.22                      # in corsa: si va giu' molto piu' facile
@@ -1155,7 +1164,7 @@ func _shoot_down() -> void:
 	charging = true
 	charge = 0.0
 	ideal = clampf(0.42 + _distance_ft() * 0.012, 0.42, 0.78)
-	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
+	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot, Game.shot_skill(_distance_ft()))
 	meter.perfect_window = float(w["perfect"])
 	meter.good_window = float(w["good"])
 	# FADEAWAY: levetta INDIETRO mentre carichi -> schienata: la finestra
@@ -1204,24 +1213,9 @@ func _dunk_throw() -> bool:
 		Sfx.haptic(50)
 		hot = false
 		streak = 0
-		# Come un mio tiro sbagliato: la palla resta a terra e la prima
-		# mano che ci arriva riparte. Io ho appena tirato, quindi non
-		# posso riprenderla subito (my_rebound = true, come nel match).
-		ball_loose = true
-		my_rebound = true
-		_pick_ok = false
-		_loose_t = 0.0
-		ball_pos = RIM + Vector2(randf_range(-60.0, 60.0), randf_range(0.0, 70.0))
-		ball_h = 80.0
-		ball_vel = Vector2(randf_range(-120.0, 120.0), randf_range(-50.0, 30.0))
-		ball_vh = -60.0
-		ball_settled = 0.0
-		ball_ghost = false
-		through_rim = false
-		ball_live = true
-		dunk_phase = "drop"
-		dunk_anim = 0.30
-		dunk_ball_t = 0.0
+		# Stoppata: possesso al difensore, entrambi ripartono dal check.
+		_duel_check(false)
+		_say("%s  ·  CHECK" % Loc.t("duel.blocked"), 3.0)
 		return false
 	net_wobble = 1.0
 	Sfx.haptic(60)
@@ -1283,7 +1277,7 @@ func _shoot_up() -> void:
 		fade_t = 0.75
 		fade_dir = (player_pos - RIM).normalized()
 		fade_pending = false
-	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
+	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot, Game.shot_skill(_distance_ft()))
 	var pw: float = float(w["perfect"])
 	var gw: float = float(w["good"])
 	var err: float = absf(charge - ideal)
@@ -1394,6 +1388,10 @@ func _step_ball(delta: float) -> void:
 		_collide_rim()
 		_collide_backboard()
 		_collide_floor()
+		if duel_on and ball_loose:
+			var bounded := _bound_loose_ball(ball_pos, ball_vel)
+			ball_pos = bounded[0]
+			ball_vel = bounded[1]
 	ball_spin += ball_vel.x * 0.0004
 	if not ball_loose:
 		if ball_pos.x < -1300.0 or ball_pos.x > 1300.0 \
@@ -1401,6 +1399,18 @@ func _step_ball(delta: float) -> void:
 			ball_live = false
 		if ball_settled > 0.6:
 			ball_live = false
+
+
+func _bound_loose_ball(pos: Vector2, vel: Vector2) -> Array:
+	var x_limit: float = Court.COURT_W * 0.5 - BALL_R
+	var y_limit: float = Court.COURT_H * 0.5 - BALL_R
+	if absf(pos.x) > x_limit:
+		pos.x = clampf(pos.x, -x_limit, x_limit)
+		vel.x = 0.0
+	if absf(pos.y) > y_limit:
+		pos.y = clampf(pos.y, -y_limit, y_limit)
+		vel.y = 0.0
+	return [pos, vel]
 
 
 func _collide_rim() -> void:
@@ -1414,28 +1424,7 @@ func _collide_rim() -> void:
 		var cy: float = lerpf(prev_pos.y, ball_pos.y, clampf(f, 0.0, 1.0))
 		var d: Vector2 = Vector2(cx, cy) - RIM
 		var dist: float = d.length()
-		if dist < RIM_HALF - 6.0 or (ball_rattled and dist < RIM_HALF + 6.0):
-			# RIM-RATTLE (30% dei tiri riusciti): ferro fortissimo, pop sopra
-			# il ferro, poi swish — il momento firma del campetto.
-			if not ball_rattled and not through_rim and not ball_ghost \
-			and randf() < 0.30:
-				ball_rattled = true
-				var rn_s: Vector2 = (ball_pos - RIM).normalized()
-				if rn_s.length() < 0.1:
-					rn_s = Vector2(1, 0)
-				ball_pos = RIM + rn_s * 9.0
-				ball_vh = randf_range(500.0, 640.0)
-				ball_vel = rn_s * randf_range(30.0, 55.0) \
-					+ Vector2(randf_range(-25, 25), randf_range(-25, 25))
-				Sfx.play("rim", -0.5, randf_range(0.95, 1.08))
-				net_wobble = 0.9
-				Events.shake.emit(0.60)
-				if court_art != null:
-					if court_art.has_method("rim_fx"):
-						court_art.rim_fx("rattle", RIM)
-					if court_art.has_method("net_bump"):
-						court_art.net_bump(1, 0.9)
-				return
+		if dist < RIM_HALF - 6.0:
 			if not through_rim:
 				# DENTRO: la RETINA TRATTIENE la palla — la rallenta, cosi'
 				# si vede passare dentro la rete, col suo swish.
@@ -1509,7 +1498,7 @@ func _send(delta: float) -> void:
 		"da": dunk_anim, "ht": hang_swing_t, "ho": _hang_one(),
 		"dbt": dunk_ball_t, "hot": hot,
 		"tk": trick_kind if trick_t > 0.0 else "",
-		"ta": trick_t / 0.45,
+		"ta": trick_t / 0.45, "hl": hand_left,
 		"ct": _def_held,
 		"jm": _jump_t > 0.05,
 		"hd": i_hold,
@@ -1649,6 +1638,7 @@ func _on_foe_state(d: Dictionary) -> void:
 	foe["hot"] = d.get("hot", false)
 	foe["tk"] = d.get("tk", "")
 	foe["ta"] = d.get("ta", 0.0)
+	foe["hl"] = d.get("hl", false)
 	foe["ct"] = d.get("ct", false)
 	var was_jm: bool = bool(foe.get("jm", false))
 	foe["jm"] = d.get("jm", false)
@@ -1701,17 +1691,10 @@ func _on_foe_shot(d: Dictionary) -> void:
 			Sfx.play("block", -1.0)
 			Sfx.haptic(45)
 			Events.shake.emit(0.5)
-			fb_pos = RIM + Vector2(randf_range(-60.0, 60.0), randf_range(0.0, 70.0))
-			fb_h = 80.0
-			fb_vel = Vector2(randf_range(-120.0, 120.0), randf_range(-50.0, 30.0))
-			fb_vh = -60.0
-			fb_settled = 0.0
-			fb_live = true
-			_fb_pick_ok = false
-			_loose_t = 0.0
-			ball_loose = true
-			my_rebound = false
 			_def_credit(1)
+			if duel_on and duel_phase == "live":
+				_duel_check(true)
+				_say("%s  ·  CHECK" % Loc.t("duel.blocked"), 3.0)
 			return
 		net_wobble = 1.0
 		if court_art != null:
@@ -1870,7 +1853,12 @@ func _duel_tick(delta: float) -> void:
 	if _check_t > 0.0:
 		_check_t -= delta
 		if _check_t <= 0.0:
-			_duel_check(_check_me)
+			if my_score >= duel_target:
+				_duel_end(true)
+			elif foe_score >= duel_target:
+				_duel_end(false)
+			else:
+				_duel_check(_check_me)
 		return
 	if duel_phase == "count":
 		_count_t -= delta
@@ -1897,8 +1885,6 @@ func _duel_tick(delta: float) -> void:
 			_take_ball(true)
 		elif not my_rebound and fb_live and _fb_pick_ok and fb_h < 90.0 \
 		and player_pos.distance_to(fb_pos) < 56.0:
-			_take_ball(false)
-		elif _loose_t > 8.0 and not i_attack:
 			_take_ball(false)
 
 
@@ -2021,9 +2007,6 @@ func _duel_scored() -> void:
 	must_clear = false
 	ball_loose = false
 	_duel_update_top()
-	if my_score >= duel_target:
-		_duel_end(true)
-		return
 	_after_basket(false)
 
 
@@ -2038,9 +2021,6 @@ func _duel_foe_scored() -> void:
 	# Subire canestro chiude il LOCKDOWN: e' durato finche' la difesa ha tenuto.
 	_lockdown = false
 	_def_good = 0
-	if foe_score >= duel_target:
-		_duel_end(false)
-		return
 	_after_basket(true)
 
 
@@ -2052,7 +2032,9 @@ func _after_basket(i_off: bool) -> void:
 	if duel_phase == "over":
 		return
 	duel_phase = "reset"
-	_check_t = 0.9
+	# Il verdetto arriva alla partenza del tiro: prima lascia completare
+	# la parabola (fino a 1,6 s) e la discesa nella retina.
+	_check_t = 2.3
 	_check_me = i_off
 	charging = false
 	charge = 0.0
@@ -2078,6 +2060,10 @@ func _take_ball(off: bool) -> void:
 
 
 func _duel_end(win: bool) -> void:
+	if duel_phase == "over": return
+	Game.profile["attr_points"] = int(Game.profile.get("attr_points", 0)) + 4
+	SaveSystem.save_game()
+	Events.toast.emit("PARTITA: +4 punti attributo")
 	duel_phase = "over"
 	_win = win
 	charging = false
@@ -2373,18 +2359,18 @@ func _draw() -> void:
 		if fb_h < RIM_HEIGHT + 30.0 and (fb_pos - RIM).length() < 70.0:
 			HoopArt.draw_net_front(self, _rim_screen(), 22.0,
 				22.0 * HoopArt.RIM_SQUASH, net_wobble, net_t, 0.0, -1.0)
-	# nomi sopra la testa: ci si conosce, al campetto
-	_draw_name(player_pos, Loc.t("duel.you"), Color(0.55, 0.85, 1.0))
-	if foe["seen"]:
-		_draw_name(foe["pos"], String(foe.get("name", "?")), Color(1.0, 0.82, 0.35))
+	# Nomi sotto i piedi, lontani dallo shot meter.
+	if bool(Settings.get_v("show_player_names", true)):
+		_draw_name(player_pos, String(Game.profile.get("name", "Player")), Color(0.55, 0.85, 1.0))
+		if foe["seen"]:
+			_draw_name(foe["pos"], String(foe.get("name", "?")), Color(1.0, 0.82, 0.35))
 
 
 func _draw_name(world: Vector2, txt: String, col: Color) -> void:
 	var s: Vector2 = _screen(world)
-	var h: float = 64.0 * Game.height_factor()
 	var f: Font = ThemeDB.fallback_font
-	draw_string(f, Vector2(s.x - 60.0, s.y - h - 26.0), txt,
-		HORIZONTAL_ALIGNMENT_CENTER, 120.0, 15, col)
+	draw_string(f, Vector2(s.x - 60.0, s.y + 28.0), Season.short_player_name(txt),
+		HORIZONTAL_ALIGNMENT_CENTER, 120.0, 15, Color.WHITE)
 
 
 func _draw_ball_at(p: Vector2, r: float, spin := 0.0) -> void:
@@ -2443,7 +2429,7 @@ func _draw_char(mine: bool) -> void:
 			or (duel_on and (not i_attack) and not ball_loose and duel_phase != "over"))
 
 	var po: Dictionary = Avatar.pose(kind, phase, amount, tk, walking)
-	po["hand"] = -1.0 if hand_left else 1.0
+	po["hand"] = (-1.0 if hand_left else 1.0) if mine else (-1.0 if bool(foe.get("hl", false)) else 1.0)
 	po["yell"] = (dunk_phase != "") if mine else (String(foe.get("dp", "")) != "")
 	var lift := 0.0
 	var draw_base := world
@@ -2540,7 +2526,7 @@ func _draw_char(mine: bool) -> void:
 		var ftk: float = 1.0 - ta
 		var from_side: float = 1.0 if hand_left else -1.0
 		if not mine:
-			from_side = -1.0
+			from_side = 1.0 if bool(foe.get("hl", false)) else -1.0
 		var to_side: float = -from_side
 		var sway: float = lerpf(from_side, to_side, smoothstep(0.0, 1.0, ftk))
 		var low: float = sin(ftk * PI)
@@ -2565,7 +2551,12 @@ func _spawn_npcs() -> void:
 	## canestro sinistro, come nel campetto solo.
 	var homes := [Vector2(-560.0, -150.0), Vector2(-330.0, 140.0), Vector2(-640.0, 60.0)]
 	var cols := [Color(0.16, 0.45, 0.85), Color(0.72, 0.20, 0.22), Color(0.20, 0.55, 0.30)]
+	var hair_styles := [0, 1, 2, 3, 4, 5]
+	hair_styles.shuffle()
 	for i in homes.size():
+		var look := Avatar.colours(false, cols[i % cols.size()])
+		look["hst"] = hair_styles[i]
+		look["hair"] = Game.HAIR_COLORS.pick_random()
 		npcs.append({
 			"pos": homes[i],
 			"state": "wait",
@@ -2573,6 +2564,7 @@ func _spawn_npcs() -> void:
 			"made": false,
 			"target": homes[i],
 			"col": cols[i % cols.size()],
+			"look": look,
 		})
 
 func _update_npcs(delta: float) -> void:
@@ -2634,7 +2626,7 @@ func _draw_npcs() -> void:
 			kind = Avatar.RUN
 		Avatar.draw_body(self, s, h, -1.0,
 			Avatar.pose(kind, dribble_t, amount),
-			Avatar.colours(false, n["col"]), n["state"] == "wait")
+			n["look"], n["state"] == "wait")
 		if n["state"] == "shoot":
 			var t: float = clampf(n["t"], 0.0, 1.0)
 			var from: Vector2 = s + Vector2(-10.0, -h * 0.4)
@@ -2677,6 +2669,10 @@ func _step_foe_ball(delta: float) -> void:
 		_foe_ball_rim()
 		_foe_ball_backboard()
 		_foe_ball_floor()
+		if duel_on and ball_loose:
+			var bounded := _bound_loose_ball(fb_pos, fb_vel)
+			fb_pos = bounded[0]
+			fb_vel = bounded[1]
 	fb_spin += fb_vel.x * 0.0004
 	if not ball_loose:
 		if fb_pos.x < -1300.0 or fb_pos.x > 1300.0 \
@@ -2696,26 +2692,7 @@ func _foe_ball_rim() -> void:
 		var cy: float = lerpf(fb_prev_pos.y, fb_pos.y, clampf(f, 0.0, 1.0))
 		var d: Vector2 = Vector2(cx, cy) - RIM
 		var dist: float = d.length()
-		if dist < RIM_HALF - 6.0 or (fb_rattled and dist < RIM_HALF + 6.0):
-			if not fb_rattled and not fb_through and not fb_ghost \
-			and randf() < 0.30:
-				fb_rattled = true
-				var rn_s: Vector2 = (fb_pos - RIM).normalized()
-				if rn_s.length() < 0.1:
-					rn_s = Vector2(1, 0)
-				fb_pos = RIM + rn_s * 9.0
-				fb_vh = randf_range(500.0, 640.0)
-				fb_vel = rn_s * randf_range(30.0, 55.0) \
-					+ Vector2(randf_range(-25, 25), randf_range(-25, 25))
-				Sfx.play("rim", -0.5, randf_range(0.95, 1.08))
-				net_wobble = 0.9
-				Events.shake.emit(0.60)
-				if court_art != null:
-					if court_art.has_method("rim_fx"):
-						court_art.rim_fx("rattle", RIM)
-					if court_art.has_method("net_bump"):
-						court_art.net_bump(1, 0.9)
-				return
+		if dist < RIM_HALF - 6.0:
 			if not fb_through:
 				fb_through = true
 				net_wobble = 1.0

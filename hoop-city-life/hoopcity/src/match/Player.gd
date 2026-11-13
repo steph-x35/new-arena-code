@@ -13,7 +13,7 @@ signal turnover(by: BallPlayer)
 
 # --- ratings 1..99 (copied in from Game profile or generated for NPCs) ---
 var ratings := {
-	"close": 55, "mid": 52, "three": 48, "handle": 58, "pass": 55,
+	"close": 55, "dunk": 52, "mid": 52, "three": 48, "handle": 58, "pass": 55,
 	"speed": 62, "accel": 60, "stamina": 60, "defense": 50,
 	"steal": 48, "block": 40, "rebound": 45,
 }
@@ -49,7 +49,8 @@ var possession_time := 0.0
 var move_t := 0.0                     # >0 while a crossover/stepback animates
 var move_kind := ""                   # crossover / stepback / behind / hand_switch / hesi
 var hand_side := 1.0                  # which hand the ball is in (flips on a move)
-const MOVE_DUR := 0.45                # seconds a dribble move plays out on screen
+var move_duration := 0.65
+const MOVE_DUR := 0.65                # seconds a dribble move plays out on screen
 
 # --- vertical game: jump / block / dunk -----------------------------------
 ## `air` is height ABOVE the floor in pixels; the sprite is offset by it so a
@@ -73,6 +74,7 @@ var euro_t := 0.0              # EUROSTEP a due tempi: 1 laterale, 2 verso il fe
 var euro_finish := false       # al secondo tempo: chiude a schiacciata o layup
 var combo_pullup := false      # combo TRICK->TIRA entro mezzo secondo
 var stepback_t := 0.0          # finestra STEPBACK 3 dopo lo stepback
+var embedded_dribble := false # disegnata dall'avatar come allo street court
 var dribble_phase := 0.0       # orologio palleggio: 4.2 costante COME IL SOLO
 var fake_t := 0.0              # pump-fake timer
 var fake_locked := false       # finta in partita = palla raccolta al petto
@@ -118,6 +120,11 @@ func _ready() -> void:
 	add_to_group("players")
 	add_to_group("team_%d" % team)
 
+func clear_defensive_pose() -> void:
+	stance = false
+	block_window = 0.0
+	steal_t = 0.0
+
 func setup_from_profile() -> void:
 	ratings = Game.profile["attrs"].duplicate()
 	badges = Game.profile["badges"].duplicate()
@@ -133,7 +140,7 @@ func max_speed() -> float:
 	# stamina or ball-carriage scaling -- the same number the shoot-around and
 	# the street court use, so a scrimmage never feels like a different speed.
 	if is_user:
-		return 205.0
+		return 205.0 * Game.speed_factor()
 	# Velocita' base alzata (+5% su tutti, stesso moltiplicatore AI/utente:
 	# nessuna squilibratura, solo meno "pendenza" dopo la rimessa).
 	var s: float = BASE_SPEED * (0.76 + float(ratings["speed"]) / 99.0 * 0.55)
@@ -159,6 +166,11 @@ func has_badge(b: String) -> bool:
 	return b in badges
 
 func _physics_process(delta: float) -> void:
+	# Durante il timeout il campo muove i giocatori verso e dalla panchina.
+	if court != null and court.timeout_active > 0.0:
+		anim_t += delta * 5.2
+		queue_redraw()
+		return
 	# While walking to/from the bench the Court moves this node directly:
 	# no input, no brain, no court clamping (the bench is out of bounds).
 	if entering or leaving:
@@ -272,6 +284,7 @@ func _physics_process(delta: float) -> void:
 	dribble_intensity = 1.0 if has_ball else clampf(velocity.length() / 200.0, 0.4, 1.4)
 
 	if has_ball:
+		clear_defensive_pose()
 		possession_time += delta
 		guarding = false
 		_check_pressure(delta)
@@ -609,7 +622,7 @@ func do_shot_release() -> void:
 	# actually scores.
 	if court != null:
 		var ft: float = court.px_to_ft(global_position.distance_to(court.hoop_for(team)))
-		var w: Dictionary = ShotSystem.shot_windows(ft, court != null and court.user_heat)
+		var w: Dictionary = ShotSystem.shot_windows(ft, court != null and court.user_heat, Game.shot_skill(ft) if is_user else 60.0)
 		err *= ShotSystem.PERFECT_WINDOW / maxf(float(w["perfect"]), 0.001)
 	# FADEAWAY: rilascio andando VIA dal ferro (post hop o combo stick
 	# indietro): l'animazione della schienata parte col follow-through.
@@ -645,11 +658,12 @@ func do_move(kind: String) -> bool:
 	## crossover / stepback / behind-the-back / hand switch / hesitation --
 	## a short burst, a visible ball-handling animation, and a defender shake
 	## chance. Returns false when the move could not be attempted.
-	if cooldown_move > 0.0 or not has_ball:
+	if cooldown_move > 0.0 or move_t > 0.0 or not has_ball:
 		return false
-	cooldown_move = 0.32
+	move_duration = 0.45 if is_user else MOVE_DUR
+	cooldown_move = move_duration
 	stamina = maxf(0.0, stamina - 6.0)
-	move_t = MOVE_DUR
+	move_t = move_duration
 	move_kind = kind
 	# Le scarpe STRIDANO sui cambi di direzione netti (trick/crossover/spin).
 	Sfx.squeak()
@@ -657,8 +671,11 @@ func do_move(kind: String) -> bool:
 	match kind:
 		"crossover":
 			# plant and drive the other way, flipping the ball to the other hand
-			velocity += Vector2(-facing, 0) * 190.0
-			facing = -facing
+			if not is_user:
+				velocity += Vector2(-facing, 0) * 190.0
+				facing = -facing
+			elif absf(move_input.x) > 0.15:
+				facing = signf(move_input.x)
 			hand_side = -hand_side
 		"spin":
 			# SPIN MOVE 360: esplosione in avanti, il corpo gira (yaw visivo
@@ -668,12 +685,15 @@ func do_move(kind: String) -> bool:
 			stamina = maxf(0.0, stamina - 2.0)
 		"behind":
 			# behind-the-back: same lane change, ball hidden behind the body
-			velocity += Vector2(facing, 0) * 150.0
-			facing = -facing
+			if not is_user:
+				velocity += Vector2(facing, 0) * 150.0
+				facing = -facing
+			elif absf(move_input.x) > 0.15:
+				facing = signf(move_input.x)
 			hand_side = -hand_side
 		"hand_switch":
 			# cambio mano: settle and swap hands without changing direction
-			velocity *= 0.70
+			if not is_user: velocity *= 0.70
 			hand_side = -hand_side
 		"stepback":
 			stepback_t = 0.9   # apri la finestra dello STEPBACK 3
@@ -684,10 +704,14 @@ func do_move(kind: String) -> bool:
 				var d: Vector2 = global_position - hoop
 				if d.length() > 8.0:
 					away = d.normalized()
-			velocity = away * 320.0
-			global_position += away * 28.0
+			if is_user:
+				global_position += away * 70.0
+				if court != null: court.clamp_to_court(self)
+			else:
+				velocity = away * 320.0
+				global_position += away * 28.0
 		"hesi":
-			velocity *= 0.25
+			if not is_user: velocity *= 0.25
 		"euro":
 			# EUROSTEP A DUE TEMPI CON FINISH: primo tempo scatto laterale
 			# attorno al difensore, secondo tempo (a 0.30s) esplosione verso
@@ -757,50 +781,20 @@ func carry_ball_offset() -> Dictionary:
 	return {"active": true, "x": bl.x * hb * sdir, "h": air + bl.y * hb}
 
 func dribble_ball_offset() -> Dictionary:
-	# Same bounce the avatar palm uses (anim_t * 1.6), so the ball sits IN the hand.
+	# Identico al campetto: altezza del pallone e passaggio tra le mani.
 	var hs: float = hand_side if absf(hand_side) > 0.1 else 1.0
 	var hb: float = 64.0 * height_f
-	# FINTA: palla TENUTA in mano davanti al petto, come nel court libero —
-	# niente palleggio durante la finta.
 	if fake_t > 0.0 or fake_locked:
-		var fh: float = air + hb * (0.42 if fake_t > 0.12 else 0.55)
-		return {"x": hs * hb * 0.20, "h": fh}
-	# Bounce SINCRONO con il braccio dell'avatar: stesso phase che la
-	# mano usa (durante un trick il braccio accelera a anim_t*1.9: anche
-	# la palla accelera. Prima restava sul proprio orologio lento).
-	var _arm_ph: float = anim_t * 1.9 if move_t > 0.0 else dribble_phase
-	var bounce: float = absf(sin(_arm_ph * 1.15))
-	var side := hs * hb * 0.34
-	var hh := bounce * hb * 0.55 + Court.BALL_R
+		return {"x": hs * hb * 0.20, "h": air + hb * (0.42 if fake_t > 0.12 else 0.55)}
+	var side: float = hs * hb * 0.30
+	var hh: float = absf(sin(dribble_phase * 1.15)) * hb * 0.55 + Court.BALL_R
 	if move_t > 0.0:
-		var f: float = 1.0 - move_t / MOVE_DUR     # 0..1 progress
+		var f: float = 1.0 - move_t / move_duration
 		var low: float = sin(f * PI)
-		match move_kind:
-			"crossover":
-				# scambio di mano con overshoot: la palla scatta oltre la gamba
-				side = lerpf(side, -side, smoothstep(0.0, 1.0, f)) * (1.0 + 0.18 * low)
-				hh = 27.0 + low * 40.0
-			"behind":
-				side = lerpf(side, -side, smoothstep(0.0, 1.0, f))
-				hh = 14.0 + low * 26.0
-			"hand_switch":
-				side = lerpf(side, -side, smoothstep(0.0, 1.0, f)) * (1.0 + 0.12 * low)
-				hh = 22.0 + low * 34.0
-			"stepback":
-				side *= 0.7
-				hh = 19.0 + low * 31.0
-			"hesi":
-				hh = 16.0
-			"spin":
-				# la palla AVVOLGE il corpo: giro completo attorno al giocatore
-				side = hs * sin(f * TAU) * hb * 0.46
-				hh = 24.0 + low * 22.0
-			"between":
-				# sotto la gamba: la palla scende quasi a terra al centro
-				# del corpo e risale sull'altra mano.
-				side = lerpf(side, -side, smoothstep(0.15, 0.85, f))
-				side *= (1.0 - 0.85 * low)   # il tragitto passa vicino a x=0
-				hh = Court.BALL_R + 2.0 + (1.0 - low) * 34.0
+		side = lerpf(-hs, hs, smoothstep(0.0, 1.0, f)) * hb * 0.34
+		hh = hb * 0.16 + low * hb * 0.10
+		if move_kind == "behind":
+			hh = hb * 0.30 - low * hb * 0.06
 	return {"x": side, "h": hh}
 
 ## An off-ball cut: a short burst in the direction you are pushing, used to
@@ -918,6 +912,10 @@ func _draw() -> void:
 	var dscale: float = CourtStage.m_scale(position.y, ch)
 	draw_set_transform(proj - position, 0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale)
 	var h := 64.0 * height_f
+	if bool(Settings.get_v("show_player_names", true)):
+		var label: String = Season.short_player_name(display_name)
+		var font: Font = ThemeDB.fallback_font
+		draw_string(font, Vector2(-57, 42 if is_user else 28), label, HORIZONTAL_ALIGNMENT_CENTER, 114, 14, Color.WHITE)
 	# ANELLI A TERRA (v2.49.0): il contest mentre carico il tiro (solo per il
 	# giocatore umano, per non riempire il campo di cerchi) e il LOCKDOWN.
 	if not bool(Settings.get_v("lowgfx", false)):
@@ -976,10 +974,10 @@ func _draw() -> void:
 		kind = Avatar.DUNK
 		amount = clampf(dunk_t, 0.0, 1.0)
 		slam = DunkStyle.sample(dunk_style, dunk_t)
-	elif block_window > 0.0 or air > 4.0:
+	elif not has_ball and (block_window > 0.0 or air > 4.0):
 		kind = Avatar.REACH
 		amount = clampf(air / 150.0, 0.0, 1.0)
-	elif steal_t > 0.0:
+	elif not has_ball and steal_t > 0.0:
 		kind = Avatar.STEAL
 		amount = 1.0
 	elif shot_charge >= 0.0:
@@ -1013,7 +1011,8 @@ func _draw() -> void:
 	var trick := ""
 	if move_t > 0.0 and has_ball and not (hanging or dunking):
 		kind = Avatar.DRIBBLE
-		phase = anim_t * 1.9
+		phase = dribble_phase
+		amount = move_t / move_duration
 		trick = move_kind
 	elif kind == Avatar.DRIBBLE:
 		# PARITA' COURT SOLO: fermo e in corsa il braccio del palleggio
@@ -1051,12 +1050,15 @@ func _draw() -> void:
 	var po: Dictionary = Avatar.pose(kind, phase, amount, dunk_trick, walking)
 	po["yell"] = dunking or hanging
 	po["hand"] = hand_side
+	if move_t > 0.0 and has_ball and not (hanging or dunking):
+		var dribble: Dictionary = dribble_ball_offset()
+		po["dribble_hand"] = Vector2(float(dribble["x"]), -float(dribble["h"]))
 	if fade_t > 0.0:
 		po["lean_back"] = clampf(fade_t / 0.75, 0.0, 1.0)
 	if move_t > 0.0 and move_kind == "spin":
 		# giro 360: il torso mostra le spalle a meta' mossa (Avatar gestisce
 		# back/yaw) e ritorna frontale alla fine.
-		po["yaw"] = clampf(sin((1.0 - move_t / MOVE_DUR) * PI) * 1.7, 0.0, 1.0)
+		po["yaw"] = clampf(sin((1.0 - move_t / move_duration) * PI) * 1.7, 0.0, 1.0)
 	if fake_t > 0.0:
 		po["fake"] = true
 	if not slam.is_empty():
@@ -1100,8 +1102,9 @@ func _draw() -> void:
 	# The caller's court transform is handed to the avatar so a spinning slam
 	# can compose its own turn on top of the projection.
 	_low = bool(Settings.get_v("lowgfx", false))
-	Avatar.draw_body(self, feet, h, facing, po, cols, false, false, is_user,
-		-1.0, Transform2D(0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale, 0.0, proj - position))
+	embedded_dribble = has_ball and kind == Avatar.DRIBBLE and fake_t <= 0.0 and not fake_locked
+	Avatar.draw_body(self, feet, h, facing, po, cols, embedded_dribble, false, is_user,
+		Court.BALL_R, Transform2D(0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale, 0.0, proj - position))
 	# HEAT CHECK: lingue di fuoco sopra la testa (stesse del court solo)
 	if court != null and court.user_heat and is_user and not bool(Settings.get_v("lowgfx", false)):
 		Avatar.draw_flames(self, feet + Vector2(0.0, -h * 1.16), Time.get_ticks_msec() / 1000.0)

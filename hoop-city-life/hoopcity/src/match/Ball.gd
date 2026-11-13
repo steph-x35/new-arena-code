@@ -16,6 +16,7 @@ var vh := 0.0              # vertical velocity
 var live := false          # in flight (nobody holding it)
 var holder: Node = null
 var shooter: Node = null
+var practice_shot := false # palla libera dei tiri in 1v1/scrimmage
 var shot_result_pending := false
 var rattled := false               # true: ha gia' toccato il ferro su questo tiro
 var made_flag := false
@@ -45,10 +46,13 @@ func _ready() -> void:
 	z_index = 40
 
 func attach(p: Node) -> void:
+	# Una nuova presa annulla la caduta precedente, mai il contrario.
+	dunk_drop = 0.0
 	holder = p
 	live = false
 	_ana = false
 	shooter = null
+	practice_shot = false
 	shot_result_pending = false
 	is_free_throw = false
 	vel = Vector2.ZERO
@@ -66,6 +70,7 @@ func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made
 	h = 67.0
 	shooter = by
 	made_flag = made
+	practice_shot = not bool(court.is_fixture) and not made
 	shot_result_pending = true
 	is_free_throw = false
 	detach()
@@ -141,26 +146,16 @@ func _physics_process(delta: float) -> void:
 				h = carry["h"]
 				queue_redraw()
 				return
-		# dribble bob: readable, tells the eye the ball is being handled.
-		# During a crossover/stepback/behind-the-back the holder's offset
-		# animates the ball through the move, so it never just bounces in
-		# place while the body teleports around it.
-		if holder.move_t > 0.0 or holder.fake_t > 0.0 or holder.fake_locked:
-			# TRICK/FINTA: i percorsi dedicati (spin che avvolge, crossover
-			# con overshoot, palla tenuta al petto in finta).
-			var off: Dictionary = holder.dribble_ball_offset()
-			global_position = holder.global_position + Vector2(off["x"], 0)
-			h = off["h"]
-		elif Avatar.palms.has(holder.get_instance_id()):
-			# COPIA VERA del court solo: posizione ESATTA del palmo (x laterale
-			# ~hd*h*0.30 STABILE, y dal rimbalzo della mano) registrata per-owner.
-			var _pm: Vector2 = Avatar.palms[holder.get_instance_id()]
-			global_position = holder.global_position + Vector2(_pm.x, 0)
-			h = maxf(-_pm.y, 4.0)
-		else:
-			var side := 22.0 * (1.0 if holder.facing >= 0 else -1.0)
-			global_position = holder.global_position + Vector2(side, 0)
-			h = 27.0 + abs(sin(Time.get_ticks_msec() / 130.0)) * 42.0 * holder.dribble_intensity
+		# Stesso percorso deterministico del campetto; niente lettura del
+		# palmo salvato dal frame precedente, che causava scatti e disallineamento.
+		var off: Dictionary = holder.dribble_ball_offset()
+		if not holder.embedded_dribble and holder.move_t <= 0.0 \
+		and holder.fake_t <= 0.0 and not holder.fake_locked \
+		and Avatar.palms.has(holder.get_instance_id()):
+			var palm: Vector2 = Avatar.palms[holder.get_instance_id()]
+			off = {"x": palm.x, "h": maxf(-palm.y, 4.0)}
+		global_position = holder.global_position + Vector2(off["x"], 0)
+		h = off["h"]
 		# Thud exactly at the bottom of the dribble arc. The holder controls
 		# h directly (no physics), so we watch the sign change of the height.
 		if _dribble_falling and h >= prev_h:
@@ -168,6 +163,7 @@ func _physics_process(delta: float) -> void:
 			_dribble_falling = false
 		elif h < prev_h:
 			_dribble_falling = true
+		prev_h = h
 		queue_redraw()
 		return
 	if not live:
@@ -193,6 +189,21 @@ func _physics_process(delta: float) -> void:
 		h += vh * delta
 	# Scia rimossa su richiesta utente: solo la palla vera.
 
+	if practice_shot:
+		# Nessun airball oltre la linea di fondo o le linee laterali.
+		var edge_x: float = Court.COURT_W * 0.5 - Court.BALL_R
+		var edge_y: float = Court.COURT_H * 0.5 - Court.BALL_R
+		var hit_boundary := false
+		if absf(global_position.x) > edge_x:
+			hit_boundary = true
+			global_position.x = clampf(global_position.x, -edge_x, edge_x)
+			vel.x = 0.0
+		if absf(global_position.y) > edge_y:
+			hit_boundary = true
+			global_position.y = clampf(global_position.y, -edge_y, edge_y)
+			vel.y = 0.0
+		if _ana and hit_boundary:
+			kill_analytic()
 	court.check_ball_collisions(self)
 
 	if h <= 0.0:
@@ -211,6 +222,8 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
+	if holder != null and holder.embedded_dribble:
+		return # disegnata assieme al corpo, come allo street court
 	# Projected like the players so the ball sits in the same tilted world.
 	var ch: float = Court.COURT_H
 	# SCIA: fantasmi dei punti precedenti (stessa proiezione della palla)

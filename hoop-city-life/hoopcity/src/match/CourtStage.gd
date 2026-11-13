@@ -443,8 +443,9 @@ static func floor_name_key(i: int) -> String:
 
 ## Tutti i colori del pavimento in un dizionario: base, doghe, fughe, due
 ## strati della vernice del pitturato, cornice.
-static func floor_colours() -> Dictionary:
-	match floor_style():
+static func floor_colours(style := -1) -> Dictionary:
+	var selected: int = floor_style() if style < 0 else clampi(style, 0, FLOOR_STYLES - 1)
+	match selected:
 		1:
 			return {"base": Color(0.155, 0.155, 0.175), "plank": Color(0.125, 0.125, 0.145),
 				"seam": Color(0.62, 0.62, 0.66, 0.16), "seam2": Color(0.62, 0.62, 0.66, 0.12),

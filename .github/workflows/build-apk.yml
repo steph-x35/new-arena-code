@@ -158,6 +158,16 @@ jobs:
           fi
           exit $ERR
 
+      - name: Test gameplay e attributi
+        run: |
+          cd hoop-city-life/hoopcity
+          timeout 90 godot --headless res://tools/TimeoutInboundProbe.tscn
+          timeout 90 godot --headless res://tools/AttributeBuilderProbe.tscn
+          timeout 90 godot --headless res://tools/SeasonProbe.tscn
+          timeout 90 godot --headless res://tools/CourtPolishProbe.tscn
+          timeout 90 godot --headless res://tools/DribblePhysicsProbe.tscn
+          timeout 90 godot --headless res://tools/GameplayRegressionProbe.tscn
+
       - name: Export Android APK
         run: |
           cd hoop-city-life/hoopcity
@@ -165,8 +175,8 @@ jobs:
           echo "Importing project assets in headless mode..."
           godot -v --headless --import 2>&1 | tee /tmp/import.log || true
           echo "Exporting Android APK..."
-          godot -v --headless --export-release "Android" build/HoopCity-v2.49.4.apk 2>&1 | tee /tmp/export.log || true
-          if [ ! -f "build/HoopCity-v2.49.4.apk" ]; then
+          godot -v --headless --export-release "Android" build/HoopCity-v2.49.5.apk 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/HoopCity-v2.49.5.apk" ]; then
             echo "=== EXPORT FAILED! Printing log: ==="
             cat /tmp/export.log | tail -n 80
             cp /tmp/export.log $GITHUB_WORKSPACE/build_error.log
@@ -183,58 +193,24 @@ jobs:
             --ks-pass pass:android \
             --ks-key-alias androiddebugkey \
             --key-pass pass:android \
-            build/HoopCity-v2.49.4.apk
+            build/HoopCity-v2.49.5.apk
           echo "Verifying APK signature..."
-          apksigner verify --verbose build/HoopCity-v2.49.4.apk
+          apksigner verify --verbose build/HoopCity-v2.49.5.apk
           echo "Checking APK launcher icons..."
-          unzip -l build/HoopCity-v2.49.4.apk | grep -i "mipmap" | head -n 20
-          ls -lh build/HoopCity-v2.49.4.apk
+          unzip -l build/HoopCity-v2.49.5.apk | grep -i "mipmap" | head -n 20
+          ls -lh build/HoopCity-v2.49.5.apk
           echo "Verifica permessi APK (la stanza WiFi li richiede)..."
-          aapt dump permissions build/HoopCity-v2.49.4.apk
-          if ! aapt dump permissions build/HoopCity-v2.49.4.apk | grep -q "android.permission.INTERNET"; then
+          aapt dump permissions build/HoopCity-v2.49.5.apk
+          if ! aapt dump permissions build/HoopCity-v2.49.5.apk | grep -q "android.permission.INTERNET"; then
             echo "!!! MANCA android.permission.INTERNET: la stanza condivisa non può aprirsi"
             exit 1
           fi
 
-      - name: Create or Update GitHub Release with APK
-        # Solo un avvio manuale su main puo' sostituire la release pubblica.
-        # I build dei branch di lavoro non devono toccare tag o APK pubblicati.
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cp hoop-city-life/hoopcity/build/HoopCity-v2.49.4.apk /tmp/HoopCity-v2.49.4.apk
-          gh release delete v2.49.4 -y --cleanup-tag || true
-          # TAG ORFANO: se la create e' morta a meta' (tag creato, release no),
-          # --cleanup-tag non lo rimuove perche' la release non esiste — e ogni
-          # tentativo dopo fallisce con "tag already exists". Via il tag a mano.
-          git push origin --delete v2.49.4 || true
-          sleep 5
-          # L'API delle release ogni tanto perde colpi (race delete/create):
-          # tre tentativi prima di arrendersi.
-          ok=0
-          for i in 1 2 3; do
-            if gh release create v2.49.4 /tmp/HoopCity-v2.49.4.apk \
-              --title "Hoop City Life v2.49.4" \
-              --prerelease \
-              --notes "v2.49.4 (prova, non pubblica) — 1v1 UFFICIALE + PIPISTRELLI SULLA LORO STRADA. Nel pannello NOVITA' ora c'e' in cima il 1v1: non e' piu' una prova, e' la regola del gioco (2 e 3 punti, check, chi subisce riparte in attacco) uguale al campetto e al campo condiviso. Pipistrelli: volano in coordinate del mondo, ognuno per la sua rotta lungo la via — prima erano appesi al centro della camera, quindi sembravano seguirti e restare indietro rispetto ai palazzi. Ora passano di lato come i palazzi, ali fluide a ogni fotogramma, e si riavvolgono fuori campo. Zucche e ragnatele invariate. Si spegne da Impostazioni > HALLOWEEN."
-              --target ${GITHUB_SHA}; then
-              ok=1
-              break
-            fi
-            echo "release create: tentativo $i fallito, riprovo..."
-            sleep 10
-          done
-          if [ "$ok" != "1" ]; then
-            # RACE API: la create puo' riuscire lato server e tornare comunque
-            # errore; i tentativi dopo falliscono perche' la release esiste gia'.
-            # Se la release c'e' (con l'APK), e' andata bene.
-            if gh release view v2.49.4 > /dev/null 2>&1 \
-            && gh release view v2.49.4 --json assets -q '.assets | length' | grep -q -v "^0$"; then
-              echo "Release creata (il primo tentativo era riuscito lato server)."
-            else
-              echo "!!! IMPOSSIBILE CREARE LA RELEASE"
-              exit 1
-            fi
-          fi
-          echo "Release created successfully."
+      - name: Upload APK di prova
+        if: github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: HoopCity-anteprima-android
+          path: hoop-city-life/hoopcity/build/HoopCity-v2.49.5.apk
+          if-no-files-found: error
+          retention-days: 7

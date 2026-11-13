@@ -481,7 +481,9 @@ func _draw_floor() -> void:
 	# Impostazioni, un solo posto che lo definisce (CourtStage.floor_colours).
 	var pf: Dictionary = {}
 	if wood:
-		pf = CourtStage.floor_colours()
+		# Gare ufficiali: fondo arena classico colorato dal club. Negli
+		# allenamenti e nel 1v1 resta esattamente la scelta delle impostazioni.
+		pf = CourtStage.floor_colours(0 if court != null and bool(court.is_fixture) else -1)
 	var base: Color = Color(0.44, 0.46, 0.50)
 	var plank_col: Color = Color(0.42, 0.44, 0.48)
 	var seam: Color = Color(0.55, 0.36, 0.18, 0.30)

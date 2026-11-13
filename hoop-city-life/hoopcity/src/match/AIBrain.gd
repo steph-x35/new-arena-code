@@ -31,7 +31,10 @@ var _last_poss := -1
 var _chase_t := 0.0           # cooldown dello scatto d'inseguimento
 var _last_mark_move := ""      # memoria dei move dell'attaccante
 var _last_mark_move_t := -10.0
+var _one_on_one_trick_wait := 2.5
 var _move_rep := 0
+var _on_ball_time := 0.0
+var _was_ball_handler := false
 
 func setup(player: BallPlayer, c: Node2D) -> void:
 	p = player
@@ -51,7 +54,7 @@ func setup(player: BallPlayer, c: Node2D) -> void:
 	if court.one_on_one:
 		skill = clampf(skill + 0.04, Game.diff_floor(), 0.99)
 		aggression = clampf(aggression + 0.05, 0.0, 0.95)
-	spot = p.global_position
+	spot = Vector2.ZERO
 
 func _physics_process(delta: float) -> void:
 	if p != null and (p.entering or p.leaving):
@@ -71,6 +74,12 @@ func _physics_process(delta: float) -> void:
 		elif p != null:
 			p.move_input = Vector2.ZERO
 		return
+	if p.has_ball and not _was_ball_handler:
+		spot = Vector2.ZERO
+		_on_ball_time = 0.0
+	_was_ball_handler = p.has_ball
+	if not p.has_ball:
+		_on_ball_time = 0.0
 	think_t -= delta
 	shot_cd = maxf(0.0, shot_cd - delta)
 	if think_t <= 0.0:
@@ -85,7 +94,30 @@ func _decide() -> void:
 		return
 	var bh: BallPlayer = court.ball_handler()
 	if bh == null:
-		state = S.REBOUND
+		# Un passaggio in volo non è un rimbalzo: non far correre tutti
+		# verso lo stesso angolo. La squadra rimane in posizione.
+		if court.pass_target != null and is_instance_valid(court.pass_target) and ball.live:
+			if p == court.pass_target:
+				state = S.IDLE
+			elif p.team == court.possession:
+				state = S.ATK_OFF
+			else:
+				mark = court.man_mark_for(p)
+				state = S.DEF_OFF
+		elif not court.one_on_one and not ball.shot_result_pending:
+			# Sulla palla libera ne va uno per squadra, gli altri non si
+			# ammassano nell'angolo inseguendo tutti lo stesso punto.
+			var closest: BallPlayer = null
+			var nearest := INF
+			for mate in court.players:
+				if mate.team != p.team or mate.is_user: continue
+				var distance: float = mate.global_position.distance_squared_to(ball.global_position)
+				if distance < nearest:
+					nearest = distance
+					closest = mate
+			state = S.REBOUND if closest == p else S.IDLE
+		else:
+			state = S.REBOUND
 		return
 	if bh.team == p.team:
 		state = S.ATK_ON if bh == p else S.ATK_OFF
@@ -205,6 +237,8 @@ func _nearest_mate_brain() -> Node:
 
 # ------------------------------------------------------------------ offense
 func _attack_on_ball(delta: float) -> void:
+	_one_on_one_trick_wait = maxf(0.0, _one_on_one_trick_wait - delta)
+	_on_ball_time += delta
 	var hoop: Vector2 = court.hoop_for(p.team)
 	var to_hoop: Vector2 = hoop - p.global_position
 	var dist_ft: float = court.px_to_ft(to_hoop.length())
@@ -251,6 +285,12 @@ func _attack_on_ball(delta: float) -> void:
 			shot_cd = 0.8
 			spot = Vector2.ZERO
 		return
+	# Non restare fermi su un ruolo/bersaglio ereditato da un'altra azione.
+	if not role in ["three", "mid", "drive"]:
+		spot = Vector2.ZERO
+	if _on_ball_time > 7.0 and role != "drive":
+		role = "drive"
+		spot = hoop + Vector2(-signf(hoop.x) * 100.0, 0.0)
 	# Pick a real basketball play instead of always crashing the rim.
 	if spot.length() < 1.0:
 		var r: float = randf()
@@ -295,6 +335,8 @@ func _attack_on_ball(delta: float) -> void:
 			pull = true
 		elif used >= 11.0 and dist_ft < 24.0 and pressure < 0.5:
 			pull = true
+		elif _on_ball_time > 10.0 and dist_ft < 30.0:
+			pull = true
 		if pull:
 			# Release quality follows the rating of the shot being taken: a
 			# sharpshooter's threes and a finisher's mid-rangers both gather
@@ -311,7 +353,7 @@ func _attack_on_ball(delta: float) -> void:
 	# Beat the on-ball defender with the handle before driving on. Drives throw
 	# crossovers and behind-the-back moves, spot-up men jab into a stepback to
 	# make room, and an occasional hesitation freezes the defender's feet.
-	if p.cooldown_move <= 0.0:
+	if p.cooldown_move <= 0.0 and (not court.one_on_one or _one_on_one_trick_wait <= 0.0):
 		var nd: BallPlayer = null
 		var ndist := 1e9
 		for d in court.players:
@@ -330,6 +372,7 @@ func _attack_on_ball(delta: float) -> void:
 			elif ndist < 140.0 and randf() < 0.10:
 				move = "hesi"
 			if move != "" and p.do_move(move):
+				if court.one_on_one: _one_on_one_trick_wait = randf_range(3.0, 4.5)
 				return
 	if pressure > 0.78 and not court.one_on_one:
 		var mate: BallPlayer = court.best_pass_option(p)

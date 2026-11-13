@@ -22,6 +22,7 @@ func _ready() -> void:
 	_row_toggle(v, Loc.t("settings.fps"), "target_fps", 60, 30)
 	_row_toggle(v, "Prestazioni (dispositivi lenti)", "lowgfx", false, true)
 	_row_toggle(v, Loc.t("settings.meter"), "show_shot_meter", true, false)
+	_row_toggle(v, Loc.t("settings.names"), "show_player_names", true, false)
 	_row_toggle(v, Loc.t("settings.left"), "left_handed_ui", true, false)
 
 	_lang_row(v)

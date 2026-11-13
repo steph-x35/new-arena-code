@@ -356,7 +356,12 @@ func _unhandled_input(event: InputEvent) -> void:
 func _spawn_npcs() -> void:
 	var homes := [Vector2(-560.0, -150.0), Vector2(-330.0, 140.0), Vector2(-640.0, 60.0)]
 	var cols := [Color(0.16, 0.45, 0.85), Color(0.72, 0.20, 0.22), Color(0.20, 0.55, 0.30)]
+	var hair_styles := [0, 1, 2, 3, 4, 5]
+	hair_styles.shuffle()
 	for i in homes.size():
+		var look := Avatar.colours(false, cols[i % cols.size()])
+		look["hst"] = hair_styles[i]
+		look["hair"] = Game.HAIR_COLORS.pick_random()
 		npcs.append({
 			"pos": homes[i],
 			"state": "wait",          # wait -> shoot -> chase -> wait
@@ -364,6 +369,7 @@ func _spawn_npcs() -> void:
 			"made": false,
 			"target": homes[i],
 			"col": cols[i % cols.size()],
+			"look": look,
 		})
 
 func _update_npcs(delta: float) -> void:
@@ -554,7 +560,7 @@ func _process(delta: float) -> void:
 			shot_anim = 0.0
 	elif not charging and dunk_phase == "":
 		var mv: Vector2 = joystick.output
-		player_pos += mv * (155.0 if posting else 255.0) * delta
+		player_pos += mv * (155.0 if posting else 255.0) * Game.speed_factor() * delta
 		# The movement boundary IS the court's painted rectangle.
 		var m := 40.0
 		player_pos.x = clampf(player_pos.x, -Court.COURT_W * 0.5 + m, Court.COURT_W * 0.5 - m)
@@ -938,7 +944,7 @@ func _shoot_down() -> void:
 	charge = 0.0
 	ideal = clampf(0.42 + _distance_ft() * 0.012, 0.42, 0.78)
 	# The green band tightens with distance and matches the scoring windows.
-	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
+	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot, Game.shot_skill(_distance_ft()))
 	meter.perfect_window = float(w["perfect"])
 	meter.good_window = float(w["good"])
 	# FADEAWAY: levetta INDIETRO mentre carichi -> schienata (stile Kobe):
@@ -957,7 +963,9 @@ func _shoot_down() -> void:
 func _dunk_window() -> Vector2:
 	## La finestra e' l'ultimo tratto della salita, in frazione 0..1.
 	var rt: float = maxf(dunk_rise_t, 0.05)
-	return Vector2(maxf(1.0 - 0.17 / rt, 0.55), 1.0)
+	var dunk_skill: float = float(Game.attr("dunk"))
+	var window: float = lerpf(0.13, 0.21, clampf((dunk_skill - 30.0) / 69.0, 0.0, 1.0))
+	return Vector2(maxf(1.0 - window / rt, 0.55), 1.0)
 
 func _dunk_prog() -> float:
 	return clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
@@ -1067,7 +1075,7 @@ func _shoot_up() -> void:
 		if away.length() > 1.0:
 			player_pos += away.normalized() * 46.0
 
-	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
+	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot, Game.shot_skill(_distance_ft()))
 	var pw: float = float(w["perfect"])
 	var gw: float = float(w["good"])
 	var err: float = absf(charge - ideal)
@@ -1234,26 +1242,7 @@ func _collide_rim() -> void:
 		var cy: float = lerpf(prev_pos.y, ball_pos.y, clampf(f, 0.0, 1.0))
 		var d: Vector2 = Vector2(cx, cy) - RIM
 		var dist: float = d.length()
-		if dist < RIM_HALF - 6.0 or (ball_rattled and dist < RIM_HALF + 6.0):
-			# RIM-RATTLE: anche il court libero deve avere il suo momento
-			# firma (30%): ferro fortissimo, pop sopra il ferro, poi swish.
-			if not ball_rattled and not through_rim and randf() < 0.30:
-				ball_rattled = true
-				var rn_s: Vector2 = (ball_pos - RIM).normalized()
-				if rn_s.length() < 0.1:
-					rn_s = Vector2(1, 0)
-				ball_pos = RIM + rn_s * 9.0
-				ball_vh = randf_range(500.0, 640.0)
-				ball_vel = rn_s * randf_range(30.0, 55.0) + Vector2(randf_range(-25, 25), randf_range(-25, 25))
-				Sfx.play("rim", -0.5, randf_range(0.95, 1.08))
-				net_wobble = 0.9
-				Events.shake.emit(0.60)
-				if court_art != null:
-					if court_art.has_method("rim_fx"):
-						court_art.rim_fx("rattle", RIM)
-					if court_art.has_method("net_bump"):
-						court_art.net_bump(1, 0.9)
-				return
+		if dist < RIM_HALF - 6.0:
 			if not through_rim:
 				through_rim = true
 				scored_this_shot = true
@@ -1584,7 +1573,7 @@ func _draw_npcs() -> void:
 			kind = Avatar.RUN
 		Avatar.draw_body(self, s, h, -1.0,
 			Avatar.pose(kind, dribble_t, amount),
-			Avatar.colours(false, n["col"]), n["state"] == "wait")
+			n["look"], n["state"] == "wait")
 		if n["state"] == "shoot":
 			var t: float = clampf(n["t"], 0.0, 1.0)
 			var from: Vector2 = s + Vector2(-10.0, -h * 0.4)
@@ -1686,7 +1675,7 @@ func _draw_player() -> void:
 		amount = 1.0 - clampf(charge / maxf(ideal, 0.01), 0.0, 1.0) * 0.85
 	elif trick_t > 0.0:
 		kind = Avatar.DRIBBLE
-		phase = dribble_t * 1.9
+		phase = dribble_t
 		amount = trick_t / 0.45
 	elif solo_loose or ball_live:
 		# SENZA PALLA: come in citta' — si corre, o si sta fermi in piedi.
