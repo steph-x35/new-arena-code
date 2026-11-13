@@ -158,7 +158,7 @@ jobs:
           fi
           exit $ERR
 
-      - name: Test timeout e rimessa
+      - name: Test gameplay e attributi
         run: |
           cd hoop-city-life/hoopcity
           timeout 90 godot --headless res://tools/TimeoutInboundProbe.tscn
