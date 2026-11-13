@@ -29,6 +29,7 @@ static func maybe_show(host_tree: SceneTree) -> void:
 	if bool(Game.profile.get("news_builder_seen", false)):
 		return
 	Game.profile["news_builder_seen"] = true
+	Game.profile["changelog_seen"] = Game.VERSION
 	SaveSystem.save_game()
 	var layer := CanvasLayer.new()
 	layer.layer = 100
