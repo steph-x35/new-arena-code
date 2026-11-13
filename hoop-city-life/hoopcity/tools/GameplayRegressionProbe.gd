@@ -51,6 +51,18 @@ func _ready() -> void:
 	add_child(scene)
 	await get_tree().process_frame
 	var court: Court = scene.court
+	# Performance can turn on automatically during a match. Faces must remain
+	# visible after the quarter, while a genuine back view stays faceless.
+	var old_low: bool = bool(Settings.get_v("lowgfx", false))
+	Settings.data["lowgfx"] = false
+	ok = ok and Avatar.face_visible(false, 6.0)
+	Settings.data["lowgfx"] = true
+	court._end_quarter()
+	ok = ok and court.quarter == 2 and Avatar.face_visible(false, 6.0)
+	ok = ok and not Avatar.face_visible(true, 6.0)
+	Settings.data["lowgfx"] = old_low
+	scene.intermission_left = 0.0
+	court.intermission = false
 	court.play_live = true
 	court.restarting = false
 	court.jump_pending = false
