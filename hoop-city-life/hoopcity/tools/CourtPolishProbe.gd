@@ -32,6 +32,7 @@ func _ready() -> void:
 	print("CROWD_TEST=", Sfx.crowd.playing, " stream=", Sfx.crowd.stream)
 	ok = ok and Sfx.crowd.playing
 	Sfx.stop_crowd()
+	Game.profile["attr_points"] = 10
 	var builder = load("res://src/ui/AttributeBuilder.gd").new()
 	add_child(builder)
 	builder.build()

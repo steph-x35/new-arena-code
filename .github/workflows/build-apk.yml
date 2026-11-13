@@ -164,20 +164,7 @@ jobs:
           timeout 90 godot --headless res://tools/TimeoutInboundProbe.tscn
           timeout 90 godot --headless res://tools/AttributeBuilderProbe.tscn
           timeout 90 godot --headless res://tools/SeasonProbe.tscn
-          set +e
-          timeout 90 godot --headless res://tools/CourtPolishProbe.tscn > /tmp/polish_probe.log 2>&1
-          RESULT=$?
-          cat /tmp/polish_probe.log
-          if [ "$RESULT" != "0" ]; then
-            cp /tmp/polish_probe.log "$GITHUB_WORKSPACE/hc_polish_probe.log"
-            cd "$GITHUB_WORKSPACE"
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add hc_polish_probe.log
-            git commit -m "ci: diagnose court polish probe" || true
-            git push origin ${GITHUB_REF_NAME} || true
-          fi
-          exit "$RESULT"
+          timeout 90 godot --headless res://tools/CourtPolishProbe.tscn
 
       - name: Export Android APK
         run: |
