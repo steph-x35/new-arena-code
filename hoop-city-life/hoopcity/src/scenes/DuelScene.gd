@@ -2383,9 +2383,8 @@ func _draw() -> void:
 func _draw_name(world: Vector2, txt: String, col: Color) -> void:
 	var s: Vector2 = _screen(world)
 	var f: Font = ThemeDB.fallback_font
-	draw_rect(Rect2(s.x - 60.0, s.y + 12.0, 120.0, 22.0), Color(0.04, 0.04, 0.06, 0.72), true)
 	draw_string(f, Vector2(s.x - 60.0, s.y + 28.0), Season.short_player_name(txt),
-		HORIZONTAL_ALIGNMENT_CENTER, 120.0, 15, col)
+		HORIZONTAL_ALIGNMENT_CENTER, 120.0, 15, Color.WHITE)
 
 
 func _draw_ball_at(p: Vector2, r: float, spin := 0.0) -> void:

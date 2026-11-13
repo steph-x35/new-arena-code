@@ -49,7 +49,7 @@ var possession_time := 0.0
 var move_t := 0.0                     # >0 while a crossover/stepback animates
 var move_kind := ""                   # crossover / stepback / behind / hand_switch / hesi
 var hand_side := 1.0                  # which hand the ball is in (flips on a move)
-const MOVE_DUR := 0.45                # seconds a dribble move plays out on screen
+const MOVE_DUR := 0.65                # seconds a dribble move plays out on screen
 
 # --- vertical game: jump / block / dunk -----------------------------------
 ## `air` is height ABOVE the floor in pixels; the sprite is offset by it so a
@@ -159,6 +159,11 @@ func has_badge(b: String) -> bool:
 	return b in badges
 
 func _physics_process(delta: float) -> void:
+	# Durante il timeout il campo muove i giocatori verso e dalla panchina.
+	if court != null and court.timeout_active > 0.0:
+		anim_t += delta * 5.2
+		queue_redraw()
+		return
 	# While walking to/from the bench the Court moves this node directly:
 	# no input, no brain, no court clamping (the bench is out of bounds).
 	if entering or leaving:
@@ -645,9 +650,9 @@ func do_move(kind: String) -> bool:
 	## crossover / stepback / behind-the-back / hand switch / hesitation --
 	## a short burst, a visible ball-handling animation, and a defender shake
 	## chance. Returns false when the move could not be attempted.
-	if cooldown_move > 0.0 or not has_ball:
+	if cooldown_move > 0.0 or move_t > 0.0 or not has_ball:
 		return false
-	cooldown_move = 0.32
+	cooldown_move = MOVE_DUR
 	stamina = maxf(0.0, stamina - 6.0)
 	move_t = MOVE_DUR
 	move_kind = kind
@@ -768,9 +773,13 @@ func dribble_ball_offset() -> Dictionary:
 	# Bounce SINCRONO con il braccio dell'avatar: stesso phase che la
 	# mano usa (durante un trick il braccio accelera a anim_t*1.9: anche
 	# la palla accelera. Prima restava sul proprio orologio lento).
-	var _arm_ph: float = anim_t * 1.9 if move_t > 0.0 else dribble_phase
+	var _arm_ph: float = dribble_phase
 	var bounce: float = absf(sin(_arm_ph * 1.15))
 	var side := hs * hb * 0.34
+	# La mano cambia alla pressione: il percorso parte dal lato precedente
+	# e arriva a quello nuovo, senza scattare indietro a fine mossa.
+	if move_t > 0.0 and move_kind in ["crossover", "behind", "hand_switch", "between"]:
+		side = -side
 	var hh := bounce * hb * 0.55 + Court.BALL_R
 	if move_t > 0.0:
 		var f: float = 1.0 - move_t / MOVE_DUR     # 0..1 progress
@@ -921,7 +930,6 @@ func _draw() -> void:
 	if bool(Settings.get_v("show_player_names", true)):
 		var label: String = Season.short_player_name(display_name)
 		var font: Font = ThemeDB.fallback_font
-		draw_rect(Rect2(-57, 12, 114, 21), Color(0.04, 0.04, 0.06, 0.72), true)
 		draw_string(font, Vector2(-57, 28), label, HORIZONTAL_ALIGNMENT_CENTER, 114, 14, Color.WHITE)
 	# ANELLI A TERRA (v2.49.0): il contest mentre carico il tiro (solo per il
 	# giocatore umano, per non riempire il campo di cerchi) e il LOCKDOWN.
@@ -1018,7 +1026,7 @@ func _draw() -> void:
 	var trick := ""
 	if move_t > 0.0 and has_ball and not (hanging or dunking):
 		kind = Avatar.DRIBBLE
-		phase = anim_t * 1.9
+		phase = dribble_phase
 		trick = move_kind
 	elif kind == Avatar.DRIBBLE:
 		# PARITA' COURT SOLO: fermo e in corsa il braccio del palleggio
@@ -1056,6 +1064,9 @@ func _draw() -> void:
 	var po: Dictionary = Avatar.pose(kind, phase, amount, dunk_trick, walking)
 	po["yell"] = dunking or hanging
 	po["hand"] = hand_side
+	if move_t > 0.0 and has_ball and not (hanging or dunking):
+		var dribble: Dictionary = dribble_ball_offset()
+		po["dribble_hand"] = Vector2(float(dribble["x"]), -float(dribble["h"]) + air_draw - Court.BALL_R)
 	if fade_t > 0.0:
 		po["lean_back"] = clampf(fade_t / 0.75, 0.0, 1.0)
 	if move_t > 0.0 and move_kind == "spin":

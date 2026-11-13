@@ -498,8 +498,12 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			# fianco, il gomito leggermente piegato in fuori. Camminando
 			# oscillano appena, cosi' il passo strisciato si legge.
 			var sw2: float = arm_swing * 0.35 * sx
-			hand = Vector2(sh_p.x + sx * h * 0.40 + sw2, hip_y - h * 0.10 + absf(sw2) * 0.25)
+			hand = Vector2(sh_p.x + sx * h * 0.28 + sw2, hip_y - h * 0.10 + absf(sw2) * 0.25)
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.55), lerpf(sh_p.y, hand.y, 0.42) - h * 0.03)
+		elif kind == DRIBBLE and strong and p.has("dribble_hand"):
+			# Il palmo segue la stessa traiettoria della palla durante il trick.
+			hand = base + (p["dribble_hand"] as Vector2)
+			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.42) + sx * h * 0.05, lerpf(sh_p.y, hand.y, 0.40) + h * 0.03)
 		elif kind == DRIBBLE and strong:
 			# Hand rides the ball: bounce and palm stay glued.
 			var br0: float = h * 0.105 if ball_r < 0.0 else ball_r

@@ -85,7 +85,30 @@ func _decide() -> void:
 		return
 	var bh: BallPlayer = court.ball_handler()
 	if bh == null:
-		state = S.REBOUND
+		# Un passaggio in volo non è un rimbalzo: non far correre tutti
+		# verso lo stesso angolo. La squadra rimane in posizione.
+		if court.pass_target != null and is_instance_valid(court.pass_target) and ball.live:
+			if p == court.pass_target:
+				state = S.IDLE
+			elif p.team == court.possession:
+				state = S.ATK_OFF
+			else:
+				mark = court.man_mark_for(p)
+				state = S.DEF_OFF
+		elif not court.one_on_one and not ball.shot_result_pending:
+			# Sulla palla libera ne va uno per squadra, gli altri non si
+			# ammassano nell'angolo inseguendo tutti lo stesso punto.
+			var closest: BallPlayer = null
+			var nearest := INF
+			for mate in court.players:
+				if mate.team != p.team or mate.is_user: continue
+				var distance: float = mate.global_position.distance_squared_to(ball.global_position)
+				if distance < nearest:
+					nearest = distance
+					closest = mate
+			state = S.REBOUND if closest == p else S.IDLE
+		else:
+			state = S.REBOUND
 		return
 	if bh.team == p.team:
 		state = S.ATK_ON if bh == p else S.ATK_OFF

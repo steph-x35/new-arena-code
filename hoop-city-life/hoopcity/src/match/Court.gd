@@ -80,6 +80,8 @@ var _voice_cd := {}                 # per-shout cooldowns
 var _shoot_call := false            # one "shoot!" per possession
 var _inbounder: BallPlayer = null
 var _inbound_receiver: BallPlayer = null
+var _pass_serial := 0
+var pass_target: BallPlayer = null
 var pnr_screening := false
 var jump_pending := false      # true: al GO si esegue la palla a due
 var _jump_run := false
@@ -378,6 +380,8 @@ func _reset_possession(full := false) -> void:
 	Events.possession_changed.emit(possession)
 
 func give_ball(p: BallPlayer) -> void:
+	_pass_serial += 1
+	pass_target = null
 	var changed_hands: bool = possession != p.team
 	for q in players: q.has_ball = false
 	p.has_ball = true
@@ -595,6 +599,10 @@ func _physics_process(delta: float) -> void:
 		if (play_live and _jump_watch > 0.2) or _jump_watch > 6.0:
 			_run_jump_ball()
 	if not play_live or finished: return
+	# Una palla libera che esce non deve trascinare tutti nell'angolo.
+	if ball != null and ball.live and not ball.shot_result_pending and pass_target == null 	and (absf(ball.global_position.x) > COURT_W * 0.5 + 30.0 or absf(ball.global_position.y) > COURT_H * 0.5 + 30.0):
+		_restart_play(1 - ball.last_touch_team)
+		return
 	game_clock -= delta
 	shot_clock -= delta
 	# A screen that is never released must still resolve: the screener rolls
@@ -656,7 +664,11 @@ func _deadball_watchdog(delta: float) -> void:
 		if d < bd:
 			bd = d
 			best = p
-	if best != null:
+	if best != null and not one_on_one:
+		# Un recupero di sicurezza non può teletrasportare la palla a un
+		# giocatore: si riprende con rimessa per la squadra avversaria.
+		_restart_play(1 - ball.last_touch_team)
+	elif best != null:
 		give_ball(best)
 		shot_clock = maxf(shot_clock, 14.0)
 		Events.toast.emit("Loose ball recovered")
@@ -1441,6 +1453,11 @@ func _inbound(team: int) -> void:
 	var mates: Array = players.filter(func(p): return p.team == team)
 	var inbounder: BallPlayer = mates[mates.size() - 1]
 	var receiver: BallPlayer = mates[0]
+	# La rimessa automatica non manda sempre la palla al giocatore umano.
+	for mate in mates:
+		if mate != inbounder and not mate.is_user:
+			receiver = mate
+			break
 	inbounder.global_position = Vector2(baseline_x, 0.0)
 	inbounder.velocity = Vector2.ZERO
 	if receiver != inbounder:
@@ -1457,12 +1474,9 @@ func _inbound(team: int) -> void:
 	# inbounder gives it to a team-mate on his own.
 	var human_wait: bool = team == 0 and user != null and bool(user.is_user) \
 		and user_on_court and user != inbounder and not one_on_one
+	inbound_wait = 3.0 if human_wait else 2.5
 	if human_wait:
-		inbound_wait = 3.0
 		Events.toast.emit(Loc.tx("Call it! (pass button)"))
-		return
-	await get_tree().create_timer(0.85).timeout
-	_finish_inbound(null)
 
 ## Ends the inbound wait: pass to `caller` if he called for it, otherwise to
 ## the default receiver (a team-mate, never the inbounder himself).
@@ -1482,6 +1496,9 @@ func _finish_inbound(caller: BallPlayer) -> void:
 
 # ------------------------------------------------------------------ passing / turnovers
 func do_pass(from: BallPlayer, to: BallPlayer) -> void:
+	_pass_serial += 1
+	var serial: int = _pass_serial
+	pass_target = to
 	last_passer = from
 	last_pass_time = Time.get_ticks_msec() / 1000.0
 	var speed: float = lerpf(560.0, 920.0, from.ratings["pass"] / 99.0)
@@ -1497,13 +1514,17 @@ func do_pass(from: BallPlayer, to: BallPlayer) -> void:
 		if off < 18.0 and t > 0.25 and t < 0.75 \
 		and randf() < (d.ratings["steal"] / 99.0) * 0.035 * (1.0 - off / 18.0):
 			await get_tree().create_timer(0.18).timeout
-			if finished: return
+			if finished or serial != _pass_serial or not play_live: return
 			give_ball(d)
 			Events.toast.emit("Intercepted!")
 			if from.is_user: box["tov"] += 1
 			return
 	await get_tree().create_timer(maxf(from.global_position.distance_to(to.global_position) / speed, 0.12)).timeout
-	if finished or ball.holder != null: return
+	if finished or serial != _pass_serial or not play_live or ball.holder != null: return
+	pass_target = null
+	if not is_instance_valid(to): return
+	if to.global_position.distance_to(ball.global_position) > 110.0:
+		return # passaggio mancato: palla libera, niente teletrasporto
 	give_ball(to)
 
 func on_turnover(from: BallPlayer, to: BallPlayer) -> void:
@@ -1526,8 +1547,7 @@ func _restart_play(team: int) -> void:
 		_inbound(team)
 
 func _turnover_to(team: int) -> void:
-	possession = team
-	_reset_possession(false)
+	_restart_play(team)
 
 func call_foul(defender: BallPlayer, victim: BallPlayer, pts_attempt := 0) -> void:
 	Events.toast.emit("Foul on #%d" % defender.jersey_num)
@@ -1939,7 +1959,10 @@ func _process_subs(delta: float) -> void:
 
 # ================================================================== timeouts
 func call_timeout(team: int) -> bool:
-	if one_on_one or finished or timeout_active > 0.0 or restarting or ft_active:
+	if one_on_one or finished or timeout_active > 0.0 or restarting or ft_active or not play_live:
+		return false
+	if ball_handler() == null or possession != team:
+		Events.toast.emit(Loc.tx("Timeout: serve il possesso della palla"))
 		return false
 	if timeouts_left[team] <= 0:
 		Events.toast.emit(Loc.tx("No timeouts left!"))
@@ -1947,7 +1970,9 @@ func call_timeout(team: int) -> bool:
 		return false
 	timeouts_left[team] -= 1
 	timeout_team = team
-	timeout_active = 4.0
+	timeout_active = 7.0
+	_pass_serial += 1
+	pass_target = null
 	play_live = false
 	if ball != null and ball.live:
 		ball.kill_analytic()
@@ -1961,22 +1986,8 @@ func call_timeout(team: int) -> bool:
 func _resume_after_timeout() -> void:
 	if finished:
 		return
-	var team := timeout_team
-	possession = team
-	shot_clock = 18.0
-	must_clear = false
-	var mates: Array = players.filter(func(q): return q.team == team)
-	if mates.is_empty():
-		_play_on()
-		return
-	var pg: BallPlayer = mates[0]
-	for q in players:
-		q.has_ball = false
-	pg.global_position = Vector2(-140.0 if team == 0 else 140.0, 60.0)
-	pg.velocity = Vector2.ZERO
-	give_ball(pg)
-	play_live = true
-	Sfx.play("go")
+	# La squadra che aveva il possesso riprende con una vera rimessa.
+	_inbound(timeout_team)
 
 func _play_on() -> void:
 	play_live = true
@@ -1985,6 +1996,20 @@ func _process_bench_and_timeouts(delta: float) -> void:
 	if finished:
 		return
 	if timeout_active > 0.0:
+		# Prima raduno in panchina, poi rientro in campo prima della rimessa.
+		var to_bench: bool = timeout_active > 3.5
+		var slots := [0, 0]
+		for player in players:
+			var slot: int = slots[player.team]
+			slots[player.team] += 1
+			var target: Vector2 = seat_world(player.team, slot) if to_bench else _formation_pos(player.team, slot)
+			var d: Vector2 = target - player.global_position
+			if d.length() > 8.0:
+				player.global_position += d.normalized() * minf(410.0 * delta, d.length())
+				player.velocity = d.normalized() * 220.0
+				player.facing = signf(d.x) if absf(d.x) > 4.0 else player.facing
+			else:
+				player.velocity = Vector2.ZERO
 		timeout_active -= delta
 		if timeout_active <= 0.0:
 			_resume_after_timeout()

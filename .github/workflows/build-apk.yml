@@ -158,6 +158,11 @@ jobs:
           fi
           exit $ERR
 
+      - name: Test timeout e rimessa
+        run: |
+          cd hoop-city-life/hoopcity
+          timeout 90 godot --headless res://tools/TimeoutInboundProbe.tscn
+
       - name: Export Android APK
         run: |
           cd hoop-city-life/hoopcity
