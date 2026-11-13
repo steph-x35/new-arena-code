@@ -53,6 +53,10 @@ static func _items() -> Node:
 ## off it so one figure works at 46 px in a match and 300 px in the creator.
 ## `trick` ("" or crossover/stepback/behind/hand_switch/hesi) adds the body
 ## language of a dribble move on top of the DRIBBLE pose.
+# Keep faces in performance mode too: it may be enabled automatically mid-match.
+static func face_visible(back: bool, head_r: float) -> bool:
+	return not back and head_r > 4.0
+
 static func pose(kind := IDLE, phase := 0.0, amount := 0.0,
 		trick := "", walk := false) -> Dictionary:
 	return {"kind": kind, "phase": phase, "amount": clampf(amount, 0.0, 1.0),
@@ -542,8 +546,7 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			palms[c.get_instance_id()] = hand
 
 	# --- neck, head, hair, and a real face: two eyes, a nose and a mouth.
-	# LOWGFX: su dispositivi lenti il viso dettagliato e i decori capelli
-	# sono i primi a saltare (a distanza di gioco non si vedono).
+	# LOWGFX semplifica i capelli, ma non deve cancellare il viso.
 	var lowgfx: bool = bool(Settings.get_v("lowgfx", false))
 	c.draw_line(Vector2(base.x + lean + twist, sh_y),
 		Vector2(base.x + lean + twist, head_y + head_r * 0.5), skin, lw * 0.7)
@@ -590,7 +593,7 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 				c.draw_arc(head_c, head_r, 0, TAU, 20, hair.darkened(0.15), head_r * 0.18)
 			else:
 				c.draw_arc(head_c, head_r, PI, TAU, 16, hair, head_r * 0.62)
-	if (not back) and head_r > 4.0 and not lowgfx:
+	if face_visible(back, head_r):
 		var eye_r: float = maxf(head_r * 0.11, 1.0)
 		var eye_dy: float = head_r * 0.06
 		var eye_col := Color(0.10, 0.09, 0.12)

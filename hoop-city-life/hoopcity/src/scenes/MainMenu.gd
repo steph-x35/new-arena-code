@@ -98,18 +98,8 @@ func _ready() -> void:
 			"a": rng.randf_range(0.10, 0.35)})
 
 	hero_t = 0.0
-	# AUTO-DETECT: su tablet/telefoni lenti (es. Galaxy Tab S del 2014) il
-	# gioco a 60 fps saltella. Dopo 2.5 s nel menu misuriamo: se stiamo
-	# sotto le ~42 fps passiamo a 30 e spegniamo i decori, una volta sola.
-	get_tree().create_timer(2.5).timeout.connect(func():
-		if Engine.get_frames_per_second() < 42 \
-		and int(Settings.get_v("target_fps", 60)) == 60 \
-		and not bool(Settings.get_v("fps_auto_done", false)):
-			Settings.set_v("fps_auto_done", true)
-			Settings.set_v("target_fps", 30)
-			Settings.set_v("lowgfx", true)
-			perf_mode = true
-			Events.toast.emit("Modalita performance attiva (30 fps)"))
+	# Le prestazioni sono una scelta dell'utente, mai attivate automaticamente.
+	perf_mode = bool(Settings.get_v("lowgfx", false))
 	# Bob del logo + glow pulsante: il menu respira invece di stare fermo.
 	get_tree().process_frame.connect(func():
 		hero_t += 1.0 / 60.0
