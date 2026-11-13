@@ -2426,7 +2426,7 @@ func _draw_char(mine: bool) -> void:
 			or (duel_on and (not i_attack) and not ball_loose and duel_phase != "over"))
 
 	var po: Dictionary = Avatar.pose(kind, phase, amount, tk, walking)
-	po["hand"] = -1.0 if hand_left else 1.0
+	po["hand"] = (-1.0 if hand_left else 1.0) if mine else (-1.0 if bool(foe.get("hl", false)) else 1.0)
 	po["yell"] = (dunk_phase != "") if mine else (String(foe.get("dp", "")) != "")
 	var lift := 0.0
 	var draw_base := world

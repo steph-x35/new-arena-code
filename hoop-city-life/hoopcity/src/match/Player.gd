@@ -998,6 +998,7 @@ func _draw() -> void:
 	if move_t > 0.0 and has_ball and not (hanging or dunking):
 		kind = Avatar.DRIBBLE
 		phase = dribble_phase
+		amount = move_t / move_duration
 		trick = move_kind
 	elif kind == Avatar.DRIBBLE:
 		# PARITA' COURT SOLO: fermo e in corsa il braccio del palleggio
