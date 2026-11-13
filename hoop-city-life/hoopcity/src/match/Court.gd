@@ -402,7 +402,8 @@ func try_grab(p: BallPlayer) -> bool:
 	if not play_live or restarting or awaiting_check: return false
 	if ball.holder != null or p.stun > 0.0: return false
 	var d := p.global_position.distance_to(ball.global_position)
-	if d > 90.0 or ball.h > 210.0: return false
+	var reach: float = lerpf(70.0, 90.0, clampf(float(p.ratings.get("rebound", 50)) / 99.0, 0.0, 1.0))
+	if d > reach or ball.h > 210.0: return false
 	# A shot still resolving above/at the ring is no one's rebound yet: let it
 	# fall through for the bucket or bounce clear off the iron. Grabbing a
 	# descending shot at the rim used to eat made baskets outright.
@@ -1296,6 +1297,8 @@ func _score_basket(b: Ball) -> void:
 		b.live = false
 		b.dunk_drop = 1.0
 		b.global_position = hoop
+		b.dunk_from = hoop
+		b.dunk_to = hoop
 		b.h = RIM_HEIGHT + 8.0
 		Sfx.play("swish", -4.0)
 		Sfx.cheer(false)
@@ -1303,7 +1306,10 @@ func _score_basket(b: Ball) -> void:
 		_net_bump(0 if hoop.x < 0 else 1, 1.0)
 		_rim_fx("swish", hoop)
 		b.is_free_throw = false
-		_on_ft_result(true)
+		ft_timer = 10.0
+		await get_tree().create_timer(0.70).timeout
+		if is_inside_tree() and ft_active:
+			_on_ft_result(true)
 		return
 	var shooter: BallPlayer = b.shooter
 	var beyond_arc: bool = px_to_ft(shooter.global_position.distance_to(hoop_for(shooter.team))) > Court.THREE_FT
@@ -1342,11 +1348,14 @@ func _score_basket(b: Ball) -> void:
 	# Drop THROUGH the net like the street court, then inbound.
 	var hoop: Vector2 = hoop_for(shooter.team)
 	b.dunk_drop = 1.0
+	b.dunk_from = hoop
+	b.dunk_to = hoop
 	b.global_position = hoop
 	b.h = RIM_HEIGHT + 8.0
+	play_live = false
 	_net_bump(0 if hoop.x < 0.0 else 1, 1.0)
 	_rim_fx("swish", hoop)
-	await get_tree().create_timer(0.55).timeout
+	await get_tree().create_timer(0.70).timeout
 	if not is_instance_valid(self) or finished:
 		return
 	if one_on_one:

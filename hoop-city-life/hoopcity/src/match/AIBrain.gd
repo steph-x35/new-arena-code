@@ -33,6 +33,8 @@ var _last_mark_move := ""      # memoria dei move dell'attaccante
 var _last_mark_move_t := -10.0
 var _one_on_one_trick_wait := 2.5
 var _move_rep := 0
+var _on_ball_time := 0.0
+var _was_ball_handler := false
 
 func setup(player: BallPlayer, c: Node2D) -> void:
 	p = player
@@ -52,7 +54,7 @@ func setup(player: BallPlayer, c: Node2D) -> void:
 	if court.one_on_one:
 		skill = clampf(skill + 0.04, Game.diff_floor(), 0.99)
 		aggression = clampf(aggression + 0.05, 0.0, 0.95)
-	spot = p.global_position
+	spot = Vector2.ZERO
 
 func _physics_process(delta: float) -> void:
 	if p != null and (p.entering or p.leaving):
@@ -72,6 +74,12 @@ func _physics_process(delta: float) -> void:
 		elif p != null:
 			p.move_input = Vector2.ZERO
 		return
+	if p.has_ball and not _was_ball_handler:
+		spot = Vector2.ZERO
+		_on_ball_time = 0.0
+	_was_ball_handler = p.has_ball
+	if not p.has_ball:
+		_on_ball_time = 0.0
 	think_t -= delta
 	shot_cd = maxf(0.0, shot_cd - delta)
 	if think_t <= 0.0:
@@ -230,6 +238,7 @@ func _nearest_mate_brain() -> Node:
 # ------------------------------------------------------------------ offense
 func _attack_on_ball(delta: float) -> void:
 	_one_on_one_trick_wait = maxf(0.0, _one_on_one_trick_wait - delta)
+	_on_ball_time += delta
 	var hoop: Vector2 = court.hoop_for(p.team)
 	var to_hoop: Vector2 = hoop - p.global_position
 	var dist_ft: float = court.px_to_ft(to_hoop.length())
@@ -276,6 +285,12 @@ func _attack_on_ball(delta: float) -> void:
 			shot_cd = 0.8
 			spot = Vector2.ZERO
 		return
+	# Non restare fermi su un ruolo/bersaglio ereditato da un'altra azione.
+	if not role in ["three", "mid", "drive"]:
+		spot = Vector2.ZERO
+	if _on_ball_time > 7.0 and role != "drive":
+		role = "drive"
+		spot = hoop + Vector2(-signf(hoop.x) * 100.0, 0.0)
 	# Pick a real basketball play instead of always crashing the rim.
 	if spot.length() < 1.0:
 		var r: float = randf()
@@ -319,6 +334,8 @@ func _attack_on_ball(delta: float) -> void:
 		elif role == "drive" and dist_ft < 8.0 and used > 6.0:
 			pull = true
 		elif used >= 11.0 and dist_ft < 24.0 and pressure < 0.5:
+			pull = true
+		elif _on_ball_time > 10.0 and dist_ft < 30.0:
 			pull = true
 		if pull:
 			# Release quality follows the rating of the shot being taken: a

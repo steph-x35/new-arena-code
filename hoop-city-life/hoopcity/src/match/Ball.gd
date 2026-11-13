@@ -46,6 +46,8 @@ func _ready() -> void:
 	z_index = 40
 
 func attach(p: Node) -> void:
+	# Una nuova presa annulla la caduta precedente, mai il contrario.
+	dunk_drop = 0.0
 	holder = p
 	live = false
 	_ana = false

@@ -1851,7 +1851,12 @@ func _duel_tick(delta: float) -> void:
 	if _check_t > 0.0:
 		_check_t -= delta
 		if _check_t <= 0.0:
-			_duel_check(_check_me)
+			if my_score >= duel_target:
+				_duel_end(true)
+			elif foe_score >= duel_target:
+				_duel_end(false)
+			else:
+				_duel_check(_check_me)
 		return
 	if duel_phase == "count":
 		_count_t -= delta
@@ -2000,9 +2005,6 @@ func _duel_scored() -> void:
 	must_clear = false
 	ball_loose = false
 	_duel_update_top()
-	if my_score >= duel_target:
-		_duel_end(true)
-		return
 	_after_basket(false)
 
 
@@ -2017,9 +2019,6 @@ func _duel_foe_scored() -> void:
 	# Subire canestro chiude il LOCKDOWN: e' durato finche' la difesa ha tenuto.
 	_lockdown = false
 	_def_good = 0
-	if foe_score >= duel_target:
-		_duel_end(false)
-		return
 	_after_basket(true)
 
 
@@ -2031,7 +2030,9 @@ func _after_basket(i_off: bool) -> void:
 	if duel_phase == "over":
 		return
 	duel_phase = "reset"
-	_check_t = 0.9
+	# Il verdetto arriva alla partenza del tiro: prima lascia completare
+	# la parabola (fino a 1,6 s) e la discesa nella retina.
+	_check_t = 2.3
 	_check_me = i_off
 	charging = false
 	charge = 0.0

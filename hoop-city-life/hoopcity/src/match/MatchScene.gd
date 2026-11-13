@@ -1053,7 +1053,9 @@ func _dribble_move() -> void:
 		#   stick LEFT   -> stepback (hops AWAY from the rim)
 		#   stick UP     -> behind the back
 		#   otherwise    -> crossover
-		var mi: Vector2 = u.move_input
+		# Il campetto legge lo stick corrente al momento del tocco.
+		var mi: Vector2 = joystick.output if joystick != null else u.move_input
+		u.move_input = mi
 		var kind := "crossover"
 		var hoop_pos: Vector2 = u.court.hoop_for(u.team)
 		var to_rim: Vector2 = hoop_pos - u.global_position

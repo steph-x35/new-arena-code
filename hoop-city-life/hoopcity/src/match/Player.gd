@@ -668,6 +668,8 @@ func do_move(kind: String) -> bool:
 			if not is_user:
 				velocity += Vector2(-facing, 0) * 190.0
 				facing = -facing
+			elif absf(move_input.x) > 0.15:
+				facing = signf(move_input.x)
 			hand_side = -hand_side
 		"spin":
 			# SPIN MOVE 360: esplosione in avanti, il corpo gira (yaw visivo
@@ -680,10 +682,12 @@ func do_move(kind: String) -> bool:
 			if not is_user:
 				velocity += Vector2(facing, 0) * 150.0
 				facing = -facing
+			elif absf(move_input.x) > 0.15:
+				facing = signf(move_input.x)
 			hand_side = -hand_side
 		"hand_switch":
 			# cambio mano: settle and swap hands without changing direction
-			velocity *= 0.70
+			if not is_user: velocity *= 0.70
 			hand_side = -hand_side
 		"stepback":
 			stepback_t = 0.9   # apri la finestra dello STEPBACK 3
@@ -694,10 +698,14 @@ func do_move(kind: String) -> bool:
 				var d: Vector2 = global_position - hoop
 				if d.length() > 8.0:
 					away = d.normalized()
-			velocity = away * 320.0
-			global_position += away * 28.0
+			if is_user:
+				global_position += away * 70.0
+				if court != null: court.clamp_to_court(self)
+			else:
+				velocity = away * 320.0
+				global_position += away * 28.0
 		"hesi":
-			velocity *= 0.25
+			if not is_user: velocity *= 0.25
 		"euro":
 			# EUROSTEP A DUE TEMPI CON FINISH: primo tempo scatto laterale
 			# attorno al difensore, secondo tempo (a 0.30s) esplosione verso
@@ -901,7 +909,7 @@ func _draw() -> void:
 	if bool(Settings.get_v("show_player_names", true)):
 		var label: String = Season.short_player_name(display_name)
 		var font: Font = ThemeDB.fallback_font
-		draw_string(font, Vector2(-57, 28), label, HORIZONTAL_ALIGNMENT_CENTER, 114, 14, Color.WHITE)
+		draw_string(font, Vector2(-57, 42 if is_user else 28), label, HORIZONTAL_ALIGNMENT_CENTER, 114, 14, Color.WHITE)
 	# ANELLI A TERRA (v2.49.0): il contest mentre carico il tiro (solo per il
 	# giocatore umano, per non riempire il campo di cerchi) e il LOCKDOWN.
 	if not bool(Settings.get_v("lowgfx", false)):

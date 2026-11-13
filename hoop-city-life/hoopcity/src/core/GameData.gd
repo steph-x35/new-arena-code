@@ -165,7 +165,7 @@ const ATTR_EFFECTS := {
 }
 
 func shot_skill(distance_ft: float) -> float:
-	return float(attr("three" if distance_ft > 22.15 else ("mid" if distance_ft > 15.0 else "close")))
+	return ShotSystem.rating_for_distance(float(attr("close")), float(attr("mid")), float(attr("three")), distance_ft)
 
 func speed_factor() -> float:
 	return lerpf(0.92, 1.08, clampf((float(attr("speed")) - 30.0) / 69.0, 0.0, 1.0))
