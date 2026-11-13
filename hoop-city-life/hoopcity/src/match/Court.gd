@@ -909,6 +909,8 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 		ball.shooter = shooter
 		shooter.has_ball = false
 		if shooter.is_user: box["fga"] += 1
+		if one_on_one:
+			_check_ball(blocker.team)
 		return
 
 	shooter.has_ball = false
@@ -1203,6 +1205,14 @@ func on_dunk_started(p: BallPlayer) -> void:
 				Events.popup.emit("BLOCK!", o.global_position, Color(1.0, 0.45, 0.3), true)
 				Events.shake.emit(0.7)
 				p.has_ball = false
+				if one_on_one:
+					p.dunking = false
+					p.jumping = false
+					p.air = 0.0
+					p.air_v = 0.0
+					if o.is_user: box["blk"] += 1
+					_check_ball(o.team)
+					return
 				if o.is_user:
 					box["blk"] += 1
 				# Ball squirts loose away from the rim; whoever grabs it, gets it.

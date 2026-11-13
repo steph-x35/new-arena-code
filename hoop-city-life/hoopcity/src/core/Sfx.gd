@@ -173,6 +173,7 @@ func start_crowd() -> void:
 				crowd.stream = st
 		if crowd.stream == null:
 			crowd.stream = _streams.get("crowd_amb")
+	if crowd.stream != null and not crowd.playing:
 		_crowd_vol = -14.0
 		crowd.volume_db = -14.0
 		crowd.play()

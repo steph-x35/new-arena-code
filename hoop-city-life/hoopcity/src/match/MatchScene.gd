@@ -1055,27 +1055,15 @@ func _dribble_move() -> void:
 		#   otherwise    -> crossover
 		var mi: Vector2 = u.move_input
 		var kind := "crossover"
-		# In area, correndo a canestro, TRICK diventa EUROSTEP: aggiri il
-		# difensore con il passo laterale invece del crossover secco.
-		if u.court != null:
-			var hoop: Vector2 = u.court.hoop_for(u.team)
-			var dft: float = u.court.px_to_ft(u.global_position.distance_to(hoop))
-			var driving: Vector2 = (hoop - u.global_position).normalized()
-			if dft < 14.0 and u.velocity.dot(driving) > 120.0:
-				kind = "euro"
-		# PARITA' COURT SOLO: niente stick = HESITATION (nel solo non
-		# esiste l'alternanza crossover/tra le gambe).
-		if mi.length() < 0.25:
-			kind = "hesi"
-		# POST: entro 12ft con le SPALLE al canestro, TRICK = drop step
-		# (giro attorno al difensore verso il ferro). In modalita' POST
-		# (bottone) il drop step parte a qualunque distanza utile.
 		var hoop_pos: Vector2 = u.court.hoop_for(u.team)
 		var to_rim: Vector2 = hoop_pos - u.global_position
-		if u.posting \
-		or (court.px_to_ft(to_rim.length()) < 12.0 \
-		and signf(float(u.facing)) != signf(to_rim.x) and absf(to_rim.x) > 1.0):
+		if not u.posting and court.px_to_ft(to_rim.length()) < 14.0 \
+		and mi.dot(to_rim.normalized()) > 0.50:
+			kind = "euro"
+		elif u.posting:
 			kind = "dropstep"
+		elif mi.length() < 0.25:
+			kind = "hesi"
 		elif mi.y > 0.35:
 			kind = "hand_switch"
 		elif mi.x < -0.35:

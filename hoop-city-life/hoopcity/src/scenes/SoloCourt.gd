@@ -356,7 +356,12 @@ func _unhandled_input(event: InputEvent) -> void:
 func _spawn_npcs() -> void:
 	var homes := [Vector2(-560.0, -150.0), Vector2(-330.0, 140.0), Vector2(-640.0, 60.0)]
 	var cols := [Color(0.16, 0.45, 0.85), Color(0.72, 0.20, 0.22), Color(0.20, 0.55, 0.30)]
+	var hair_styles := [0, 1, 2, 3, 4, 5]
+	hair_styles.shuffle()
 	for i in homes.size():
+		var look := Avatar.colours(false, cols[i % cols.size()])
+		look["hst"] = hair_styles[i]
+		look["hair"] = Game.HAIR_COLORS.pick_random()
 		npcs.append({
 			"pos": homes[i],
 			"state": "wait",          # wait -> shoot -> chase -> wait
@@ -364,6 +369,7 @@ func _spawn_npcs() -> void:
 			"made": false,
 			"target": homes[i],
 			"col": cols[i % cols.size()],
+			"look": look,
 		})
 
 func _update_npcs(delta: float) -> void:
@@ -1567,7 +1573,7 @@ func _draw_npcs() -> void:
 			kind = Avatar.RUN
 		Avatar.draw_body(self, s, h, -1.0,
 			Avatar.pose(kind, dribble_t, amount),
-			Avatar.colours(false, n["col"]), n["state"] == "wait")
+			n["look"], n["state"] == "wait")
 		if n["state"] == "shoot":
 			var t: float = clampf(n["t"], 0.0, 1.0)
 			var from: Vector2 = s + Vector2(-10.0, -h * 0.4)

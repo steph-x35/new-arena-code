@@ -840,6 +840,8 @@ func _dunk_flow(delta: float) -> void:
 		# brutto del 1v1, il canestro si sentiva anche quando non c'era.
 		var made_dunk: bool = _dunk_throw()
 		if not made_dunk:
+			if duel_on and duel_phase == "check":
+				return
 			dunk_phase = "drop"
 			dunk_anim = 0.20
 			dunk_blocked = true
@@ -912,10 +914,15 @@ func _do_trick() -> void:
 		player_pos += (player_pos - RIM).normalized() * 70.0
 		_clamp_me()
 	elif mv.y < -0.35:
-		trick_kind = "spin"
+		trick_kind = "behind"
+		hand_left = not hand_left
+		if absf(mv.x) > 0.15: facing = signf(mv.x)
 	else:
-		trick_kind = ["cross", "behind"].pick_random()
+		trick_kind = "crossover"
+		hand_left = not hand_left
+		if absf(mv.x) > 0.15: facing = signf(mv.x)
 	trick_t = 0.45
+	Sfx.squeak()
 	_trick_on_defender()
 
 func _trick_on_defender() -> void:
@@ -931,7 +938,7 @@ func _trick_on_defender() -> void:
 		return
 	_trick_cd = 1.2
 	var ch: float = 0.28
-	if trick_kind in ["stepback", "spin", "cross"]:
+	if trick_kind in ["stepback", "spin", "crossover"]:
 		ch += 0.16                      # le mosse che spostano davvero
 	if _foe_vel.length() > 110.0:
 		ch += 0.22                      # in corsa: si va giu' molto piu' facile
@@ -1206,24 +1213,8 @@ func _dunk_throw() -> bool:
 		Sfx.haptic(50)
 		hot = false
 		streak = 0
-		# Come un mio tiro sbagliato: la palla resta a terra e la prima
-		# mano che ci arriva riparte. Io ho appena tirato, quindi non
-		# posso riprenderla subito (my_rebound = true, come nel match).
-		ball_loose = true
-		my_rebound = true
-		_pick_ok = false
-		_loose_t = 0.0
-		ball_pos = RIM + Vector2(randf_range(-60.0, 60.0), randf_range(0.0, 70.0))
-		ball_h = 80.0
-		ball_vel = Vector2(randf_range(-120.0, 120.0), randf_range(-50.0, 30.0))
-		ball_vh = -60.0
-		ball_settled = 0.0
-		ball_ghost = false
-		through_rim = false
-		ball_live = true
-		dunk_phase = "drop"
-		dunk_anim = 0.30
-		dunk_ball_t = 0.0
+		# Stoppata: possesso al difensore, entrambi ripartono dal check.
+		_duel_check(false)
 		return false
 	net_wobble = 1.0
 	Sfx.haptic(60)
@@ -1490,7 +1481,7 @@ func _send(delta: float) -> void:
 		"da": dunk_anim, "ht": hang_swing_t, "ho": _hang_one(),
 		"dbt": dunk_ball_t, "hot": hot,
 		"tk": trick_kind if trick_t > 0.0 else "",
-		"ta": trick_t / 0.45,
+		"ta": trick_t / 0.45, "hl": hand_left,
 		"ct": _def_held,
 		"jm": _jump_t > 0.05,
 		"hd": i_hold,
@@ -1630,6 +1621,7 @@ func _on_foe_state(d: Dictionary) -> void:
 	foe["hot"] = d.get("hot", false)
 	foe["tk"] = d.get("tk", "")
 	foe["ta"] = d.get("ta", 0.0)
+	foe["hl"] = d.get("hl", false)
 	foe["ct"] = d.get("ct", false)
 	var was_jm: bool = bool(foe.get("jm", false))
 	foe["jm"] = d.get("jm", false)
@@ -1682,17 +1674,9 @@ func _on_foe_shot(d: Dictionary) -> void:
 			Sfx.play("block", -1.0)
 			Sfx.haptic(45)
 			Events.shake.emit(0.5)
-			fb_pos = RIM + Vector2(randf_range(-60.0, 60.0), randf_range(0.0, 70.0))
-			fb_h = 80.0
-			fb_vel = Vector2(randf_range(-120.0, 120.0), randf_range(-50.0, 30.0))
-			fb_vh = -60.0
-			fb_settled = 0.0
-			fb_live = true
-			_fb_pick_ok = false
-			_loose_t = 0.0
-			ball_loose = true
-			my_rebound = false
 			_def_credit(1)
+			if duel_on and duel_phase == "live":
+				_duel_check(true)
 			return
 		net_wobble = 1.0
 		if court_art != null:
@@ -2525,7 +2509,7 @@ func _draw_char(mine: bool) -> void:
 		var ftk: float = 1.0 - ta
 		var from_side: float = 1.0 if hand_left else -1.0
 		if not mine:
-			from_side = -1.0
+			from_side = 1.0 if bool(foe.get("hl", false)) else -1.0
 		var to_side: float = -from_side
 		var sway: float = lerpf(from_side, to_side, smoothstep(0.0, 1.0, ftk))
 		var low: float = sin(ftk * PI)
@@ -2550,7 +2534,12 @@ func _spawn_npcs() -> void:
 	## canestro sinistro, come nel campetto solo.
 	var homes := [Vector2(-560.0, -150.0), Vector2(-330.0, 140.0), Vector2(-640.0, 60.0)]
 	var cols := [Color(0.16, 0.45, 0.85), Color(0.72, 0.20, 0.22), Color(0.20, 0.55, 0.30)]
+	var hair_styles := [0, 1, 2, 3, 4, 5]
+	hair_styles.shuffle()
 	for i in homes.size():
+		var look := Avatar.colours(false, cols[i % cols.size()])
+		look["hst"] = hair_styles[i]
+		look["hair"] = Game.HAIR_COLORS.pick_random()
 		npcs.append({
 			"pos": homes[i],
 			"state": "wait",
@@ -2558,6 +2547,7 @@ func _spawn_npcs() -> void:
 			"made": false,
 			"target": homes[i],
 			"col": cols[i % cols.size()],
+			"look": look,
 		})
 
 func _update_npcs(delta: float) -> void:
@@ -2619,7 +2609,7 @@ func _draw_npcs() -> void:
 			kind = Avatar.RUN
 		Avatar.draw_body(self, s, h, -1.0,
 			Avatar.pose(kind, dribble_t, amount),
-			Avatar.colours(false, n["col"]), n["state"] == "wait")
+			n["look"], n["state"] == "wait")
 		if n["state"] == "shoot":
 			var t: float = clampf(n["t"], 0.0, 1.0)
 			var from: Vector2 = s + Vector2(-10.0, -h * 0.4)

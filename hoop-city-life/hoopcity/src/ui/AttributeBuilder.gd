@@ -14,6 +14,8 @@ var sliders := {}
 var values := {}
 var syncing := false
 var effects := {}
+var glow_styles := {}
+var glow_colors := {}
 var save_on_change := false
 
 func build(columns := 1, persist := false) -> void:
@@ -76,6 +78,12 @@ func build(columns := 1, persist := false) -> void:
 			fill.set_corner_radius_all(4)
 			fill.content_margin_top = 4
 			fill.content_margin_bottom = 4
+			# Una luce sotto la barra, nel colore del reparto, solo mentre cambia.
+			fill.shadow_size = 12
+			fill.shadow_offset = Vector2(0, 5)
+			fill.shadow_color = Color(col.r, col.g, col.b, 0.0)
+			glow_styles[a] = fill
+			glow_colors[a] = col
 			slider.add_theme_stylebox_override("slider", track)
 			slider.add_theme_stylebox_override("grabber_area", fill)
 			slider.add_theme_stylebox_override("grabber_area_highlight", fill)
@@ -108,7 +116,7 @@ func _apply(a: String, target: int) -> void:
 	_sync()
 	if changed:
 		for key in Game.ATTRS:
-			if Game.attr(key) > int(before[key]) and values.has(key):
+			if Game.attr(key) != int(before[key]) and values.has(key):
 				_flash_value(String(key))
 
 func _sync() -> void:
@@ -125,8 +133,12 @@ func _flash_value(a: String) -> void:
 	if effects.has(a) and is_instance_valid(effects[a]):
 		(effects[a] as Tween).kill()
 	label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.32))
-	var tween := create_tween()
+	var fill: StyleBoxFlat = glow_styles[a]
+	var col: Color = glow_colors[a]
+	fill.shadow_color = Color(col.r, col.g, col.b, 0.85)
+	var tween := create_tween().set_parallel(true)
 	effects[a] = tween
+	tween.tween_property(fill, "shadow_color", Color(col.r, col.g, col.b, 0.0), 0.75)
 	tween.tween_method(func(c: Color):
 		if is_instance_valid(label): label.add_theme_color_override("font_color", c),
 		Color(1.0, 0.84, 0.32), Color.WHITE, 0.65)

@@ -173,7 +173,7 @@ const STR := {
 	"status.day":     ["Day", "Giorno"],
 	"match.shoot":    ["SHOOT", "TIRA"],
 	"match.dunk":     ["DUNK", "SCHIACCIA"],
-	"match.trick":    ["TRICK", "FINTA"],
+	"match.trick":    ["TRICK", "TRICK"],
 	"match.pass":     ["PASS", "PASSA"],
 	"match.pnr":      ["P&R", "BLOCCO"],
 	"match.post":     ["POST", "POST"],

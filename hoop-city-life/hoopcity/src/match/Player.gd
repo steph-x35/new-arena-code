@@ -662,8 +662,9 @@ func do_move(kind: String) -> bool:
 	match kind:
 		"crossover":
 			# plant and drive the other way, flipping the ball to the other hand
-			velocity += Vector2(-facing, 0) * 190.0
-			facing = -facing
+			if not is_user:
+				velocity += Vector2(-facing, 0) * 190.0
+				facing = -facing
 			hand_side = -hand_side
 		"spin":
 			# SPIN MOVE 360: esplosione in avanti, il corpo gira (yaw visivo
@@ -673,8 +674,9 @@ func do_move(kind: String) -> bool:
 			stamina = maxf(0.0, stamina - 2.0)
 		"behind":
 			# behind-the-back: same lane change, ball hidden behind the body
-			velocity += Vector2(facing, 0) * 150.0
-			facing = -facing
+			if not is_user:
+				velocity += Vector2(facing, 0) * 150.0
+				facing = -facing
 			hand_side = -hand_side
 		"hand_switch":
 			# cambio mano: settle and swap hands without changing direction
