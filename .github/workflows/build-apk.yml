@@ -215,3 +215,11 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - name: Pubblica versione ufficiale 2.49.5
+        if: github.ref == 'refs/heads/arena/052d9a76-new-arena-code'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v2.49.5 hoop-city-life/hoopcity/build/HoopCity-v2.49.5.apk \
+            --target "$GITHUB_SHA" --title "Hoop City Life v2.49.5" --latest \
+            --notes "Builder e attributi aggiornati, nuove stagioni da 10 partite, miglioramenti a 1v1 e scrimmage, palleggio, trick, stoppate e fisica della palla. I salvataggi e le stagioni in corso restano conservati."
