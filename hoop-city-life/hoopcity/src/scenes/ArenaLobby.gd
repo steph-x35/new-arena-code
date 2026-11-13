@@ -156,6 +156,7 @@ func _tip_off(e: Dictionary) -> void:
 		return
 	var opp: String = String(e.get("opponent", "Visitors"))
 	var home: bool = bool(e.get("home", true))
+	Game.profile["match_day"] = int(e.get("day", Game.profile["day"]))
 	Game.advance_time(30)
 	# Straight into the game. The animated intro caused more trouble than it
 	# was worth, so the fixture details go to the match itself and the

@@ -69,18 +69,21 @@ func apply_match_result(res: Dictionary) -> void:
 	# v2.3: fatica pesante dopo una partita; si smaltisce dormendo/riposando
 	Game.add_energy(-30.0)
 	Game.add_hunger(-16.0)
-	Game.advance_time(120)
+	if bool(res.get("fixture", false)):
+		Season.mark_done(int(res.get("fixture_day", Game.profile.get("day", 1))), "%s" % str(res.get("score", [])))
+		Game.profile.erase("match_day")
 
-	var s: Dictionary = Game.profile["season"]
-	s["games"] += 1
-	if res.get("won", false): s["wins"] += 1
-	for k in ["pts", "ast", "reb", "stl", "blk", "tov", "fgm", "fga", "tpm", "tpa"]:
-		s[k] = int(s.get(k, 0)) + int(res.get(k, 0))
-	var hi: Dictionary = s.get("high", {})
-	if typeof(hi) != TYPE_DICTIONARY: hi = {}
-	for k in ["pts", "ast", "reb", "stl", "blk"]:
-		hi[k] = maxi(int(hi.get(k, 0)), int(res.get(k, 0)))
-	s["high"] = hi
+	if bool(res.get("fixture", false)):
+		var s: Dictionary = Game.profile["season"]
+		s["games"] += 1
+		if res.get("won", false): s["wins"] += 1
+		for k in ["pts", "ast", "reb", "stl", "blk", "tov", "fgm", "fga", "tpm", "tpa"]:
+			s[k] = int(s.get(k, 0)) + int(res.get(k, 0))
+		var hi: Dictionary = s.get("high", {})
+		if typeof(hi) != TYPE_DICTIONARY: hi = {}
+		for k in ["pts", "ast", "reb", "stl", "blk"]:
+			hi[k] = maxi(int(hi.get(k, 0)), int(res.get(k, 0)))
+		s["high"] = hi
 	Game.profile["last_games"].push_front({
 		"day": Game.profile["day"], "pts": pts, "ast": res.get("ast", 0),
 		"reb": res.get("reb", 0), "grade": grade, "won": res.get("won", false),
@@ -93,13 +96,14 @@ func apply_match_result(res: Dictionary) -> void:
 	if bool(res.get("fixture", false)):
 		_apply_contract()
 		_apply_sponsor(res)
-	_update_sgoals(res)
+		_update_sgoals(res)
 	_playoff_result(bool(res.get("won", false)))
 	_social_reaction(pts, res.get("won", false), grade, perf)
 	Contacts.on_game_played(pts, grade, bool(res.get("won", false)))
 	club_interest(pts)
 	# v2.3: eventuale trigger carriera legato alla performance
 	CareerEvents.maybe_queue()
+	Game.advance_time(120)
 	SaveSystem.save_game()
 
 ## ------------------------------------------------------------------ v2.6
@@ -254,7 +258,7 @@ func sgoal_progress(g: Dictionary) -> int:
 func check_season() -> void:
 	if not bool(Game.profile.get("season_active", true)):
 		return
-	if int(Game.profile.get("day", 1)) <= Season.SEASON_DAYS:
+	if int(Game.profile.get("day", 1)) <= Season.season_end_day():
 		return
 	end_regular_season()
 
@@ -382,7 +386,7 @@ func _start_new_season() -> void:
 ## attendere i giorni in citta'.
 func skip_to_game() -> void:
 	var day: int = int(Game.profile.get("day", 1))
-	if day > Season.SEASON_DAYS and bool(Game.profile.get("season_active", true)):
+	if day > Season.season_end_day() and bool(Game.profile.get("season_active", true)):
 		end_regular_season()
 	if Career.playoff_ready():
 		Events.toast.emit(Loc.tx("C'e' un PLAYOFF da giocare: vai in Arena"))
@@ -395,7 +399,7 @@ func skip_to_game() -> void:
 			target = d
 			break
 	if target < 0:
-		target = mini(day + 3, Season.SEASON_DAYS)
+		target = Season.season_end_day() + 1
 	Game.profile["day"] = target
 	Game.profile["minutes"] = 540
 	Game.profile["energy"] = maxf(float(Game.profile.get("energy", 0.0)), 80.0)

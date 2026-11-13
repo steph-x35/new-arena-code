@@ -15,15 +15,10 @@ class_name News
 
 ## Titolo grosso (colore caldo) e corpo, uno dopo l'altro.
 const ITEMS := [
+	["news.builder", "news.builder.b"],
+	["news.season", "news.season.b"],
+	["news.gameplay", "news.gameplay.b"],
 	["news.v1", "news.v1.b"],
-	["news.hallow", "news.hallow.b"],
-	["news.n1", "news.n1.b"],
-	["news.n2", "news.n2.b"],
-	["news.n3", "news.n3.b"],
-	["news.n4", "news.n4.b"],
-	["news.n5", "news.n5.b"],
-	["news.n6", "news.n6.b"],
-	["news.n7", "news.n7.b"],
 ]
 
 const TITLE_COL := Color(1.0, 0.80, 0.34)
@@ -31,9 +26,9 @@ const BODY_COL := Color(1, 1, 1, 0.92)
 
 
 static func maybe_show(host_tree: SceneTree) -> void:
-	if String(Game.profile.get("changelog_seen", "")) == Game.VERSION:
+	if bool(Game.profile.get("news_builder_seen", false)):
 		return
-	Game.profile["changelog_seen"] = Game.VERSION
+	Game.profile["news_builder_seen"] = true
 	SaveSystem.save_game()
 	var layer := CanvasLayer.new()
 	layer.layer = 100

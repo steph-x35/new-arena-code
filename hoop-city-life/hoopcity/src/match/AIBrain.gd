@@ -31,6 +31,7 @@ var _last_poss := -1
 var _chase_t := 0.0           # cooldown dello scatto d'inseguimento
 var _last_mark_move := ""      # memoria dei move dell'attaccante
 var _last_mark_move_t := -10.0
+var _one_on_one_trick_wait := 2.5
 var _move_rep := 0
 
 func setup(player: BallPlayer, c: Node2D) -> void:
@@ -228,6 +229,7 @@ func _nearest_mate_brain() -> Node:
 
 # ------------------------------------------------------------------ offense
 func _attack_on_ball(delta: float) -> void:
+	_one_on_one_trick_wait = maxf(0.0, _one_on_one_trick_wait - delta)
 	var hoop: Vector2 = court.hoop_for(p.team)
 	var to_hoop: Vector2 = hoop - p.global_position
 	var dist_ft: float = court.px_to_ft(to_hoop.length())
@@ -334,7 +336,7 @@ func _attack_on_ball(delta: float) -> void:
 	# Beat the on-ball defender with the handle before driving on. Drives throw
 	# crossovers and behind-the-back moves, spot-up men jab into a stepback to
 	# make room, and an occasional hesitation freezes the defender's feet.
-	if p.cooldown_move <= 0.0:
+	if p.cooldown_move <= 0.0 and (not court.one_on_one or _one_on_one_trick_wait <= 0.0):
 		var nd: BallPlayer = null
 		var ndist := 1e9
 		for d in court.players:
@@ -353,6 +355,7 @@ func _attack_on_ball(delta: float) -> void:
 			elif ndist < 140.0 and randf() < 0.10:
 				move = "hesi"
 			if move != "" and p.do_move(move):
+				if court.one_on_one: _one_on_one_trick_wait = randf_range(3.0, 4.5)
 				return
 	if pressure > 0.78 and not court.one_on_one:
 		var mate: BallPlayer = court.best_pass_option(p)

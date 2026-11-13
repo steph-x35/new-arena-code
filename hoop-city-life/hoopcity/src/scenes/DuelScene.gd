@@ -1416,28 +1416,7 @@ func _collide_rim() -> void:
 		var cy: float = lerpf(prev_pos.y, ball_pos.y, clampf(f, 0.0, 1.0))
 		var d: Vector2 = Vector2(cx, cy) - RIM
 		var dist: float = d.length()
-		if dist < RIM_HALF - 6.0 or (ball_rattled and dist < RIM_HALF + 6.0):
-			# RIM-RATTLE (30% dei tiri riusciti): ferro fortissimo, pop sopra
-			# il ferro, poi swish — il momento firma del campetto.
-			if not ball_rattled and not through_rim and not ball_ghost \
-			and randf() < 0.30:
-				ball_rattled = true
-				var rn_s: Vector2 = (ball_pos - RIM).normalized()
-				if rn_s.length() < 0.1:
-					rn_s = Vector2(1, 0)
-				ball_pos = RIM + rn_s * 9.0
-				ball_vh = randf_range(500.0, 640.0)
-				ball_vel = rn_s * randf_range(30.0, 55.0) \
-					+ Vector2(randf_range(-25, 25), randf_range(-25, 25))
-				Sfx.play("rim", -0.5, randf_range(0.95, 1.08))
-				net_wobble = 0.9
-				Events.shake.emit(0.60)
-				if court_art != null:
-					if court_art.has_method("rim_fx"):
-						court_art.rim_fx("rattle", RIM)
-					if court_art.has_method("net_bump"):
-						court_art.net_bump(1, 0.9)
-				return
+		if dist < RIM_HALF - 6.0:
 			if not through_rim:
 				# DENTRO: la RETINA TRATTIENE la palla — la rallenta, cosi'
 				# si vede passare dentro la rete, col suo swish.
@@ -2702,26 +2681,7 @@ func _foe_ball_rim() -> void:
 		var cy: float = lerpf(fb_prev_pos.y, fb_pos.y, clampf(f, 0.0, 1.0))
 		var d: Vector2 = Vector2(cx, cy) - RIM
 		var dist: float = d.length()
-		if dist < RIM_HALF - 6.0 or (fb_rattled and dist < RIM_HALF + 6.0):
-			if not fb_rattled and not fb_through and not fb_ghost \
-			and randf() < 0.30:
-				fb_rattled = true
-				var rn_s: Vector2 = (fb_pos - RIM).normalized()
-				if rn_s.length() < 0.1:
-					rn_s = Vector2(1, 0)
-				fb_pos = RIM + rn_s * 9.0
-				fb_vh = randf_range(500.0, 640.0)
-				fb_vel = rn_s * randf_range(30.0, 55.0) \
-					+ Vector2(randf_range(-25, 25), randf_range(-25, 25))
-				Sfx.play("rim", -0.5, randf_range(0.95, 1.08))
-				net_wobble = 0.9
-				Events.shake.emit(0.60)
-				if court_art != null:
-					if court_art.has_method("rim_fx"):
-						court_art.rim_fx("rattle", RIM)
-					if court_art.has_method("net_bump"):
-						court_art.net_bump(1, 0.9)
-				return
+		if dist < RIM_HALF - 6.0:
 			if not fb_through:
 				fb_through = true
 				net_wobble = 1.0

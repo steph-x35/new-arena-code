@@ -1236,26 +1236,7 @@ func _collide_rim() -> void:
 		var cy: float = lerpf(prev_pos.y, ball_pos.y, clampf(f, 0.0, 1.0))
 		var d: Vector2 = Vector2(cx, cy) - RIM
 		var dist: float = d.length()
-		if dist < RIM_HALF - 6.0 or (ball_rattled and dist < RIM_HALF + 6.0):
-			# RIM-RATTLE: anche il court libero deve avere il suo momento
-			# firma (30%): ferro fortissimo, pop sopra il ferro, poi swish.
-			if not ball_rattled and not through_rim and randf() < 0.30:
-				ball_rattled = true
-				var rn_s: Vector2 = (ball_pos - RIM).normalized()
-				if rn_s.length() < 0.1:
-					rn_s = Vector2(1, 0)
-				ball_pos = RIM + rn_s * 9.0
-				ball_vh = randf_range(500.0, 640.0)
-				ball_vel = rn_s * randf_range(30.0, 55.0) + Vector2(randf_range(-25, 25), randf_range(-25, 25))
-				Sfx.play("rim", -0.5, randf_range(0.95, 1.08))
-				net_wobble = 0.9
-				Events.shake.emit(0.60)
-				if court_art != null:
-					if court_art.has_method("rim_fx"):
-						court_art.rim_fx("rattle", RIM)
-					if court_art.has_method("net_bump"):
-						court_art.net_bump(1, 0.9)
-				return
+		if dist < RIM_HALF - 6.0:
 			if not through_rim:
 				through_rim = true
 				scored_this_shot = true
@@ -1688,7 +1669,7 @@ func _draw_player() -> void:
 		amount = 1.0 - clampf(charge / maxf(ideal, 0.01), 0.0, 1.0) * 0.85
 	elif trick_t > 0.0:
 		kind = Avatar.DRIBBLE
-		phase = dribble_t * 1.9
+		phase = dribble_t
 		amount = trick_t / 0.45
 	elif solo_loose or ball_live:
 		# SENZA PALLA: come in citta' — si corre, o si sta fermi in piedi.

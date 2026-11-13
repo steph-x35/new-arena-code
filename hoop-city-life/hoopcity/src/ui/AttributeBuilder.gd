@@ -13,6 +13,7 @@ var summary: Label
 var sliders := {}
 var values := {}
 var syncing := false
+var effects := {}
 var save_on_change := false
 
 func build(columns := 1, persist := false) -> void:
@@ -98,9 +99,17 @@ func _set_value(a: String, target: int) -> void:
 	_apply(a, allocated + target - Game.attr(a))
 
 func _apply(a: String, target: int) -> void:
-	if Game.allocate_attribute(a, target) and save_on_change:
+	var before := {}
+	for key in Game.ATTRS:
+		before[key] = Game.attr(key)
+	var changed := Game.allocate_attribute(a, target)
+	if changed and save_on_change:
 		SaveSystem.save_game()
 	_sync()
+	if changed:
+		for key in Game.ATTRS:
+			if Game.attr(key) > int(before[key]) and values.has(key):
+				_flash_value(String(key))
 
 func _sync() -> void:
 	syncing = true
@@ -110,3 +119,14 @@ func _sync() -> void:
 		(sliders[a] as HSlider).set_value_no_signal(Game.attr(a))
 		(values[a] as Label).text = "%s  %d" % [Game.ATTR_LABELS[a], Game.attr(a)]
 	syncing = false
+
+func _flash_value(a: String) -> void:
+	var label: Label = values[a]
+	if effects.has(a) and is_instance_valid(effects[a]):
+		(effects[a] as Tween).kill()
+	label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.32))
+	var tween := create_tween()
+	effects[a] = tween
+	tween.tween_method(func(c: Color):
+		if is_instance_valid(label): label.add_theme_color_override("font_color", c),
+		Color(1.0, 0.84, 0.32), Color.WHITE, 0.65)

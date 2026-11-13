@@ -765,6 +765,7 @@ func _finish() -> void:
 	var res := box.duplicate()
 	res["won"] = won
 	res["fixture"] = is_fixture
+	res["fixture_day"] = int(Game.profile.get("match_day", Game.profile.get("day", 1)))
 	res["score"] = score.duplicate()
 	# Broadcast extras: quarter splits, the headline run, top scorer per team
 	# and where the game was played. The card degrades gracefully if a key is
@@ -1133,30 +1134,9 @@ func check_ball_collisions(b: Ball) -> void:
 		var cx: float = lerpf(b.prev_pos.x, b.global_position.x, clampf(f, 0.0, 1.0))
 		var cy: float = lerpf(b.prev_pos.y, b.global_position.y, clampf(f, 0.0, 1.0))
 		var dist: float = Vector2(cx, cy).distance_to(hoop)
-		# Una palla "rattled" ricade con deriva orizzontale: entro 48 px dal
-		# ferro il canestro resta valido (il ferro la sputata dentro).
-		if dist < 24.0 or (b.rattled and dist < 48.0):
-			# RIM-RATTLE: capita che il tiro "giusto" prima sbatta sul ferro,
-			# salti su ed entri comunque: suono del ferro, poi lo swish della
-			# rete quando cade. Cosi' non ogni canestro e' pulito.
-			# RIM-RATTLE sempre sui canestri ravvicinati: e' il momento
-			# "firma" richiesto dall'utente e due round al 30-35% non lo ha
-			# MAI visto. Salto alto (picco 69-114 px), ferro fortissimo,
-			# shake forte: deve leggersi a colpo d'occhio.
-			if not b.rattled:
-				b.rattled = true
-				var rn: Vector2 = (Vector2(cx, cy) - hoop).normalized()
-				if rn.length() < 0.1:
-					rn = Vector2(1, 0)
-				b.kill_analytic()
-				b.global_position = hoop - rn * 9.0
-				b.vh = randf_range(500.0, 640.0)
-				b.vel = rn * randf_range(30.0, 60.0) + Vector2(randf_range(-35, 35), randf_range(-35, 35))
-				Sfx.play("rim", -0.5, randf_range(0.95, 1.08))
-				Events.shake.emit(0.60)
-				_rim_fx("rattle", hoop)
-				_net_bump(0 if hoop.x < 0 else 1, 0.9)
-				return
+		if dist < 24.0:
+			# Un tiro centrale attraversa direttamente il ferro: niente
+			# rimbalzo artificiale verso l'alto su ogni canestro.
 			_score_basket(b)
 			return
 		if dist < 42.0:

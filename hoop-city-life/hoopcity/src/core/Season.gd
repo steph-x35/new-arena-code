@@ -16,7 +16,7 @@ const TEAMS := [
 	"Northgate Wolves", "Old Mill Saints", "Bayview Tide", "Cedar Park Rangers",
 ]
 const DEFAULT_TEAM := "Riverside Ravens"
-const SEASON_DAYS := 60
+const SEASON_DAYS := 30 # 10 gare, ogni terzo giorno
 
 # ------------------------------------------------------------------ club identity
 ## Who each club IS, beyond a name: scoreboard abbreviation, colours it wears,
@@ -133,6 +133,13 @@ func schedule() -> Array:
 		Game.profile["schedule"] = _generate()
 	return Game.profile["schedule"]
 
+func season_end_day() -> int:
+	# I calendari già in corso mantengono la durata salvata.
+	var end := SEASON_DAYS
+	for entry in schedule():
+		end = maxi(end, int(entry.get("day", 0)))
+	return end
+
 func _generate() -> Array:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(Game.profile.get("seed", 12345))
@@ -245,6 +252,8 @@ func _on_day(_d: int) -> void:
 		Game.profile["skipped_practices"] = int(Game.profile.get("skipped_practices", 0)) + 1
 		Contacts.receive(Contacts.COACH, "Missed practice yesterday. Where were you?")
 	elif String(e["kind"]) == "game":
+		if int(Game.profile.get("match_day", -1)) == prev:
+			return # partita in corso, si segna solo al fischio finale
 		e["done"] = true
 		e["skipped"] = true
 		add_followers(-int(followers() * 0.10))
