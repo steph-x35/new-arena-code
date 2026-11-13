@@ -15,11 +15,11 @@ func _ready() -> void:
 	for i in 100:
 		c.awaiting_check = false
 		attacker.global_position = Vector2.ZERO
-		defender.global_position = Vector2.ZERO
+		defender.global_position = c.dunk_hang_pos(attacker)
 		defender.block_window = 10.0
 		attacker.has_ball = true
 		attacker.dunking = true
-		c.on_dunk_started(attacker)
+		await c.on_dunk_started(attacker)
 		if c.awaiting_check:
 			blocked = true
 			break
