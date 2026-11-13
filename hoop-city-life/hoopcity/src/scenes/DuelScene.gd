@@ -1387,6 +1387,10 @@ func _step_ball(delta: float) -> void:
 		_collide_rim()
 		_collide_backboard()
 		_collide_floor()
+		if duel_on and ball_loose:
+			var bounded := _bound_loose_ball(ball_pos, ball_vel)
+			ball_pos = bounded[0]
+			ball_vel = bounded[1]
 	ball_spin += ball_vel.x * 0.0004
 	if not ball_loose:
 		if ball_pos.x < -1300.0 or ball_pos.x > 1300.0 \
@@ -1394,6 +1398,18 @@ func _step_ball(delta: float) -> void:
 			ball_live = false
 		if ball_settled > 0.6:
 			ball_live = false
+
+
+func _bound_loose_ball(pos: Vector2, vel: Vector2) -> Array:
+	var x_limit: float = Court.COURT_W * 0.5 - BALL_R
+	var y_limit: float = Court.COURT_H * 0.5 - BALL_R
+	if absf(pos.x) > x_limit:
+		pos.x = clampf(pos.x, -x_limit, x_limit)
+		vel.x = 0.0
+	if absf(pos.y) > y_limit:
+		pos.y = clampf(pos.y, -y_limit, y_limit)
+		vel.y = 0.0
+	return [pos, vel]
 
 
 func _collide_rim() -> void:
@@ -1862,8 +1878,6 @@ func _duel_tick(delta: float) -> void:
 			_take_ball(true)
 		elif not my_rebound and fb_live and _fb_pick_ok and fb_h < 90.0 \
 		and player_pos.distance_to(fb_pos) < 56.0:
-			_take_ball(false)
-		elif _loose_t > 8.0 and not i_attack:
 			_take_ball(false)
 
 
@@ -2652,6 +2666,10 @@ func _step_foe_ball(delta: float) -> void:
 		_foe_ball_rim()
 		_foe_ball_backboard()
 		_foe_ball_floor()
+		if duel_on and ball_loose:
+			var bounded := _bound_loose_ball(fb_pos, fb_vel)
+			fb_pos = bounded[0]
+			fb_vel = bounded[1]
 	fb_spin += fb_vel.x * 0.0004
 	if not ball_loose:
 		if fb_pos.x < -1300.0 or fb_pos.x > 1300.0 \

@@ -49,6 +49,7 @@ var possession_time := 0.0
 var move_t := 0.0                     # >0 while a crossover/stepback animates
 var move_kind := ""                   # crossover / stepback / behind / hand_switch / hesi
 var hand_side := 1.0                  # which hand the ball is in (flips on a move)
+var move_duration := 0.65
 const MOVE_DUR := 0.65                # seconds a dribble move plays out on screen
 
 # --- vertical game: jump / block / dunk -----------------------------------
@@ -73,6 +74,7 @@ var euro_t := 0.0              # EUROSTEP a due tempi: 1 laterale, 2 verso il fe
 var euro_finish := false       # al secondo tempo: chiude a schiacciata o layup
 var combo_pullup := false      # combo TRICK->TIRA entro mezzo secondo
 var stepback_t := 0.0          # finestra STEPBACK 3 dopo lo stepback
+var embedded_dribble := false # disegnata dall'avatar come allo street court
 var dribble_phase := 0.0       # orologio palleggio: 4.2 costante COME IL SOLO
 var fake_t := 0.0              # pump-fake timer
 var fake_locked := false       # finta in partita = palla raccolta al petto
@@ -652,9 +654,10 @@ func do_move(kind: String) -> bool:
 	## chance. Returns false when the move could not be attempted.
 	if cooldown_move > 0.0 or move_t > 0.0 or not has_ball:
 		return false
-	cooldown_move = MOVE_DUR
+	move_duration = 0.45 if is_user else MOVE_DUR
+	cooldown_move = move_duration
 	stamina = maxf(0.0, stamina - 6.0)
-	move_t = MOVE_DUR
+	move_t = move_duration
 	move_kind = kind
 	# Le scarpe STRIDANO sui cambi di direzione netti (trick/crossover/spin).
 	Sfx.squeak()
@@ -764,54 +767,20 @@ func carry_ball_offset() -> Dictionary:
 	return {"active": true, "x": bl.x * hb * sdir, "h": air + bl.y * hb}
 
 func dribble_ball_offset() -> Dictionary:
-	# Same bounce the avatar palm uses (anim_t * 1.6), so the ball sits IN the hand.
+	# Identico al campetto: altezza del pallone e passaggio tra le mani.
 	var hs: float = hand_side if absf(hand_side) > 0.1 else 1.0
 	var hb: float = 64.0 * height_f
-	# FINTA: palla TENUTA in mano davanti al petto, come nel court libero —
-	# niente palleggio durante la finta.
 	if fake_t > 0.0 or fake_locked:
-		var fh: float = air + hb * (0.42 if fake_t > 0.12 else 0.55)
-		return {"x": hs * hb * 0.20, "h": fh}
-	# Bounce SINCRONO con il braccio dell'avatar: stesso phase che la
-	# mano usa (durante un trick il braccio accelera a anim_t*1.9: anche
-	# la palla accelera. Prima restava sul proprio orologio lento).
-	var _arm_ph: float = dribble_phase
-	var bounce: float = absf(sin(_arm_ph * 1.15))
-	var side := hs * hb * 0.34
-	# La mano cambia alla pressione: il percorso parte dal lato precedente
-	# e arriva a quello nuovo, senza scattare indietro a fine mossa.
-	if move_t > 0.0 and move_kind in ["crossover", "behind", "hand_switch", "between"]:
-		side = -side
-	var hh := bounce * hb * 0.55 + Court.BALL_R
+		return {"x": hs * hb * 0.20, "h": air + hb * (0.42 if fake_t > 0.12 else 0.55)}
+	var side: float = hs * hb * 0.30
+	var hh: float = absf(sin(dribble_phase * 1.15)) * hb * 0.55 + Court.BALL_R
 	if move_t > 0.0:
-		var f: float = 1.0 - move_t / MOVE_DUR     # 0..1 progress
+		var f: float = 1.0 - move_t / move_duration
 		var low: float = sin(f * PI)
-		match move_kind:
-			"crossover":
-				# scambio di mano con overshoot: la palla scatta oltre la gamba
-				side = lerpf(side, -side, smoothstep(0.0, 1.0, f)) * (1.0 + 0.18 * low)
-				hh = 27.0 + low * 40.0
-			"behind":
-				side = lerpf(side, -side, smoothstep(0.0, 1.0, f))
-				hh = 14.0 + low * 26.0
-			"hand_switch":
-				side = lerpf(side, -side, smoothstep(0.0, 1.0, f)) * (1.0 + 0.12 * low)
-				hh = 22.0 + low * 34.0
-			"stepback":
-				side *= 0.7
-				hh = 19.0 + low * 31.0
-			"hesi":
-				hh = 16.0
-			"spin":
-				# la palla AVVOLGE il corpo: giro completo attorno al giocatore
-				side = hs * sin(f * TAU) * hb * 0.46
-				hh = 24.0 + low * 22.0
-			"between":
-				# sotto la gamba: la palla scende quasi a terra al centro
-				# del corpo e risale sull'altra mano.
-				side = lerpf(side, -side, smoothstep(0.15, 0.85, f))
-				side *= (1.0 - 0.85 * low)   # il tragitto passa vicino a x=0
-				hh = Court.BALL_R + 2.0 + (1.0 - low) * 34.0
+		side = lerpf(-hs, hs, smoothstep(0.0, 1.0, f)) * hb * 0.34
+		hh = hb * 0.16 + low * hb * 0.10
+		if move_kind == "behind":
+			hh = hb * 0.30 - low * hb * 0.06
 	return {"x": side, "h": hh}
 
 ## An off-ball cut: a short burst in the direction you are pushing, used to
@@ -1068,13 +1037,13 @@ func _draw() -> void:
 	po["hand"] = hand_side
 	if move_t > 0.0 and has_ball and not (hanging or dunking):
 		var dribble: Dictionary = dribble_ball_offset()
-		po["dribble_hand"] = Vector2(float(dribble["x"]), -float(dribble["h"]) + air_draw - Court.BALL_R)
+		po["dribble_hand"] = Vector2(float(dribble["x"]), -float(dribble["h"]))
 	if fade_t > 0.0:
 		po["lean_back"] = clampf(fade_t / 0.75, 0.0, 1.0)
 	if move_t > 0.0 and move_kind == "spin":
 		# giro 360: il torso mostra le spalle a meta' mossa (Avatar gestisce
 		# back/yaw) e ritorna frontale alla fine.
-		po["yaw"] = clampf(sin((1.0 - move_t / MOVE_DUR) * PI) * 1.7, 0.0, 1.0)
+		po["yaw"] = clampf(sin((1.0 - move_t / move_duration) * PI) * 1.7, 0.0, 1.0)
 	if fake_t > 0.0:
 		po["fake"] = true
 	if not slam.is_empty():
@@ -1118,8 +1087,9 @@ func _draw() -> void:
 	# The caller's court transform is handed to the avatar so a spinning slam
 	# can compose its own turn on top of the projection.
 	_low = bool(Settings.get_v("lowgfx", false))
-	Avatar.draw_body(self, feet, h, facing, po, cols, false, false, is_user,
-		-1.0, Transform2D(0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale, 0.0, proj - position))
+	embedded_dribble = has_ball and kind == Avatar.DRIBBLE and fake_t <= 0.0 and not fake_locked
+	Avatar.draw_body(self, feet, h, facing, po, cols, embedded_dribble, false, is_user,
+		Court.BALL_R, Transform2D(0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale, 0.0, proj - position))
 	# HEAT CHECK: lingue di fuoco sopra la testa (stesse del court solo)
 	if court != null and court.user_heat and is_user and not bool(Settings.get_v("lowgfx", false)):
 		Avatar.draw_flames(self, feet + Vector2(0.0, -h * 1.16), Time.get_ticks_msec() / 1000.0)

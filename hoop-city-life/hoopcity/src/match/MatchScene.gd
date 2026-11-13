@@ -1113,7 +1113,7 @@ func _setup_broadcast() -> void:
 		var club: String = Season.my_team() if home \
 			else String(Game.profile.get("next_opponent", ""))
 		var kcol: Color = Color(Game.KITS[Season.kit_for(club)]["col"])
-		vis.floor_tint = Color(kcol.r, kcol.g, kcol.b, 0.10)
+		vis.floor_tint = Color(kcol.r, kcol.g, kcol.b, 0.10) if court.is_fixture else Color.TRANSPARENT
 		vis.jumbo_say(Loc.t("jumbo.welcome") % Season.match_arena(), 4.2)
 	_build_intro()
 

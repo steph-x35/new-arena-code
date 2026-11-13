@@ -600,7 +600,7 @@ func _physics_process(delta: float) -> void:
 			_run_jump_ball()
 	if not play_live or finished: return
 	# Una palla libera che esce non deve trascinare tutti nell'angolo.
-	if ball != null and ball.live and not ball.shot_result_pending and pass_target == null 	and (absf(ball.global_position.x) > COURT_W * 0.5 + 30.0 or absf(ball.global_position.y) > COURT_H * 0.5 + 30.0):
+	if ball != null and ball.live and not ball.practice_shot and not ball.shot_result_pending and pass_target == null 	and (absf(ball.global_position.x) > COURT_W * 0.5 + 30.0 or absf(ball.global_position.y) > COURT_H * 0.5 + 30.0):
 		_restart_play(1 - ball.last_touch_team)
 		return
 	game_clock -= delta
@@ -644,6 +644,9 @@ func _physics_process(delta: float) -> void:
 ## "within 3 seconds there is always either a holder or a ball in flight".
 func _deadball_watchdog(delta: float) -> void:
 	if ball == null: return
+	if ball.practice_shot and ball.live:
+		_dead_time = 0.0
+		return # palla reale a terra: la si raccoglie, senza teletrasporti
 	if restarting:
 		_dead_time = 0.0
 		return
@@ -1415,6 +1418,11 @@ func resolve_missed_shot(b: Ball) -> void:
 		return
 	momentum = lerpf(momentum, 0.0, 0.2)
 	_rim_fx("miss", b.global_position)
+	if b.practice_shot:
+		# Il rimbalzo continua sulla fisica della palla: un giocatore deve
+		# raggiungerla e raccoglierla, senza assegnazioni a distanza.
+		shot_clock = maxf(shot_clock, 14.0)
+		return
 	# rebound: nearest players contest, weighted by rebound rating + height
 	var best: BallPlayer = null
 	var best_w := -1.0

@@ -165,6 +165,7 @@ jobs:
           timeout 90 godot --headless res://tools/AttributeBuilderProbe.tscn
           timeout 90 godot --headless res://tools/SeasonProbe.tscn
           timeout 90 godot --headless res://tools/CourtPolishProbe.tscn
+          timeout 90 godot --headless res://tools/DribblePhysicsProbe.tscn
 
       - name: Export Android APK
         run: |
