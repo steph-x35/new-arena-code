@@ -16,6 +16,8 @@ var lang := "en"
 
 # key -> [english, italian]
 const STR := {
+	"reward.title": ["MONEY EARNED", "SOLDI GUADAGNATI"],
+	"reward.continue": ["TAP TO COLLECT", "TOCCA PER CONTINUARE"],
 	"tagline":        ["Build your player. Walk the city. Live the game.",
 	                   "Crea il tuo giocatore. Vivi la città. Vivi il gioco."],
 	"menu.continue":  ["CONTINUE CAREER", "CONTINUA LA CARRIERA"],

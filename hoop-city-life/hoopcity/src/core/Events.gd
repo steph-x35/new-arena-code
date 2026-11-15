@@ -11,6 +11,7 @@ signal energy_changed(value: float)
 signal hunger_changed(value: float)
 signal health_changed(value: float)
 signal money_changed(value: int)
+signal money_rewards_pending
 signal rep_changed(value: int)
 
 # --- Progression ---

@@ -311,12 +311,30 @@ func add_health(v: float) -> void:
 	Events.health_changed.emit(profile["health"])
 
 func add_money(v: int) -> void:
-	# I GUADAGNI (non le spese) scalano con la difficolta scelta:
-	# FACILE 70% - NORMALE 85% - DURO 100% - INCUBO 125%.
+	# Rewards are calculated exactly once, then kept in the save until claimed.
 	if v > 0:
-		v = int(round(v * diff_pay()))
-	profile["money"] = max(0, profile["money"] + v)
+		var reward := int(round(v * diff_pay()))
+		if reward > 0:
+			var pending: Array = profile.get("pending_money_rewards", [])
+			pending.append(reward)
+			profile["pending_money_rewards"] = pending
+			Events.money_rewards_pending.emit()
+			# Let the caller finish updating the match/job before saving.
+			SaveSystem.call_deferred("save_game")
+		return
+	profile["money"] = maxi(0, int(profile["money"]) + v)
 	Events.money_changed.emit(profile["money"])
+
+func claim_money_reward() -> int:
+	var pending: Array = profile.get("pending_money_rewards", [])
+	if pending.is_empty():
+		return 0
+	var reward: int = maxi(0, int(pending.pop_front()))
+	profile["pending_money_rewards"] = pending
+	profile["money"] = int(profile["money"]) + reward
+	Events.money_changed.emit(profile["money"])
+	SaveSystem.save_game()
+	return reward
 
 func add_rep(v: int) -> void:
 	profile["rep"] = clampi(profile["rep"] + v, 0, 100)
