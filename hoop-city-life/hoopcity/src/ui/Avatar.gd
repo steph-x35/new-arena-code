@@ -393,7 +393,7 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	# tomahawk arches back), so the plumb rule is lifted for the dunk sample.
 	if slam_pose:
 		lean = float(dk.get("lean", 0.0)) * h * facing
-	var turn: float = 0.0 if back else clampf(absf(facing), 0.0, 1.0)
+	var turn: float = 0.0 if back or bool(p.get("front", false)) else clampf(absf(facing), 0.0, 1.0)
 	var sdir: float = 1.0 if facing >= 0.0 else -1.0
 	var twist: float = 0.0
 
@@ -561,13 +561,18 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	match st:
 		1:   # rasato: alone sottilissimo
 			c.draw_arc(head_c, head_r * 0.99, 0, TAU, 20, hair, maxf(1.0, head_r * 0.10))
-		2:   # afro: volume pieno tutto intorno
-			c.draw_circle(head_c, head_r * 1.38, hair)
-			c.draw_arc(head_c, head_r * 1.38, 0, TAU, 24, hair.darkened(0.18), head_r * 0.10)
+		2:   # curls frame the face instead of painting over it
+			if back:
+				c.draw_circle(head_c, head_r * 1.14, hair)
+			else:
+				c.draw_arc(head_c, head_r * 1.08, PI, TAU, 20, hair, head_r * 0.46)
+				for i in 7:
+					var angle := PI + PI * float(i) / 6.0
+					c.draw_circle(head_c + Vector2(cos(angle), sin(angle)) * head_r, head_r * 0.26, hair)
 		3:   # trecce: ciuffi che scendono sul collo
 			c.draw_arc(head_c, head_r * 1.06, PI * 0.95, TAU + PI * 0.05, 18, hair, head_r * 0.30)
-			for i in 4:
-				var bx: float = head_c.x - head_r * 0.75 + head_r * 0.5 * i
+			for i in (4 if back else 2):
+				var bx: float = head_c.x + (head_r * (-0.85 if i == 0 else 0.85) if not back else -head_r * 0.75 + head_r * 0.5 * i)
 				c.draw_line(Vector2(bx, head_c.y + head_r * 0.55),
 					Vector2(bx, head_c.y + head_r * (1.25 + 0.08 * (i % 2))), hair, head_r * 0.16)
 		4:   # ricci: corona di gobbe
@@ -579,13 +584,20 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 		5:   # dreadlocks lunghi: ciuffi compatti fino alle spalle, da dietro
 			# e di lato, con la riga in cima al capo
 			c.draw_arc(head_c, head_r * 1.04, PI * 0.9, TAU + PI * 0.1, 18, hair, head_r * 0.30)
-			for i in 6:
-				var dx: float = head_r * (0.85 - 0.34 * i)
+			for i in (6 if back else 2):
+				var dx: float = head_r * ((0.90 if i == 0 else -0.90) if not back else (0.85 - 0.34 * i))
 				var sway: float = head_r * 0.10 * ((i % 2) * 2 - 1)
 				c.draw_line(Vector2(head_c.x + dx, head_c.y + head_r * 0.45),
 					Vector2(head_c.x + dx + sway, head_c.y + head_r * 1.95), hair, head_r * 0.22)
 			# radice piena sopra la testa
 			c.draw_circle(head_c + Vector2(0, -head_r * 0.55), head_r * 0.72, hair)
+		6: # short side-part
+			c.draw_arc(head_c, head_r * 1.02, PI, TAU, 18, hair, head_r * 0.42)
+			c.draw_line(head_c + Vector2(-head_r * 0.5, -head_r * 0.72), head_c + Vector2(head_r * 0.55, -head_r * 0.84), hair.lightened(0.25), maxf(1.0, head_r * 0.08))
+		7: # textured high top
+			c.draw_arc(head_c, head_r * 1.06, PI, TAU, 18, hair, head_r * 0.48)
+			for i in 5:
+				c.draw_circle(head_c + Vector2((float(i) - 2.0) * head_r * 0.32, -head_r * (0.95 + 0.12 * (i % 2))), head_r * 0.22, hair)
 		_:   # normale
 			if back:
 				# Seen from behind: hair covers the skull, no face.

@@ -370,10 +370,18 @@ func _spawn_npcs() -> void:
 	if not outdoor:
 		homes = [Vector2(-560.0, -140.0), Vector2(-850.0, 300.0)]
 		cols = [Game.team_colour(0), Game.team_colour(0)]
-	var hair_styles := [0, 1, 2, 3, 4, 5]
+	var hair_styles := [0, 1, 2, 3, 4, 5, 6, 7]
 	hair_styles.shuffle()
+	var outfits := [Color(0.18, 0.40, 0.72), Color(0.78, 0.31, 0.18), Color(0.24, 0.58, 0.45), Color(0.65, 0.58, 0.76), Color(0.74, 0.70, 0.55)]
+	outfits.shuffle()
+	var shoes := [Color(0.96, 0.94, 0.91), Color(0.18, 0.20, 0.25), Color(0.85, 0.35, 0.20), Color(0.25, 0.67, 0.72)]
+	shoes.shuffle()
 	for i in homes.size():
-		var look := Avatar.colours(false, cols[i % cols.size()])
+		var look := Avatar.colours(false, cols[i % cols.size()] if outdoor else outfits[i % outfits.size()])
+		if not outdoor:
+			look["shorts"] = outfits[(i + 2) % outfits.size()].darkened(0.25)
+			look["shoes"] = shoes[i % shoes.size()]
+			look["skin"] = [Color(0.76, 0.57, 0.43), Color(0.45, 0.29, 0.22), Color(0.88, 0.70, 0.55)].pick_random()
 		look["hst"] = hair_styles[i]
 		look["hair"] = Game.HAIR_COLORS.pick_random()
 		npcs.append({
@@ -381,6 +389,7 @@ func _spawn_npcs() -> void:
 			"state": ("rest" if randf() < 0.5 else "chat") if not outdoor and i == 1 else "wait",
 			"face": -1.0,
 			"moving": false,
+			"ankle": not outdoor and i == 1,
 			"t": randf_range(1.0, 4.5),
 			"made": false,
 			"target": homes[i],
@@ -390,6 +399,8 @@ func _spawn_npcs() -> void:
 
 func _update_npcs(delta: float) -> void:
 	for n in npcs:
+		if talking and talk_index >= 0 and talk_index < npcs.size() and n == npcs[talk_index]:
+			continue
 		n["moving"] = false
 		match String(n["state"]):
 			"chat":
@@ -430,9 +441,14 @@ func _update_npcs(delta: float) -> void:
 						net_wobble = maxf(net_wobble, 0.5)
 						if court_art != null:
 							court_art.net_bump(0, 0.6)
+					n["state"] = "fall"
+					n["t"] = 0.0
+					n["target"] = LEFT_RIM + Vector2(randf_range(25.0, 90.0), randf_range(-40.0, 40.0))
+			"fall":
+				n["t"] += delta
+				if n["t"] >= 0.9:
 					n["state"] = "chase"
 					n["t"] = 0.0
-					n["target"] = Vector2(randf_range(-720.0, -260.0), randf_range(-220.0, 220.0))
 			"chase":
 				var to: Vector2 = n["target"] - n["pos"]
 				if to.length() < 14.0:
@@ -588,10 +604,11 @@ func _process(delta: float) -> void:
 		else:
 			cam.position.x = lerpf(cam.position.x, want_x, clampf(4.0 * delta, 0.0, 1.0))
 		cam.position.y = cam_y
-		cam.zoom = Vector2.ONE * CAM_ZOOM * zoom_k
+		if not talking:
+			cam.zoom = cam.zoom.lerp(Vector2.ONE * CAM_ZOOM * zoom_k, clampf(delta * 4.0, 0.0, 1.0))
 		if talking and talk_index >= 0 and talk_index < npcs.size():
 			var focal: Vector2 = _screen((player_pos + Vector2(npcs[talk_index]["pos"])) * 0.5)
-			cam.position = cam.position.lerp(focal + Vector2(0, -35), clampf(delta * 4.0, 0.0, 1.0))
+			cam.position = focal + Vector2(0, -35)
 			cam.zoom = cam.zoom.lerp(Vector2.ONE * CAM_ZOOM * 1.45, clampf(delta * 4.0, 0.0, 1.0))
 	_update_npcs(delta)
 	_update_talk_button()
@@ -775,7 +792,7 @@ func _process(delta: float) -> void:
 	if btn_shoot:
 		var want: String = "SHOOT"
 		if solo_loose and not ball_recall:
-			want = Loc.t("solo.get")
+			want = "RACCOGLI"
 		elif dunk_phase == "hang":
 			want = "LET GO"
 		elif dunk_phase == "rise":
@@ -1069,14 +1086,11 @@ func _shoot_down() -> void:
 	if shot_anim > 0.0 or dunk_phase != "":
 		return
 	if solo_loose:
-		_recall_ball()
+		Events.toast.emit("Raggiungi la palla per raccoglierla")
 		return
 	if ball_recall:
-		# PRENDI + ricarica subito: la palla in volo verso le mani arriva
-		# ALL'ISTANTE, cosi' la fine dell'animazione non spegne il tiro
-		# appena partito (e niente popup "PALLA!" a meta' tiro).
-		ball_recall = false
-		ball_live = false
+		# A team-mate is returning the rebound: wait until it reaches you.
+		return
 	if can_dunk() and not posting:
 		_start_dunk()
 		return
@@ -1728,6 +1742,8 @@ func _draw_npcs() -> void:
 			Avatar.draw_body(self, s, h, float(n.get("face", -1.0)),
 				Avatar.pose(kind, dribble_t, amount, "", bool(n.get("moving", false))),
 				n["look"], n["state"] == "wait")
+		if bool(n.get("ankle", false)) and n["state"] != "rest":
+			draw_line(s + Vector2(5, -5), s + Vector2(10, -5), Color(0.87, 0.87, 0.90), 3.0)
 		if n["state"] == "shoot":
 			var t: float = clampf(n["t"], 0.0, 1.0)
 			var from: Vector2 = s + Vector2(-10.0, -h * 0.4)
@@ -1735,6 +1751,15 @@ func _draw_npcs() -> void:
 			var bp: Vector2 = from.lerp(rim_s, t)
 			bp.y -= sin(t * PI) * 150.0
 			_draw_ball_at(bp, BALL_R)
+
+		elif n["state"] == "fall":
+			var t: float = clampf(float(n["t"]) / 0.9, 0.0, 1.0)
+			var floor_pos: Vector2 = _screen(n["target"])
+			var from_rim: Vector2 = _screen(LEFT_RIM) + Vector2(0, -RIM_HEIGHT)
+			var bounce: float = sin(clampf((t - 0.65) / 0.35, 0.0, 1.0) * PI) * 28.0
+			_draw_ball_at(from_rim.lerp(floor_pos - Vector2(0, BALL_R), minf(t / 0.65, 1.0)) - Vector2(0, bounce), BALL_R)
+		elif n["state"] == "chase":
+			_draw_ball_at(_screen(n["target"]) - Vector2(0, BALL_R), BALL_R)
 
 func _draw_player() -> void:
 	var base := player_pos
@@ -1908,6 +1933,8 @@ func _draw_player() -> void:
 		po["dunk"] = slam
 	if joystick and joystick.output.y < -0.22 and dunk_phase == "":
 		po["back"] = true
+	elif joystick and joystick.output.y > 0.22 and dunk_phase == "":
+		po["front"] = true
 	if dunk_phase == "hang":
 		# HANG: il giocatore e' appeso al bordo IN PRIMO PIANO, quindi la
 		# mezza retina davanti va SOTTO di lui (la copre lui), non sopra —

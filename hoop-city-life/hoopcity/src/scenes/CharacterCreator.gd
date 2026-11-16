@@ -52,7 +52,7 @@ func _ready() -> void:
 			Game.profile["skin"] = (Game.profile["skin"] + 1) % 5
 			_refresh()],
 		[Loc.t("creator.hair"), func():
-			Game.profile["hair_style"] = (int(Game.profile.get("hair_style", 0)) + 1) % 6
+			Game.profile["hair_style"] = (int(Game.profile.get("hair_style", 0)) + 1) % 8
 			_refresh()],
 		[Loc.t("Colore capelli"), func():
 			Game.profile["hair"] = (Game.profile["hair"] + 1) % Game.HAIR_COLORS.size()

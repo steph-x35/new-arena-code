@@ -16,5 +16,18 @@ func _ready() -> void:
 	ok = ok and not bool(Season.entry_for(3)["done"])
 	Season.mark_done(3, "90-80")
 	ok = ok and bool(Season.entry_for(3)["done"]) and Season.entry_for(3)["result"] == "90-80"
+	# Legacy 60-day save: preserve played games and results, cap future fixtures.
+	Game.profile = Game.default_profile()
+	var legacy: Array = []
+	for d in range(1, 61):
+		legacy.append({"day": d, "kind": "game" if d % 3 == 0 else "rest", "done": d == 3, "result": "90-80" if d == 3 else "", "opponent": "Opponent"})
+	Game.profile["day"] = 10
+	Game.profile["schedule"] = legacy
+	Game.profile.erase("schedule_ten_games_v1")
+	var migrated: Array = Season.schedule()
+	var count := 0
+	for entry in migrated:
+		if entry["kind"] == "game": count += 1
+	ok = ok and count == 10 and migrated[2]["result"] == "90-80" and bool(migrated[2]["done"])
 	print("SEASON_PROBE_OK=", ok)
 	get_tree().quit(0 if ok else 1)

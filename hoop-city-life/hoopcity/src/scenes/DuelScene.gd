@@ -2429,6 +2429,8 @@ func _draw_char(mine: bool) -> void:
 			or (duel_on and (not i_attack) and not ball_loose and duel_phase != "over"))
 
 	var po: Dictionary = Avatar.pose(kind, phase, amount, tk, walking)
+	if mine and joystick != null and joystick.output.y > 0.22 and dunk_phase == "":
+		po["front"] = true
 	po["hand"] = (-1.0 if hand_left else 1.0) if mine else (-1.0 if bool(foe.get("hl", false)) else 1.0)
 	po["yell"] = (dunk_phase != "") if mine else (String(foe.get("dp", "")) != "")
 	var lift := 0.0
@@ -2587,9 +2589,14 @@ func _update_npcs(delta: float) -> void:
 						net_wobble = maxf(net_wobble, 0.5)
 						if court_art != null:
 							court_art.net_bump(0, 0.6)
+					n["state"] = "fall"
+					n["t"] = 0.0
+					n["target"] = LEFT_RIM + Vector2(randf_range(25.0, 90.0), randf_range(-40.0, 40.0))
+			"fall":
+				n["t"] += delta
+				if n["t"] >= 0.9:
 					n["state"] = "chase"
 					n["t"] = 0.0
-					n["target"] = Vector2(randf_range(-720.0, -260.0), randf_range(-220.0, 220.0))
 			"chase":
 				var to: Vector2 = n["target"] - n["pos"]
 				if to.length() < 14.0:
@@ -2637,6 +2644,15 @@ func _draw_npcs() -> void:
 
 
 # -------------------------------------------------- LA PALLA DELL'ALTRO
+		elif n["state"] == "fall":
+			var t: float = clampf(float(n["t"]) / 0.9, 0.0, 1.0)
+			var floor_pos: Vector2 = _screen(n["target"])
+			var from_rim: Vector2 = _screen(LEFT_RIM) + Vector2(0, -RIM_HEIGHT)
+			var bounce: float = sin(clampf((t - 0.65) / 0.35, 0.0, 1.0) * PI) * 28.0
+			_draw_ball_at(from_rim.lerp(floor_pos - Vector2(0, BALL_R), minf(t / 0.65, 1.0)) - Vector2(0, bounce), BALL_R)
+		elif n["state"] == "chase":
+			_draw_ball_at(_screen(n["target"]) - Vector2(0, BALL_R), BALL_R)
+
 func _foe_launch(from: Vector2, aim: Vector2, ghost: bool) -> void:
 	## Stessa parabola esatta del mio tiro: parte da dove ha tirato lui e
 	## passa per l'arrivo che ha deciso il SUO verdetto.

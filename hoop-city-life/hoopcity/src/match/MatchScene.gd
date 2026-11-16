@@ -76,8 +76,12 @@ func _ready() -> void:
 	Events.quarter_ended.connect(_on_quarter_ended)
 	Events.shake.connect(_on_shake)
 	Events.popup.connect(_on_popup)
-	Sfx.start_crowd()
-	Sfx.set_match_live(true)
+	if court.one_on_one:
+		Sfx.stop_crowd()
+		Sfx.set_match_live(false)
+	else:
+		Sfx.start_crowd()
+		Sfx.set_match_live(true)
 	if court.is_fixture:
 		Sfx.court_jazz(true)   # low jazz bed under the crowd, user's call
 	else:
@@ -86,14 +90,14 @@ func _ready() -> void:
 	# between quarters.
 	var vis = $CourtVisual
 	if vis != null:
-		vis.show_cheer = true
+		vis.show_cheer = not court.one_on_one
 		# Benches/scorer's table follow the match state; the stands get people
 		# ONLY for a real league game -- scrimmages and 1v1 play in an empty
 		# bowl. The crowd is baked into the static layer, so rebake it.
 		vis.court = court
 		# Il caos delle tribune vale per OGNI partita, anche scrimmage e 1v1:
 		# gente sui gradoni, swell e fischi dall'inizio alla fine.
-		vis.crowd_on = true
+		vis.crowd_on = not court.one_on_one
 		vis.request_rebake()
 	court.bench_changed.connect(_on_bench_changed)
 	# Near half of each net, painted OVER the ball so a make reads as dropping

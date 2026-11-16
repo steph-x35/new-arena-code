@@ -817,7 +817,7 @@ func _finish_jingle(res: Dictionary, won: bool) -> void:
 	if not is_inside_tree():
 		return
 	Sfx.play("victory" if won else "defeat", 1.0)
-	Sfx.cheer(won)
+	if not one_on_one: Sfx.cheer(won)
 	Events.match_finished.emit(res)
 
 # ------------------------------------------------------------------ shooting

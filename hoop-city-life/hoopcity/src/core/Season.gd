@@ -131,6 +131,25 @@ func _ready() -> void:
 func schedule() -> Array:
 	if not Game.profile.has("schedule") or Game.profile["schedule"].is_empty():
 		Game.profile["schedule"] = _generate()
+	# Older saves could contain twenty fixtures. Keep played/past history,
+	# then retain only as many future games as fit the ten-game season.
+	if int(Game.profile.get("schedule_ten_games_v1", 0)) != 1:
+		var cal: Array = Game.profile["schedule"]
+		var now := int(Game.profile.get("day", 1))
+		var protected := 0
+		for e in cal:
+			if String(e.get("kind", "")) == "game" and (bool(e.get("done", false)) or int(e.get("day", 0)) < now):
+				protected += 1
+		var slots := maxi(10 - protected, 0)
+		for e in cal:
+			if String(e.get("kind", "")) != "game" or bool(e.get("done", false)) or int(e.get("day", 0)) < now:
+				continue
+			if slots > 0:
+				slots -= 1
+			else:
+				e["kind"] = "rest"
+				e["opponent"] = ""
+		Game.profile["schedule_ten_games_v1"] = 1
 	return Game.profile["schedule"]
 
 func season_end_day() -> int:

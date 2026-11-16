@@ -690,6 +690,7 @@ func _handling_move() -> void:
 
 # ---------------------------------------------------------------- defense
 func _proc_defense(delta: float) -> void:
+	dribble_t += delta * 4.2
 	if randf() < delta * 1.4:
 		attacker_target = randf_range(-420, 420)
 	attacker_x = move_toward(attacker_x, attacker_target, 320.0 * delta)
@@ -1003,9 +1004,13 @@ func _draw_stick(pos: Vector2, col: Color, is_attacker: bool) -> void:
 	if not is_attacker:
 		cols["jersey"] = col
 	var facing: float = 1.0
-	var po: Dictionary = Avatar.pose(Avatar.DRIBBLE if is_attacker else Avatar.DEFEND, dribble_t, 0.0, "", true)
+	var moving: bool = is_attacker or (joystick != null and absf(joystick.output.x) > 0.08)
+	if not is_attacker and moving: facing = signf(joystick.output.x)
+	var po: Dictionary = Avatar.pose(Avatar.DRIBBLE if is_attacker else Avatar.DEFEND, dribble_t, 0.0, "", moving)
 	if not is_attacker and joystick != null and joystick.output.y < -0.22:
 		po["back"] = true
+	elif not is_attacker and joystick != null and joystick.output.y > 0.22:
+		po["front"] = true
 	Avatar.draw_body(self, pos, _court_body_h(), facing, po,
 		cols, is_attacker, true, true, DRILL_BALL_R)
 

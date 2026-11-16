@@ -138,7 +138,7 @@ const HAIR_COLORS := [
 
 func hair_style() -> int:
 	## 0 normale, 1 rasato, 2 afro, 3 trecce, 4 ricci.
-	return clampi(int(profile.get("hair_style", 0)), 0, 5)
+	return clampi(int(profile.get("hair_style", 0)), 0, 7)
 
 func skin_color() -> Color:
 	return SKIN_TONES[clampi(int(profile.get("skin", 1)), 0, SKIN_TONES.size() - 1)]

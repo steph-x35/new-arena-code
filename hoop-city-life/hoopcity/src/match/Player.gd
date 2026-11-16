@@ -1108,6 +1108,8 @@ func _draw() -> void:
 	# Stick UP (toward the far sideline) = seen from behind, every court.
 	if move_input.y < -0.22 and not hanging:
 		po["back"] = true
+	if is_user and move_input.y > 0.22 and not hanging and not dunking:
+		po["front"] = true
 	# Hang: slightly bigger figure + a long shadow on the floor so he reads
 	# as dangling in front of the glass, not standing on it.
 	var feet := Vector2(0, -air_draw)
