@@ -6,7 +6,7 @@ func _ready() -> void:
 	var solo = load("res://src/scenes/SoloCourt.tscn").instantiate()
 	add_child(solo)
 	await get_tree().process_frame
-	var ok := solo.npcs.size() == 2
+	var ok: bool = solo.npcs.size() == 2
 	var n: Dictionary = solo.npcs[0]
 	n["state"] = "shoot"
 	n["t"] = 0.25

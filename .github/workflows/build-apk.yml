@@ -161,29 +161,17 @@ jobs:
       - name: Test gameplay e attributi
         run: |
           cd hoop-city-life/hoopcity
-          : > /tmp/hcl-test-diagnostic.txt
-          ERR=0
-          for TEST in TimeoutInboundProbe AttributeBuilderProbe SeasonProbe CourtPolishProbe DribblePhysicsProbe GameplayRegressionProbe MoneyRewardProbe MatchImprovementsProbe TeamCourtUpdateProbe PracticeFlowProbe ChillCourtProbe; do
-            echo "=== $TEST ===" | tee -a /tmp/hcl-test-diagnostic.txt
-            timeout 90 godot --headless "res://tools/$TEST.tscn" > /tmp/hcl-one-test.txt 2>&1 || ERR=1
-            cat /tmp/hcl-one-test.txt | tee -a /tmp/hcl-test-diagnostic.txt
-            if [ "$ERR" != 0 ]; then break; fi
-          done
-          exit "$ERR"
-
-      - name: Save diagnostics on failure
-        if: failure()
-        run: |
-          if [ -f /tmp/hcl-test-diagnostic.txt ]; then
-            mkdir -p ci-diagnostics
-            cp /tmp/hcl-test-diagnostic.txt ci-diagnostics/hcl-tests.txt
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add ci-diagnostics/hcl-tests.txt
-            git commit -m "ci: test diagnostic [skip ci]" || exit 0
-            git pull --rebase origin "$GITHUB_REF_NAME"
-            git push origin "$GITHUB_REF_NAME"
-          fi
+          timeout 90 godot --headless res://tools/TimeoutInboundProbe.tscn
+          timeout 90 godot --headless res://tools/AttributeBuilderProbe.tscn
+          timeout 90 godot --headless res://tools/SeasonProbe.tscn
+          timeout 90 godot --headless res://tools/CourtPolishProbe.tscn
+          timeout 90 godot --headless res://tools/DribblePhysicsProbe.tscn
+          timeout 90 godot --headless res://tools/GameplayRegressionProbe.tscn
+          timeout 90 godot --headless res://tools/MoneyRewardProbe.tscn
+          timeout 90 godot --headless res://tools/MatchImprovementsProbe.tscn
+          timeout 90 godot --headless res://tools/TeamCourtUpdateProbe.tscn
+          timeout 90 godot --headless res://tools/PracticeFlowProbe.tscn
+          timeout 90 godot --headless res://tools/ChillCourtProbe.tscn
 
       - name: Export Android APK
         run: |
