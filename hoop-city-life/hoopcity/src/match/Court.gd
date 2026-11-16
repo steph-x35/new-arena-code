@@ -71,6 +71,9 @@ var total_attempts := 0
 var total_makes := 0
 var _clutch_slowmo := false
 var _buzzer_sounded := false
+var _defense_chant_cooldown := 12.0
+var _defense_chant_possession_time := 0.0
+var _defense_chant_left := 0.0
 var _dead_time := 0.0               # watchdog accumulator, see _deadball_watchdog
 var restarting := false             # true during a scripted inbound/check pause
 var awaiting_check := false         # 1v1: CHECK button before the ball is live
@@ -576,7 +579,28 @@ func _process_voices(delta: float) -> void:
 			_shoot_call = true
 			_voice("shoot", 3.0)
 
+func _process_defense_chant(delta: float) -> void:
+	# Home crowd cheers the user's defense only in a full game/scrimmage.
+	# No chants in the calm 1v1 or the coach's two-on-two practice.
+	_defense_chant_cooldown = maxf(0.0, _defense_chant_cooldown - delta)
+	var defending: bool = not one_on_one and team_size > 2 and play_live and not finished and user != null and possession != user.team and user_on_court
+	if not defending:
+		_defense_chant_possession_time = 0.0
+		_defense_chant_left = 0.0
+		Sfx.stop_defense_chant()
+		return
+	_defense_chant_possession_time += delta
+	if _defense_chant_left > 0.0:
+		_defense_chant_left -= delta
+		if _defense_chant_left <= 0.0:
+			Sfx.stop_defense_chant()
+	elif _defense_chant_cooldown <= 0.0 and _defense_chant_possession_time >= 3.0:
+		Sfx.play_defense_chant()
+		_defense_chant_left = 6.5
+		_defense_chant_cooldown = randf_range(35.0, 55.0)
+
 func _physics_process(delta: float) -> void:
+	_process_defense_chant(delta)
 	_process_voices(delta)
 	# NBA JAM HEAT: la palla prende fuoco finché l'utente in fiamme la tiene
 	# o sta volando da un suo tiro (chi la ruba si spegne la fiamma in mano).
@@ -639,6 +663,8 @@ func _physics_process(delta: float) -> void:
 			must_clear = false
 			Events.toast.emit("Cleared - go!")
 	if shot_clock <= 0.0 and (ball == null or not ball.shot_result_pending):
+		if game_clock > 0.0 and not one_on_one:
+			Sfx.play("buzzer")
 		Events.toast.emit("Shot clock violation")
 		_turnover_to(1 - possession)
 	if game_clock <= 0.0:
@@ -762,12 +788,13 @@ func _end_quarter() -> void:
 		return
 	if not _buzzer_sounded:
 		Sfx.play("buzzer")
-	_buzzer_sounded = false
+		_buzzer_sounded = true
 	_close_quarter_book()
 	quarter += 1
 	if quarter > QUARTERS or team_size == 2:
 		_finish()
 		return
+	_buzzer_sounded = false
 	game_clock = quarter_len
 	possession = 1 - possession
 	_reset_possession(true)
@@ -778,8 +805,10 @@ func _finish() -> void:
 	if _clutch_slowmo:
 		_clutch_slowmo = false
 		Engine.time_scale = 1.0
+	var horn_already_sounded := _buzzer_sounded
 	_buzzer_sounded = false
 	finished = true
+	Sfx.stop_defense_chant()
 	play_live = false
 	var won: bool = score[0] > score[1]
 	var res := box.duplicate()
@@ -809,7 +838,8 @@ func _finish() -> void:
 	# lose them; the panel waits for the jingle a moment longer.
 	if team_size != 2:
 		Career.apply_match_result(res)
-	Sfx.play("buzzer", 2.0)
+	if not horn_already_sounded:
+		Sfx.play("buzzer")
 	_finish_jingle(res, won)
 
 func _finish_jingle(res: Dictionary, won: bool) -> void:
