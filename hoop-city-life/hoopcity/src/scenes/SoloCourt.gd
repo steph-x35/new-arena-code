@@ -368,8 +368,8 @@ func _spawn_npcs() -> void:
 	var homes := [Vector2(-560.0, -150.0), Vector2(-330.0, 140.0), Vector2(-640.0, 60.0)]
 	var cols := [Color(0.16, 0.45, 0.85), Color(0.72, 0.20, 0.22), Color(0.20, 0.55, 0.30)]
 	if not outdoor:
-		homes = [Vector2(-560.0, -140.0), Vector2(-640.0, 150.0), Vector2(-810.0, -260.0)]
-		cols = [Game.team_colour(0), Game.team_colour(0), Color(0.22, 0.24, 0.29)]
+		homes = [Vector2(-560.0, -140.0), Vector2(-850.0, 300.0)]
+		cols = [Game.team_colour(0), Game.team_colour(0)]
 	var hair_styles := [0, 1, 2, 3, 4, 5]
 	hair_styles.shuffle()
 	for i in homes.size():
@@ -378,8 +378,9 @@ func _spawn_npcs() -> void:
 		look["hair"] = Game.HAIR_COLORS.pick_random()
 		npcs.append({
 			"pos": homes[i],
-			"state": "coach" if not outdoor and i == 2 else ("rest" if not outdoor and i == 1 and randf() < 0.5 else "wait"),
-			"coach": not outdoor and i == 2,
+			"state": ("rest" if randf() < 0.5 else "chat") if not outdoor and i == 1 else "wait",
+			"face": -1.0,
+			"moving": false,
 			"t": randf_range(1.0, 4.5),
 			"made": false,
 			"target": homes[i],
@@ -389,21 +390,29 @@ func _spawn_npcs() -> void:
 
 func _update_npcs(delta: float) -> void:
 	for n in npcs:
+		n["moving"] = false
 		match String(n["state"]):
-			"coach":
-				pass
+			"chat":
+				n["t"] -= delta
+				if n["t"] <= 0.0:
+					n["state"] = "rest"
+					n["t"] = randf_range(5.0, 10.0)
 			"rest":
 				n["t"] -= delta
 				if n["t"] <= 0.0:
-					n["state"] = "wait"
-					n["t"] = randf_range(2.0, 5.0)
+					n["state"] = "chat" if not outdoor else "wait"
+					n["t"] = randf_range(5.0, 10.0)
 			"rebound":
+				var goal: Vector2 = player_pos + Vector2(-90.0, 60.0)
 				if solo_loose and ball_live and _pick_ok:
-					var toward: Vector2 = ball_pos - n["pos"]
-					if toward.length() < 65.0 and ball_h < 90.0:
+					goal = ball_pos
+					if Vector2(n["pos"]).distance_to(goal) < 65.0 and ball_h < 90.0:
 						_recall_ball()
-					elif toward.length() > 1.0:
-						n["pos"] += toward.normalized() * minf(160.0 * delta, toward.length())
+				var toward: Vector2 = goal - n["pos"]
+				if toward.length() > (20.0 if solo_loose else 45.0):
+					n["moving"] = true
+					if absf(toward.x) > 1.0: n["face"] = signf(toward.x)
+					n["pos"] += toward.normalized() * minf(220.0 * delta, toward.length())
 			"wait":
 				n["t"] -= delta
 				if n["t"] <= 0.0:
@@ -430,7 +439,9 @@ func _update_npcs(delta: float) -> void:
 					n["state"] = "wait"
 					n["t"] = randf_range(2.0, 5.0)
 				else:
-					n["pos"] += to.normalized() * 95.0 * delta
+					n["moving"] = true
+					if absf(to.x) > 1.0: n["face"] = signf(to.x)
+					n["pos"] += to.normalized() * minf(140.0 * delta, to.length())
 
 func _update_talk_button() -> void:
 	if outdoor or talk_button == null:
@@ -455,25 +466,75 @@ func _talk_to_nearby() -> void:
 	var which := talk_index
 	talking = true
 	var n: Dictionary = npcs[which]
-	var p := GamePanel.new().build("ALLENATORE" if bool(n.get("coach", false)) else "COMPAGNO", Vector2(760, 520))
-	hud_layer.add_child(p)
-	p.tree_exiting.connect(func(): talking = false)
-	if bool(n.get("coach", false)):
-		p.add_text("Continua a lavorare: ogni tiro conta!", 24)
-	else:
-		p.add_text("Ci alleniamo insieme?", 24)
-		p.add_button("Mi prendi i rimbalzi?", func():
+	# A letterboxed, two-step conversation inspired by the reference, while
+	# keeping Hoop City's own colours and typography.
+	var overlay := Control.new()
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	hud_layer.add_child(overlay)
+	overlay.tree_exiting.connect(func(): talking = false)
+	for top in [true, false]:
+		var bar := ColorRect.new()
+		bar.color = Color(0.02, 0.025, 0.04, 0.94)
+		bar.set_anchors_preset(Control.PRESET_TOP_WIDE if top else Control.PRESET_BOTTOM_WIDE)
+		bar.offset_top = 0 if top else -55
+		bar.offset_bottom = 55 if top else 0
+		overlay.add_child(bar)
+	var card := PanelContainer.new()
+	card.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	card.position = Vector2(-370, -235)
+	card.custom_minimum_size = Vector2(740, 155)
+	var skin := StyleBoxFlat.new()
+	skin.bg_color = Color(0.95, 0.93, 0.88, 0.98)
+	skin.border_color = Color(0.18, 0.38, 0.51)
+	skin.set_border_width_all(4)
+	skin.set_corner_radius_all(14)
+	skin.set_content_margin_all(16)
+	card.add_theme_stylebox_override("panel", skin)
+	overlay.add_child(card)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 8)
+	card.add_child(col)
+	var who := Label.new()
+	who.text = "COMPAGNO DI SQUADRA"
+	who.add_theme_font_size_override("font_size", 21)
+	who.add_theme_color_override("font_color", Color(0.72, 0.24, 0.13))
+	col.add_child(who)
+	var line := Label.new()
+	line.text = "Ehi! Ti va di allenarci insieme?"
+	line.add_theme_font_size_override("font_size", 25)
+	line.add_theme_color_override("font_color", Color(0.12, 0.14, 0.19))
+	col.add_child(line)
+	var choices := HBoxContainer.new()
+	choices.add_theme_constant_override("separation", 10)
+	col.add_child(choices)
+	var next := Button.new()
+	next.text = "CONTINUA  ›"
+	choices.add_child(next)
+	next.pressed.connect(func():
+		next.queue_free()
+		line.text = "Che cosa facciamo?"
+		var rebound := Button.new()
+		rebound.text = "RIMBALZI"
+		choices.add_child(rebound)
+		rebound.pressed.connect(func():
 			if rebound_helper >= 0 and rebound_helper < npcs.size(): npcs[rebound_helper]["state"] = "wait"
 			rebound_helper = which
 			n["state"] = "rebound"
-			p.close(), true)
-		p.add_button("Giochiamo 1v1", func():
+			overlay.queue_free())
+		var duel := Button.new()
+		duel.text = "1v1"
+		choices.add_child(duel)
+		duel.pressed.connect(func():
 			Game.profile["next_match_mode"] = "1v1"
 			Game.profile["match_is_fixture"] = false
 			Game.profile["next_opponent"] = "Compagno di squadra"
 			Game.profile["next_kit_return"] = "res://src/scenes/TeamCourt.tscn"
 			SceneRouter.goto("res://src/scenes/KitPicker.tscn"))
-	p.add_button("A dopo", func(): p.close())
+		var later := Button.new()
+		later.text = "A DOPO"
+		choices.add_child(later)
+		later.pressed.connect(func(): overlay.queue_free()))
 
 func _process(delta: float) -> void:
 	dribble_t += delta * 4.2
@@ -1643,27 +1704,29 @@ func _draw_npcs() -> void:
 	for n in npcs:
 		var s: Vector2 = _screen(n["pos"])
 		var h: float = 64.0 * Game.height_factor() * 0.92
-		var kind := Avatar.DRIBBLE
+		var kind := Avatar.IDLE
 		var amount := 0.0
-		if n["state"] == "coach" or n["state"] == "rest":
+		if n["state"] == "wait":
+			kind = Avatar.DRIBBLE
+		elif n["state"] == "chat" or n["state"] == "rest":
 			kind = Avatar.IDLE
 		elif n["state"] == "shoot":
 			kind = Avatar.SHOOT
 			amount = clampf(n["t"], 0.0, 1.0)
-		elif n["state"] == "chase" or (n["state"] == "rebound" and solo_loose):
+		elif bool(n.get("moving", false)):
 			kind = Avatar.RUN
 		if n["state"] == "rest" and not outdoor:
-			# Seated on the parquet with a small phone, not a standing pose.
-			var skin: Color = n["look"].get("skin", Color(0.7, 0.5, 0.35))
-			var jersey: Color = n["col"]
-			draw_line(s + Vector2(-12, -4), s + Vector2(17, -4), Color(0.13, 0.15, 0.20), 9.0)
-			draw_line(s + Vector2(0, -8), s + Vector2(-5, -29), jersey, 15.0)
-			draw_circle(s + Vector2(-5, -39), 9.0, skin)
-			draw_line(s + Vector2(-4, -25), s + Vector2(10, -17), skin, 4.0)
-			draw_rect(Rect2(s + Vector2(8, -25), Vector2(7, 11)), Color(0.12, 0.14, 0.19))
+			# The same detailed avatar, compressed at the hips onto the floor.
+			var seat_xf := Transform2D(0.0, Vector2.ONE, 0.0, s) * Transform2D(0.0, Vector2(1.0, 0.68)) * Transform2D(0.0, Vector2.ONE, 0.0, -s)
+			Avatar.draw_body(self, s, h, float(n.get("face", 1.0)), Avatar.pose(Avatar.IDLE, dribble_t), n["look"], false, false, true, BALL_R, seat_xf)
+			draw_line(s + Vector2(-10, -3), s + Vector2(18, -3), Color(0.15, 0.16, 0.22), 7.0)
+			var phone := Rect2(s + Vector2(12, -25), Vector2(9, 14))
+			draw_rect(phone, Color(0.07, 0.08, 0.10))
+			draw_rect(phone.grow(-1.5), Color(0.38, 0.55, 0.63))
+			draw_circle(phone.position + Vector2(4.5, 12.0), 0.8, Color.WHITE)
 		else:
-			Avatar.draw_body(self, s, h, -1.0,
-				Avatar.pose(kind, dribble_t, amount),
+			Avatar.draw_body(self, s, h, float(n.get("face", -1.0)),
+				Avatar.pose(kind, dribble_t, amount, "", bool(n.get("moving", false))),
 				n["look"], n["state"] == "wait")
 		if n["state"] == "shoot":
 			var t: float = clampf(n["t"], 0.0, 1.0)

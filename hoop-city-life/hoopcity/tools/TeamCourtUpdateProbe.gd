@@ -39,6 +39,6 @@ func _ready() -> void:
 	var solo = load("res://src/scenes/SoloCourt.tscn").instantiate()
 	add_child(solo)
 	await get_tree().process_frame
-	ok = ok and not solo.outdoor and solo.npcs.size() == 3 and bool(solo.npcs[2].get("coach", false))
+	ok = ok and not solo.outdoor and solo.npcs.size() == 2
 	print("TEAM_COURT_UPDATE_OK=", ok)
 	get_tree().quit(0 if ok else 1)

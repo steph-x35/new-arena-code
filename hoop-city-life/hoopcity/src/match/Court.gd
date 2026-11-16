@@ -131,6 +131,8 @@ func _ready() -> void:
 	randomize()
 	if Game.profile.has("next_match_mode") and String(Game.profile["next_match_mode"]) == "1v1":
 		one_on_one = true
+	if String(Game.profile.get("next_match_mode", "")) == "team_practice" and String(Game.profile.get("team_practice_stage", "")) == "2v2":
+		team_size = 2
 	if one_on_one:
 		team_size = 1
 		# Both players attack the SAME rim in a half-court game.
@@ -139,7 +141,7 @@ func _ready() -> void:
 	_spawn_teams()
 	if not one_on_one:
 		_spawn_referees()
-	quarter_len = float(Game.profile.get("quarter_seconds", 120.0))
+	quarter_len = 60.0 if team_size == 2 else float(Game.profile.get("quarter_seconds", 120.0))
 	game_clock = quarter_len
 	is_fixture = (not one_on_one) and bool(Game.profile.get("match_is_fixture", false))
 	if is_fixture:
@@ -763,7 +765,7 @@ func _end_quarter() -> void:
 	_buzzer_sounded = false
 	_close_quarter_book()
 	quarter += 1
-	if quarter > QUARTERS:
+	if quarter > QUARTERS or team_size == 2:
 		_finish()
 		return
 	game_clock = quarter_len
@@ -805,7 +807,8 @@ func _finish() -> void:
 	res["arena"] = Season.match_arena()
 	# Rewards are granted immediately so leaving on the final buzzer can never
 	# lose them; the panel waits for the jingle a moment longer.
-	Career.apply_match_result(res)
+	if team_size != 2:
+		Career.apply_match_result(res)
 	Sfx.play("buzzer", 2.0)
 	_finish_jingle(res, won)
 

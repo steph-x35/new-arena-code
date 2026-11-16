@@ -50,7 +50,7 @@ func _build() -> void:
 		UIKit.big_button(v, Loc.tx("TEAM PRACTICE (today)"),
 			func():
 				_start_team_practice(),
-			"Tiri liberi: completa l'esercizio per guadagnare la ricompensa")
+			"2v2, schemi e tiri liberi: completa tutto per la ricompensa")
 
 	# ---- court work: every basketball exercise lives HERE, on the court
 	# that has the hoops and the paint, not in the weight room. Ordered as a
@@ -129,8 +129,10 @@ func _start_team_practice() -> void:
 		Events.toast.emit(Loc.tx("Too tired -- you need %d energy") % 18)
 		return
 	Game.profile["team_practice_day"] = int(Game.profile.get("day", 1))
-	Game.profile["pending_drill"] = {"kind": "freethrow", "return": "res://src/scenes/TeamCourt.tscn"}
-	SceneRouter.goto("res://src/scenes/DrillScene.tscn")
+	Game.profile["team_practice_stage"] = "2v2"
+	Game.profile["next_match_mode"] = "team_practice"
+	Game.profile["match_is_fixture"] = false
+	SceneRouter.goto("res://src/match/MatchScene.tscn")
 
 func _drill(kind: String) -> void:
 	var cost: int = COST_FT if kind == "freethrow" else COST_DRILL

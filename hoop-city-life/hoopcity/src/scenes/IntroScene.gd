@@ -152,18 +152,18 @@ func _animate_showcase(delta: float) -> void:
 func _add_btn(text: String, cb: Callable) -> void:
 	var b := Button.new()
 	b.text = text
-	b.custom_minimum_size = Vector2(420, 62)
-	b.add_theme_font_size_override("font_size", 23)
+	b.custom_minimum_size = Vector2(470, 68)
+	b.add_theme_font_size_override("font_size", 25)
 	var glass := StyleBoxFlat.new()
-	glass.bg_color = Color(0.08, 0.12, 0.16, 0.75)
-	glass.border_color = Color(1.0, 0.71, 0.36, 0.8)
+	glass.bg_color = Color(0.12, 0.14, 0.20, 0.48)
+	glass.border_color = Color(0.86, 0.92, 1.0, 0.78)
 	glass.set_border_width_all(2)
-	glass.set_corner_radius_all(18)
+	glass.set_corner_radius_all(24)
 	glass.shadow_color = Color(0, 0, 0, 0.35)
 	glass.shadow_size = 8
 	b.add_theme_stylebox_override("normal", glass)
 	var over := glass.duplicate() as StyleBoxFlat
-	over.bg_color = Color(0.55, 0.30, 0.12, 0.9)
+	over.bg_color = Color(0.47, 0.38, 0.36, 0.65)
 	b.add_theme_stylebox_override("hover", over)
 	b.add_theme_stylebox_override("pressed", over)
 	b.pressed.connect(cb)
@@ -185,8 +185,11 @@ func _layout() -> void:
 	sub_lbl.custom_minimum_size = Vector2(0.0, 30.0)
 	sub_lbl.size = Vector2(s.x, 30.0)
 	# Centre the translucent buttons below the title on every screen.
-	buttons.position = Vector2((s.x - 420.0) * 0.5, s.y - 62.0 * buttons.get_child_count()
-		- 8.0 * maxi(buttons.get_child_count() - 1, 0) - 32.0)
+	var width: float = minf(470.0, s.x - 40.0)
+	for button in buttons.get_children():
+		button.custom_minimum_size.x = width
+	var height: float = 68.0 * buttons.get_child_count() + 8.0 * maxi(buttons.get_child_count() - 1, 0)
+	buttons.position = Vector2((s.x - width) * 0.5, maxf(s.y * 0.10 + 140.0, s.y - height - 75.0))
 
 func _unhandled_input(event: InputEvent) -> void:
 	var tap: bool = (event is InputEventScreenTouch and event.pressed) \

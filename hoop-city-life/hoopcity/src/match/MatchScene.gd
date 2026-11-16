@@ -66,6 +66,9 @@ func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color(0.10, 0.11, 0.14))
 	_build_hud()
 	_setup_broadcast()
+	if court.team_size == 2:
+		var coach := preload("res://src/scenes/PracticeCoach.gd").new()
+		add_child(coach)
 	Events.score_changed.connect(_on_score)
 	Events.toast.connect(_on_toast)
 	Events.shot_taken.connect(_on_shot_taken)
@@ -1337,6 +1340,12 @@ func _on_toast(t: String) -> void:
 	tw.tween_property(lbl_toast, "modulate:a", 0.0, 0.5)
 
 func _on_finished(res: Dictionary) -> void:
+	if court.team_size == 2 and String(Game.profile.get("team_practice_stage", "")) == "2v2":
+		Game.profile["team_practice_stage"] = "plays"
+		Game.profile["next_match_mode"] = "full"
+		Game.profile["pending_drill"] = {"kind": "plays", "return": "res://src/scenes/TeamCourt.tscn"}
+		SceneRouter.goto("res://src/scenes/DrillScene.tscn")
+		return
 	# Verdetto FINALE sull'obiettivo (qui si giudica anche quello legato alla
 	# vittoria) e pagamento dell'XP extra: la busta base e' gia' di Career.
 	if not goal.is_empty():
@@ -1352,6 +1361,17 @@ func _on_finished(res: Dictionary) -> void:
 	hud.add_child(panel)
 
 func _confirm_exit() -> void:
+	if court.team_size == 2:
+		var quit := GamePanel.new().build("Lasciare l'allenamento?", Vector2(720, 380))
+		hud.add_child(quit)
+		quit.add_text("Se esci ora non riceverai la ricompensa.", 22)
+		quit.add_button("Esci", func():
+			Game.profile.erase("team_practice_day")
+			Game.profile.erase("team_practice_stage")
+			Game.profile["next_match_mode"] = "full"
+			SceneRouter.goto("res://src/scenes/TeamCourt.tscn"))
+		quit.add_button("Continua", func(): quit.close())
+		return
 	## Walking out mid-game forfeits it, so ask first rather than dumping the
 	## player back to the city on a mis-tap.
 	var p := GamePanel.new().build("Leave the game?", Vector2(720, 380))
