@@ -29,6 +29,11 @@ var _bounce_i := 0
 var crowd: AudioStreamPlayer
 var defense_chant: AudioStreamPlayer
 var defense_chant_index := 0
+var _chant_level := 0.0
+var _chant_target := 0.0
+const CHANT_FADE_IN := 1.2
+const CHANT_FADE_OUT := 1.0
+const CHANT_VOLUME_DB := -8.0
 var music: AudioStreamPlayer
 var amb: AudioStreamPlayer
 var ambient: AudioStreamPlayer        # traffic bed (city), dedicated loop
@@ -191,7 +196,7 @@ func start_crowd() -> void:
 		set_hype(0.0)
 
 func stop_crowd() -> void:
-	stop_defense_chant()
+	stop_defense_chant(true)
 	if crowd.playing:
 		crowd.stop()
 	_hype = 0.0
@@ -203,10 +208,24 @@ func play_defense_chant() -> void:
 		return
 	defense_chant.stream = DEFENSE_CHANTS[defense_chant_index % DEFENSE_CHANTS.size()]
 	defense_chant_index += 1
+	_chant_level = 0.0
+	_chant_target = 1.0
+	defense_chant.volume_db = -80.0
 	defense_chant.play()
 
-func stop_defense_chant() -> void:
-	if defense_chant != null:
+func stop_defense_chant(immediate := false) -> void:
+	_chant_target = 0.0
+	if immediate and defense_chant != null:
+		_chant_level = 0.0
+		defense_chant.stop()
+
+func _update_defense_chant(delta: float) -> void:
+	if defense_chant == null or not defense_chant.playing:
+		return
+	var fade_time := CHANT_FADE_IN if _chant_target > _chant_level else CHANT_FADE_OUT
+	_chant_level = move_toward(_chant_level, _chant_target, delta / fade_time)
+	defense_chant.volume_db = CHANT_VOLUME_DB + linear_to_db(maxf(_chant_level, 0.0001))
+	if _chant_level <= 0.0 and _chant_target == 0.0:
 		defense_chant.stop()
 
 ## Ambiente del court ESTERNO (registrazione dell'utente): player dedicato,
@@ -251,6 +270,7 @@ func ooh() -> void:
 		play("crowd_ooh", -7.0, randf_range(0.95, 1.06))
 
 func _process(delta: float) -> void:
+	_update_defense_chant(delta)
 	_squeak_cd = maxf(0.0, _squeak_cd - delta)
 	if _duck_t > 0.0:
 		_duck_t -= delta
@@ -373,4 +393,4 @@ func set_match_live(v: bool) -> void:
 	match_live = v
 	if not v:
 		_chaos_t = 0.0
-		stop_defense_chant()
+		stop_defense_chant(true)

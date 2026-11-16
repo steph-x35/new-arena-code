@@ -174,7 +174,7 @@ func _show_schedule() -> void:
 	var p: GamePanel = GamePanel.new().build("📅  Schedule", Vector2(900, 620))
 	$UI.add_child(p)
 	var day: int = int(Game.profile.get("day", 1))
-	for e in Season.upcoming(9):
+	for e in Season.schedule():
 		var d: int = int(e["day"])
 		var kind: String = String(e.get("kind", "rest"))
 		var line: String = "Day %d · %s" % [d, Season.label_for(e)]

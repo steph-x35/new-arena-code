@@ -150,6 +150,28 @@ func schedule() -> Array:
 				e["kind"] = "rest"
 				e["opponent"] = ""
 		Game.profile["schedule_ten_games_v1"] = 1
+	# Some older careers saved a genuinely short calendar, not just a short
+	# display. Extend an active regular season without changing any played or
+	# scheduled days. Once complete, never reopen a finished season/playoff.
+	if int(Game.profile.get("schedule_ten_games_v2", 0)) != 1:
+		var cal: Array = Game.profile["schedule"]
+		var games := 0
+		var last_day := 0
+		for entry in cal:
+			last_day = maxi(last_day, int(entry.get("day", 0)))
+			if String(entry.get("kind", "")) == "game": games += 1
+		var playoff: Dictionary = Game.profile.get("playoff", {})
+		if bool(Game.profile.get("season_active", true)) and not bool(playoff.get("live", false)):
+			var next_day: int = maxi(last_day, int(Game.profile.get("day", 1)))
+			var opponents: Array = TEAMS.filter(func(t): return t != my_team())
+			while games < 10:
+				for kind in ["practice", "weights", "game"]:
+					next_day += 1
+					var opp: String = String(opponents[games % opponents.size()]) if kind == "game" else ""
+					cal.append({"day": next_day, "kind": kind, "opponent": opp,
+						"home": games % 2 == 0, "done": false, "skipped": false, "result": ""})
+				if games < 10: games += 1
+		Game.profile["schedule_ten_games_v2"] = 1
 	return Game.profile["schedule"]
 
 func season_end_day() -> int:

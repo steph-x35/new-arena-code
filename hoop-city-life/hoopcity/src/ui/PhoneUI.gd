@@ -521,10 +521,18 @@ func _calendar() -> void:
 	_txt("%d followers" % Season.followers(), 17, Color(0.6, 0.85, 1.0))
 	_sep()
 
-	for e in Season.upcoming(12):
+	# Show the entire season, including already-played games. The old 12-day
+	# window looked like a four-game season even when ten were scheduled.
+	_txt("STAGIONE COMPLETA · scorri per vedere tutte le partite", 16, Color(0.75, 0.87, 1.0))
+	var game_number := 0
+	var fixture_total := 0
+	for entry in Season.schedule():
+		if String(entry.get("kind", "")) == "game": fixture_total += 1
+	for e in Season.schedule():
 		var d: int = int(e["day"])
 		var is_today: bool = d == day
 		var kind: String = String(e["kind"])
+		if kind == "game": game_number += 1
 		var col := Color(1, 1, 1, 0.55)
 		match kind:
 			"game": col = Color(1.0, 0.55, 0.45)
@@ -541,7 +549,8 @@ func _calendar() -> void:
 
 		_txt("Day %d%s" % [d, "   ▸ TODAY" if is_today else ""], 17,
 			Color(1, 0.9, 0.4) if is_today else Color(1, 1, 1, 0.45))
-		_txt("   " + Season.label_for(e) + tag, 19, col)
+		var game_prefix := "GARA %d/%d · " % [game_number, fixture_total] if kind == "game" else ""
+		_txt("   " + game_prefix + Season.label_for(e) + tag, 19, col)
 
 		# Today's practice can be attended or skipped right from the phone.
 		if is_today and kind == "practice" and not bool(e.get("done", false)):

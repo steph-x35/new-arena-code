@@ -601,7 +601,8 @@ func _process_defense_chant(delta: float) -> void:
 			Sfx.stop_defense_chant()
 	elif _defense_chant_cooldown <= 0.0 and _defense_chant_possession_time >= 3.0:
 		Sfx.play_defense_chant()
-		_defense_chant_left = 6.5
+		# Start fading before the shortest (7s) recording ends naturally.
+		_defense_chant_left = 5.5
 		_defense_chant_cooldown = randf_range(35.0, 55.0)
 
 func _physics_process(delta: float) -> void:
