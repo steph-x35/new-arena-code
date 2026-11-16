@@ -8,23 +8,19 @@ web_nothreads_debug.zip
 web_nothreads_release.zip
 web_release.zip
 total 72960
-drwxr-xr-x 2 runner runner     4096 Nov 16 15:10 .
-drwxr-xr-x 3 runner runner     4096 Nov 16 15:10 ..
--rw-r--r-- 1 runner runner  8972312 Nov 16 15:10 web_debug.zip
--rw-r--r-- 1 runner runner 10450872 Nov 16 15:10 web_dlink_debug.zip
--rw-r--r-- 1 runner runner 10596848 Nov 16 15:10 web_dlink_nothreads_debug.zip
--rw-r--r-- 1 runner runner  9681918 Nov 16 15:10 web_dlink_nothreads_release.zip
--rw-r--r-- 1 runner runner  9613206 Nov 16 15:10 web_dlink_release.zip
--rw-r--r-- 1 runner runner  9082643 Nov 16 15:10 web_nothreads_debug.zip
--rw-r--r-- 1 runner runner  8168102 Nov 16 15:10 web_nothreads_release.zip
--rw-r--r-- 1 runner runner  8120251 Nov 16 15:10 web_release.zip
+drwxr-xr-x 2 runner runner     4096 Nov 16 15:19 .
+drwxr-xr-x 3 runner runner     4096 Nov 16 15:19 ..
+-rw-r--r-- 1 runner runner  8972312 Nov 16 15:19 web_debug.zip
+-rw-r--r-- 1 runner runner 10450872 Nov 16 15:19 web_dlink_debug.zip
+-rw-r--r-- 1 runner runner 10596848 Nov 16 15:19 web_dlink_nothreads_debug.zip
+-rw-r--r-- 1 runner runner  9681918 Nov 16 15:19 web_dlink_nothreads_release.zip
+-rw-r--r-- 1 runner runner  9613206 Nov 16 15:19 web_dlink_release.zip
+-rw-r--r-- 1 runner runner  9082643 Nov 16 15:19 web_nothreads_debug.zip
+-rw-r--r-- 1 runner runner  8168102 Nov 16 15:19 web_nothreads_release.zip
+-rw-r--r-- 1 runner runner  8120251 Nov 16 15:19 web_release.zip
 === IMPORT ===
 Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: Cannot infer the type of "ok" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://tools/ChillCourtProbe.gd:9)
-ERROR: Failed to load script "res://tools/ChillCourtProbe.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript.cpp:2936)
 === EXPORT ===
 Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
 
@@ -332,10 +328,6 @@ savepack: begin: Packing steps: 102
 	savepack: step 78: Storing File: res://tools/ChatShot.gdc
 	savepack: step 78: Storing File: res://.godot/exported/133200997/export-034f6bf7c4d246e328f9bfcee84a0539-ChatShot.scn
 	savepack: step 78: Storing File: res://tools/ChillCourtProbe.gdc
-SCRIPT ERROR: Parse Error: Cannot infer the type of "ok" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://tools/ChillCourtProbe.gd:9)
-ERROR: Failed to load script "res://tools/ChillCourtProbe.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript.cpp:2936)
 	savepack: step 79: Storing File: res://.godot/exported/133200997/export-d8446beb9f7544c8c4a60015b5311383-ChillCourtProbe.scn
 	savepack: step 79: Storing File: res://tools/CourtPolishProbe.gdc
 	savepack: step 79: Storing File: res://.godot/exported/133200997/export-234c51d7b1412b07db503b4ae5f43ed1-CourtPolishProbe.scn
@@ -584,13 +576,13 @@ ERROR: Failed to load script "res://tools/ChillCourtProbe.gd" with error "Parse 
 savepack: end
 === OUT ===
 total 53224
-drwxr-xr-x  2 runner runner     4096 Nov 16 15:10 .
-drwxrwxrwt 14 root   root       4096 Nov 16 15:10 ..
--rw-rw-rw-  1 runner runner    24139 Nov 16 15:10 index.apple-touch-icon.png
--rw-rw-rw-  1 runner runner     7298 Nov 16 15:10 index.audio.worklet.js
--rw-rw-rw-  1 runner runner     4850 Nov 16 15:10 index.html
--rw-rw-rw-  1 runner runner    44517 Nov 16 15:10 index.icon.png
--rw-rw-rw-  1 runner runner   331495 Nov 16 15:10 index.js
--rw-rw-rw-  1 runner runner 18669856 Nov 16 15:10 index.pck
--rw-rw-rw-  1 runner runner    21443 Nov 16 15:10 index.png
--rw-rw-rw-  1 runner runner 35376909 Nov 16 15:10 index.wasm
+drwxr-xr-x  2 runner runner     4096 Nov 16 15:19 .
+drwxrwxrwt 14 root   root       4096 Nov 16 15:19 ..
+-rw-rw-rw-  1 runner runner    24139 Nov 16 15:19 index.apple-touch-icon.png
+-rw-rw-rw-  1 runner runner     7298 Nov 16 15:19 index.audio.worklet.js
+-rw-rw-rw-  1 runner runner     4850 Nov 16 15:19 index.html
+-rw-rw-rw-  1 runner runner    44517 Nov 16 15:19 index.icon.png
+-rw-rw-rw-  1 runner runner   331495 Nov 16 15:19 index.js
+-rw-rw-rw-  1 runner runner 18669856 Nov 16 15:19 index.pck
+-rw-rw-rw-  1 runner runner    21443 Nov 16 15:19 index.png
+-rw-rw-rw-  1 runner runner 35376909 Nov 16 15:19 index.wasm
