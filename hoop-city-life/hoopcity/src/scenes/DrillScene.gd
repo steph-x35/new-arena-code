@@ -770,7 +770,15 @@ func _finish() -> void:
 		s01 = clampf(in_band_time / maxf(total_time, 0.001), 0.0, 1.2)
 	else:
 		s01 = clampf(score / max_score, 0.0, 1.2)
-	Career.apply_drill_result(drill_kind, s01)
+	var team_session: bool = drill_kind == "freethrow" and int(Game.profile.get("team_practice_day", -1)) == int(Game.profile.get("day", 1))
+	if team_session:
+		if score > 0.0:
+			Season.attend_practice(true)
+		else:
+			Events.toast.emit("Allenamento non completato: riprova")
+		Game.profile.erase("team_practice_day")
+	else:
+		Career.apply_drill_result(drill_kind, s01)
 	lbl_mid.text = Loc.tx("GRADE %s") % Career.grade_from_score(s01)
 	await get_tree().create_timer(2.0).timeout
 	_leave_drill()
@@ -782,6 +790,7 @@ func _leave_drill() -> void:
 	if pd is Dictionary:
 		back = String(pd.get("return", back))
 	Game.profile.erase("pending_drill")
+	Game.profile.erase("team_practice_day")
 	if drill_kind in ["shooting", "handling", "defense", "freethrow"]:
 		back = "res://src/scenes/TeamCourt.tscn"
 	SceneRouter.goto(back)

@@ -149,20 +149,40 @@ func _apply_position(pos: String) -> void:
 	builder_started = false
 	var base := Game.default_profile()
 	Game.profile["position"] = pos
-	Game.profile["attrs"] = base["attrs"].duplicate()
 	var pr: Dictionary = POS_PRESETS[pos]
 	Game.profile["height_cm"] = pr["h"]
 	Game.profile["weight_kg"] = pr["w"]
+	_rebuild_physical_ratings()
+
+func _rebuild_physical_ratings() -> void:
+	# Original Hoop City tradeoffs, not NBA's unpublished formulas. Recompute
+	# from the role preset every time so +/- never accumulates rounding drift.
+	var pos := String(Game.profile["position"])
+	var pr: Dictionary = POS_PRESETS[pos]
+	var attrs: Dictionary = Game.default_profile()["attrs"].duplicate()
 	for k in pr:
-		if k in ["h", "w"]: continue
-		Game.profile["attrs"][k] = clampi(Game.profile["attrs"][k] + pr[k], 25, 90)
+		if k not in ["h", "w"]:
+			attrs[k] = clampi(int(attrs[k]) + int(pr[k]), 25, 90)
+	var height: float = (float(Game.profile["height_cm"]) - float(pr["h"])) / 5.0
+	var mass: float = (float(Game.profile["weight_kg"]) - float(pr["w"])) / 6.0
+	var adjustments := {
+		"three": -height * 1.0 - mass * 0.4, "mid": -height * 0.5,
+		"handle": -height * 0.8 - mass * 0.5, "speed": -height * 0.5 - mass * 0.8,
+		"accel": -height * 0.4 - mass * 0.9, "rebound": height * 1.1 + mass * 0.4,
+		"block": height * 1.2, "close": height * 0.4 + mass * 0.5,
+	}
+	for key in adjustments:
+		attrs[key] = clampi(int(attrs[key]) + int(round(float(adjustments[key]))), 25, 90)
+	Game.profile["attrs"] = attrs
 
 func _adj_h(d: int) -> void:
 	Game.profile["height_cm"] = clampi(Game.profile["height_cm"] + d, 175, 220)
+	_rebuild_physical_ratings()
 	_refresh()
 
 func _adj_w(d: int) -> void:
 	Game.profile["weight_kg"] = clampi(Game.profile["weight_kg"] + d, 68, 135)
+	_rebuild_physical_ratings()
 	_refresh()
 
 func _adj_jersey(d: int) -> void:

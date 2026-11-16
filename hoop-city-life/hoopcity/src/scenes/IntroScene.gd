@@ -26,7 +26,7 @@ var showcase: Control
 var showcase_a: TextureRect
 var showcase_b: TextureRect
 var showcase_time := 0.0
-const SHOWCASE := [preload("res://assets/menu/campo.jpg"), preload("res://assets/menu/azione.jpg"), preload("res://assets/menu/canestro.jpg")]
+const SHOWCASE := [preload("res://assets/menu/campo.jpg"), preload("res://assets/menu/azione.jpg"), preload("res://assets/menu/canestro.jpg"), preload("res://assets/menu/pubblico.jpg"), preload("res://assets/menu/squadra.jpg"), preload("res://assets/menu/schiacciata.jpg")]
 
 const FLOOR_Y := 250.0
 ## Rim sits 370px above the floor line -- a believable 10ft at this scale.
@@ -88,7 +88,7 @@ func _ready() -> void:
 	ui.add_child(sub_lbl)
 
 	buttons = VBoxContainer.new()
-	buttons.add_theme_constant_override("separation", 12)
+	buttons.add_theme_constant_override("separation", 8)
 	buttons.modulate.a = 0.0
 	ui.add_child(buttons)
 
@@ -115,6 +115,14 @@ func _ready() -> void:
 	ui.add_child(skip)
 	skip.name = "SkipHint"
 
+	var signature := Label.new()
+	signature.text = "@saker_life"
+	signature.add_theme_font_size_override("font_size", 15)
+	signature.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.78))
+	signature.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	signature.position = Vector2(-125, -28)
+	signature.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ui.add_child(signature)
 	_layout()
 	get_viewport().size_changed.connect(_layout)
 
@@ -144,8 +152,20 @@ func _animate_showcase(delta: float) -> void:
 func _add_btn(text: String, cb: Callable) -> void:
 	var b := Button.new()
 	b.text = text
-	b.custom_minimum_size = Vector2(420, 78)
-	b.add_theme_font_size_override("font_size", 26)
+	b.custom_minimum_size = Vector2(420, 62)
+	b.add_theme_font_size_override("font_size", 23)
+	var glass := StyleBoxFlat.new()
+	glass.bg_color = Color(0.08, 0.12, 0.16, 0.75)
+	glass.border_color = Color(1.0, 0.71, 0.36, 0.8)
+	glass.set_border_width_all(2)
+	glass.set_corner_radius_all(18)
+	glass.shadow_color = Color(0, 0, 0, 0.35)
+	glass.shadow_size = 8
+	b.add_theme_stylebox_override("normal", glass)
+	var over := glass.duplicate() as StyleBoxFlat
+	over.bg_color = Color(0.55, 0.30, 0.12, 0.9)
+	b.add_theme_stylebox_override("hover", over)
+	b.add_theme_stylebox_override("pressed", over)
 	b.pressed.connect(cb)
 	buttons.add_child(b)
 
@@ -164,9 +184,9 @@ func _layout() -> void:
 	sub_lbl.position = Vector2(0.0, s.y * 0.10 + 104.0)
 	sub_lbl.custom_minimum_size = Vector2(0.0, 30.0)
 	sub_lbl.size = Vector2(s.x, 30.0)
-	# buttons: bottom-left, clear of the hoop on the right
-	buttons.position = Vector2(64, s.y - 78.0 * buttons.get_child_count()
-		- 12.0 * maxi(buttons.get_child_count() - 1, 0) - 40.0)
+	# Centre the translucent buttons below the title on every screen.
+	buttons.position = Vector2((s.x - 420.0) * 0.5, s.y - 62.0 * buttons.get_child_count()
+		- 8.0 * maxi(buttons.get_child_count() - 1, 0) - 32.0)
 
 func _unhandled_input(event: InputEvent) -> void:
 	var tap: bool = (event is InputEventScreenTouch and event.pressed) \

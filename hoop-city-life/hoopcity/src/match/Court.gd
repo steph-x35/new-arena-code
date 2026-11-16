@@ -1771,6 +1771,21 @@ func _assign_man(team: int, now: int) -> void:
 	# Greedy closest-first pairing, so nobody double-teams and nobody runs free.
 	var free_def: Array = defenders.duplicate()
 	var free_opp: Array = opponents.duplicate()
+	# Reserve the closest defender for the human attacker before pairing the
+	# other four; the assignment also applies while an inbound is underway.
+	if user != null and user_on_court and user.team != team and free_opp.has(user) and not free_def.is_empty():
+		var user_guard: BallPlayer = null
+		var best_distance := INF
+		for dd in free_def:
+			var dref: BallPlayer = dd
+			var distance := dref.global_position.distance_squared_to(user.global_position)
+			if distance < best_distance:
+				best_distance = distance
+				user_guard = dref
+		if user_guard != null:
+			_man_marks[user_guard.get_instance_id()] = user.get_instance_id()
+			free_def.erase(user_guard)
+			free_opp.erase(user)
 	while not free_def.is_empty() and not free_opp.is_empty():
 		var best_d: BallPlayer = null
 		var best_o: BallPlayer = null

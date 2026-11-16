@@ -547,8 +547,8 @@ func _calendar() -> void:
 		if is_today and kind == "practice" and not bool(e.get("done", false)):
 			_row_button("Go to practice  (+followers)",
 				func():
-					Season.attend_practice()
-					_refresh(), Color(0.7, 1.0, 0.8), 62)
+					SceneRouter.close_phone()
+					SceneRouter.goto("res://src/scenes/TeamCourt.tscn"), Color(0.7, 1.0, 0.8), 62)
 			_row_button("Skip it  (-followers, coach notices)",
 				func():
 					Season.skip_practice()

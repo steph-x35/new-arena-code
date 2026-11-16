@@ -873,13 +873,7 @@ func _shoot_up() -> void:
 		else:
 			u.shot_charge = -1.0
 		return
-	# COMBO FADE: TIRA rilasciato con lo stick che punta VIA dal canestro
-	# (o da POST): hop indietro -> famiglia fade con animazione.
-	if u.has_ball and not court.ft_active and not u.jumping:
-		var to_hoop: Vector2 = court.hoop_for(u.team) - u.global_position
-		if u.posting or (to_hoop.length() > 60.0 \
-		and u.move_input.dot(to_hoop.normalized()) < -0.45):
-			_post_shoot_hop(u)
+	# A jump shot is taken with planted feet, not a moving fade.
 	u.do_shot_release()
 
 func _post_shoot_hop(u: BallPlayer) -> void:

@@ -66,7 +66,7 @@ func _physics_process(delta: float) -> void:
 		and p.team != int(court.possession) and not court.one_on_one:
 			var mk: BallPlayer = court.man_mark_for(p)
 			if mk != null:
-				var goal: Vector2 = (mk.global_position + court.hoop_for(p.team)) * 0.5
+				var goal: Vector2 = mk.global_position + (court.hoop_for(mk.team) - mk.global_position).normalized() * 55.0
 				var dvec: Vector2 = goal - p.global_position
 				p.move_input = dvec.normalized() if dvec.length() > 26.0 else Vector2.ZERO
 				if absf(dvec.x) > 4.0:
@@ -554,8 +554,8 @@ func _defend_off_ball(delta: float) -> void:
 	# deny line: one third toward the ball, two thirds on the man
 	var cutting: bool = mark.move_t > 0.0 or mark.velocity.length() > 140.0
 	var deny_k: float = 0.32 if cutting else 0.22   # sul taglio si sta sul linea
-	var help: Vector2 = mark.global_position.lerp(own_hoop, deny_k)
-	help = help.lerp(ball_pos, 0.20)
+	var help: Vector2 = mark.global_position.lerp(own_hoop, 0.08 if mark.is_user else deny_k)
+	help = help.lerp(ball_pos, 0.03 if mark.is_user else 0.20)
 	var d := help - p.global_position
 	p.move_input = d.normalized() if d.length() > 14.0 else Vector2.ZERO
 	p.stance = d.length() < 70.0

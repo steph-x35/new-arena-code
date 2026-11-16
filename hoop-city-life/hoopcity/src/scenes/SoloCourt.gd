@@ -118,6 +118,10 @@ var hc_expanded := false   # quadratino -> tap -> bottone pieno -> tap -> parte
 
 # street-court bystanders who shoot at the left hoop, so the park feels alive
 var npcs: Array = []
+var talk_button: Button
+var talk_index := -1
+var talking := false
+var rebound_helper := -1
 
 var lbl_top: Label
 var lbl_mid: Label
@@ -178,8 +182,7 @@ func _ready() -> void:
 	RenderingServer.set_default_clear_color(
 		Color(0.30, 0.44, 0.23) if outdoor else Color(0.10, 0.11, 0.14))
 	_build_hud()
-	if outdoor:
-		_spawn_npcs()
+	_spawn_npcs()
 	set_process(true)
 	queue_redraw()
 
@@ -220,6 +223,14 @@ func _build_hud() -> void:
 	left.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	left.add_child(joystick)
 	root.add_child(left)
+	if not outdoor:
+		talk_button = Button.new()
+		talk_button.text = "•••"
+		talk_button.custom_minimum_size = Vector2(60, 42)
+		talk_button.size = Vector2(60, 42)
+		talk_button.visible = false
+		talk_button.pressed.connect(_talk_to_nearby)
+		root.add_child(talk_button)
 
 	lbl_top = Label.new()
 	lbl_top.add_theme_font_size_override("font_size", 24)
@@ -356,6 +367,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func _spawn_npcs() -> void:
 	var homes := [Vector2(-560.0, -150.0), Vector2(-330.0, 140.0), Vector2(-640.0, 60.0)]
 	var cols := [Color(0.16, 0.45, 0.85), Color(0.72, 0.20, 0.22), Color(0.20, 0.55, 0.30)]
+	if not outdoor:
+		homes = [Vector2(-560.0, -140.0), Vector2(-640.0, 150.0), Vector2(-810.0, -260.0)]
+		cols = [Game.team_colour(0), Game.team_colour(0), Color(0.22, 0.24, 0.29)]
 	var hair_styles := [0, 1, 2, 3, 4, 5]
 	hair_styles.shuffle()
 	for i in homes.size():
@@ -364,7 +378,8 @@ func _spawn_npcs() -> void:
 		look["hair"] = Game.HAIR_COLORS.pick_random()
 		npcs.append({
 			"pos": homes[i],
-			"state": "wait",          # wait -> shoot -> chase -> wait
+			"state": "coach" if not outdoor and i == 2 else ("rest" if not outdoor and i == 1 and randf() < 0.5 else "wait"),
+			"coach": not outdoor and i == 2,
 			"t": randf_range(1.0, 4.5),
 			"made": false,
 			"target": homes[i],
@@ -375,11 +390,25 @@ func _spawn_npcs() -> void:
 func _update_npcs(delta: float) -> void:
 	for n in npcs:
 		match String(n["state"]):
+			"coach":
+				pass
+			"rest":
+				n["t"] -= delta
+				if n["t"] <= 0.0:
+					n["state"] = "wait"
+					n["t"] = randf_range(2.0, 5.0)
+			"rebound":
+				if solo_loose and ball_live and _pick_ok:
+					var toward: Vector2 = ball_pos - n["pos"]
+					if toward.length() < 65.0 and ball_h < 90.0:
+						_recall_ball()
+					elif toward.length() > 1.0:
+						n["pos"] += toward.normalized() * minf(160.0 * delta, toward.length())
 			"wait":
 				n["t"] -= delta
 				if n["t"] <= 0.0:
-					n["state"] = "shoot"
-					n["t"] = 0.0
+					n["state"] = "rest" if not outdoor and randf() < 0.3 else "shoot"
+					n["t"] = randf_range(3.0, 7.0) if n["state"] == "rest" else 0.0
 					n["made"] = randf() < 0.55
 			"shoot":
 				n["t"] += delta / 0.9
@@ -402,6 +431,49 @@ func _update_npcs(delta: float) -> void:
 					n["t"] = randf_range(2.0, 5.0)
 				else:
 					n["pos"] += to.normalized() * 95.0 * delta
+
+func _update_talk_button() -> void:
+	if outdoor or talk_button == null:
+		return
+	if talking:
+		talk_button.visible = false
+		return
+	talk_index = -1
+	var nearest := 125.0
+	for i in npcs.size():
+		var dist: float = player_pos.distance_to(npcs[i]["pos"])
+		if dist < nearest:
+			nearest = dist
+			talk_index = i
+	talk_button.visible = talk_index >= 0 and not talking
+	if talk_index >= 0:
+		var point: Vector2 = get_viewport().get_canvas_transform() * (_screen(npcs[talk_index]["pos"]) + Vector2(0, -95))
+		talk_button.position = point - Vector2(30, 42)
+
+func _talk_to_nearby() -> void:
+	if talk_index < 0 or talk_index >= npcs.size(): return
+	var which := talk_index
+	talking = true
+	var n: Dictionary = npcs[which]
+	var p := GamePanel.new().build("ALLENATORE" if bool(n.get("coach", false)) else "COMPAGNO", Vector2(760, 520))
+	hud_layer.add_child(p)
+	p.tree_exiting.connect(func(): talking = false)
+	if bool(n.get("coach", false)):
+		p.add_text("Continua a lavorare: ogni tiro conta!", 24)
+	else:
+		p.add_text("Ci alleniamo insieme?", 24)
+		p.add_button("Mi prendi i rimbalzi?", func():
+			if rebound_helper >= 0 and rebound_helper < npcs.size(): npcs[rebound_helper]["state"] = "wait"
+			rebound_helper = which
+			n["state"] = "rebound"
+			p.close(), true)
+		p.add_button("Giochiamo 1v1", func():
+			Game.profile["next_match_mode"] = "1v1"
+			Game.profile["match_is_fixture"] = false
+			Game.profile["next_opponent"] = "Compagno di squadra"
+			Game.profile["next_kit_return"] = "res://src/scenes/TeamCourt.tscn"
+			SceneRouter.goto("res://src/scenes/KitPicker.tscn"))
+	p.add_button("A dopo", func(): p.close())
 
 func _process(delta: float) -> void:
 	dribble_t += delta * 4.2
@@ -456,8 +528,13 @@ func _process(delta: float) -> void:
 			cam.position.x = lerpf(cam.position.x, want_x, clampf(4.0 * delta, 0.0, 1.0))
 		cam.position.y = cam_y
 		cam.zoom = Vector2.ONE * CAM_ZOOM * zoom_k
+		if talking and talk_index >= 0 and talk_index < npcs.size():
+			var focal: Vector2 = _screen((player_pos + Vector2(npcs[talk_index]["pos"])) * 0.5)
+			cam.position = cam.position.lerp(focal + Vector2(0, -35), clampf(delta * 4.0, 0.0, 1.0))
+			cam.zoom = cam.zoom.lerp(Vector2.ONE * CAM_ZOOM * 1.45, clampf(delta * 4.0, 0.0, 1.0))
+	_update_npcs(delta)
+	_update_talk_button()
 	if outdoor:
-		_update_npcs(delta)
 		# Fade the whole park with the day/night cycle, like the city street.
 		if night_tint != null:
 			var c: Color = Game.daylight_color()
@@ -465,7 +542,7 @@ func _process(delta: float) -> void:
 			c = c.lerp(Color(0.72, 0.70, 0.62), 0.55)
 			night_tint.color = night_tint.color.lerp(c, 2.0 * delta)
 
-	if not session_over:
+	if outdoor and not session_over:
 		session_left -= delta
 		if session_left <= 0.0:
 			session_left = 0.0
@@ -558,7 +635,7 @@ func _process(delta: float) -> void:
 		shot_anim += delta
 		if shot_anim > 0.9:
 			shot_anim = 0.0
-	elif not charging and dunk_phase == "":
+	elif not charging and dunk_phase == "" and not talking:
 		var mv: Vector2 = joystick.output
 		player_pos += mv * (155.0 if posting else 255.0) * Game.speed_factor() * delta
 		# The movement boundary IS the court's painted rectangle.
@@ -627,6 +704,8 @@ func _process(delta: float) -> void:
 	if hc_mode:
 		lbl_top.text = "HALF-COURT · 0:%02d · GREEN %d · RECORD %d · %.0f ft" % [
 			int(session_left), hc_greens, hc_best, ft]
+	elif not outdoor:
+		lbl_top.text = "CAMPO LIBERO · %d/%d · %.0f ft" % [makes, attempts, ft]
 	else:
 		lbl_top.text = "%d:%02d · SCORE %d · %d/%d · streak %d (best %d) · %.0f ft%s" % [
 			int(session_left) / 60, int(session_left) % 60, session_score,
@@ -1566,14 +1645,26 @@ func _draw_npcs() -> void:
 		var h: float = 64.0 * Game.height_factor() * 0.92
 		var kind := Avatar.DRIBBLE
 		var amount := 0.0
-		if n["state"] == "shoot":
+		if n["state"] == "coach" or n["state"] == "rest":
+			kind = Avatar.IDLE
+		elif n["state"] == "shoot":
 			kind = Avatar.SHOOT
 			amount = clampf(n["t"], 0.0, 1.0)
-		elif n["state"] == "chase":
+		elif n["state"] == "chase" or (n["state"] == "rebound" and solo_loose):
 			kind = Avatar.RUN
-		Avatar.draw_body(self, s, h, -1.0,
-			Avatar.pose(kind, dribble_t, amount),
-			n["look"], n["state"] == "wait")
+		if n["state"] == "rest" and not outdoor:
+			# Seated on the parquet with a small phone, not a standing pose.
+			var skin: Color = n["look"].get("skin", Color(0.7, 0.5, 0.35))
+			var jersey: Color = n["col"]
+			draw_line(s + Vector2(-12, -4), s + Vector2(17, -4), Color(0.13, 0.15, 0.20), 9.0)
+			draw_line(s + Vector2(0, -8), s + Vector2(-5, -29), jersey, 15.0)
+			draw_circle(s + Vector2(-5, -39), 9.0, skin)
+			draw_line(s + Vector2(-4, -25), s + Vector2(10, -17), skin, 4.0)
+			draw_rect(Rect2(s + Vector2(8, -25), Vector2(7, 11)), Color(0.12, 0.14, 0.19))
+		else:
+			Avatar.draw_body(self, s, h, -1.0,
+				Avatar.pose(kind, dribble_t, amount),
+				n["look"], n["state"] == "wait")
 		if n["state"] == "shoot":
 			var t: float = clampf(n["t"], 0.0, 1.0)
 			var from: Vector2 = s + Vector2(-10.0, -h * 0.4)

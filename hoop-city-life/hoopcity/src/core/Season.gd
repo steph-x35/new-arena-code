@@ -199,7 +199,8 @@ func mark_done(day: int, result := "") -> void:
 	e["result"] = result
 	SaveSystem.save_game()
 
-func attend_practice() -> void:
+func attend_practice(completed_exercise := false) -> void:
+	if not completed_exercise: return
 	var e := today()
 	if e.is_empty() or String(e["kind"]) != "practice" or bool(e["done"]):
 		return

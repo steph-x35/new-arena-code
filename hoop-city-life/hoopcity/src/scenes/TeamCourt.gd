@@ -37,12 +37,9 @@ func _build() -> void:
 		"5v5 · four quarters · full match engine", COST_SCRIMMAGE, e,
 		func(): _play("full", COST_SCRIMMAGE))
 
-	_action(v, "1v1 · FIRST TO 11",
-		"Half court · make-it-take-it · clear the arc", COST_1V1,	e,
-		func(): _play("1v1", COST_1V1))
 
 	# ---- free practice
-	UIKit.big_button(v, Loc.tx("SHOOT AROUND (solo)"),
+	UIKit.big_button(v, "CAMPO LIBERO",
 		func(): SceneRouter.goto("res://src/scenes/SoloCourt.tscn"),
 		"Free · no clock, no defender, no energy cost")
 
@@ -52,9 +49,8 @@ func _build() -> void:
 	and not bool(ev.get("done", false)):
 		UIKit.big_button(v, Loc.tx("TEAM PRACTICE (today)"),
 			func():
-				Season.attend_practice()
-				_rebuild(),
-			"Coach is expecting you · +followers, +rep")
+				_start_team_practice(),
+			"Tiri liberi: completa l'esercizio per guadagnare la ricompensa")
 
 	# ---- court work: every basketball exercise lives HERE, on the court
 	# that has the hoops and the paint, not in the weight room. Ordered as a
@@ -127,6 +123,14 @@ func _play(mode: String, cost: int) -> void:
 	Game.set_team_kit(1, Season.kit_for(opponent))
 	Game.profile["next_kit_return"] = "res://src/scenes/TeamCourt.tscn"
 	SceneRouter.goto("res://src/scenes/KitPicker.tscn")
+
+func _start_team_practice() -> void:
+	if float(Game.profile.get("energy", 0.0)) < 18.0:
+		Events.toast.emit(Loc.tx("Too tired -- you need %d energy") % 18)
+		return
+	Game.profile["team_practice_day"] = int(Game.profile.get("day", 1))
+	Game.profile["pending_drill"] = {"kind": "freethrow", "return": "res://src/scenes/TeamCourt.tscn"}
+	SceneRouter.goto("res://src/scenes/DrillScene.tscn")
 
 func _drill(kind: String) -> void:
 	var cost: int = COST_FT if kind == "freethrow" else COST_DRILL

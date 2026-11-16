@@ -243,6 +243,10 @@ func _physics_process(delta: float) -> void:
 		wish = Vector2.ZERO
 	if wish.length() > 1.0: wish = wish.normalized()
 
+	# Set the feet while gathering/releasing a jumper; dunks retain their drive.
+	if not dunking and not hanging and (shot_charge >= 0.0 or ai_windup_t >= 0.0 or shot_anim > 0.0):
+		wish = Vector2.ZERO
+		velocity = Vector2.ZERO
 	var target := wish * max_speed()
 	if posting:
 		target *= 0.6   # back-down: spingi il difensore col peso, si va piano
@@ -1139,7 +1143,7 @@ func _draw() -> void:
 	# wears the same jersey as his team-mates.
 	# Identify the screener from the moment the play is called, not only
 	# after he reaches the screen; keep it visible while rolling to the rim.
-	if court != null and (court.pnr_screener == self or court.pnr_roller == self):
+	if court != null and court.user != null and team == court.user.team and (court.pnr_screener == self or court.pnr_roller == self):
 		var ly: float = -h - 22.0 - air_draw
 		draw_colored_polygon(PackedVector2Array([Vector2(-8, ly - 16), Vector2(8, ly - 16), Vector2(0, ly - 5)]), Color(1.0, 0.78, 0.18))
 		draw_string(ThemeDB.fallback_font, Vector2(-38.0, ly - 19), "BLOCCO" if court.pnr_screener == self else "ROLL",
@@ -1166,9 +1170,7 @@ func _draw() -> void:
 			var r: float = lerpf(9.0, 2.5, k) if dust_big else lerpf(7.0, 2.5, k)
 			draw_circle(Vector2(px, py), r, Color(0.85, 0.80, 0.68, da))
 		draw_set_transform(proj - position, 0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale)
-	# stance indicator
-	if stance and not _low:
-		draw_arc(Vector2.ZERO, 26, 0, TAU, 24, Color(0.3, 0.9, 1.0, 0.5), 2.0)
+
 	# Two small bars tracking the user under his feet: stamina (in-match wind)
 	# and energy (the day's reserves). A ring above the head was easy to lose
 	# against the crowd, and it never showed energy at all.
