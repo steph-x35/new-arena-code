@@ -65,7 +65,8 @@ var _last_count := ""
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color(0.10, 0.11, 0.14))
 	_build_hud()
-	_setup_broadcast()
+	if not court.friendly_1v1:
+		_setup_broadcast()
 	if court.team_size == 2:
 		var coach := preload("res://src/scenes/PracticeCoach.gd").new()
 		add_child(coach)
@@ -108,7 +109,9 @@ func _ready() -> void:
 	add_child(nf)
 	# Hold play for the countdown: nobody moves until "GO!".
 	court.play_live = false
-	tip_left = 3.0
+	tip_left = 0.0 if court.friendly_1v1 else 3.0
+	if court.friendly_1v1:
+		_hinted = true
 
 ## 1v1 DI CARRIERA: la regola dell'uscita dalla linea dei tre esiste gia'
 ## (take it back past the arc) — la linea LAMPEGGIA finche' chi ha preso
@@ -1293,6 +1296,9 @@ func _sim_to_return() -> void:
 		bench_panel.visible = false
 
 func _exit_tree() -> void:
+	if court != null and court.friendly_1v1:
+		SceneRouter.friendly_1v1 = false
+		SceneRouter.friendly_look.clear()
 	Engine.time_scale = 1.0
 	Sfx.set_match_live(false)
 	Sfx.stop_crowd()

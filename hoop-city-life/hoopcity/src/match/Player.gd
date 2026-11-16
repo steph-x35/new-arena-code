@@ -104,6 +104,7 @@ var _low := false              # lowgfx: niente dettagli costosi
 var shoe_col := Color(0.90, 0.90, 0.92)
 var skin_col := Color(0.72, 0.53, 0.38)
 var hair_col := Color(0.16, 0.13, 0.12)
+var friendly_look: Dictionary = {}
 var hair_style_v := 0          # taglio PROPRIO (gli NPC non copiano il profilo)
 
 const GRAV := 2600.0
@@ -1067,7 +1068,15 @@ func _draw() -> void:
 		cols["jersey"] = col
 		cols["shorts"] = col.darkened(0.40)
 		cols["muscle"] = 0.0
-	cols["hst"] = hair_style_v if not is_user else Game.hair_style()
+	# The teammate challenge is casual: keep the player's street clothes and
+	# the very same teammate appearance instead of forcing team uniforms.
+	if court != null and court.friendly_1v1:
+		if is_user:
+			cols = Avatar.colours(true)
+		else:
+			cols = friendly_look.duplicate(true) if not friendly_look.is_empty() else Avatar.colours(false, col)
+		cols["kit"] = false
+	cols["hst"] = int(friendly_look.get("hst", hair_style_v)) if (not is_user and court != null and court.friendly_1v1) else (hair_style_v if not is_user else Game.hair_style())
 	if is_user:
 		# Il fisico cresce con le sessioni di panca/squat: spalle e braccia
 		# piu' grosse anche in partita, coerenti con la palestra.

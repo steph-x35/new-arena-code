@@ -2600,10 +2600,17 @@ func _update_npcs(delta: float) -> void:
 			"chase":
 				var to: Vector2 = n["target"] - n["pos"]
 				if to.length() < 14.0:
-					n["state"] = "wait"
-					n["t"] = randf_range(2.0, 5.0)
+					n["state"] = "relocate"
+					n["target"] = Vector2(randf_range(-640.0, -260.0), randf_range(-245.0, 245.0))
 				else:
-					n["pos"] += to.normalized() * 95.0 * delta
+					n["pos"] += to.normalized() * minf(140.0 * delta, to.length())
+			"relocate":
+				var to: Vector2 = n["target"] - n["pos"]
+				if to.length() < 14.0:
+					n["state"] = "wait"
+					n["t"] = randf_range(1.0, 3.0)
+				else:
+					n["pos"] += to.normalized() * minf(150.0 * delta, to.length())
 
 func _draw_three_flash() -> void:
 	## La linea dei tre LAMPEGGIA finche' chi ha subito canestro non e'
@@ -2631,9 +2638,12 @@ func _draw_npcs() -> void:
 			amount = clampf(n["t"], 0.0, 1.0)
 		elif n["state"] == "chase":
 			kind = Avatar.RUN
-		Avatar.draw_body(self, s, h, -1.0,
-			Avatar.pose(kind, dribble_t, amount),
-			n["look"], n["state"] == "wait")
+		var moving: bool = n["state"] in ["chase", "relocate"]
+		var dir: Vector2 = Vector2(n["target"]) - Vector2(n["pos"]) if moving else Vector2.LEFT
+		var face: float = signf(dir.x) if absf(dir.x) > 1.0 else -1.0
+		Avatar.draw_body(self, s, h, face,
+			Avatar.pose(kind, dribble_t, amount, "", moving),
+			n["look"], n["state"] in ["wait", "relocate"])
 		if n["state"] == "shoot":
 			var t: float = clampf(n["t"], 0.0, 1.0)
 			var from: Vector2 = s + Vector2(-10.0, -h * 0.4)

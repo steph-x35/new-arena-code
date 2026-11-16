@@ -414,11 +414,13 @@ func _update_npcs(delta: float) -> void:
 					n["state"] = "chat" if not outdoor else "wait"
 					n["t"] = randf_range(5.0, 10.0)
 			"rebound":
-				var goal: Vector2 = player_pos + Vector2(-90.0, 60.0)
+				# Wait at the basket the user shoots at, not behind the shooter.
+				var goal: Vector2 = RIM + Vector2(-90.0, 65.0)
 				if solo_loose and ball_live and _pick_ok:
 					goal = ball_pos
 					if Vector2(n["pos"]).distance_to(goal) < 65.0 and ball_h < 90.0:
 						_recall_ball()
+						goal = RIM + Vector2(-90.0, 65.0)
 				var toward: Vector2 = goal - n["pos"]
 				if toward.length() > (20.0 if solo_loose else 45.0):
 					n["moving"] = true
@@ -452,12 +454,21 @@ func _update_npcs(delta: float) -> void:
 			"chase":
 				var to: Vector2 = n["target"] - n["pos"]
 				if to.length() < 14.0:
-					n["state"] = "wait"
-					n["t"] = randf_range(2.0, 5.0)
+					n["state"] = "relocate"
+					n["target"] = Vector2(randf_range(-640.0, -260.0), randf_range(-245.0, 245.0))
 				else:
 					n["moving"] = true
 					if absf(to.x) > 1.0: n["face"] = signf(to.x)
 					n["pos"] += to.normalized() * minf(140.0 * delta, to.length())
+			"relocate":
+				var to: Vector2 = n["target"] - n["pos"]
+				if to.length() < 14.0:
+					n["state"] = "wait"
+					n["t"] = randf_range(1.0, 3.0)
+				else:
+					n["moving"] = true
+					if absf(to.x) > 1.0: n["face"] = signf(to.x)
+					n["pos"] += to.normalized() * minf(150.0 * delta, to.length())
 
 func _update_talk_button() -> void:
 	if outdoor or talk_button == null:
@@ -542,11 +553,13 @@ func _talk_to_nearby() -> void:
 		duel.text = "1v1"
 		choices.add_child(duel)
 		duel.pressed.connect(func():
+			SceneRouter.friendly_1v1 = true
+			SceneRouter.friendly_look = n["look"].duplicate(true)
 			Game.profile["next_match_mode"] = "1v1"
 			Game.profile["match_is_fixture"] = false
 			Game.profile["next_opponent"] = "Compagno di squadra"
 			Game.profile["next_kit_return"] = "res://src/scenes/TeamCourt.tscn"
-			SceneRouter.goto("res://src/scenes/KitPicker.tscn"))
+			SceneRouter.goto("res://src/match/MatchScene.tscn"))
 		var later := Button.new()
 		later.text = "A DOPO"
 		choices.add_child(later)
@@ -1720,7 +1733,7 @@ func _draw_npcs() -> void:
 		var h: float = 64.0 * Game.height_factor() * 0.92
 		var kind := Avatar.IDLE
 		var amount := 0.0
-		if n["state"] == "wait":
+		if n["state"] == "wait" or n["state"] == "relocate":
 			kind = Avatar.DRIBBLE
 		elif n["state"] == "chat" or n["state"] == "rest":
 			kind = Avatar.IDLE
@@ -1741,7 +1754,7 @@ func _draw_npcs() -> void:
 		else:
 			Avatar.draw_body(self, s, h, float(n.get("face", -1.0)),
 				Avatar.pose(kind, dribble_t, amount, "", bool(n.get("moving", false))),
-				n["look"], n["state"] == "wait")
+				n["look"], n["state"] in ["wait", "relocate"])
 		if bool(n.get("ankle", false)) and n["state"] != "rest":
 			draw_line(s + Vector2(5, -5), s + Vector2(10, -5), Color(0.87, 0.87, 0.90), 3.0)
 		if n["state"] == "shoot":

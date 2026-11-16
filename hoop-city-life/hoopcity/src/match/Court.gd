@@ -38,6 +38,7 @@ const QUARTERS := 4
 ## 1v1 street rules: half court, first to `target_score`, make-it-take-it,
 ## and the ball must be cleared past the arc after a change of possession.
 @export var one_on_one := false
+var friendly_1v1 := false
 @export var target_score := 11
 var must_clear := false             # true until the new offense clears the arc
 
@@ -136,6 +137,7 @@ func _ready() -> void:
 		one_on_one = true
 	if String(Game.profile.get("next_match_mode", "")) == "team_practice" and String(Game.profile.get("team_practice_stage", "")) == "2v2":
 		team_size = 2
+	friendly_1v1 = one_on_one and SceneRouter.friendly_1v1
 	if one_on_one:
 		team_size = 1
 		# Both players attack the SAME rim in a half-court game.
@@ -186,6 +188,9 @@ func _spawn_teams() -> void:
 				user = p
 			else:
 				_randomize_npc(p, t, i)
+				if friendly_1v1 and t == 1:
+					p.friendly_look = SceneRouter.friendly_look.duplicate(true)
+					p.display_name = "Compagno"
 				var brain := preload("res://src/match/AIBrain.gd").new()
 				p.add_child(brain)
 				brain.setup(p, self)
@@ -1441,6 +1446,7 @@ func _check_ball(team: int) -> void:
 		p.has_ball = false
 	off.has_ball = true
 	off.clear_defensive_pose()
+	def.stance = true
 	if ball:
 		ball.attach(off)
 		ball.live = false
