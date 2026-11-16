@@ -365,6 +365,7 @@ func _run_jump_ball() -> void:
 		back.tween_callback(func(): ref.tossing = false)
 
 func _reset_possession(full := false) -> void:
+	_reset_user_steal_attempts()
 	if _clutch_slowmo:
 		_clutch_slowmo = false
 		Engine.time_scale = 1.0
@@ -379,10 +380,16 @@ func _reset_possession(full := false) -> void:
 	give_ball(carrier)
 	Events.possession_changed.emit(possession)
 
+func _reset_user_steal_attempts() -> void:
+	if user != null:
+		user.user_steal_attempts = 0
+
 func give_ball(p: BallPlayer) -> void:
 	_pass_serial += 1
 	pass_target = null
 	var changed_hands: bool = possession != p.team
+	if changed_hands:
+		_reset_user_steal_attempts()
 	for q in players: q.has_ball = false
 	p.has_ball = true
 	p.clear_defensive_pose()
@@ -401,7 +408,7 @@ func give_ball(p: BallPlayer) -> void:
 ## (rebounds, blocked shots) instead of being a dead input.
 func try_grab(p: BallPlayer) -> bool:
 	if not play_live or restarting or awaiting_check: return false
-	if ball.holder != null or p.stun > 0.0: return false
+	if ball.holder != null or p.stun > 0.0 or pass_target != null or ball.dunk_drop > 0.0: return false
 	var d := p.global_position.distance_to(ball.global_position)
 	var reach: float = lerpf(70.0, 90.0, clampf(float(p.ratings.get("rebound", 50)) / 99.0, 0.0, 1.0))
 	if d > reach or ball.h > 210.0: return false
@@ -414,10 +421,11 @@ func try_grab(p: BallPlayer) -> bool:
 			return false
 		if ball.global_position.distance_to(near_hoop) < 58.0:
 			return false
+	var was_rebound: bool = ball.shooter != null
 	give_ball(p)
 	shot_clock = maxf(shot_clock, 14.0)
 	_shoot_call = false
-	if p.is_user: box["reb"] += 1
+	if p.is_user and was_rebound: box["reb"] += 1
 	Events.toast.emit("Loose ball!")
 	return true
 
@@ -601,6 +609,11 @@ func _physics_process(delta: float) -> void:
 		if (play_live and _jump_watch > 0.2) or _jump_watch > 6.0:
 			_run_jump_ball()
 	if not play_live or finished: return
+	# Walking over a loose, reachable ball collects it without a button.
+	if user != null and user_on_court and ball != null and ball.live and ball.holder == null \
+	and pass_target == null and not ball.shot_result_pending and ball.dunk_drop <= 0.0 \
+	and ball.h <= 55.0 and user.global_position.distance_to(ball.global_position) <= 32.0:
+		try_grab(user)
 	# Una palla libera che esce non deve trascinare tutti nell'angolo.
 	if ball != null and ball.live and not ball.practice_shot and not ball.shot_result_pending and pass_target == null 	and (absf(ball.global_position.x) > COURT_W * 0.5 + 30.0 or absf(ball.global_position.y) > COURT_H * 0.5 + 30.0):
 		_restart_play(1 - ball.last_touch_team)
@@ -1374,6 +1387,7 @@ func _score_basket(b: Ball) -> void:
 
 ## 1v1 restart: both at the top of the key; CHECK delivers the ball.
 func _check_ball(team: int) -> void:
+	_reset_user_steal_attempts()
 	possession = team
 	play_live = false
 	restarting = true
@@ -1458,6 +1472,7 @@ func resolve_missed_shot(b: Ball) -> void:
 	Events.toast.emit("Rebound #%d" % best.jersey_num)
 
 func _inbound(team: int) -> void:
+	_reset_user_steal_attempts()
 	possession = team
 	restarting = true
 	play_live = false
@@ -1518,7 +1533,7 @@ func do_pass(from: BallPlayer, to: BallPlayer) -> void:
 	last_pass_time = Time.get_ticks_msec() / 1000.0
 	var speed: float = lerpf(560.0, 920.0, from.ratings["pass"] / 99.0)
 	# Straight chest pass at the receiver's chest — never a lob into space.
-	ball.pass_to(from.global_position + Vector2(0, -40), to.global_position + Vector2(0, -40), speed, from)
+	ball.pass_to(from.global_position, to.global_position, speed, from, to)
 	# interception check along the lane — rare, only a hand right on the line
 	for d in players:
 		if d.team == from.team: continue
@@ -1538,8 +1553,7 @@ func do_pass(from: BallPlayer, to: BallPlayer) -> void:
 	if finished or serial != _pass_serial or not play_live or ball.holder != null: return
 	pass_target = null
 	if not is_instance_valid(to): return
-	if to.global_position.distance_to(ball.global_position) > 110.0:
-		return # passaggio mancato: palla libera, niente teletrasporto
+	# The ball tracks the moving receiver for the duration of the pass.
 	give_ball(to)
 
 func on_turnover(from: BallPlayer, to: BallPlayer) -> void:

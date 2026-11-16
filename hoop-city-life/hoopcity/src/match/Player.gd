@@ -44,6 +44,7 @@ var leaving := false                # walking OFF to the bench
 var bench_target := Vector2.ZERO    # where the sub walk is heading
 var last_dir := Vector2.RIGHT
 var cooldown_steal := 0.0
+var user_steal_attempts := 0
 var cooldown_move := 0.0
 var possession_time := 0.0
 var move_t := 0.0                     # >0 while a crossover/stepback animates
@@ -822,6 +823,13 @@ func chase(target: Vector2) -> void:
 	if absf(dir.x) > 1.0:
 		facing = signf(dir.x)
 
+# Valid attempts in the same defensive possession. The third and further
+# attempts are an even split between steal and foul.
+static func user_steal_outcome(attempt: int, roll: float) -> String:
+	if attempt >= 3:
+		return "steal" if roll < 0.5 else "foul"
+	return "steal" if roll < (0.1 if attempt == 1 else 0.3) else "miss"
+
 func try_steal() -> void:
 	if cooldown_steal > 0.0: return
 	cooldown_steal = 1.15
@@ -835,6 +843,24 @@ func try_steal() -> void:
 			facing = signf(to.x)
 	var dist := to.length()
 	if dist > 70.0: return
+	if is_user:
+		user_steal_attempts += 1
+		var outcome := user_steal_outcome(user_steal_attempts, randf())
+		if outcome == "foul":
+			court.call_foul(self, bh)
+			return
+		if outcome == "miss":
+			return
+		bh.has_ball = false
+		court.give_ball(self)
+		Sfx.play("steal", -1.0)
+		Sfx.cheer(false)
+		Sfx.haptic(35)
+		Events.toast.emit("STEAL!")
+		Events.popup.emit("STEAL!", global_position, Color(0.45, 0.85, 1.0), false)
+		def_credit()
+		court.stat_add("stl", 1)
+		return
 	var chance: float = (ratings["steal"] / 99.0) * 0.16 * lerpf(1.05, 0.35, dist / 70.0)
 	chance *= lerpf(1.10, 0.40, bh.ratings["handle"] / 99.0)
 	if has_badge("pickpocket"): chance *= 1.12
@@ -1111,13 +1137,13 @@ func _draw() -> void:
 
 	# A small chevron over the user's head keeps him identifiable now that he
 	# wears the same jersey as his team-mates.
-	# P&R hold: label the screener so the play is readable.
-	for c in get_children():
-		if c.get("role") == "screener" and c.get("pnr_hold"):
-			var ly: float = -h - 14.0 - air_draw
-			draw_string(ThemeDB.fallback_font, Vector2(-28.0, ly), "SCREEN",
-				HORIZONTAL_ALIGNMENT_CENTER, 56.0, 16, Color(1.0, 0.92, 0.25))
-			break
+	# Identify the screener from the moment the play is called, not only
+	# after he reaches the screen; keep it visible while rolling to the rim.
+	if court != null and (court.pnr_screener == self or court.pnr_roller == self):
+		var ly: float = -h - 22.0 - air_draw
+		draw_colored_polygon(PackedVector2Array([Vector2(-8, ly - 16), Vector2(8, ly - 16), Vector2(0, ly - 5)]), Color(1.0, 0.78, 0.18))
+		draw_string(ThemeDB.fallback_font, Vector2(-38.0, ly - 19), "BLOCCO" if court.pnr_screener == self else "ROLL",
+			HORIZONTAL_ALIGNMENT_CENTER, 76.0, 16, Color(1.0, 0.92, 0.25))
 
 	if is_user:
 		var my: float = -h - 8.0 - air_draw

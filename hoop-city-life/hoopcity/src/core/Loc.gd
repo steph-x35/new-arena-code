@@ -17,7 +17,11 @@ var lang := "en"
 # key -> [english, italian]
 const STR := {
 	"reward.title": ["MONEY EARNED", "SOLDI GUADAGNATI"],
-	"reward.continue": ["TAP TO COLLECT", "TOCCA PER CONTINUARE"],
+	"reward.continue": ["TAP TO CONTINUE", "TOCCA PER CONTINUARE"],
+	"food.reward": ["MEAL COMPLETE", "PASTO COMPLETATO"],
+	"food.hunger": ["FOOD", "SAZIETÀ"],
+	"food.energy": ["ENERGY", "ENERGIA"],
+	"food.health": ["HEALTH", "SALUTE"],
 	"tagline":        ["Build your player. Walk the city. Live the game.",
 	                   "Crea il tuo giocatore. Vivi la città. Vivi il gioco."],
 	"menu.continue":  ["CONTINUE CAREER", "CONTINUA LA CARRIERA"],
@@ -41,6 +45,10 @@ const STR := {
 	"news.outro":     ["And yes — dunks still hang on the rim.", "E sì: le schiacciate si appendono ancora al ferro."],
 	# --- v2.49.x: le cose che si VEDONO appena apri il gioco
 	# v2.49.4: non e' piu' una prova, e' la regola.
+	"news.match_new": ["NEW ON THE COURT", "NOVITÀ IN CAMPO"],
+	"news.match_new.b": ["Direct passes, automatic loose-ball pickups and a clear pick-and-roll marker. Steals get riskier with repeated attempts.", "Passaggi diretti, recupero automatico delle palle vaganti e blocchi più riconoscibili. Le rubate ripetute diventano più rischiose."],
+	"news.rewards": ["REWARDS AND NEW MENU", "RICOMPENSE E NUOVO MENU"],
+	"news.rewards.b": ["Collect your earnings with a tap and see the effects of meals. A new game-inspired opening screen.", "Riscuoti i guadagni con un tocco e scopri gli effetti dei pasti. Una nuova schermata iniziale ispirata al gioco."],
 	"news.builder": ["BUILD YOUR PLAYER", "CREA IL TUO GIOCATORE"],
 	"news.builder.b": ["Spend attribute points across coloured categories. Linked skills grow together; earn 4 more points per match.", "Distribuisci i punti nelle barre colorate: le abilità collegate crescono insieme e ogni partita ti dà 4 punti."],
 	"news.season": ["THE SEASON", "LA STAGIONE"],

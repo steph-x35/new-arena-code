@@ -26,6 +26,11 @@ var is_free_throw := false   # this shot counts one and skips normal possession
 var prev_h := 0.0
 var prev_pos := Vector2.ZERO
 var _dribble_falling := true
+var _passing := false
+var _pass_time := 0.0
+var _pass_duration := 0.0
+var _pass_origin := Vector2.ZERO
+var _pass_receiver: Node2D = null
 var flame := false        # NBA JAM: la palla brucia quando il tiratore è HOT
 
 ## Closed-form ballistic flight. Integrating the arc with Euler steps made
@@ -51,6 +56,8 @@ func attach(p: Node) -> void:
 	holder = p
 	live = false
 	_ana = false
+	_passing = false
+	_pass_receiver = null
 	shooter = null
 	practice_shot = false
 	shot_result_pending = false
@@ -109,7 +116,7 @@ var dunk_drop := 0.0
 var dunk_from := Vector2.ZERO
 var dunk_to := Vector2.ZERO
 
-func pass_to(from: Vector2, target: Vector2, speed: float, by: Node) -> void:
+func pass_to(from: Vector2, target: Vector2, speed: float, by: Node, receiver: Node2D = null) -> void:
 	global_position = from
 	h = 55.0
 	shooter = null
@@ -119,7 +126,12 @@ func pass_to(from: Vector2, target: Vector2, speed: float, by: Node) -> void:
 	var d := target - from
 	var t: float = maxf(d.length() / speed, 0.12)
 	vel = d / t
-	vh = (0.5 * G * t * t) * 0.15 / t   # slight loft on the pass
+	vh = 0.0
+	_passing = receiver != null
+	_pass_origin = from
+	_pass_receiver = receiver
+	_pass_time = 0.0
+	_pass_duration = t
 	last_touch_team = by.team
 
 func _physics_process(delta: float) -> void:
@@ -168,6 +180,16 @@ func _physics_process(delta: float) -> void:
 		return
 	if not live:
 		return
+	if _passing:
+		if is_instance_valid(_pass_receiver):
+			_pass_time = minf(_pass_time + delta, _pass_duration)
+			var progress: float = clampf(_pass_time / _pass_duration, 0.0, 1.0)
+			global_position = _pass_origin.lerp(_pass_receiver.global_position, progress)
+			h = 55.0 + sin(progress * PI) * 12.0
+			queue_redraw()
+			return
+		_passing = false
+		_pass_receiver = null
 
 	prev_h = h
 	prev_pos = global_position

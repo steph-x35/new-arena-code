@@ -22,6 +22,11 @@ var ui: Control
 var buttons: VBoxContainer
 var title_lbl: Label
 var sub_lbl: Label
+var showcase: Control
+var showcase_a: TextureRect
+var showcase_b: TextureRect
+var showcase_time := 0.0
+const SHOWCASE := [preload("res://assets/menu/campo.jpg"), preload("res://assets/menu/azione.jpg"), preload("res://assets/menu/canestro.jpg")]
 
 const FLOOR_Y := 250.0
 ## Rim sits 370px above the floor line -- a believable 10ft at this scale.
@@ -38,10 +43,30 @@ func _ready() -> void:
 	ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(ui)
 
+	# Genuine in-game frames, softly panning and crossfading behind the menu.
+	showcase = Control.new()
+	showcase.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	showcase.clip_contents = true
+	showcase.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	showcase.modulate.a = 0.0
+	ui.add_child(showcase)
+	showcase_a = _showcase_frame()
+	showcase_b = _showcase_frame()
+	var tint := ColorRect.new()
+	tint.color = Color(0.06, 0.055, 0.05, 0.43)
+	tint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	showcase.add_child(tint)
+
 	title_lbl = Label.new()
 	title_lbl.text = "HOOP CITY LIFE"
 	title_lbl.add_theme_font_size_override("font_size", 92)
-	title_lbl.add_theme_color_override("font_color", Color(0.10, 0.12, 0.18))
+	title_lbl.add_theme_color_override("font_color", Color(1.0, 0.95, 0.82))
+	title_lbl.add_theme_color_override("font_outline_color", Color(0.26, 0.12, 0.06))
+	title_lbl.add_theme_constant_override("outline_size", 6)
+	title_lbl.add_theme_color_override("font_shadow_color", Color(0.03, 0.03, 0.04, 0.75))
+	title_lbl.add_theme_constant_override("shadow_offset_x", 5)
+	title_lbl.add_theme_constant_override("shadow_offset_y", 6)
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	# A full-width strip with centred text. PRESET_CENTER_TOP anchors the
 	# label's LEFT edge to the middle of the screen, so offsetting by half its
@@ -53,7 +78,9 @@ func _ready() -> void:
 	sub_lbl = Label.new()
 	sub_lbl.text = Loc.t("tagline")
 	sub_lbl.add_theme_font_size_override("font_size", 22)
-	sub_lbl.add_theme_color_override("font_color", Color(0.22, 0.25, 0.33))
+	sub_lbl.add_theme_color_override("font_color", Color(1.0, 0.95, 0.84))
+	sub_lbl.add_theme_color_override("font_outline_color", Color(0.15, 0.10, 0.07))
+	sub_lbl.add_theme_constant_override("outline_size", 3)
 	sub_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	# Full-width strip, same reason as the title above.
 	sub_lbl.set_anchors_preset(Control.PRESET_TOP_WIDE)
@@ -90,6 +117,29 @@ func _ready() -> void:
 
 	_layout()
 	get_viewport().size_changed.connect(_layout)
+
+func _showcase_frame() -> TextureRect:
+	var frame := TextureRect.new()
+	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	frame.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	showcase.add_child(frame)
+	return frame
+
+func _animate_showcase(delta: float) -> void:
+	showcase_time += delta
+	var index: int = int(showcase_time / 8.0) % SHOWCASE.size()
+	var phase: float = fmod(showcase_time, 8.0)
+	showcase_a.texture = SHOWCASE[index]
+	showcase_b.texture = SHOWCASE[(index + 1) % SHOWCASE.size()]
+	showcase_b.modulate.a = clampf((phase - 6.8) / 1.2, 0.0, 1.0)
+	var view: Vector2 = showcase.size
+	showcase_a.pivot_offset = view * 0.5
+	showcase_b.pivot_offset = view * 0.5
+	showcase_a.scale = Vector2.ONE * (1.08 + phase * 0.006)
+	showcase_b.scale = Vector2.ONE * 1.08
+	showcase_a.position.x = -phase * 3.0
 
 func _add_btn(text: String, cb: Callable) -> void:
 	var b := Button.new()
@@ -147,6 +197,8 @@ func _show_news() -> void:
 	News.maybe_show(get_tree())
 
 func _process(delta: float) -> void:
+	_animate_showcase(delta)
+	showcase.modulate.a = move_toward(showcase.modulate.a, 1.0 if done or t >= T_SWISH else 0.0, delta * 1.2)
 	if done:
 		net_wobble = maxf(0.0, net_wobble - delta * 2.0)
 		flash = maxf(0.0, flash - delta * 2.2)

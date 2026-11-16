@@ -6,6 +6,8 @@ class_name News
 
 ## Titolo grosso (colore caldo) e corpo, uno dopo l'altro.
 const ITEMS := [
+	["news.match_new", "news.match_new.b"],
+	["news.rewards", "news.rewards.b"],
 	["news.builder", "news.builder.b"],
 	["news.season", "news.season.b"],
 	["news.gameplay", "news.gameplay.b"],
