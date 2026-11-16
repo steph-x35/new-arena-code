@@ -37,7 +37,7 @@ var play_mate := Vector2(120.0, -150.0)
 var play_ball_t := -1.0
 var play_ball_from := Vector2.ZERO
 var play_ball_to := Vector2.ZERO
-var play_variant := 0
+var play_variant := -1
 
 # defense
 var attacker_x := 0.0
@@ -773,7 +773,10 @@ func _weights_press() -> void:
 		lbl_mid.text = Loc.tx("TOO HIGH - let it come down") if bar_t < 0.5 else Loc.tx("FORM BREAK")
 
 func _new_play() -> void:
-	play_variant = randi() % 4
+	var next_variant := randi() % 4
+	if next_variant == play_variant:
+		next_variant = (next_variant + 1 + randi() % 3) % 4
+	play_variant = next_variant
 	var side := -1.0 if play_variant % 2 == 0 else 1.0
 	runner_pos = Vector2(-180, -side * 120.0)
 	play_mate = Vector2(160, side * 170.0)

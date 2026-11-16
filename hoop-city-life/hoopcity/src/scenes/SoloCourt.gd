@@ -416,8 +416,8 @@ func _update_npcs(delta: float) -> void:
 			"wait":
 				n["t"] -= delta
 				if n["t"] <= 0.0:
-					n["state"] = "rest" if not outdoor and randf() < 0.3 else "shoot"
-					n["t"] = randf_range(3.0, 7.0) if n["state"] == "rest" else 0.0
+					n["state"] = "shoot"
+					n["t"] = 0.0
 					n["made"] = randf() < 0.55
 			"shoot":
 				n["t"] += delta / 0.9
