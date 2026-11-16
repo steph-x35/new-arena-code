@@ -8,16 +8,16 @@ web_nothreads_debug.zip
 web_nothreads_release.zip
 web_release.zip
 total 72960
-drwxr-xr-x 2 runner runner     4096 Nov 16 14:12 .
-drwxr-xr-x 3 runner runner     4096 Nov 16 14:11 ..
--rw-r--r-- 1 runner runner  8972312 Nov 16 14:12 web_debug.zip
--rw-r--r-- 1 runner runner 10450872 Nov 16 14:12 web_dlink_debug.zip
--rw-r--r-- 1 runner runner 10596848 Nov 16 14:12 web_dlink_nothreads_debug.zip
--rw-r--r-- 1 runner runner  9681918 Nov 16 14:12 web_dlink_nothreads_release.zip
--rw-r--r-- 1 runner runner  9613206 Nov 16 14:12 web_dlink_release.zip
--rw-r--r-- 1 runner runner  9082643 Nov 16 14:12 web_nothreads_debug.zip
--rw-r--r-- 1 runner runner  8168102 Nov 16 14:12 web_nothreads_release.zip
--rw-r--r-- 1 runner runner  8120251 Nov 16 14:12 web_release.zip
+drwxr-xr-x 2 runner runner     4096 Nov 16 14:15 .
+drwxr-xr-x 3 runner runner     4096 Nov 16 14:15 ..
+-rw-r--r-- 1 runner runner  8972312 Nov 16 14:15 web_debug.zip
+-rw-r--r-- 1 runner runner 10450872 Nov 16 14:15 web_dlink_debug.zip
+-rw-r--r-- 1 runner runner 10596848 Nov 16 14:15 web_dlink_nothreads_debug.zip
+-rw-r--r-- 1 runner runner  9681918 Nov 16 14:15 web_dlink_nothreads_release.zip
+-rw-r--r-- 1 runner runner  9613206 Nov 16 14:15 web_dlink_release.zip
+-rw-r--r-- 1 runner runner  9082643 Nov 16 14:15 web_nothreads_debug.zip
+-rw-r--r-- 1 runner runner  8168102 Nov 16 14:15 web_nothreads_release.zip
+-rw-r--r-- 1 runner runner  8120251 Nov 16 14:15 web_release.zip
 === IMPORT ===
 Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
 
@@ -572,13 +572,13 @@ savepack: begin: Packing steps: 102
 savepack: end
 === OUT ===
 total 53216
-drwxr-xr-x  2 runner runner     4096 Nov 16 14:12 .
-drwxrwxrwt 14 root   root       4096 Nov 16 14:12 ..
--rw-rw-rw-  1 runner runner    24139 Nov 16 14:12 index.apple-touch-icon.png
--rw-rw-rw-  1 runner runner     7298 Nov 16 14:12 index.audio.worklet.js
--rw-rw-rw-  1 runner runner     4850 Nov 16 14:12 index.html
--rw-rw-rw-  1 runner runner    44517 Nov 16 14:12 index.icon.png
--rw-rw-rw-  1 runner runner   331495 Nov 16 14:12 index.js
--rw-rw-rw-  1 runner runner 18663728 Nov 16 14:12 index.pck
--rw-rw-rw-  1 runner runner    21443 Nov 16 14:12 index.png
--rw-rw-rw-  1 runner runner 35376909 Nov 16 14:12 index.wasm
+drwxr-xr-x  2 runner runner     4096 Nov 16 14:15 .
+drwxrwxrwt 14 root   root       4096 Nov 16 14:15 ..
+-rw-rw-rw-  1 runner runner    24139 Nov 16 14:15 index.apple-touch-icon.png
+-rw-rw-rw-  1 runner runner     7298 Nov 16 14:15 index.audio.worklet.js
+-rw-rw-rw-  1 runner runner     4850 Nov 16 14:15 index.html
+-rw-rw-rw-  1 runner runner    44517 Nov 16 14:15 index.icon.png
+-rw-rw-rw-  1 runner runner   331495 Nov 16 14:15 index.js
+-rw-rw-rw-  1 runner runner 18663712 Nov 16 14:15 index.pck
+-rw-rw-rw-  1 runner runner    21443 Nov 16 14:15 index.png
+-rw-rw-rw-  1 runner runner 35376909 Nov 16 14:15 index.wasm
