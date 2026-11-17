@@ -41,7 +41,9 @@ func _ready() -> void:
 	# after the whole line has completed its turns.
 	session._start_free_throws()
 	for i in 5:
-		session._step_free_throws(10.0)
+		for tick in 200:
+			if session.ft_state != "walking": break
+			session._step_free_throws(0.05)
 		ok = ok and session.ft_state in ["user_ready", "npc_ready"]
 		session._shoot_free_throw(true)
 		session._step_free_throws(1.1)

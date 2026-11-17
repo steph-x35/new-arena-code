@@ -225,6 +225,7 @@ func _start_pass(from: BallPlayer, to: BallPlayer) -> void:
 	pass_from = from
 	pass_to = to
 	from.has_ball = false
+	court.ball.live = true
 	court.ball.pass_to(from.global_position, to.global_position, 850.0, from, to)
 	Sfx.play("pass", -8.0)
 
