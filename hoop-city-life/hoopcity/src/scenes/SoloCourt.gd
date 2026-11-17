@@ -15,7 +15,7 @@ const RIM_HEIGHT := Court.RIM_HEIGHT
 const RIM_HALF := 42.0
 const GRAV := 1800.0
 const BALL_R := Court.BALL_R
-const DUNK_FT := 6.5   # si parte dalla semicirconferenza sotto canestro
+const DUNK_FT := 3.5   # si parte dalla semicirconferenza sotto canestro
 const CAM_ZOOM := 1.04
 
 var joystick: VirtualJoystick
@@ -1139,7 +1139,7 @@ func _shoot_down() -> void:
 	if can_dunk() and not posting:
 		_start_dunk()
 		return
-	if not hc_mode and not posting and _distance_ft() < 11.0 and player_pos.x <= RIM.x + 8.0:
+	if not hc_mode and not posting and _distance_ft() < 8.0 and player_pos.x <= RIM.x + 8.0:
 		layup_left = 0.80
 		facing = 1.0
 		return

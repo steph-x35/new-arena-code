@@ -882,7 +882,7 @@ func _shoot_down() -> void:
 		return
 	# Driving into the paint without a dunk: finish one-handed off the glass.
 	var drive: Vector2 = court.hoop_for(u.team) - u.global_position
-	if not court.ft_active and not u.posting and not court.behind_hoop(u) and court.px_to_ft(drive.length()) < 11.0:
+	if not court.ft_active and not u.posting and not court.behind_hoop(u) and court.px_to_ft(drive.length()) < 8.0:
 		u.do_layup()
 		return
 	# At the free-throw line the routine is always the same: charge the meter
@@ -1153,6 +1153,10 @@ func _build_intro() -> void:
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	intro_panel.add_child(bg)
+	if not court.one_on_one:
+		var stage = preload("res://src/match/MatchupBackdrop.gd").new()
+		stage.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		intro_panel.add_child(stage)
 	var v := VBoxContainer.new()
 	v.set_anchors_preset(Control.PRESET_CENTER)
 	v.offset_left = -420
@@ -1163,6 +1167,9 @@ func _build_intro() -> void:
 	v.add_theme_constant_override("separation", 16)
 	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	intro_panel.add_child(v)
+	v.modulate.a = 0.0
+	var enter := create_tween()
+	enter.tween_property(v, "modulate:a", 1.0, 0.55)
 	var arena: String = Season.arena_of(opp) if court.one_on_one else Season.match_arena()
 	_big(v, "  " + arena, 24, Color(1.0, 0.82, 0.30))
 	_big(v, Loc.t("bc.tonight"), 40, Color(0.965, 0.949, 0.906, 0.5))

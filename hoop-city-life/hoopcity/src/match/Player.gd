@@ -110,7 +110,7 @@ var hair_style_v := 0          # taglio PROPRIO (gli NPC non copiano il profilo)
 
 const GRAV := 2600.0
 const JUMP_V := 760.0
-const DUNK_RANGE_FT := 6.5
+const DUNK_RANGE_FT := 3.5
 
 var court: Node2D
 
