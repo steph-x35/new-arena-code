@@ -947,13 +947,8 @@ func _draw() -> void:
 		var label: String = Season.short_player_name(display_name)
 		var font: Font = ThemeDB.fallback_font
 		draw_string(font, Vector2(-57, 42 if is_user else 28), label, HORIZONTAL_ALIGNMENT_CENTER, 114, 14, Color.WHITE)
-	# ANELLI A TERRA (v2.49.0): il contest mentre carico il tiro (solo per il
-	# giocatore umano, per non riempire il campo di cerchi) e il LOCKDOWN.
-	if not bool(Settings.get_v("lowgfx", false)):
-		var feet: Vector2 = proj
-		var tt: float = Time.get_ticks_msec() / 1000.0
-		if lockdown:
-			Avatar.draw_lockdown_ring(self, feet, h, tt)
+	# No animated contest/lockdown ring: projected world coordinates inside
+	# this player transform could draw a second ring far away in the stands.
 	# Pass aim: a blue disc on the floor under the teammate the joystick
 	# is pointing at.
 	if court != null and court.aimed == self:

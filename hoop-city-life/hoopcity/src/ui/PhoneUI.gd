@@ -502,9 +502,16 @@ func _social() -> void:
 		row.add_theme_constant_override("separation", 8)
 		body.add_child(row)
 		var like := Button.new()
-		like.text = "%s %d" % ["♥" if bool(p.get("liked_by_player", false)) else "♡", int(p.get("likes", 0))]
-		like.custom_minimum_size = Vector2(105, 48)
-		like.pressed.connect(func(): Game.toggle_social_like(p); _refresh())
+		like.text = "     %d" % int(p.get("likes", 0))
+		like.custom_minimum_size = Vector2(115, 48)
+		# Vector heart is independent of the platform's emoji font.
+		like.draw.connect(func():
+			var col := Color(1.0, 0.24, 0.30) if bool(p.get("liked_by_player", false)) else Color(0.68, 0.70, 0.75)
+			Art.draw_icon(like, "heart", Rect2(10, 8, 30, 30), col))
+		like.pressed.connect(func():
+			Game.toggle_social_like(p)
+			like.text = "     %d" % int(p.get("likes", 0))
+			like.queue_redraw())
 		row.add_child(like)
 		var reply := Button.new()
 		var comments: Array = p.get("comments", [])

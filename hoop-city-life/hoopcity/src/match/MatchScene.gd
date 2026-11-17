@@ -326,8 +326,8 @@ func _process(delta: float) -> void:
 	else:
 		_phase_hold = 0.0
 	_set_phase(want_phase)
-	# Free throws: only TIRA. Every other match moment keeps the SAME pad —
-	# attack and defence buttons stay put for the whole game.
+	# Only the actual free-throw shooter gets SHOOT; after the sequence the
+	# normal attack/defence pad is rebuilt on every frame.
 	if court.ft_active:
 		_show_btn(btn_crossover, false)
 		_show_btn(btn_pass, false)
@@ -335,7 +335,8 @@ func _process(delta: float) -> void:
 		_show_btn(btn_steal, false)
 		_show_btn(btn_guard, false)
 		_show_btn(btn_pnr, false)
-		_show_btn(btn_shoot, true)
+		_show_btn(btn_post, false)
+		_show_btn(btn_shoot, court.ft_shooter == u)
 	else:
 		_apply_pad(_phase_offence)
 	if btn_check:
@@ -351,7 +352,7 @@ func _process(delta: float) -> void:
 			_show_btn(btn_steal, false)
 			_show_btn(btn_guard, false)
 	if not court.user_on_court:
-		for b in [btn_shoot, btn_crossover, btn_pass, btn_pnr, btn_block, btn_steal, btn_guard, btn_check]:
+		for b in [btn_shoot, btn_crossover, btn_pass, btn_pnr, btn_block, btn_steal, btn_guard, btn_check, btn_post]:
 			_show_btn(b, false)
 		if joystick != null:
 			joystick.visible = false

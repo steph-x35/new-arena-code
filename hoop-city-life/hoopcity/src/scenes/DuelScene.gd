@@ -1797,15 +1797,18 @@ func _duel_tick(delta: float) -> void:
 	# il primario diventa PRENDI PALLA.
 	var defending := duel_on and duel_phase == "live" and not i_attack and not ball_loose
 	var holding := _pad_holding()
+	# Keep the attack controls available during loose balls and shot flight;
+	# actions themselves still validate possession.
+	var attack_pad := not defending and (not duel_on or i_attack or ball_loose)
 	var checking := duel_on and duel_phase == "check"
 	# OFFLINE (MatchScene): quando si aspetta il CHECK resta SOLO il tasto
 	# CHECK, per chi ha la palla. Tutti gli altri spariscono — in attacco e
 	# in difesa — e nessuno dei due si muove finche' il check non da' il via.
 	var frozen := duel_on and (duel_phase == "count" or duel_phase == "reset" or checking)
 	if btn_trick != null:
-		btn_trick.visible = holding and not frozen
+		btn_trick.visible = attack_pad and not frozen
 	if btn_post != null:
-		btn_post.visible = holding and not frozen
+		btn_post.visible = attack_pad and not frozen
 	if btn_guard != null:
 		btn_guard.visible = defending
 	if btn_steal != null:
@@ -2510,10 +2513,6 @@ func _draw_char(mine: bool) -> void:
 			if dunk_phase == "rise":
 				var dw: Vector2 = _dunk_window()
 				Avatar.draw_dunk_ring(self, feet, h, _dunk_prog(), dw.x, dw.y, dunk_timed)
-			if _lockdown and duel_on:
-				Avatar.draw_lockdown_ring(self, feet, h, tt)
-		elif bool(foe.get("ld", false)):
-			Avatar.draw_lockdown_ring(self, feet, h, tt)
 	if hang_body:
 		draw_set_transform_matrix(Transform2D(hang_theta, hang_pivot))
 		Avatar.draw_body(self, hang_feet_off, h, f, po, cols, false, false, mine, BALL_R)

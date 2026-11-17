@@ -1625,6 +1625,10 @@ func call_foul(defender: BallPlayer, victim: BallPlayer, pts_attempt := 0) -> vo
 	possession = victim.team
 	if defender.is_user:
 		stat_add("pf", 1)
+	# Street 1v1 has check-ball restarts, never NBA free throws.
+	if one_on_one:
+		_restart_play(victim.team)
+		return
 	# Every foul sends the fouled man to the line: 2 shots, or 3 when the
 	# contact came on a three-point attempt.
 	var shots := 3 if pts_attempt >= 3 else 2

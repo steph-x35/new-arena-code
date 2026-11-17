@@ -1,7 +1,7 @@
 extends CanvasLayer
 ## Shows actual, clamped meal effects, including negative junk-food health.
 var overlay: Control
-var icons: Label
+var icons: Control
 var busy := false
 
 func _ready() -> void:
@@ -34,12 +34,21 @@ func _show(hunger: float, energy: float, health: float) -> void:
 	title.add_theme_font_size_override("font_size", 28)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(title)
-	icons = Label.new()
-	icons.text = "♥  ⚡"
-	icons.add_theme_font_size_override("font_size", 80)
-	icons.add_theme_color_override("font_color", Color(1.0, 0.72, 0.25))
-	icons.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	# Draw the symbols ourselves instead of relying on emoji fonts, which are
+	# absent on some Android devices and in web builds.
+	icons = HBoxContainer.new()
+	icons.custom_minimum_size = Vector2(240, 88)
+	(icons as HBoxContainer).alignment = BoxContainer.ALIGNMENT_CENTER
+	(icons as HBoxContainer).add_theme_constant_override("separation", 16)
 	col.add_child(icons)
+	for spec in [["food", Color(1.0, 0.69, 0.25)], ["bolt", Color(1.0, 0.86, 0.28)], ["heart", Color(1.0, 0.35, 0.38)]]:
+		var glyph := Control.new()
+		glyph.custom_minimum_size = Vector2(68, 68)
+		glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var kind: String = spec[0]
+		var colour: Color = spec[1]
+		glyph.draw.connect(func(): Art.draw_icon(glyph, kind, Rect2(Vector2.ZERO, glyph.size), colour))
+		icons.add_child(glyph)
 	for row in [["food.hunger", hunger], ["food.energy", energy], ["food.health", health]]:
 		var l := Label.new()
 		l.text = "%s  %+.0f" % [Loc.t(row[0]), float(row[1])]
@@ -58,7 +67,7 @@ func _show(hunger: float, energy: float, health: float) -> void:
 	btn.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	btn.pressed.connect(_close)
 	overlay.add_child(btn)
-	icons.pivot_offset = Vector2(80, 50)
+	icons.pivot_offset = Vector2(120, 44)
 	icons.scale = Vector2(0.3, 0.3)
 	var tw := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tw.tween_property(icons, "scale", Vector2.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
