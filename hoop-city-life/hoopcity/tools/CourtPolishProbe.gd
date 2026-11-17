@@ -27,6 +27,10 @@ func _ready() -> void:
 		if c.awaiting_check:
 			blocked = true
 			break
+		# Drain the successful dunk's asynchronous check before retrying;
+		# otherwise its late restart races the rarer blocked attempt.
+		attacker.release_rim()
+		await get_tree().create_timer(0.6).timeout
 	Events.toast.disconnect(capture)
 	var ok: bool = blocked and int(notices[0]) > 0 and c.possession == 1 and c.ball.holder == defender and not attacker.has_ball and not attacker.dunking
 	ok = ok and defender.block_window == 0.0 and not defender.stance and defender.steal_t == 0.0
