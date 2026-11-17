@@ -529,6 +529,7 @@ func do_jump(for_block := false, lunge := 230.0) -> void:
 func do_layup() -> void:
 	if court == null or not court.play_live or not has_ball or jumping or hanging or layup_t > 0.0: return
 	layup_t = 0.85
+	move_t = 0.0
 	jumping = true
 	air_v = jump_height() * 0.68
 	var toward: Vector2 = (court.hoop_for(team) - global_position).normalized()
@@ -1125,7 +1126,7 @@ func _draw() -> void:
 	if move_t > 0.0 and move_kind == "spin":
 		# giro 360: il torso mostra le spalle a meta' mossa (Avatar gestisce
 		# back/yaw) e ritorna frontale alla fine.
-		po["yaw"] = clampf(sin((1.0 - move_t / move_duration) * PI) * 1.7, 0.0, 1.0)
+		po["yaw"] = clampf(1.0 - move_t / move_duration, 0.0, 1.0)
 	if fake_t > 0.0:
 		po["fake"] = true
 	if not slam.is_empty():

@@ -2004,7 +2004,7 @@ func _draw_player() -> void:
 	# SPIN MOVE: la rotazione del corpo come in partita (passa di schiena
 	# alla telecamera mentre gira, come lo yaw dei giocatori del match).
 	if trick_t > 0.0 and trick_kind == "spin":
-		po["yaw"] = 2.2 * (1.0 - trick_t / 0.80)
+		po["yaw"] = clampf(1.0 - trick_t / 0.80, 0.0, 1.0)
 	if pump_t > 0.0:
 		po["fake"] = true
 	if not slam.is_empty():
