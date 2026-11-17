@@ -15,7 +15,18 @@ func _ready() -> void:
 	ok = ok and pre.npcs.filter(func(n): return n["team"] == 1).size() == 5
 	ok = ok and pre.npcs[0]["helper_home"].x > pre.RIM.x
 	ok = ok and pre.npcs[2]["helper_home"].x < pre.LEFT_RIM.x
-	ok = ok and pre.hud_layer.get_child(0).get_node_or_null("PlayMatch") != null
+	var root: Control = pre.hud_layer.get_child(0)
+	ok = ok and root.get_node_or_null("PlayMatch") != null
+	var banner: Control = root.get_node_or_null("WarmupBanner")
+	ok = ok and banner != null and banner.anchor_left > 0.0 and banner.anchor_right < 1.0
+	var shooter: Dictionary = pre.npcs[0]
+	shooter["state"] = "wait"
+	shooter["t"] = -4.0
+	shooter["helper"] = Vector2(shooter["helper_home"]) + Vector2(-100.0, 0)
+	pre._update_npcs(0.1)
+	ok = ok and bool(shooter["helper_moving"]) and float(shooter["helper_face"]) > 0.0 and float(shooter["helper_step"]) > 0.0
+	for i in 90: pre._update_npcs(1.0 / 60.0)
+	ok = ok and not bool(shooter["helper_moving"]) and Vector2(shooter["helper"]).distance_to(shooter["helper_home"]) < 0.01
 	var seen := {}
 	for i in 600:
 		pre._update_npcs(1.0 / 60.0)
@@ -29,7 +40,7 @@ func _ready() -> void:
 	pre.ball_pos = pre.RIM + Vector2(-40, 0)
 	pre.user_helper_pos = pre.USER_HELPER_HOME
 	pre._update_npcs(0.1)
-	ok = ok and not pre.ball_recall and pre.user_helper_pos != pre.USER_HELPER_HOME
+	ok = ok and not pre.ball_recall and pre.user_helper_pos != pre.USER_HELPER_HOME and pre.user_helper_moving and pre.user_helper_face < 0.0
 	for i in 150:
 		pre._update_npcs(1.0 / 60.0)
 		if pre.ball_recall: break
@@ -37,6 +48,10 @@ func _ready() -> void:
 	pre.ball_recall = false
 	pre.ball_live = false
 	pre.solo_loose = false
+	pre._update_npcs(0.1)
+	ok = ok and pre.user_helper_moving and pre.user_helper_face > 0.0
+	for i in 150: pre._update_npcs(1.0 / 60.0)
+	ok = ok and not pre.user_helper_moving and pre.user_helper_pos.distance_to(pre.USER_HELPER_HOME) < 0.01
 	pre.player_pos = pre.RIM + Vector2(-130, 0)
 	pre._shoot_down()
 	ok = ok and pre.layup_left > 0.0 and pre.dunk_phase == ""
