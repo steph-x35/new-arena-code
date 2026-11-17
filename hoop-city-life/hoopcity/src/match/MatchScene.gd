@@ -74,6 +74,7 @@ func _ready() -> void:
 		practice_background.name = "PracticeBackground"
 		practice_background.setup(court)
 		add_child(practice_background)
+		_start_practice_ambience()
 	Events.score_changed.connect(_on_score)
 	Events.toast.connect(_on_toast)
 	Events.foul_called.connect(_on_foul)
@@ -118,6 +119,20 @@ func _ready() -> void:
 	tip_left = 0.0 if court.friendly_1v1 or court.team_size == 2 else 3.0
 	if court.friendly_1v1 or court.team_size == 2:
 		_hinted = true
+
+func _start_practice_ambience() -> void:
+	# Real indoor game recording: a quiet Voice-bus bed, kept alive when the
+	# same scene switches from 2v2 to drills. No arena crowd in the gym.
+	var voices := AudioStreamPlayer.new()
+	voices.name = "PracticeVoices"
+	voices.bus = "Voice"
+	var track: AudioStreamOggVorbis = preload("res://assets/sfx/practice/gym-players.ogg").duplicate()
+	track.loop = true
+	voices.stream = track
+	voices.volume_db = -32.0
+	add_child(voices)
+	voices.play()
+	create_tween().tween_property(voices, "volume_db", -16.0, 2.0)
 
 ## 1v1 DI CARRIERA: la regola dell'uscita dalla linea dei tre esiste gia'
 ## (take it back past the arc) — la linea LAMPEGGIA finche' chi ha preso

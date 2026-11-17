@@ -9,6 +9,8 @@ func _ready() -> void:
 	var game = load("res://src/match/MatchScene.tscn").instantiate()
 	add_child(game)
 	await get_tree().process_frame
+	var voices: AudioStreamPlayer = game.get_node_or_null("PracticeVoices")
+	var audio_ok: bool = voices != null and voices.playing and voices.bus == "Voice" and voices.stream is AudioStreamOggVorbis and voices.stream.loop
 	var bg = game.get_node_or_null("PracticeBackground")
 	var background_ok: bool = bg != null and bg.actors.size() == 6
 	game.court.pnr_screener = game.court.players[1]
@@ -17,7 +19,8 @@ func _ready() -> void:
 	var session: Node = null
 	for child in game.get_children():
 		if child.has_method("_start_free_throws"): session = child
-	var ok: bool = session != null and background_ok and game.court.pnr_screener == null
+	var ok: bool = session != null and background_ok and audio_ok and game.court.pnr_screener == null
+	ok = ok and voices.playing and game.get_node_or_null("PracticeVoices") == voices
 	if session == null:
 		print("TEAM_SESSION_OK=false missing session")
 		get_tree().quit(1)

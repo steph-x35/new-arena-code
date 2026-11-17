@@ -117,6 +117,13 @@ func _ready() -> void:
 	v.add_child(del)
 
 
+	_section(v, "CREDITI AUDIO")
+	var credits := Label.new()
+	credits.text = "Indoor basketball game — Tomlija, Freesound (CC BY 3.0).\nModificato: mono, compressione e dissolvenze.\nhttps://freesound.org/people/Tomlija/sounds/99201/\nhttps://creativecommons.org/licenses/by/3.0/"
+	credits.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	credits.add_theme_font_size_override("font_size", 16)
+	v.add_child(credits)
+
 	info = Label.new()
 	info.add_theme_font_size_override("font_size", 18)
 	info.modulate = Color(1, 1, 1, 0.7)
