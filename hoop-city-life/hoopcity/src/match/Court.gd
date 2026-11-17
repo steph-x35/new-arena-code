@@ -860,6 +860,7 @@ func _finish() -> void:
 	var res := box.duplicate()
 	res["won"] = won
 	res["fixture"] = is_fixture
+	if is_fixture: res["played_seconds"] = played_time
 	res["fixture_day"] = int(Game.profile.get("match_day", Game.profile.get("day", 1)))
 	res["score"] = score.duplicate()
 	# Broadcast extras: quarter splits, the headline run, top scorer per team
@@ -1016,6 +1017,7 @@ func attempt_shot(shooter: BallPlayer, timing_err: float, layup := false) -> voi
 			_check_ball(blocker.team)
 		return
 
+	var release_offset: Dictionary = shooter.carry_ball_offset() if layup else {"active": false}
 	shooter.has_ball = false
 	shooter.stamina -= lerpf(2.0, 7.0, clampf(dist_ft / 26.0, 0.0, 1.0))
 
@@ -1056,7 +1058,9 @@ func attempt_shot(shooter: BallPlayer, timing_err: float, layup := false) -> voi
 		# Aim past the glass so the physical backboard collision redirects it.
 		aim = hoop + Vector2(signf(hoop.x) * 50.0, 0.0)
 		flight = 0.65
-	ball.shoot(shooter.global_position + Vector2(0, -50), aim, 520.0, flight, res["made"], shooter)
+	var shot_from: Vector2 = shooter.global_position + Vector2(float(release_offset.get("x", 0.0)), 0.0) if layup else shooter.global_position + Vector2(0, -50)
+	var shot_height: float = float(release_offset.get("h", 67.0)) if layup else 67.0
+	ball.shoot(shot_from, aim, 520.0, flight, res["made"], shooter, shot_height)
 	ball.layup_bank = layup
 	ball.last_touch_team = shooter.team
 	if fouled_shot:

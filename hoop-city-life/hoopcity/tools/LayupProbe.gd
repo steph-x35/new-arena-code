@@ -20,12 +20,12 @@ func _ready() -> void:
 	var u: BallPlayer = c.user
 	var hoop: Vector2 = c.hoop_for(0)
 	u.global_position = hoop + Vector2(-signf(hoop.x) * 165.0, 0)
-	u.move_input = Vector2(signf(hoop.x), 0)
+	u.move_input = Vector2.ZERO
 	c.give_ball(u)
 	game._shoot_down()
 	print("LAYUP_START ", u.layup_t, " dunk ", u.dunking, " ball ", u.has_ball, " pos ", u.global_position)
 	var ok: bool = u.layup_t > 0.0 and not u.dunking and u.has_ball
-	await get_tree().create_timer(0.3).timeout
+	await get_tree().create_timer(0.46).timeout
 	print("LAYUP_RELEASE ", c.ball.shot_result_pending, " bank ", c.ball.layup_bank, " holder ", u.has_ball, " live ", c.play_live)
 	ok = ok and c.ball.shot_result_pending and c.ball.layup_bank and not u.has_ball
 	# Force a made bank shot and step the real ball and collision routines.

@@ -528,13 +528,13 @@ func do_jump(for_block := false, lunge := 230.0) -> void:
 
 func do_layup() -> void:
 	if court == null or not court.play_live or not has_ball or jumping or hanging or layup_t > 0.0: return
-	layup_t = 0.65
+	layup_t = 0.85
 	jumping = true
 	air_v = jump_height() * 0.68
 	var toward: Vector2 = (court.hoop_for(team) - global_position).normalized()
 	if absf(toward.x) > 0.1: facing = signf(toward.x)
 	velocity = toward * 165.0
-	await get_tree().create_timer(0.22).timeout
+	await get_tree().create_timer(0.38).timeout
 	if not is_inside_tree() or court == null or not court.play_live or not has_ball or layup_t <= 0.0: return
 	court.attempt_shot(self, 0.08, true)
 
@@ -698,7 +698,7 @@ func do_move(kind: String) -> bool:
 	## chance. Returns false when the move could not be attempted.
 	if cooldown_move > 0.0 or move_t > 0.0 or not has_ball:
 		return false
-	move_duration = 0.45 if is_user else MOVE_DUR
+	move_duration = 0.80 if kind == "spin" else (0.45 if is_user else MOVE_DUR)
 	cooldown_move = move_duration
 	stamina = maxf(0.0, stamina - 6.0)
 	move_t = move_duration

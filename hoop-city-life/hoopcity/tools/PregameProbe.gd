@@ -12,6 +12,16 @@ func _ready() -> void:
 	ok = ok and pre.npcs[0]["team"] == 0 and pre.npcs[2]["team"] == 1
 	ok = ok and pre.npcs[4]["state"] == "stretch" and pre.npcs[5]["state"] == "roller"
 	ok = ok and pre.hud_layer.get_child(0).get_node_or_null("PlayMatch") != null
+	var seen := {}
+	for i in 600:
+		pre._update_npcs(1.0 / 60.0)
+		seen[String(pre.npcs[0]["state"])] = true
+	ok = ok and seen.has("shoot") and seen.has("fall") and seen.has("collect") and seen.has("pass") and seen.has("wait")
+	pre.player_pos = pre.RIM + Vector2(-165, 0)
+	pre._shoot_down()
+	ok = ok and pre.layup_left > 0.0 and pre.dunk_phase == ""
+	pre._process(0.4)
+	ok = ok and pre.layup_bank and pre.ball_live
 	var energy: float = float(Game.profile.get("energy", 0.0))
 	var dunks: int = int(Game.profile.get("stat_dunks", 0))
 	var xp = Game.profile.get("xp", 0)

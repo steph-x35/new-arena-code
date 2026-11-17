@@ -40,6 +40,8 @@ var _prev_mv := Vector2.ZERO
 var _drib_t := 0.0             # dribble thud cadence
 var ideal := 0.55
 var shot_anim := 0.0
+var layup_left := 0.0
+var layup_bank := false
 var shot_made := false
 var net_wobble := 0.0
 var net_t := 0.0
@@ -592,6 +594,11 @@ func _process(delta: float) -> void:
 	net_t += delta
 	net_wobble = HoopArt.decay(net_wobble, delta)
 	trick_t = maxf(trick_t - delta, 0.0)
+	if layup_left > 0.0:
+		var before: float = layup_left
+		layup_left = maxf(0.0, layup_left - delta)
+		if before > 0.42 and layup_left <= 0.42:
+			_release_layup()
 	dust_t = maxf(dust_t - delta, 0.0)
 	if dunk_phase == "hang":
 		hang_swing_t += delta
@@ -749,7 +756,7 @@ func _process(delta: float) -> void:
 		shot_anim += delta
 		if shot_anim > 0.9:
 			shot_anim = 0.0
-	elif not charging and dunk_phase == "" and not talking:
+	elif not charging and layup_left <= 0.0 and dunk_phase == "" and not talking:
 		var mv: Vector2 = joystick.output
 		player_pos += mv * (155.0 if posting else 255.0) * Game.speed_factor() * delta
 		# The movement boundary IS the court's painted rectangle.
@@ -830,9 +837,7 @@ func _process(delta: float) -> void:
 	lbl_top.modulate = Color(1, 0.45, 0.4) if session_left <= 15.0 else Color(1, 1, 1)
 	if btn_shoot:
 		var want: String = "SHOOT"
-		if solo_loose and not ball_recall:
-			want = "RACCOGLI"
-		elif dunk_phase == "hang":
+		if dunk_phase == "hang":
 			want = "LET GO"
 		elif dunk_phase == "rise":
 			want = "DUNK!"
@@ -1014,7 +1019,7 @@ func _try_spin() -> void:
 	if session_over or solo_loose or charging or dunk_phase != "" or ball_live or trick_t > 0.0:
 		return
 	trick_kind = "spin"
-	trick_t = 0.45
+	trick_t = 0.80
 	Sfx.squeak()
 	hand_left = not hand_left
 	player_pos.x = clampf(player_pos.x + facing * 55.0,
@@ -1123,7 +1128,7 @@ func _shoot_down() -> void:
 	if dunk_phase == "rise":
 		_dunk_tap()
 		return
-	if shot_anim > 0.0 or dunk_phase != "":
+	if shot_anim > 0.0 or layup_left > 0.0 or dunk_phase != "":
 		return
 	if solo_loose:
 		Events.toast.emit("Raggiungi la palla per raccoglierla")
@@ -1133,6 +1138,10 @@ func _shoot_down() -> void:
 		return
 	if can_dunk() and not posting:
 		_start_dunk()
+		return
+	if not hc_mode and not posting and _distance_ft() < 11.0 and player_pos.x <= RIM.x + 8.0:
+		layup_left = 0.80
+		facing = 1.0
 		return
 	charging = true
 	charge = 0.0
@@ -1149,6 +1158,24 @@ func _shoot_down() -> void:
 		fade_pending = true
 		meter.perfect_window = float(w["perfect"]) * 0.72
 		meter.good_window = float(w["good"]) * 0.85
+
+func _release_layup() -> void:
+	# Use the normal shot accounting, then send the ball from the raised hand
+	# to the glass. The board collision redirects it toward the hoop.
+	charging = true
+	ideal = 0.5
+	var made: bool = randf() < lerpf(0.55, 0.90, float(Game.attr_eff("close")) / 99.0)
+	charge = ideal if made else ideal + 1.0
+	_family_tag = "LAYUP"
+	_shoot_up()
+	ball_pos = player_pos + Vector2(64.0 * Game.height_factor() * 0.38, 0.0)
+	ball_h = 64.0 * Game.height_factor() * 0.95 + 45.0
+	var target: Vector2 = RIM + Vector2(55.0, 0.0)
+	var duration := 0.55
+	ball_vel = (target - ball_pos) / duration
+	ball_vh = (RIM_HEIGHT + 25.0 - ball_h + 0.5 * GRAV * duration * duration) / duration
+	layup_bank = true
+	ball_ghost_rim = true
 
 ## SCHIACCIATA A TEMPO (v2.49.0, come il dunk meter di 2K27): sali, e premi
 ## TIRA quando la pallina dell'anello e' nel verde. A tempo la schiacciata
@@ -1480,6 +1507,15 @@ func _collide_backboard() -> void:
 	if ball_h > RIM_HEIGHT - 30.0 and ball_h < RIM_HEIGHT + 90.0:
 		if ball_pos.x > bx and ball_vel.x > 0.0:
 			ball_pos.x = bx
+			if layup_bank:
+				var target: Vector2 = RIM if shot_made else RIM + Vector2(-52.0, 16.0)
+				var t := 0.30
+				ball_vel = (target - ball_pos) / t
+				ball_vh = (RIM_HEIGHT - ball_h + 0.5 * GRAV * t * t) / t
+				layup_bank = false
+				ball_ghost_rim = shot_made
+				Sfx.play("backboard", -7.0)
+				return
 			ball_vel.x = -absf(ball_vel.x) * 0.55
 			ball_vel.y *= 0.8
 			net_wobble = maxf(net_wobble, 0.35)
@@ -1884,6 +1920,11 @@ func _draw_player() -> void:
 				amount = 1.0 - f
 				carry = false
 				slam = DunkStyle.sample(dunk_style, 1.0)
+	elif layup_left > 0.0:
+		kind = Avatar.LAYUP
+		amount = 1.0
+		lift = sin((1.0 - layup_left / 0.80) * PI) * 45.0
+		carry = not ball_live and not solo_loose
 	elif shot_anim > 0.0:
 		kind = Avatar.SHOOT
 		amount = clampf(shot_anim / 0.22, 0.0, 1.0)
@@ -1898,7 +1939,7 @@ func _draw_player() -> void:
 	elif trick_t > 0.0:
 		kind = Avatar.DRIBBLE
 		phase = dribble_t
-		amount = trick_t / 0.45
+		amount = trick_t / (0.80 if trick_kind == "spin" else 0.45)
 	elif solo_loose or ball_live:
 		# SENZA PALLA: come in citta' — si corre, o si sta fermi in piedi.
 		# Niente gesto del palleggio a vuoto con la palla distante.
@@ -1963,7 +2004,7 @@ func _draw_player() -> void:
 	# SPIN MOVE: la rotazione del corpo come in partita (passa di schiena
 	# alla telecamera mentre gira, come lo yaw dei giocatori del match).
 	if trick_t > 0.0 and trick_kind == "spin":
-		po["yaw"] = 2.2 * (1.0 - trick_t / 0.45)
+		po["yaw"] = 2.2 * (1.0 - trick_t / 0.80)
 	if pump_t > 0.0:
 		po["fake"] = true
 	if not slam.is_empty():
@@ -2007,7 +2048,7 @@ func _draw_player() -> void:
 		Avatar.draw_flames(self, screen + Vector2(0.0, -h * 1.16), Time.get_ticks_msec() / 1000.0)
 
 	if trick_t > 0.0:
-		var f: float = 1.0 - trick_t / 0.45
+		var f: float = 1.0 - trick_t / (0.80 if trick_kind == "spin" else 0.45)
 		var from_side: float = 1.0 if hand_left else -1.0
 		var to_side: float = -from_side
 		var sway: float = lerpf(from_side, to_side, smoothstep(0.0, 1.0, f))

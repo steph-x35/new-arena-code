@@ -58,7 +58,7 @@ func _update_talk_button() -> void:
 func _spawn_npcs() -> void:
 	# Two independent balls per side, plus a stretch and a foam roller. These
 	# actors are decorative and never join the match or touch the user's ball.
-	var points := [Vector2(420,-190), Vector2(590,170), Vector2(-430,-190), Vector2(-590,170), Vector2(90,-230), Vector2(-110,220)]
+	var points := [Vector2(420,-190), Vector2(590,170), Vector2(-430,-190), Vector2(-590,170), Vector2(155,-115), Vector2(-155,115)]
 	for i in points.size():
 		var team := 0 if i < 2 or i == 4 else 1
 		var kit: Color = Game.team_colour(team)
@@ -70,21 +70,37 @@ func _spawn_npcs() -> void:
 		look["hair"] = Game.HAIR_COLORS[i % Game.HAIR_COLORS.size()]
 		npcs.append({"pos": points[i], "home": points[i], "team": team, "look": look,
 			"state": "wait" if i < 4 else ("stretch" if i == 4 else "roller"),
-			"t": -float(i) * 0.65, "face": 1.0 if team == 0 else -1.0})
+			"t": -float(i) * 0.65, "face": 1.0 if team == 0 else -1.0,
+			"helper": (RIM if team == 0 else LEFT_RIM) + Vector2(-90.0 if team == 0 else 90.0, -90.0 if i % 2 == 0 else 90.0),
+			"ball_ground": (RIM if team == 0 else LEFT_RIM) + Vector2(-75.0 if team == 0 else 75.0, -60.0 if i % 2 == 0 else 60.0)})
 
 func _update_npcs(delta: float) -> void:
 	warmup_time += delta
 	for n in npcs:
 		if n["state"] in ["stretch", "roller"]: continue
 		n["t"] = float(n["t"]) + delta
-		if n["state"] == "wait" and n["t"] >= 1.5:
+		var state := String(n["state"])
+		if state == "wait" and float(n["t"]) >= 1.5:
 			n["state"] = "shoot"
 			n["t"] = 0.0
-		elif n["state"] == "shoot" and n["t"] >= 1.0:
+		elif state == "shoot" and float(n["t"]) >= 1.0:
 			court_art.net_bump(1 if int(n["team"]) == 0 else 0, 0.65)
-			n["state"] = "return"
+			n["state"] = "fall"
 			n["t"] = 0.0
-		elif n["state"] == "return" and n["t"] >= 1.25:
+		elif state == "fall" and float(n["t"]) >= 0.9:
+			n["state"] = "collect"
+			n["t"] = 0.0
+		elif state == "collect":
+			var helper: Vector2 = n["helper"]
+			var target: Vector2 = n["ball_ground"]
+			var d := target - helper
+			if d.length() <= 4.0:
+				n["helper"] = target
+				n["state"] = "pass"
+				n["t"] = 0.0
+			else:
+				n["helper"] = helper + d.normalized() * minf(145.0 * delta, d.length())
+		elif state == "pass" and float(n["t"]) >= 0.65:
 			n["state"] = "wait"
 			n["t"] = -0.5
 
@@ -113,8 +129,24 @@ func _draw_npcs() -> void:
 				var bp := (pos + Vector2(face * 15, -40)).lerp(_screen(rim) - Vector2(0, RIM_HEIGHT), t)
 				bp.y -= sin(PI * t) * 135.0
 				_draw_ball_at(bp, BALL_R)
-			elif state == "return":
-				var t := clampf(float(n["t"]) / 1.25, 0.0, 1.0)
-				var bp := (_screen(rim) - Vector2(0, RIM_HEIGHT)).lerp(pos - Vector2(0, BALL_R), t)
-				bp.y -= sin(PI * t) * 20.0
+			elif state == "fall":
+				var t := clampf(float(n["t"]) / 0.9, 0.0, 1.0)
+				var ground: Vector2 = _screen(n["ball_ground"]) - Vector2(0, BALL_R)
+				var bp := (_screen(rim) - Vector2(0, RIM_HEIGHT)).lerp(ground, minf(t / 0.68, 1.0))
+				bp.y -= sin(clampf((t - 0.68) / 0.32, 0.0, 1.0) * PI) * 22.0
 				_draw_ball_at(bp, BALL_R)
+			elif state == "collect":
+				_draw_ball_at(_screen(n["ball_ground"]) - Vector2(0, BALL_R), BALL_R)
+			elif state == "pass":
+				var t := clampf(float(n["t"]) / 0.65, 0.0, 1.0)
+				var bp := (_screen(n["helper"]) - Vector2(0, 35)).lerp(pos - Vector2(0, 35), t)
+				bp.y -= sin(PI * t) * 25.0
+				_draw_ball_at(bp, BALL_R)
+			# Each side has attendants in neutral clothes, separate from the
+			# players and the user's own live ball.
+			var helper_pos: Vector2 = _screen(n["helper"])
+			var helper_col := Avatar.colours(false, Color(0.20, 0.24, 0.28))
+			helper_col["shorts"] = Color(0.12, 0.14, 0.17)
+			helper_col["hst"] = (team + 1) % 6
+			var helper_pose := Avatar.RUN if state == "collect" else Avatar.IDLE
+			Avatar.draw_body(self, helper_pos, 54.0, -face, Avatar.pose(helper_pose, warmup_time * 4.0, 0.0, "", state == "collect"), helper_col, false)

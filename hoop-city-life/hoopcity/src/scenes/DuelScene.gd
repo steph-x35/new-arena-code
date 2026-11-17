@@ -598,9 +598,6 @@ func _process(delta: float) -> void:
 		if duel_on and duel_phase == "live" and not i_attack and not ball_loose:
 			want = Loc.t("match.jump")
 			want_icon = Art.icon_for("JUMP")
-		elif not duel_on and not _pad_holding() and not ball_recall:
-			want = Loc.t("duel.grab")
-			want_icon = "ball"
 		elif dunk_phase == "hang":
 			want = "LET GO"
 		elif dunk_phase == "rise" or _can_dunk():
@@ -1149,8 +1146,7 @@ func _shoot_down() -> void:
 		ball_recall = false
 		ball_live = false
 	if not duel_on and not _pad_holding():
-		_try_grab_ball()     # libero senza palla: PRENDI PALLA
-		return
+		return # the ball is collected by walking over it
 	if not _net_ok or not _i_have_ball():
 		if duel_on and i_attack and must_clear:
 			_say(Loc.t("duel.clear"), 1.1)

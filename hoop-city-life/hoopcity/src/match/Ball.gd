@@ -74,10 +74,10 @@ func detach() -> void:
 	holder = null
 	live = true
 
-func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made: bool, by: Node) -> void:
+func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made: bool, by: Node, start_height := 67.0) -> void:
 	## Solve a ballistic arc that lands on the rim in `flight_time` seconds.
 	global_position = from
-	h = 67.0
+	h = start_height
 	shooter = by
 	layup_bank = false
 	rattled = false

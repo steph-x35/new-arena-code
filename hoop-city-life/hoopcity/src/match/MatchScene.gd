@@ -861,8 +861,6 @@ func _shoot_down() -> void:
 		# No ball in your hands. Try to grab a loose one; if it is out of
 		# reach, either call for the pass (team-mate has it) or drive at the
 		# handler (opponent has it). The button always does something.
-		if court.try_grab(u):
-			return
 		var h: BallPlayer = court.ball_handler()
 		if h == null:
 			# loose ball somewhere: sprint at it
@@ -884,8 +882,7 @@ func _shoot_down() -> void:
 		return
 	# Driving into the paint without a dunk: finish one-handed off the glass.
 	var drive: Vector2 = court.hoop_for(u.team) - u.global_position
-	if not court.ft_active and not u.posting and not court.behind_hoop(u) and court.px_to_ft(drive.length()) < 11.0 \
-	and (u.move_input.dot(drive.normalized()) > 0.35 or u.velocity.dot(drive.normalized()) > 70.0):
+	if not court.ft_active and not u.posting and not court.behind_hoop(u) and court.px_to_ft(drive.length()) < 11.0:
 		u.do_layup()
 		return
 	# At the free-throw line the routine is always the same: charge the meter
@@ -945,11 +942,6 @@ func _do_check() -> void:
 func _block() -> void:
 	var u := court.user
 	if u == null: return
-	# Over a loose ball STOPPATA snatches it instead of jumping.
-	if court.ball != null and court.ball.holder == null:
-		if not court.try_grab(u):
-			u.chase(court.ball.global_position)
-		return
 	u.do_jump(true)
 
 func _post_tap() -> void:

@@ -511,8 +511,12 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 		elif kind == DRIBBLE and strong:
 			# The hand pushes at hip height; the ball continues to the floor
 			# and rebounds on its own, not glued to an elongating arm.
-			var push: float = 0.07 * h * maxf(0.0, sin(ph * 2.3))
-			hand = Vector2(base.x + hd * h * 0.30, hip_y + push)
+			# At the top of the bounce the palm meets the TOP of the ball;
+			# it then pushes a little before the ball travels independently.
+			var bounce: float = absf(sin(ph * 1.15))
+			var br_hand: float = h * 0.105 if ball_r < 0.0 else ball_r
+			var hand_height: float = lerpf(h * 0.46, h * 0.55 + 2.0 * br_hand, pow(bounce, 6.0))
+			hand = Vector2(base.x + hd * h * 0.30, floor_y - hand_height)
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.42) + sx * h * 0.05,
 				lerpf(sh_p.y, hand.y, 0.40))
 		elif bool(p.get("hang", false)) and not bool(p.get("hang_one", false)):
