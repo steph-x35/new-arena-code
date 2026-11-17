@@ -19,8 +19,8 @@ func _ready() -> void:
 		if p.team == 1: p.global_position = Vector2(0, 450)
 	var u: BallPlayer = c.user
 	var hoop: Vector2 = c.hoop_for(0)
-	u.global_position = hoop + Vector2(165, 0)
-	u.move_input = Vector2.LEFT
+	u.global_position = hoop + Vector2(-signf(hoop.x) * 165.0, 0)
+	u.move_input = Vector2(signf(hoop.x), 0)
 	c.give_ball(u)
 	game._shoot_down()
 	print("LAYUP_START ", u.layup_t, " dunk ", u.dunking, " ball ", u.has_ball, " pos ", u.global_position)
