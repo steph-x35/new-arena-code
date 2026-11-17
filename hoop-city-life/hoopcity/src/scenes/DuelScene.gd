@@ -998,15 +998,6 @@ func _do_jump() -> void:
 	## la prendi al volo.
 	if duel_on and duel_phase != "live":
 		return
-	if duel_on and ball_loose:
-		if my_rebound and ball_live and _pick_ok and ball_h < 110.0 \
-		and player_pos.distance_to(ball_pos) < 130.0:
-			_take_ball(true)
-			return
-		elif not my_rebound and fb_live and _fb_pick_ok and fb_h < 110.0 \
-		and player_pos.distance_to(fb_pos) < 130.0:
-			_take_ball(false)
-			return
 	if _jump_t > 0.0:
 		return
 	_jump_t = 0.45
@@ -1140,11 +1131,7 @@ func _shoot_down() -> void:
 		_do_jump()           # in difesa il primario e' SALTO, come indoor
 		return
 	if not duel_on and ball_recall:
-		# PRENDI + ricarica subito: la palla in volo verso le mani arriva
-		# ALL'ISTANTE. Cosi' il tasto non muore mai mentre la palla vola,
-		# e la fine dell'animazione non puo' spegnere un tiro gia' partito.
-		ball_recall = false
-		ball_live = false
+		return # wait for a genuine pass rather than pulling it in on a tap
 	if not duel_on and not _pad_holding():
 		return # the ball is collected by walking over it
 	if not _net_ok or not _i_have_ball():
