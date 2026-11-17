@@ -88,15 +88,19 @@ func _ready() -> void:
 			session._shoot_free_throw(true)
 		session._step_free_throws(1.1)
 		session._step_free_throws(0.6)
-		ok = ok and session.ft_state == "rebound"
-		if session.shot_queue[0] == session.user:
-			session.user.global_position = session.ft_land
+		ok = ok and session.ft_state == "rebound" and game.court.ball.live and game.court.ball.vh > 200.0
+		var is_user_shot: bool = session.shot_queue[0] == session.user
+		for tick in 240:
+			if session.ft_state != "rebound": break
+			game.court.ball._physics_process(0.05)
+			if is_user_shot: session.user.global_position = game.court.ball.global_position
 			session._step_free_throws(0.05)
-			ok = ok and session.ft_state == "pass_ball"
+		if is_user_shot:
+			ok = ok and session.ft_state == "pass_ball" and game.court.ball.holder == session.user
+			ok = ok and game.court.ball.is_physics_processing()
 			session._action_down()
 		else:
-			session._step_free_throws(5.0)
-			session._step_free_throws(0.05)
+			ok = ok and session.ft_state == "passing"
 		game.court.ball._physics_process(2.0)
 		session._step_free_throws(0.05)
 		ok = ok and session.ft_shots == i + 1

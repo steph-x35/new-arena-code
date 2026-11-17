@@ -408,10 +408,11 @@ func _shoot_free_throw(made: bool) -> void:
 	ft_time = 0.0
 	var shooter: BallPlayer = shot_queue[0]
 	ft_start = shooter.global_position
-	ft_end = court.hoop_for(0) + (Vector2.ZERO if made else Vector2(-52, 12))
+	ft_end = court.hoop_for(0) + (Vector2.ZERO if made else Vector2(-randf_range(45.0, 65.0), randf_range(-30.0, 30.0)))
 	shooter.has_ball = false
 	shooter.shot_anim = 0.26
 	court.ball.holder = null
+	court.ball.set_physics_process(false)
 	court.ball.visible = true
 	Sfx.play("shot_release", -7.0)
 	action.visible = false
@@ -529,9 +530,8 @@ func _step_free_throws(delta: float) -> void:
 	_step_ambient(delta)
 	if ft_state == "walking" and all_ready:
 		var shooter: BallPlayer = shot_queue[0]
-		for p in attack: p.has_ball = false
-		court.ball.holder = shooter
-		shooter.has_ball = true
+		court.give_ball(shooter)
+		court.ball.set_physics_process(true)
 		ft_time = 0.0
 		if shooter == user:
 			ft_state = "user_ready"
@@ -543,11 +543,6 @@ func _step_free_throws(delta: float) -> void:
 		else:
 			ft_state = "npc_ready"
 			detail.text = "%s tira · aspetta il tuo turno" % shooter.display_name
-	if ft_state in ["user_ready", "npc_ready", "charging"]:
-		var shooter: BallPlayer = shot_queue[0]
-		court.ball.global_position = shooter.global_position + Vector2(14, 0)
-		court.ball.h = 47.0
-		court.ball.queue_redraw()
 	if ft_state == "charging":
 		ft_charge += delta
 		user.shot_charge = ft_charge
@@ -577,15 +572,21 @@ func _step_free_throws(delta: float) -> void:
 			if vis != null: vis.net_bump(1, 0.8)
 			ft_state = "drop"
 			ft_time = 0.0
+			ft_land = ft_end + Vector2(randf_range(-95.0, -35.0), randf_range(-60.0, 60.0))
 	elif ft_state == "drop":
 		ft_time += delta
-		ft_land = ft_end + Vector2(-55.0, 25.0 if ft_made else -30.0)
 		court.ball.global_position = ft_end.lerp(ft_land, clampf(ft_time / 0.55, 0.0, 1.0))
 		court.ball.h = maxf(Court.RIM_HEIGHT * (1.0 - ft_time / 0.55), 0.0)
 		court.ball.queue_redraw()
 		if ft_time >= 0.55:
 			court.ball.global_position = ft_land
 			court.ball.h = 0.0
+			court.ball.vel = Vector2(randf_range(-100.0, -30.0), randf_range(-80.0, 80.0))
+			court.ball.vh = randf_range(220.0, 320.0)
+			court.ball.practice_shot = true
+			court.ball.live = true
+			court.ball.shot_result_pending = false
+			court.ball.set_physics_process(true)
 			ft_state = "rebound"
 			if shot_queue[0] == user:
 				user.set_physics_process(true)
@@ -593,9 +594,11 @@ func _step_free_throws(delta: float) -> void:
 				detail.text = "Prendi il rimbalzo, poi passa al prossimo."
 	elif ft_state == "rebound":
 		var shooter: BallPlayer = shot_queue[0]
+		ft_land = court.ball.global_position
 		if shooter != user: _move_npc(shooter, ft_land, delta)
-		if shooter.global_position.distance_to(ft_land) < 38.0:
+		if shooter.global_position.distance_to(ft_land) < 38.0 and court.ball.h < 50.0:
 			court.give_ball(shooter)
+			court.ball.set_physics_process(true)
 			if shooter == user:
 				user.move_input = Vector2.ZERO
 				user.set_physics_process(false)
@@ -612,7 +615,6 @@ func _step_free_throws(delta: float) -> void:
 		# The main ball runs independently while the pass is in flight.
 		_step_pass()
 		if not pass_active:
-			court.ball.set_physics_process(false)
 			var last: BallPlayer = shot_queue.pop_front()
 			shot_queue.append(last)
 			ft_shots += 1

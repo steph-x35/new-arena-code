@@ -1057,10 +1057,10 @@ func attempt_shot(shooter: BallPlayer, timing_err: float, layup := false) -> voi
 	if layup:
 		# Aim past the glass so the physical backboard collision redirects it.
 		aim = hoop + Vector2(signf(hoop.x) * 50.0, 0.0)
-		flight = 0.65
+		flight = 0.55
 	var shot_from: Vector2 = shooter.global_position + Vector2(float(release_offset.get("x", 0.0)), 0.0) if layup else shooter.global_position + Vector2(0, -50)
 	var shot_height: float = float(release_offset.get("h", 67.0)) if layup else 67.0
-	ball.shoot(shot_from, aim, 520.0, flight, res["made"], shooter, shot_height)
+	ball.shoot(shot_from, aim, 520.0, flight, res["made"], shooter, shot_height, RIM_HEIGHT + 25.0 if layup else RIM_HEIGHT)
 	ball.layup_bank = layup
 	ball.last_touch_team = shooter.team
 	if fouled_shot:
@@ -1241,7 +1241,7 @@ func check_ball_collisions(b: Ball) -> void:
 			b.global_position.x = board_x
 			if b.layup_bank:
 				Sfx.play("backboard", -7.0)
-				var target: Vector2 = hoop if b.made_flag else hoop + Vector2(-signf(hoop.x) * 52.0, 16.0)
+				var target: Vector2 = hoop + Vector2(randf_range(-4.0, 4.0), randf_range(-6.0, 6.0)) if b.made_flag else hoop + Vector2(-signf(hoop.x) * randf_range(48.0, 65.0), randf_range(-35.0, 35.0))
 				b.bank_toward(target, 0.30)
 				return
 			b.vel.x = -b.vel.x * 0.55
@@ -1604,24 +1604,10 @@ func resolve_missed_shot(b: Ball) -> void:
 		# raggiungerla e raccoglierla, senza assegnazioni a distanza.
 		shot_clock = maxf(shot_clock, 14.0)
 		return
-	# rebound: nearest players contest, weighted by rebound rating + height
-	var best: BallPlayer = null
-	var best_w := -1.0
-	for p in players:
-		var d := p.global_position.distance_to(b.global_position)
-		if d > 260.0: continue
-		var w: float = (p.ratings["rebound"] / 99.0) * p.height_f * (1.0 - d / 260.0) * randf_range(0.6, 1.4)
-		if p.has_badge("glass_cleaner"): w *= 1.1
-		if w > best_w:
-			best_w = w
-			best = p
-	if best == null:
-		_restart_play(1 - b.last_touch_team)
-		return
-	give_ball(best)
-	shot_clock = 18.0
-	if best.is_user: box["reb"] += 1
-	Events.toast.emit("Rebound #%d" % best.jersey_num)
+	# A miss remains a live physical ball; players contest and actually reach
+	# it rather than teleporting it into the nearest player's hands.
+	b.live = true
+	shot_clock = maxf(shot_clock, 14.0)
 
 func _inbound(team: int, violation := false) -> void:
 	if timeout_requested >= 0 and (violation or timeout_requested == team):

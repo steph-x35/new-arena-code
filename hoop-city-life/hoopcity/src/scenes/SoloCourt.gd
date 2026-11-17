@@ -1445,6 +1445,7 @@ func _step_ball(delta: float) -> void:
 		_collide_rim()
 		_collide_backboard()
 		_collide_floor()
+		_keep_ball_in_play()
 	ball_spin += ball_vel.x * 0.0004
 
 	if not solo_loose:
@@ -1453,6 +1454,18 @@ func _step_ball(delta: float) -> void:
 			ball_live = false
 		if ball_settled > 1.1:
 			ball_live = false
+
+func _keep_ball_in_play() -> void:
+	# Street/warmup balls remain reachable: reflect and lose energy at the
+	# boundaries instead of running offscreen and being parked at a corner.
+	var edge_x: float = Court.COURT_W * 0.5 - BALL_R
+	var edge_y: float = Court.COURT_H * 0.5 - BALL_R
+	if absf(ball_pos.x) > edge_x:
+		ball_pos.x = clampf(ball_pos.x, -edge_x, edge_x)
+		ball_vel.x = -signf(ball_pos.x) * absf(ball_vel.x) * 0.38
+	if absf(ball_pos.y) > edge_y:
+		ball_pos.y = clampf(ball_pos.y, -edge_y, edge_y)
+		ball_vel.y = -signf(ball_pos.y) * absf(ball_vel.y) * 0.38
 
 ## The ring is a circle in the court plane at rim height. Crossing down
 ## through its middle scores; clipping its edge clangs the iron and snaps the
@@ -1508,7 +1521,7 @@ func _collide_backboard() -> void:
 		if ball_pos.x > bx and ball_vel.x > 0.0:
 			ball_pos.x = bx
 			if layup_bank:
-				var target: Vector2 = RIM if shot_made else RIM + Vector2(-52.0, 16.0)
+				var target: Vector2 = RIM + Vector2(randf_range(-4.0, 4.0), randf_range(-6.0, 6.0)) if shot_made else RIM + Vector2(-randf_range(48.0, 65.0), randf_range(-35.0, 35.0))
 				var t := 0.30
 				ball_vel = (target - ball_pos) / t
 				ball_vh = (RIM_HEIGHT - ball_h + 0.5 * GRAV * t * t) / t

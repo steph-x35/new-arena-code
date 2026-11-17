@@ -1172,7 +1172,10 @@ func _draw() -> void:
 	# The caller's court transform is handed to the avatar so a spinning slam
 	# can compose its own turn on top of the projection.
 	_low = bool(Settings.get_v("lowgfx", false))
+	var was_embedded := embedded_dribble
 	embedded_dribble = has_ball and kind == Avatar.DRIBBLE and fake_t <= 0.0 and not fake_locked
+	if was_embedded != embedded_dribble and court != null and court.ball != null and court.ball.holder == self:
+		court.ball.queue_redraw()
 	Avatar.draw_body(self, feet, h, facing, po, cols, embedded_dribble, false, is_user,
 		Court.BALL_R, Transform2D(0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale, 0.0, proj - position))
 	# HEAT CHECK: lingue di fuoco sopra la testa (stesse del court solo)

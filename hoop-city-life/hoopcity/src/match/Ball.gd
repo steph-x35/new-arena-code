@@ -69,12 +69,14 @@ func attach(p: Node) -> void:
 	vh = 0.0
 	h = 49.0
 	last_touch_team = p.team
+	queue_redraw()
+	p.queue_redraw()
 
 func detach() -> void:
 	holder = null
 	live = true
 
-func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made: bool, by: Node, start_height := 67.0) -> void:
+func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made: bool, by: Node, start_height := 67.0, target_height := Court.RIM_HEIGHT) -> void:
 	## Solve a ballistic arc that lands on the rim in `flight_time` seconds.
 	global_position = from
 	h = start_height
@@ -94,7 +96,7 @@ func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made
 	var k := AIR
 	var fT := (1.0 - exp(-k * flight_time)) / k
 	_ana_v0 = (target - from) / fT
-	var rim_h: float = court.RIM_HEIGHT
+	var rim_h: float = target_height
 	_ana_vh0 = (rim_h - h + (G / k) * flight_time) / fT - G / k
 	vel = _ana_v0
 	vh = _ana_vh0
@@ -240,16 +242,19 @@ func _physics_process(delta: float) -> void:
 		if absf(global_position.x) > edge_x:
 			hit_boundary = true
 			global_position.x = clampf(global_position.x, -edge_x, edge_x)
-			vel.x = 0.0
+			vel.x = -signf(global_position.x) * absf(vel.x) * 0.38
 		if absf(global_position.y) > edge_y:
 			hit_boundary = true
 			global_position.y = clampf(global_position.y, -edge_y, edge_y)
-			vel.y = 0.0
+			vel.y = -signf(global_position.y) * absf(vel.y) * 0.38
 		if _ana and hit_boundary:
 			kill_analytic()
 	court.check_ball_collisions(self)
 
 	if h <= 0.0:
+		# A floor impact ends the analytic shot. Otherwise the next frame
+		# overwrites the bounce with the old parabola and drives it into a corner.
+		kill_analytic()
 		h = 0.0
 		if absf(vh) < 60.0:
 			vh = 0.0
