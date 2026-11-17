@@ -85,6 +85,10 @@ func _ready() -> void:
 	numbers.shuffle()
 	var shirts := [Game.team_colour(0), Color(0.18, 0.35, 0.68), Color(0.72, 0.23, 0.18), Color(0.18, 0.52, 0.40), Color(0.67, 0.59, 0.43), Color(0.28, 0.25, 0.47)]
 	shirts.shuffle()
+	var skins := [Color(0.72, 0.53, 0.38), Color(0.55, 0.36, 0.26), Color(0.86, 0.69, 0.52), Color(0.40, 0.27, 0.19), Color(0.94, 0.79, 0.64)]
+	var hairstyles := [0, 0, 1, 2, 3, 4, 5, 6, 7]
+	skins.shuffle()
+	hairstyles.shuffle()
 	var shirt_index := 0
 	for p in court.players:
 		p.set_meta("practice_kit", true)
@@ -92,6 +96,9 @@ func _ready() -> void:
 			while numbers[0] == user.jersey_num: numbers.pop_front()
 			p.jersey_num = numbers.pop_front()
 			p.set_meta("practice_colour", shirts[shirt_index % shirts.size()])
+			p.skin_col = skins[shirt_index % skins.size()]
+			p.hair_style_v = hairstyles[shirt_index % hairstyles.size()]
+			p.hair_col = Game.HAIR_COLORS.pick_random()
 			shirt_index += 1
 		if p.team == 0: attack.append(p)
 		else: defense.append(p)

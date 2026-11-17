@@ -22,6 +22,11 @@ func _ready() -> void:
 	game.court.ball.set_physics_process(false)
 	ok = ok and game.court.players.size() == 10 and session.attack.size() == 5 and session.defense.size() == 5
 	ok = ok and session.PLAYS.size() == 5 and session.mode == "choose"
+	var numbers := {}
+	for p in game.court.players:
+		ok = ok and not numbers.has(p.jersey_num)
+		numbers[p.jersey_num] = true
+		if p != session.user: ok = ok and p.has_meta("practice_colour")
 	# Actual passes, cut, return pass and final pass, all on the same court.
 	session._start_play(2)
 	session._action_down()
@@ -47,7 +52,13 @@ func _ready() -> void:
 			if session.ft_state != "walking": break
 			session._step_free_throws(0.05)
 		ok = ok and session.ft_state in ["user_ready", "npc_ready"]
-		session._shoot_free_throw(true)
+		if session.shot_queue[0] == session.user:
+			session._action_down()
+			session._step_free_throws(0.3)
+			ok = ok and session.meter.visible and session.user.shot_charge > 0.0
+			session._action_up()
+		else:
+			session._shoot_free_throw(true)
 		session._step_free_throws(1.1)
 		session._step_free_throws(0.6)
 		ok = ok and session.ft_state == "rebound"
