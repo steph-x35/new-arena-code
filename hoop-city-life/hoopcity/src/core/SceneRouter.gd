@@ -7,7 +7,7 @@ var friendly_1v1 := false
 var friendly_look: Dictionary = {}
 var friendly_name := ""
 
-const COURT_SCENES := ["MatchScene", "DrillScene", "GymScene", "SoloCourt", "TeamCourt", "DuelScene"]
+const COURT_SCENES := ["MatchScene", "PregameWarmup", "DrillScene", "GymScene", "SoloCourt", "TeamCourt", "DuelScene"]
 
 func goto(path: String) -> void:
 	SaveSystem.save_game()

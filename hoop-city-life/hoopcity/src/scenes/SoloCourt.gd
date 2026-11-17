@@ -136,6 +136,7 @@ var meter: ShotMeter
 var hud_layer: CanvasLayer
 var court_art: Node2D
 var outdoor := true
+var pregame_warmup := false
 var night_tint: CanvasModulate
 
 func _exit_tree() -> void:
@@ -144,7 +145,7 @@ func _exit_tree() -> void:
 
 func _ready() -> void:
 	Sfx.stop_music()   # solo/1v1 courts: squeaks, swish and bounces only
-	outdoor = String(Game.profile.get("last_building", "park")) != "court"
+	outdoor = not pregame_warmup and String(Game.profile.get("last_building", "park")) != "court"
 	hand_left = Game.shooting_hand() < 0.0
 	hc_best = int(Game.profile.get("hc_best", 0))
 	stat_dunks = int(Game.profile.get("stat_dunks", 0))
@@ -155,14 +156,14 @@ func _ready() -> void:
 	court_art.z_index = -10
 	court_art.visible = true
 	# Se c'e' una sfida in attesa, un NPC ti viene incontro con il dialogo.
-	CareerEvents.offer_if_pending_solo(self)
+	if not pregame_warmup: CareerEvents.offer_if_pending_solo(self)
 	# Outdoor: ambiente (registrazione utente 60s). Indoor: SOLO qui parte
 	# la MUSICA RITMICA dell'utente (3'12" in loop), richiesta esplicita:
 	# mai in citta', mai nell'outdoor, mai nei match.
 	if outdoor:
 		Sfx.start_amb()
 	else:
-		Sfx.play_music("music_rhythm")
+		if not pregame_warmup: Sfx.play_music("music_rhythm")
 	court_art.modulate = Color.WHITE
 	# HALLOWEEN (v2.49.3): se e' periodo, i fari del parco si scaldano verso
 	# l'arancio e compaiono zucche e pipistrelli (piu' sotto, in _draw_park).
@@ -762,7 +763,7 @@ func _process(delta: float) -> void:
 			var phx: float = RIM.x - player_pos.x
 			if absf(phx) > 1.0:
 				facing = -signf(phx)
-		if mv.length() > 0.05 and Engine.get_frames_drawn() % 60 == 0:
+		if not pregame_warmup and mv.length() > 0.05 and Engine.get_frames_drawn() % 60 == 0:
 			Game.advance_time(1)
 
 	if charging:
@@ -780,9 +781,10 @@ func _process(delta: float) -> void:
 			Sfx.play("swish", -1.0, randf_range(0.84, 0.90))
 			if want_hang:
 				dunk_phase = "hang"
-				stat_hangs += 1
-				Game.profile["stat_hangs"] = stat_hangs
-				if stat_hangs % 25 == 0:
+				if not pregame_warmup:
+					stat_hangs += 1
+					Game.profile["stat_hangs"] = stat_hangs
+				if not pregame_warmup and stat_hangs % 25 == 0:
 					Events.toast.emit("%d appese al ferro in carriera!" % stat_hangs)
 				Sfx.play("rim", -6.0, 0.72)
 				Sfx.haptic(45)
@@ -814,7 +816,9 @@ func _process(delta: float) -> void:
 
 	var ft: float = _distance_ft()
 	var tag: String = "  ·  DUNK READY" if (can_dunk() and dunk_phase == "") else ""
-	if hc_mode:
+	if pregame_warmup:
+		lbl_top.text = "RISCALDAMENTO  ·  " + Season.my_team() if Loc.lang == "it" else "SHOOTAROUND  ·  " + Season.my_team()
+	elif hc_mode:
 		lbl_top.text = "HALF-COURT · 0:%02d · GREEN %d · RECORD %d · %.0f ft" % [
 			int(session_left), hc_greens, hc_best, ft]
 	elif not outdoor:
@@ -1071,7 +1075,7 @@ func _toggle_hc() -> void:
 ## chi si allena sui green si ritrova senza gambe per il resto della carriera
 ## (e il dunk, che richiede energia, spariva da tutti i court).
 func _drain_energy(v: float) -> void:
-	if hc_mode:
+	if hc_mode or pregame_warmup:
 		return
 	Game.add_energy(v)
 
@@ -1192,9 +1196,10 @@ func _start_dunk() -> void:
 func _dunk_throw() -> void:
 	attempts += 1
 	makes += 1
-	stat_dunks += 1
-	Game.profile["stat_dunks"] = stat_dunks
-	if stat_dunks % 25 == 0:
+	if not pregame_warmup:
+		stat_dunks += 1
+		Game.profile["stat_dunks"] = stat_dunks
+	if not pregame_warmup and stat_dunks % 25 == 0:
 		Events.toast.emit("%d schiacciate in carriera!" % stat_dunks)
 	streak += 1
 	best_streak = maxi(best_streak, streak)
@@ -1202,8 +1207,9 @@ func _dunk_throw() -> void:
 	Sfx.haptic(60)
 	if court_art != null:
 		court_art.net_bump(1, 1.0)
-	Events.shot_taken.emit("DUNK %s" % DunkStyle.label(dunk_style), true, 2)
-	Game.add_xp(SPOT_XP + 4, "solo_shots")
+	if not pregame_warmup:
+		Events.shot_taken.emit("DUNK %s" % DunkStyle.label(dunk_style), true, 2)
+		Game.add_xp(SPOT_XP + 4, "solo_shots")
 	_drain_energy(-1.6)
 	session_score += 2
 	dunk_ball_t = 0.0
@@ -1215,7 +1221,7 @@ func _dunk_throw() -> void:
 		+ "%s!  x%d" % [DunkStyle.label(dunk_style), streak]
 	lbl_mid.modulate = Color(1.0, 0.75, 0.25) if dunk_timed == "perfect" \
 		else Color(0.95, 0.88, 0.70)
-	if dunk_timed == "perfect":
+	if dunk_timed == "perfect" and not pregame_warmup:
 		Game.add_xp(3, "solo_shots")
 
 func _drop_from_rim() -> void:
@@ -1314,8 +1320,9 @@ func _shoot_up() -> void:
 			hot = true
 			Events.popup.emit("ON FIRE!", player_pos, Color(1.0, 0.55, 0.15), true)
 		best_streak = maxi(best_streak, streak)
-		CareerEvents.on_solo_make(streak)
-		Game.add_xp(SPOT_XP, "solo_shots")
+		if not pregame_warmup:
+			CareerEvents.on_solo_make(streak)
+			Game.add_xp(SPOT_XP, "solo_shots")
 		var pts: int = 3 if _distance_ft() > Court.THREE_FT else 2
 		session_score += pts
 		lbl_mid.text = (_family_tag + "  " if _family_tag != "" else "") + "+%d  ·  x%d" % [pts, streak]
@@ -1972,12 +1979,18 @@ func _draw_player() -> void:
 		# disegnata prima del corpo.
 		HoopArt.draw_net_front(self, _rim_screen(), 22.0, 22.0 * HoopArt.RIM_SQUASH,
 			net_wobble, net_t, clampf(court_art.rim_bend[1], 0.0, 1.0), -1.0)
+	var player_colours := Avatar.colours(true)
+	if pregame_warmup:
+		player_colours["jersey"] = Game.team_colour(0)
+		player_colours["shorts"] = Game.team_colour(0).darkened(0.35)
+		player_colours["kit"] = true
+		player_colours["num"] = str(int(Game.profile.get("jersey", 7)))
 	if hang_body and dunk_phase == "hang":
 		# Corpo DRETTO di fronte, braccia standard, oscillazione piccola
 		# attorno alle mani sul labbro del ferro (lato giocatore).
 		draw_set_transform_matrix(Transform2D(hang_theta, hang_pivot))
 		Avatar.draw_body(self, hang_feet_off, h, facing, po,
-			Avatar.colours(true), false, false, true, BALL_R)
+			player_colours, false, false, true, BALL_R)
 		draw_set_transform_matrix(Transform2D())
 	else:
 		var xf := Transform2D()
@@ -1987,7 +2000,7 @@ func _draw_player() -> void:
 			xf = Transform2D(0.0, Vector2.ONE, 0.0, screen) \
 				* Transform2D(0.09 * facing, Vector2(1.0, 0.93)) \
 				* Transform2D(0.0, Vector2.ONE, 0.0, -screen)
-		Avatar.draw_body(self, screen, h, facing, po, Avatar.colours(true), hold_ball,
+		Avatar.draw_body(self, screen, h, facing, po, player_colours, hold_ball,
 			false, true, BALL_R, xf)
 	# HEAT CHECK: stesse lingue di fuoco del match (helper condiviso).
 	if hot and not bool(Settings.get_v("lowgfx", false)):

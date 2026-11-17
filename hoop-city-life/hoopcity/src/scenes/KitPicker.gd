@@ -111,4 +111,7 @@ func _swatches(parent: Control, team: int) -> void:
 func _start() -> void:
 	Game.profile["next_match_mode"] = mode
 	Game.profile["next_opponent"] = opponent
-	SceneRouter.goto("res://src/match/MatchScene.tscn")
+	if mode == "full" and bool(Game.profile.get("match_is_fixture", false)):
+		SceneRouter.goto("res://src/scenes/PregameWarmup.tscn")
+	else:
+		SceneRouter.goto("res://src/match/MatchScene.tscn")

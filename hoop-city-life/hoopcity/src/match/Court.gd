@@ -91,6 +91,7 @@ var _inbound_receiver: BallPlayer = null
 var _pass_serial := 0
 var pass_target: BallPlayer = null
 var pnr_screening := false
+var pre_tip_ceremony := false
 var jump_pending := false      # true: al GO si esegue la palla a due
 var _jump_run := false
 var _jump_watch := 0.0
@@ -658,7 +659,7 @@ func _physics_process(delta: float) -> void:
 			_finish_inbound(null)
 	# La palla a due parte al GO di MatchScene; il watchdog copre i contesti
 	# senza countdown (sim headless, tool) cosi' il gioco non resta mai a metà.
-	if jump_pending and not _jump_run:
+	if jump_pending and not _jump_run and not pre_tip_ceremony:
 		_jump_watch += delta
 		if (play_live and _jump_watch > 0.2) or _jump_watch > 6.0:
 			_run_jump_ball()

@@ -45,6 +45,8 @@ var stamina_bar: ProgressBar
 ## Broadcast pass: intro card, commentator line, jumbotron hook.
 var intro_panel: Control
 var intro_left := 0.0
+var lineup_left := 0.0
+var lineup_panel: Control
 var goal := {}               # obiettivo di partita corrente (MatchGoals)
 var goal_done := false
 var goal_lbl: Label          # ticker live in alto sotto il punteggio
@@ -66,6 +68,7 @@ func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color(0.10, 0.11, 0.14))
 	_build_hud()
 	if not court.friendly_1v1 and court.team_size != 2:
+		court.pre_tip_ceremony = not court.one_on_one
 		_setup_broadcast()
 	if court.team_size == 2:
 		var coach := preload("res://src/scenes/PracticeCoach.gd").new()
@@ -183,6 +186,11 @@ func _process(delta: float) -> void:
 		intro_left -= delta
 		if intro_left <= 0.0:
 			_intro_done()
+		return
+	if lineup_left > 0.0:
+		lineup_left -= delta
+		if lineup_left <= 0.0:
+			_finish_lineup()
 		return
 	# ---- between-quarters: cheerleaders dance on the court for 10 seconds,
 	#      then the 3-2-1 countdown brings the next quarter in.
@@ -1148,7 +1156,7 @@ func _build_intro() -> void:
 	intro_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	intro_panel.gui_input.connect(_intro_input)
 	var bg := ColorRect.new()
-	bg.color = Color(0.02, 0.03, 0.05, 0.97)
+	bg.color = Color(0.02, 0.04, 0.08, 0.82)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	intro_panel.add_child(bg)
@@ -1258,6 +1266,26 @@ func _intro_done() -> void:
 	var tw := create_tween()
 	tw.tween_property(panel, "modulate:a", 0.0, 0.35)
 	tw.tween_callback(panel.queue_free)
+	if not court.one_on_one and court.team_size == 5:
+		_show_lineup()
+	else:
+		court.pre_tip_ceremony = false
+		tip_left = 3.0
+
+func _show_lineup() -> void:
+	var card = preload("res://src/match/LineupCard.gd").new()
+	card.squad = court.players.filter(func(p): return p.team == 0)
+	card.club = Season.my_team()
+	card.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	hud.add_child(card)
+	lineup_panel = card
+	lineup_left = 4.0
+
+func _finish_lineup() -> void:
+	if is_instance_valid(lineup_panel): lineup_panel.queue_free()
+	lineup_panel = null
+	court.pre_tip_ceremony = false
+	court._jump_watch = 0.0
 	tip_left = 3.0
 
 ## The commentator's lane: one line at a time, then it fades.
