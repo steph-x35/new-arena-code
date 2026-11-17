@@ -474,7 +474,10 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	var ball_pos := Vector2.ZERO
 	var has_ball_pos := false
 	for sx in [-1.0, 1.0]:
-		var strong: bool = signf(sx) == signf(hd)
+		var hand_now: float = hd
+		if kind == DRIBBLE and trick in ["crossover", "hand_switch", "behind", "between", "spin", "euro", "dropstep"] and amt > 0.5:
+			hand_now = -hd
+		var strong: bool = signf(sx) == signf(hand_now)
 		var sh_p := Vector2(base.x + sx * sh_w * 0.92 + lean + twist, sh_y + h * 0.04)
 		var elbow: Vector2
 		var hand: Vector2
@@ -515,8 +518,14 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			# it then pushes a little before the ball travels independently.
 			var bounce: float = absf(sin(ph * 1.15))
 			var br_hand: float = h * 0.105 if ball_r < 0.0 else ball_r
-			var hand_height: float = lerpf(h * 0.46, h * 0.55 + 2.0 * br_hand, pow(bounce, 6.0))
-			hand = Vector2(base.x + hd * h * 0.30, floor_y - hand_height)
+			var reach_height: float = h * 0.55 + 2.0 * br_hand
+			var hand_x: float = h * 0.30
+			if trick in ["crossover", "hand_switch", "behind", "between", "spin", "euro", "dropstep"]:
+				bounce = absf(cos((1.0 - amt) * PI))
+				reach_height = h * 0.48 + 2.0 * br_hand
+				hand_x = h * 0.34
+			var hand_height: float = lerpf(h * 0.46, reach_height, pow(bounce, 6.0))
+			hand = Vector2(base.x + hand_now * hand_x, floor_y - hand_height)
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.42) + sx * h * 0.05,
 				lerpf(sh_p.y, hand.y, 0.40))
 		elif bool(p.get("hang", false)) and not bool(p.get("hang_one", false)):
@@ -659,6 +668,8 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			# Ball separates from the hand on each bounce in the street court.
 			bp = Vector2(base.x + hd * h * 0.30,
 				floor_y - absf(sin(ph * 1.15)) * h * 0.55 - br)
+			if p.has("dribble_hand"):
+				bp = base + Vector2(p["dribble_hand"])
 		SHOOT:
 			# cocked above the shoulder, released as amount -> 1
 			bp = Vector2(ball_pos.x + hd * br * 0.4, ball_pos.y - br * 0.9)

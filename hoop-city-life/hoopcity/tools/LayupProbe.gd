@@ -28,19 +28,13 @@ func _ready() -> void:
 	await get_tree().create_timer(0.46).timeout
 	print("LAYUP_RELEASE ", c.ball.shot_result_pending, " bank ", c.ball.layup_bank, " holder ", u.has_ball, " live ", c.play_live)
 	ok = ok and c.ball.shot_result_pending and c.ball.layup_bank and not u.has_ball
-	# Force a made bank shot and step the real ball and collision routines.
-	c.play_live = true
-	c.give_ball(u)
-	var aim: Vector2 = hoop + Vector2(signf(hoop.x) * 50.0, 0)
-	c.ball.shoot(u.global_position + Vector2(0, -50), aim, 520.0, 0.65, true, u)
-	c.ball.layup_bank = true
-	u.has_ball = false
+	# Follow the actual released layup through the backboard and the net.
+	c.ball.made_flag = true
 	var banked := false
-	for frame in 100:
+	for frame in 120:
 		c.ball._physics_process(1.0 / 60.0)
 		if not c.ball.layup_bank: banked = true
 		if c.ball.dunk_drop > 0.0: break
-	print("LAYUP_RESULT banked=", banked, " score=", c.score, " h=", c.ball.h, " pos=", c.ball.global_position, " drop=", c.ball.dunk_drop)
 	ok = ok and banked and c.score[0] == 2 and c.ball.dunk_drop > 0.0
 	game.queue_free()
 	print("LAYUP_OK=", ok)

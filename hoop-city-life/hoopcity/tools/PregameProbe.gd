@@ -22,6 +22,11 @@ func _ready() -> void:
 	ok = ok and pre.layup_left > 0.0 and pre.dunk_phase == ""
 	pre._process(0.4)
 	ok = ok and pre.layup_bank and pre.ball_live
+	pre.shot_made = true
+	for i in 120:
+		pre._step_ball(1.0 / 60.0)
+		if pre.scored_this_shot: break
+	ok = ok and not pre.layup_bank and pre.scored_this_shot
 	var energy: float = float(Game.profile.get("energy", 0.0))
 	var dunks: int = int(Game.profile.get("stat_dunks", 0))
 	var xp = Game.profile.get("xp", 0)
