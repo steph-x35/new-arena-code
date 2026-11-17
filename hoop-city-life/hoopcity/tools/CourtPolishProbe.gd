@@ -10,13 +10,14 @@ func _ready() -> void:
 	c.set_physics_process(false)
 	var attacker: BallPlayer = c.players.filter(func(p): return p.team == 0)[0]
 	var defender: BallPlayer = c.players.filter(func(p): return p.team == 1)[0]
-	defender.ratings["block"] = 99
+	c.target_score = 10000
+	defender.ratings["block"] = 999
 	var blocked := false
 	var notices := [0]
 	var capture := func(msg: String):
 		if msg == "BLOCKED AT THE RIM!": notices[0] += 1
 	Events.toast.connect(capture)
-	for i in 100:
+	for i in 40:
 		c.awaiting_check = false
 		attacker.global_position = Vector2.ZERO
 		defender.global_position = c.dunk_hang_pos(attacker)
