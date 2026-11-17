@@ -873,6 +873,12 @@ func _shoot_down() -> void:
 		# Close enough to throw it down: skip the meter entirely.
 		u.do_dunk()
 		return
+	# Driving into the paint without a dunk: finish one-handed off the glass.
+	var drive: Vector2 = court.hoop_for(u.team) - u.global_position
+	if not court.ft_active and not u.posting and not court.behind_hoop(u) and court.px_to_ft(drive.length()) < 11.0 \
+	and (u.move_input.dot(drive.normalized()) > 0.35 or u.velocity.dot(drive.normalized()) > 70.0):
+		u.do_layup()
+		return
 	# At the free-throw line the routine is always the same: charge the meter
 	# toward the fixed ideal and release.
 	if court.behind_hoop(u):

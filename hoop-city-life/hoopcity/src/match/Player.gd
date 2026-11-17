@@ -60,6 +60,7 @@ var air := 0.0
 var air_v := 0.0
 var jumping := false
 var block_window := 0.0        # >0 = contesting, can swat a shot
+var layup_t := 0.0
 var dunking := false
 var posting := false              # POST UP: spalle al canestro, gioca col dosbo
 var hanging := false           # holding the rim after a dunk
@@ -125,6 +126,7 @@ func _ready() -> void:
 func reset_action_state() -> void:
 	shot_charge = -1.0
 	shot_anim = 0.0
+	layup_t = 0.0
 	ai_windup_t = -1.0
 	dunking = false
 	dunk_held = false
@@ -213,6 +215,7 @@ func _physics_process(delta: float) -> void:
 	if court == null or not court.play_live:
 		fake_locked = false   # fine possessione: il lock dei passi svanisce
 	move_t = maxf(0.0, move_t - delta)
+	layup_t = maxf(0.0, layup_t - delta)
 	_update_stamina(delta)
 
 	_update_air(delta)
@@ -523,6 +526,18 @@ func do_jump(for_block := false, lunge := 230.0) -> void:
 					if absf(to.x) > 1.0:
 						facing = signf(to.x)
 
+func do_layup() -> void:
+	if court == null or not court.play_live or not has_ball or jumping or hanging or layup_t > 0.0: return
+	layup_t = 0.65
+	jumping = true
+	air_v = jump_height() * 0.68
+	var toward: Vector2 = (court.hoop_for(team) - global_position).normalized()
+	if absf(toward.x) > 0.1: facing = signf(toward.x)
+	velocity = toward * 165.0
+	await get_tree().create_timer(0.22).timeout
+	if not is_inside_tree() or court == null or not court.play_live or not has_ball or layup_t <= 0.0: return
+	court.attempt_shot(self, 0.08, true)
+
 func do_dunk(forced_style := "") -> void:
 	if not can_dunk() or jumping or hanging:
 		return
@@ -795,6 +810,8 @@ func carry_ball_offset() -> Dictionary:
 	## like the player jumping alone and the ball being switched off.
 	## Positions come from the very same DunkStyle sample the body is drawn
 	## from, so the ball cannot drift off the palm.
+	if layup_t > 0.0 and has_ball:
+		return {"active": true, "x": facing * _body_h() * 0.38, "h": air + _body_h() * 0.95}
 	if not (dunking and not hanging):
 		return {"active": false}
 	var s: Dictionary = DunkStyle.sample(dunk_style, clampf(dunk_t, 0.0, 1.0))
@@ -986,7 +1003,10 @@ func _draw() -> void:
 	# Dunk pose, sampled from the shared catalogue. Empty for everything else.
 	var slam: Dictionary = {}
 	var rim_drop_v := 0.0
-	if fake_t > 0.0:
+	if layup_t > 0.0:
+		kind = Avatar.LAYUP
+		amount = 1.0
+	elif fake_t > 0.0:
 		kind = Avatar.SHOOT
 		amount = 0.35 * (fake_t / 0.32)
 	elif shot_anim > 0.0:

@@ -61,6 +61,7 @@ func attach(p: Node) -> void:
 	_pass_receiver = null
 	shooter = null
 	practice_shot = false
+	layup_bank = false
 	shot_flame = false
 	shot_result_pending = false
 	is_free_throw = false
@@ -78,6 +79,7 @@ func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made
 	global_position = from
 	h = 67.0
 	shooter = by
+	layup_bank = false
 	rattled = false
 	shot_flame = bool(court.user_heat) and by == court.user
 	made_flag = made
@@ -104,6 +106,24 @@ func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made
 	prev_h = h
 	prev_pos = global_position
 
+func bank_toward(target: Vector2, flight_time: float) -> void:
+	# Rebound from the actual impact point/height to the rim; retain the same
+	# shooter, make/miss verdict and pending foul throughout the flight.
+	var k := AIR
+	var f: float = (1.0 - exp(-k * flight_time)) / k
+	_ana_from = global_position
+	_ana_h0 = h
+	_ana_v0 = (target - global_position) / f
+	_ana_vh0 = (court.RIM_HEIGHT - h + (G / k) * flight_time) / f - G / k
+	_ana_t = 0.0
+	_ana_T = flight_time
+	_ana = true
+	vel = _ana_v0
+	vh = _ana_vh0
+	prev_pos = global_position
+	prev_h = h
+	layup_bank = false
+
 func kill_analytic() -> void:
 	## After any rim/board interaction the ball switches back to plain
 	## Euler physics: bounces and loose-ball rolls do not need arc exactness.
@@ -113,6 +133,7 @@ func kill_analytic() -> void:
 ## Counts 1 -> 0 while the ball is drawn dropping through the ring after a
 ## dunk. Without this the ball was simply switched off at the moment of the
 ## slam, so it never visibly went in.
+var layup_bank := false
 var dunk_drop := 0.0
 ## Through-the-net fall after a slam: drifts from the rim to the centre of
 ## the short baseline, so the ball lands under the stanchion (correct

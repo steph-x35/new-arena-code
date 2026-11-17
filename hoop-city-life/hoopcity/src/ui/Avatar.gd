@@ -21,6 +21,7 @@ static var palm_valid := false
 ## Ball del match legge SOLO quella del suo holder.
 static var palms := {}
 const SHOOT := "shoot"
+const LAYUP := "layup"
 const DUNK := "dunk"
 const DEFEND := "defend"
 const STEAL := "steal"
@@ -493,6 +494,9 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 				floor_y - hl.y * h + float(p.get("rim_drop", 0.0)))
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.5) + sdir * h * 0.06,
 				lerpf(sh_p.y, hand.y, 0.5) + h * 0.02)
+		elif kind == LAYUP and strong:
+			hand = Vector2(base.x + sdir * h * 0.38, floor_y - h * 0.95)
+			elbow = sh_p.lerp(hand, 0.55) + Vector2(-sdir * h * 0.04, h * 0.03)
 		elif kind == STEAL and strong:
 			# Reach with the character's own strong-side arm.
 			hand = Vector2(base.x + sx * h * 0.55 + lean, hip_y - h * 0.18)

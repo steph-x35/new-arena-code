@@ -906,7 +906,7 @@ func behind_hoop(p: BallPlayer) -> bool:
 		return p.global_position.x > hoop.x + 8.0
 	return p.global_position.x < hoop.x - 8.0
 
-func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
+func attempt_shot(shooter: BallPlayer, timing_err: float, layup := false) -> void:
 	if not shooter.has_ball or not play_live: return
 	if behind_hoop(shooter):
 		Events.toast.emit("No shot from behind the hoop")
@@ -932,7 +932,9 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 	var going_away: bool = shooter.velocity.dot(hoop_dir.normalized()) < -60.0
 	var back_to: bool = signf(float(shooter.facing)) != signf(hoop_dir.x) \
 		and absf(hoop_dir.x) > 1.0   # spalle al canestro
-	if going_away and dist_ft < 8.0 and not shooter.posting:
+	if layup:
+		Events.popup.emit("LAYUP", shooter.global_position, Color(0.75, 0.9, 1.0), false)
+	elif going_away and dist_ft < 8.0 and not shooter.posting:
 		contest *= 0.55
 		timing_err *= 1.20
 		Events.popup.emit("REVERSE", shooter.global_position, Color(0.8, 0.9, 1.0), true)
@@ -1049,7 +1051,12 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 			off = off.normalized() * randf_range(30.0, 46.0)
 		aim += off
 	ball.swish_clean = bool(res.get("swish", false))
+	if layup:
+		# Aim past the glass so the physical backboard collision redirects it.
+		aim = hoop + Vector2(signf(hoop.x) * 50.0, 0.0)
+		flight = 0.65
 	ball.shoot(shooter.global_position + Vector2(0, -50), aim, 520.0, flight, res["made"], shooter)
+	ball.layup_bank = layup
 	ball.last_touch_team = shooter.team
 	if fouled_shot:
 		_begin_shooting_foul(fouler, shooter, 3 if dist_ft > THREE_FT else 2)
@@ -1227,6 +1234,11 @@ func check_ball_collisions(b: Ball) -> void:
 		if (hoop.x < 0 and b.global_position.x < board_x and b.vel.x < 0) \
 		or (hoop.x > 0 and b.global_position.x > board_x and b.vel.x > 0):
 			b.global_position.x = board_x
+			if b.layup_bank:
+				Sfx.play("backboard", -7.0)
+				var target: Vector2 = hoop if b.made_flag else hoop + Vector2(-signf(hoop.x) * 52.0, 16.0)
+				b.bank_toward(target, 0.30)
+				return
 			b.vel.x = -b.vel.x * 0.55
 			b.vel.y *= 0.8
 			b.kill_analytic()
