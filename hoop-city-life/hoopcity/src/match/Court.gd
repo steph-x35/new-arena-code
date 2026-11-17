@@ -123,6 +123,9 @@ const USER_SEAT := 0                # the user's bench seat index (team 0)
 const PARTNER_SEAT := 4             # where the sub walks in from
 
 # --- free throws: a foul stops the clock and sends the fouled man to the line
+var pending_foul_shooter: BallPlayer = null
+var pending_foul_shots := 0
+var pending_foul_points := 0
 var team_fouls := [0, 0]  # FIBA: fifth defensive team foul in a quarter = bonus
 var ft_active := false
 var ft_shooter: BallPlayer = null
@@ -880,9 +883,10 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 	# Shooting foul: a defender closing hard can catch the shooter on the arm.
 	# The free throws match the attempt: two for a two, three for a three.
 	var fouler := _shooting_foul_check(shooter, contest)
-	if fouler != null:
+	if fouler != null and one_on_one:
 		call_foul(fouler, shooter, 3 if dist_ft > THREE_FT else 2)
 		return
+	var fouled_shot: bool = fouler != null
 
 	# FADE / REVERSE / HOOK: la famiglia dei tiri "scolpiti". In tutti e
 	# tre il contest pesa meno (ti separi dal difensore) ma il timing peggiora.
@@ -937,17 +941,17 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 	})
 
 	shooter.combo_pullup = false   # la combo vive per un tiro solo
-	total_attempts += 1
+	if not fouled_shot: total_attempts += 1
 	# LOCKDOWN (v2.49.0): un tiro sbagliato che ho contestato forte vale come
 	# difesa buona, esattamente come una stoppata o una rubata.
-	if not bool(res["made"]) and contest > 0.65:
+	if not fouled_shot and not bool(res["made"]) and contest > 0.65:
 		for d in players:
 			if d.team == shooter.team: continue
 			if d.contest_value_against(shooter.global_position) > 0.65:
 				d.def_credit()
 				break
 	# blocked?
-	var blocker := _block_check(shooter, contest, _floater_shot)
+	var blocker: BallPlayer = null if fouled_shot else _block_check(shooter, contest, _floater_shot)
 	if blocker != null:
 		Events.toast.emit("BLOCKED by #%d" % blocker.jersey_num)
 		Sfx.play("block", -1.0)
@@ -1010,6 +1014,8 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 	ball.swish_clean = bool(res.get("swish", false))
 	ball.shoot(shooter.global_position + Vector2(0, -50), aim, 520.0, flight, res["made"], shooter)
 	ball.last_touch_team = shooter.team
+	if fouled_shot:
+		_begin_shooting_foul(fouler, shooter, 3 if dist_ft > THREE_FT else 2)
 
 	# Bullet-time / Slow-mo al buzzer o tiro clutch decisivo nei finali
 	var is_clutch_shot: bool = play_live and not one_on_one and (game_clock <= 2.8 or shot_clock <= 1.2 or (quarter >= QUARTERS and abs(score[0] - score[1]) <= 3 and game_clock <= 6.0))
@@ -1018,7 +1024,7 @@ func attempt_shot(shooter: BallPlayer, timing_err: float) -> void:
 		Engine.time_scale = 0.45
 		Events.popup.emit("CLUTCH!", shooter.global_position + Vector2(0, -70), Color(1.0, 0.85, 0.2), true)
 
-	if shooter.is_user:
+	if shooter.is_user and not fouled_shot:
 		box["fga"] += 1
 		if res["points"] == 3: box["tpa"] += 1
 		Career.on_user_shot(res)
@@ -1374,10 +1380,17 @@ func _score_basket(b: Ball) -> void:
 			_on_ft_result(true)
 		return
 	var shooter: BallPlayer = b.shooter
-	var beyond_arc: bool = px_to_ft(shooter.global_position.distance_to(hoop_for(shooter.team))) > Court.THREE_FT
+	var foul_basket: bool = pending_foul_shooter == shooter and pending_foul_shots > 0
+	var beyond_arc: bool = (pending_foul_points == 3) if foul_basket else (px_to_ft(shooter.global_position.distance_to(hoop_for(shooter.team))) > Court.THREE_FT)
 	# Street 1v1 scores 1s and 2s; full games score 2s and 3s.
 	var pts: int = (2 if beyond_arc else 1) if one_on_one else (3 if beyond_arc else 2)
 	total_makes += 1
+	if foul_basket:
+		total_attempts += 1
+		if shooter.is_user:
+			box["fga"] += 1
+			if pts == 3: box["tpa"] += 1
+			Career.on_user_shot({"made": true})
 	_add_score(shooter, pts)
 	Sfx.play("swish", -1.5 if b.swish_clean else -3.5)
 	Sfx.cheer(beyond_arc)
@@ -1419,6 +1432,13 @@ func _score_basket(b: Ball) -> void:
 	_rim_fx("swish", hoop)
 	await get_tree().create_timer(0.70).timeout
 	if not is_instance_valid(self) or finished:
+		return
+	if foul_basket:
+		pending_foul_shooter = null
+		pending_foul_shots = 0
+		pending_foul_points = 0
+		Events.toast.emit("AND ONE!" )
+		_start_free_throws(shooter, 1)
 		return
 	if one_on_one:
 		if score[shooter.team] >= target_score:
@@ -1484,6 +1504,15 @@ func resolve_missed_shot(b: Ball) -> void:
 	if _clutch_slowmo:
 		_clutch_slowmo = false
 		Engine.time_scale = 1.0
+	if pending_foul_shooter != null and b.shooter == pending_foul_shooter:
+		var victim: BallPlayer = pending_foul_shooter
+		var shots: int = pending_foul_shots
+		pending_foul_shooter = null
+		pending_foul_shots = 0
+		pending_foul_points = 0
+		b.live = false
+		_start_free_throws(victim, shots)
+		return
 	if b.is_free_throw:
 		# Only the last missed free throw can become a live rebound.
 		_rim_fx("iron" if b.global_position.distance_to(hoops[0] if b.global_position.x < 0 else hoops[1]) < 80.0 else "miss", b.global_position)
@@ -1644,17 +1673,31 @@ func _restart_play(team: int) -> void:
 func _turnover_to(team: int) -> void:
 	_restart_play(team)
 
-func call_foul(defender: BallPlayer, victim: BallPlayer, pts_attempt := 0) -> void:
+func _record_foul(defender: BallPlayer, victim: BallPlayer) -> void:
 	Sfx.play("whistle")
 	Events.toast.emit("Foul on #%d" % defender.jersey_num)
 	Events.foul_called.emit()
 	possession = victim.team
 	if defender.is_user:
 		stat_add("pf", 1)
+	if not one_on_one:
+		team_fouls[defender.team] += 1
+
+# Called after release: keep the ball's real flight and stop the clock. The
+# actual outcome, not the initial probability roll, chooses the FT penalty.
+func _begin_shooting_foul(defender: BallPlayer, victim: BallPlayer, shot_points: int) -> void:
+	_record_foul(defender, victim)
+	pending_foul_shooter = victim
+	pending_foul_points = shot_points
+	pending_foul_shots = shot_points
+	restarting = true
+	play_live = false
+
+func call_foul(defender: BallPlayer, victim: BallPlayer, pts_attempt := 0) -> void:
+	_record_foul(defender, victim)
 	if one_on_one:
 		_restart_play(victim.team)
 		return
-	team_fouls[defender.team] += 1
 	# Shooting fouls: 2 or 3. Other defensive fouls: inbound unless the
 	# defensive team is in the FIBA bonus (fifth foul this quarter).
 	if pts_attempt > 0:
