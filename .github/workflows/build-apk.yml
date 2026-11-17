@@ -161,23 +161,14 @@ jobs:
       - name: Test gameplay e attributi
         run: |
           cd hoop-city-life/hoopcity
-          timeout 90 godot --headless res://tools/TimeoutInboundProbe.tscn
-          timeout 90 godot --headless res://tools/AttributeBuilderProbe.tscn
-          timeout 90 godot --headless res://tools/SeasonProbe.tscn
-          timeout 90 godot --headless res://tools/CourtPolishProbe.tscn
-          timeout 90 godot --headless res://tools/DribblePhysicsProbe.tscn
-          timeout 90 godot --headless res://tools/GameplayRegressionProbe.tscn
-          timeout 90 godot --headless res://tools/MoneyRewardProbe.tscn
-          timeout 90 godot --headless res://tools/MatchImprovementsProbe.tscn
-          timeout 90 godot --headless res://tools/TeamCourtUpdateProbe.tscn
-          timeout 90 godot --headless res://tools/PracticeFlowProbe.tscn
-          timeout 90 godot --headless res://tools/ChillCourtProbe.tscn
-          timeout 90 godot --headless res://tools/UserSoundsProbe.tscn
-          timeout 90 godot --headless res://tools/FriendlyCourtProbe.tscn
-          timeout 90 godot --headless res://tools/CalendarCompleteProbe.tscn
-          timeout 90 godot --headless res://tools/CourtLifeProbe.tscn
-          timeout 90 godot --headless res://tools/ControlsAndIconsProbe.tscn
-          timeout 90 godot --headless res://tools/FoulsSubsFlameProbe.tscn
+          for SC in tools/TimeoutInboundProbe.tscn tools/AttributeBuilderProbe.tscn tools/SeasonProbe.tscn tools/CourtPolishProbe.tscn tools/DribblePhysicsProbe.tscn tools/GameplayRegressionProbe.tscn tools/MoneyRewardProbe.tscn tools/MatchImprovementsProbe.tscn tools/TeamCourtUpdateProbe.tscn tools/PracticeFlowProbe.tscn tools/ChillCourtProbe.tscn tools/UserSoundsProbe.tscn tools/FriendlyCourtProbe.tscn tools/CalendarCompleteProbe.tscn tools/CourtLifeProbe.tscn tools/ControlsAndIconsProbe.tscn tools/FoulsSubsFlameProbe.tscn; do
+            if ! timeout 90 godot --headless "res://$SC" > /tmp/probe-result.txt 2>&1; then
+              echo "::error::Probe $SC failed"
+              while IFS= read -r line; do echo "::error::$line"; done < /tmp/probe-result.txt
+              exit 1
+            fi
+            cat /tmp/probe-result.txt
+          done
 
       - name: Export Android APK
         run: |
