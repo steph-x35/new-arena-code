@@ -164,7 +164,8 @@ jobs:
           for SC in tools/TimeoutInboundProbe.tscn tools/AttributeBuilderProbe.tscn tools/SeasonProbe.tscn tools/CourtPolishProbe.tscn tools/DribblePhysicsProbe.tscn tools/GameplayRegressionProbe.tscn tools/MoneyRewardProbe.tscn tools/MatchImprovementsProbe.tscn tools/TeamCourtUpdateProbe.tscn tools/PracticeFlowProbe.tscn tools/ChillCourtProbe.tscn tools/UserSoundsProbe.tscn tools/FriendlyCourtProbe.tscn tools/CalendarCompleteProbe.tscn tools/CourtLifeProbe.tscn tools/ControlsAndIconsProbe.tscn tools/FoulsSubsFlameProbe.tscn; do
             if ! timeout 90 godot --headless "res://$SC" > /tmp/probe-result.txt 2>&1; then
               echo "::error::Probe $SC failed"
-              while IFS= read -r line; do echo "::error::$line"; done < /tmp/probe-result.txt
+              details=$(tail -30 /tmp/probe-result.txt | tr '\n' '|')
+              echo "::error::$details"
               exit 1
             fi
             cat /tmp/probe-result.txt
