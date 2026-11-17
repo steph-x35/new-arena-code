@@ -18,6 +18,8 @@ var cut_t := 0.0
 var pnr_t := 0.0
 var pnr_from: BallPlayer = null
 var pnr_hold := false
+var screen_planted := false
+var screen_set_time := 0.0
 var screen_on: BallPlayer = null
 var aggression := 0.5
 var shot_cd := 0.0
@@ -81,6 +83,7 @@ func _physics_process(delta: float) -> void:
 		# never continue a stale off-ball screen/roll while holding it.
 		pnr_t = 0.0
 		pnr_hold = false
+		screen_planted = false
 		role = "spot"
 		think_t = 0.0
 	_was_ball_handler = p.has_ball
@@ -136,6 +139,8 @@ func _decide() -> void:
 
 func begin_screen(baller: BallPlayer) -> void:
 	pnr_from = baller
+	screen_planted = false
+	screen_set_time = 0.0
 	pnr_t = 99.0
 	pnr_hold = true
 	role = "screener"
@@ -144,7 +149,9 @@ func set_screen_target(d: BallPlayer) -> void:
 	screen_on = d
 
 func begin_roll() -> void:
+	screen_planted = false
 	pnr_hold = false
+	p.stance = false
 	pnr_t = 3.0
 	role = "roller"
 	screen_on = null
@@ -160,12 +167,14 @@ func _act(delta: float) -> void:
 		_last_poss = int(court.possession)
 		_bites = 0   # nuova azione: la memoria delle finte riparte
 	if pnr_t > 0.0:
-		pnr_t -= delta
+		# AI screen countdown begins only when feet are set.
+		if role != "screener" or screen_planted:
+			pnr_t -= delta
 		_do_pnr(delta)
 		# Screen held its angle long enough: slip into the paint on my own so
 		# an AI-called pick still produces a roll (the user flow releases via
 		# the P&R button instead).
-		if role == "screener" and not pnr_hold and pnr_t < 1.0:
+		if role == "screener" and not pnr_hold and screen_planted and screen_set_time >= 1.1:
 			begin_roll()
 			court.pnr_roller = p
 			court.roller_t = 3.5
@@ -426,13 +435,18 @@ func _do_pnr(_delta: float) -> void:
 		pnr_hold = false
 		return
 	if pnr_hold or role == "screener":
+		if screen_planted:
+			screen_set_time += _delta
+			p.move_input = Vector2.ZERO
+			p.velocity = Vector2.ZERO
+			return
 		# Walk to the defender, then PLANT. A good screen is a still body.
 		var tgt: Vector2
 		if screen_on != null and is_instance_valid(screen_on):
 			var between: Vector2 = (pnr_from.global_position - screen_on.global_position)
 			if between.length() < 4.0:
 				between = Vector2(-pnr_from.facing, 0.0)
-			tgt = screen_on.global_position + between.normalized() * 18.0
+			tgt = screen_on.global_position + between.normalized() * 70.0
 		else:
 			tgt = pnr_from.global_position + Vector2(-pnr_from.facing * 28.0, 0.0)
 		var d: Vector2 = tgt - p.global_position
@@ -440,8 +454,10 @@ func _do_pnr(_delta: float) -> void:
 			p.move_input = d.normalized()
 		else:
 			p.move_input = Vector2.ZERO
-			p.velocity *= 0.35
+			p.velocity = Vector2.ZERO
 			p.stance = true
+			screen_planted = true
+			screen_set_time = 0.0
 	else:
 		# Roll: dive into the paint, under the rim.
 		var paint: Vector2 = hoop + Vector2(-signf(hoop.x) * 70.0, 0.0)

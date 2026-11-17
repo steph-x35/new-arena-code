@@ -881,7 +881,7 @@ func try_steal() -> void:
 		def_credit()
 		if is_user: court.stat_add("stl", 1)
 	else:
-		var foul_risk := 0.05 * (1.0 if not has_badge("pickpocket") else 0.7)
+		var foul_risk: float = lerpf(0.18, 0.07, clampf(float(ratings["defense"]) / 99.0, 0.0, 1.0)) * (1.0 if not has_badge("pickpocket") else 0.7)
 		if randf() < foul_risk:
 			court.call_foul(self, bh)
 

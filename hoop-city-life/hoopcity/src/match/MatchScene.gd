@@ -65,7 +65,7 @@ var _last_count := ""
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color(0.10, 0.11, 0.14))
 	_build_hud()
-	if not court.friendly_1v1:
+	if not court.friendly_1v1 and court.team_size != 2:
 		_setup_broadcast()
 	if court.team_size == 2:
 		var coach := preload("res://src/scenes/PracticeCoach.gd").new()
@@ -109,9 +109,10 @@ func _ready() -> void:
 	nf.z_index = 90
 	add_child(nf)
 	# Hold play for the countdown: nobody moves until "GO!".
-	court.play_live = false
-	tip_left = 0.0 if court.friendly_1v1 else 3.0
-	if court.friendly_1v1:
+	if court.team_size != 2:
+		court.play_live = false
+	tip_left = 0.0 if court.friendly_1v1 or court.team_size == 2 else 3.0
+	if court.friendly_1v1 or court.team_size == 2:
 		_hinted = true
 
 ## 1v1 DI CARRIERA: la regola dell'uscita dalla linea dei tre esiste gia'

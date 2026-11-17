@@ -94,6 +94,7 @@ var _jump_watch := 0.0
 ## whichever player the old loop happened to meet first -- that bug left the
 ## real screener planted forever while a random cutter "rolled").
 var pnr_screener: BallPlayer = null
+var pnr_arrival_left := 0.0
 var pnr_timer := 0.0          ## screen window; expiry auto-rolls the screener
 var pnr_roller: BallPlayer = null
 var roller_t := 0.0
@@ -142,13 +143,15 @@ func _ready() -> void:
 	if String(Game.profile.get("next_match_mode", "")) == "team_practice" and String(Game.profile.get("team_practice_stage", "")) == "2v2":
 		team_size = 2
 	friendly_1v1 = one_on_one and SceneRouter.friendly_1v1
+	if team_size == 2:
+		hoops = [Vector2(COURT_W * 0.5 - FIBA_HOOP_INSET, 0), Vector2(COURT_W * 0.5 - FIBA_HOOP_INSET, 0)]
 	if one_on_one:
 		team_size = 1
 		# Both players attack the SAME rim in a half-court game.
 		hoops = [Vector2(COURT_W * 0.5 - FIBA_HOOP_INSET, 0), Vector2(COURT_W * 0.5 - FIBA_HOOP_INSET, 0)]
 	_build_ball()
 	_spawn_teams()
-	if not one_on_one:
+	if not one_on_one and team_size != 2:
 		_spawn_referees()
 	quarter_len = 60.0 if team_size == 2 else float(Game.profile.get("quarter_seconds", 120.0))
 	game_clock = quarter_len
@@ -240,6 +243,9 @@ func _randomize_npc(p: BallPlayer, t: int, slot: int) -> void:
 	p.shoe_col = Items.random_wear_col("shoes")
 
 func _formation_pos(t: int, i: int) -> Vector2:
+	if team_size == 2 and not one_on_one:
+		var rim: Vector2 = hoops[0]
+		return rim + Vector2(-430.0 + t * 95.0, (-160.0 if i == 0 else 160.0) + t * 25.0)
 	if one_on_one:
 		# Offense checks up at the top of the key, defender between him and the rim.
 		var rim: Vector2 = hoops[0]
@@ -261,6 +267,11 @@ func _clear_distance_ok(p: BallPlayer) -> bool:
 	return px_to_ft(p.global_position.distance_to(hoop_for(p.team))) >= 22.0
 
 func _tipoff() -> void:
+	if team_size == 2 and not one_on_one:
+		possession = 0
+		give_ball(user)
+		play_live = true
+		return
 	if one_on_one:
 		possession = 0
 		play_live = false
@@ -516,6 +527,7 @@ func start_pick_and_roll(from: BallPlayer) -> bool:
 	pnr_screening = true
 	pnr_screener = screener
 	pnr_timer = 5.0
+	pnr_arrival_left = 8.0
 	Events.toast.emit("SCREEN")
 	return true
 
@@ -659,9 +671,19 @@ func _physics_process(delta: float) -> void:
 	# A screen that is never released must still resolve: the screener rolls
 	# on his own after the window, so nobody stays planted for the whole game.
 	if pnr_screening:
-		pnr_timer -= delta
-		if pnr_timer <= 0.0:
-			release_pick_and_roll(ball_handler())
+		var planted := false
+		if pnr_screener != null and is_instance_valid(pnr_screener):
+			for brain in pnr_screener.get_children():
+				if brain is AIBrain: planted = brain.screen_planted
+		if planted:
+			pnr_timer -= delta
+		else:
+			pnr_arrival_left -= delta
+		if pnr_timer <= 0.0 or pnr_arrival_left <= 0.0:
+			var handler: BallPlayer = ball_handler()
+			if handler == null and pnr_screener != null and is_instance_valid(pnr_screener):
+				handler = pnr_screener
+			release_pick_and_roll(handler)
 	if roller_t > 0.0:
 		roller_t -= delta
 		if roller_t <= 0.0:
@@ -1054,7 +1076,7 @@ func _shooting_foul_check(shooter: BallPlayer, contest: float) -> BallPlayer:
 		if d.team == shooter.team: continue
 		var dist := d.global_position.distance_to(shooter.global_position)
 		if dist > 80.0: continue
-		var ch: float = 0.012 * contest * (1.0 - float(d.ratings["defense"]) / 130.0)
+		var ch: float = 0.045 * contest * (1.0 - float(d.ratings["defense"]) / 130.0)
 		if d.block_window > 0.0:
 			ch *= 1.15
 		if randf() < ch:
@@ -1626,7 +1648,7 @@ func do_pass(from: BallPlayer, to: BallPlayer) -> void:
 	pass_target = to
 	last_passer = from
 	last_pass_time = Time.get_ticks_msec() / 1000.0
-	var speed: float = lerpf(560.0, 920.0, from.ratings["pass"] / 99.0)
+	var speed: float = lerpf(700.0, 1120.0, from.ratings["pass"] / 99.0)
 	# Straight chest pass at the receiver's chest — never a lob into space.
 	ball.pass_to(from.global_position, to.global_position, speed, from, to)
 	# interception check along the lane — rare, only a hand right on the line
@@ -1942,7 +1964,7 @@ func clamp_to_court(p: Node2D) -> void:
 	var lim_x: float = COURT_W * 0.5 - 30.0
 	if restarting and _inbounder != null and p == _inbounder:
 		lim_x = COURT_W * 0.5 + 80.0
-	p.global_position.x = clampf(p.global_position.x, -lim_x, lim_x)
+	p.global_position.x = clampf(p.global_position.x, 0.0 if team_size == 2 and not one_on_one else -lim_x, lim_x)
 	p.global_position.y = clampf(p.global_position.y, -COURT_H * 0.5, COURT_H * 0.5)
 
 func stat_add(k: String, v: int) -> void:
