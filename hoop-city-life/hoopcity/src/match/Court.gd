@@ -871,6 +871,9 @@ func _finish() -> void:
 	# lose them; the panel waits for the jingle a moment longer.
 	if team_size != 2:
 		Career.apply_match_result(res)
+	if team_size == 2:
+		Events.match_finished.emit(res)
+		return
 	if not horn_already_sounded:
 		Sfx.play("buzzer")
 	_finish_jingle(res, won)

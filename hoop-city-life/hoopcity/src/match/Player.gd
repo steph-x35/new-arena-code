@@ -934,7 +934,7 @@ func _near_ball_handler() -> bool:
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
 	# Kit colours chosen before tip-off. Team 0 is you, team 1 the opponent.
-	var col: Color = Game.team_colour(team)
+	var col: Color = Game.team_colour(0 if has_meta("practice_kit") else team)
 	# The match simulation stays top-down; the tilt is applied here, at draw
 	# time, so the AI and collisions never have to know about the camera.
 	# Players further from the camera are drawn smaller and higher up.

@@ -1357,10 +1357,9 @@ func _on_toast(t: String) -> void:
 
 func _on_finished(res: Dictionary) -> void:
 	if court.team_size == 2 and String(Game.profile.get("team_practice_stage", "")) == "2v2":
-		Game.profile["team_practice_stage"] = "plays"
-		Game.profile["next_match_mode"] = "full"
-		Game.profile["pending_drill"] = {"kind": "plays", "return": "res://src/scenes/TeamCourt.tscn"}
-		SceneRouter.goto("res://src/scenes/DrillScene.tscn")
+		var practice := preload("res://src/scenes/TeamPracticeSession.gd").new()
+		practice.setup(self)
+		add_child(practice)
 		return
 	# Verdetto FINALE sull'obiettivo (qui si giudica anche quello legato alla
 	# vittoria) e pagamento dell'XP extra: la busta base e' gia' di Career.

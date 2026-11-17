@@ -161,7 +161,7 @@ jobs:
       - name: Test gameplay e attributi
         run: |
           cd hoop-city-life/hoopcity
-          for SC in tools/TimeoutInboundProbe.tscn tools/AttributeBuilderProbe.tscn tools/SeasonProbe.tscn tools/CourtPolishProbe.tscn tools/DribblePhysicsProbe.tscn tools/GameplayRegressionProbe.tscn tools/MoneyRewardProbe.tscn tools/MatchImprovementsProbe.tscn tools/TeamCourtUpdateProbe.tscn tools/PracticeFlowProbe.tscn tools/ChillCourtProbe.tscn tools/UserSoundsProbe.tscn tools/FriendlyCourtProbe.tscn tools/CalendarCompleteProbe.tscn tools/CourtLifeProbe.tscn tools/ControlsAndIconsProbe.tscn tools/FoulsSubsFlameProbe.tscn tools/AndOneProbe.tscn tools/PracticeBasicsProbe.tscn; do
+          for SC in tools/TimeoutInboundProbe.tscn tools/AttributeBuilderProbe.tscn tools/SeasonProbe.tscn tools/CourtPolishProbe.tscn tools/DribblePhysicsProbe.tscn tools/GameplayRegressionProbe.tscn tools/MoneyRewardProbe.tscn tools/MatchImprovementsProbe.tscn tools/TeamCourtUpdateProbe.tscn tools/PracticeFlowProbe.tscn tools/ChillCourtProbe.tscn tools/UserSoundsProbe.tscn tools/FriendlyCourtProbe.tscn tools/CalendarCompleteProbe.tscn tools/CourtLifeProbe.tscn tools/ControlsAndIconsProbe.tscn tools/FoulsSubsFlameProbe.tscn tools/AndOneProbe.tscn tools/PracticeBasicsProbe.tscn tools/TeamPracticeSessionProbe.tscn; do
             if ! timeout 90 godot --headless "res://$SC" > /tmp/probe-result.txt 2>&1; then
               echo "::error::Probe $SC failed"
               details=$(tail -30 /tmp/probe-result.txt | tr '\n' '|')

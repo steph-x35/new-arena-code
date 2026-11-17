@@ -4,7 +4,7 @@ func _ready() -> void:
 	z_index = 15
 
 func _draw() -> void:
-	var p := CourtStage.m_project(Vector2(-700, -365), Court.COURT_H)
+	var p := CourtStage.m_project(Vector2(320, -430), Court.COURT_H)
 	var look := Avatar.colours(false, Color(0.20, 0.22, 0.25))
 	look["hair"] = Color(0.88, 0.89, 0.87)
 	look["hst"] = 0
