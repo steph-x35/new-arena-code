@@ -31,6 +31,7 @@ var _pass_time := 0.0
 var _pass_duration := 0.0
 var _pass_origin := Vector2.ZERO
 var _pass_receiver: Node2D = null
+var shot_flame := false
 var flame := false        # NBA JAM: la palla brucia quando il tiratore è HOT
 
 ## Closed-form ballistic flight. Integrating the arc with Euler steps made
@@ -60,6 +61,7 @@ func attach(p: Node) -> void:
 	_pass_receiver = null
 	shooter = null
 	practice_shot = false
+	shot_flame = false
 	shot_result_pending = false
 	is_free_throw = false
 	vel = Vector2.ZERO
@@ -76,6 +78,8 @@ func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made
 	global_position = from
 	h = 67.0
 	shooter = by
+	rattled = false
+	shot_flame = bool(court.user_heat) and by == court.user
 	made_flag = made
 	practice_shot = not bool(court.is_fixture) and not made
 	shot_result_pending = true

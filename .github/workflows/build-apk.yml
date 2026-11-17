@@ -177,6 +177,7 @@ jobs:
           timeout 90 godot --headless res://tools/CalendarCompleteProbe.tscn
           timeout 90 godot --headless res://tools/CourtLifeProbe.tscn
           timeout 90 godot --headless res://tools/ControlsAndIconsProbe.tscn
+          timeout 90 godot --headless res://tools/FoulsSubsFlameProbe.tscn
 
       - name: Export Android APK
         run: |

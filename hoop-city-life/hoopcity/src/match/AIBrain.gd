@@ -77,6 +77,12 @@ func _physics_process(delta: float) -> void:
 	if p.has_ball and not _was_ball_handler:
 		spot = Vector2.ZERO
 		_on_ball_time = 0.0
+		# A former screener who receives the ball must attack immediately,
+		# never continue a stale off-ball screen/roll while holding it.
+		pnr_t = 0.0
+		pnr_hold = false
+		role = "spot"
+		think_t = 0.0
 	_was_ball_handler = p.has_ball
 	if not p.has_ball:
 		_on_ball_time = 0.0

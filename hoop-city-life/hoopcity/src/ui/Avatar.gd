@@ -818,7 +818,8 @@ static func draw_ball_flames(c: CanvasItem, center: Vector2, r: float, t: float,
 		return
 	# SCIA: il fuoco scivola ALL'INDIETRO rispetto al moto (parabola vera)
 	var ang: float = (-sv / sp).angle()
-	c.draw_set_transform(center, ang, Vector2.ONE)
+	# Keep the caller's projection/scale. Replacing the canvas transform here
+	# sent the trail away from the ball on the match court.
 	for i in 4:
 		var ph: float = t * 10.0 + float(i) * 1.3
 		var d: float = r * (0.55 + float(i) * 0.42)      # quanto dietro
@@ -827,12 +828,12 @@ static func draw_ball_flames(c: CanvasItem, center: Vector2, r: float, t: float,
 		var ln: float = r * (0.55 + (sin(ph * 1.6) * 0.5 + 0.5) * 0.35)
 		var base := Vector2(d, sway)
 		# lingua di fuoco: goccia allungata che si restringe all'indietro
-		c.draw_circle(base, fw, Color(1.0, 0.34, 0.05, 0.72))
-		c.draw_circle(base + Vector2(ln * 0.45, sway * 0.4), fw * 0.62, Color(1.0, 0.60, 0.10, 0.8))
-		c.draw_circle(base + Vector2(ln * 0.85, sway * 0.7), fw * 0.32, Color(1.0, 0.88, 0.30, 0.85))
+		c.draw_circle(center + base.rotated(ang), fw, Color(1.0, 0.34, 0.05, 0.72))
+		c.draw_circle(center + (base + Vector2(ln * 0.45, sway * 0.4)).rotated(ang), fw * 0.62, Color(1.0, 0.60, 0.10, 0.8))
+		c.draw_circle(center + (base + Vector2(ln * 0.85, sway * 0.7)).rotated(ang), fw * 0.32, Color(1.0, 0.88, 0.30, 0.85))
 	# scintille che si staccano lungo la scia
 	for k in 3:
 		var ph2: float = t * 6.0 + float(k) * 2.0
-		c.draw_circle(Vector2(r * (0.7 + float(k) * 0.55), sin(ph2) * r * 0.28),
+		var spark := Vector2(r * (0.7 + float(k) * 0.55), sin(ph2) * r * 0.28)
+		c.draw_circle(center + spark.rotated(ang),
 			1.4 + 1.2 * absf(sin(ph2)), Color(1.0, 0.85, 0.30, 0.75))
-	c.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

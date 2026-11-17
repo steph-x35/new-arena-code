@@ -123,6 +123,7 @@ const USER_SEAT := 0                # the user's bench seat index (team 0)
 const PARTNER_SEAT := 4             # where the sub walks in from
 
 # --- free throws: a foul stops the clock and sends the fouled man to the line
+var team_fouls := [0, 0]  # FIBA: fifth defensive team foul in a quarter = bonus
 var ft_active := false
 var ft_shooter: BallPlayer = null
 var ft_total := 0
@@ -611,7 +612,7 @@ func _physics_process(delta: float) -> void:
 	# NBA JAM HEAT: la palla prende fuoco finché l'utente in fiamme la tiene
 	# o sta volando da un suo tiro (chi la ruba si spegne la fiamma in mano).
 	if ball != null and user != null:
-		ball.flame = user_heat and (ball.holder == user or (ball.live and ball.shooter == user))
+		ball.flame = (user_heat and ball.holder == user) or (ball.live and ball.shot_flame and ball.shooter == user)
 	if intermission and not finished:
 		# teams jog to their bench-side huddles while the cheerleaders dance
 		for pi in players.size():
@@ -797,6 +798,7 @@ func _end_quarter() -> void:
 		_buzzer_sounded = true
 	_close_quarter_book()
 	quarter += 1
+	team_fouls = [0, 0]
 	if quarter > QUARTERS or team_size == 2:
 		_finish()
 		return
@@ -1201,6 +1203,7 @@ func check_ball_collisions(b: Ball) -> void:
 			_score_basket(b)
 			return
 		if dist < 42.0:
+			b.rattled = true
 			var nrm: Vector2 = (Vector2(cx, cy) - hoop).normalized()
 			if nrm.length() < 0.1:
 				nrm = Vector2(1, 0)
@@ -1482,10 +1485,21 @@ func resolve_missed_shot(b: Ball) -> void:
 		_clutch_slowmo = false
 		Engine.time_scale = 1.0
 	if b.is_free_throw:
-		# A missed free throw has no rebound battle: the sequence continues.
+		# Only the last missed free throw can become a live rebound.
 		_rim_fx("iron" if b.global_position.distance_to(hoops[0] if b.global_position.x < 0 else hoops[1]) < 80.0 else "miss", b.global_position)
 		b.is_free_throw = false
-		_on_ft_result(false)
+		if ft_left == 1 and b.rattled:
+			ft_left = 0
+			ft_active = false
+			ft_shooter = null
+			restarting = false
+			play_live = true
+			shot_clock = 18.0
+			b.live = true
+			b.practice_shot = false
+			Events.toast.emit("Live rebound!")
+		else:
+			_on_ft_result(false)
 		return
 	momentum = lerpf(momentum, 0.0, 0.2)
 	_rim_fx("miss", b.global_position)
@@ -1522,7 +1536,12 @@ func _inbound(team: int) -> void:
 	var scored_hoop: Vector2 = hoop_for(1 - team)
 	# the inbounder stands OUTSIDE the court, behind the baseline
 	var baseline_x: float = signf(scored_hoop.x) * (COURT_W * 0.5 + 46.0)
-	var mates: Array = players.filter(func(p): return p.team == team)
+	# Never pass to an outgoing/benched player or an incoming reserve whose
+	# brain isn't active yet. During a substitution only settled players are
+	# eligible to take the inbound.
+	var mates: Array = players.filter(func(p): return p.team == team and not p.entering and not p.leaving and (not p.is_user or user_on_court))
+	if mates.size() < 2:
+		return
 	var inbounder: BallPlayer = mates[mates.size() - 1]
 	var receiver: BallPlayer = mates[0]
 	# La rimessa automatica non manda sempre la palla al giocatore umano.
@@ -1558,8 +1577,13 @@ func _finish_inbound(caller: BallPlayer) -> void:
 	restarting = false
 	inbound_wait = 0.0
 	var target: BallPlayer = caller
-	if target == null or target == _inbounder or not is_instance_valid(target):
+	if target == null or target == _inbounder or not is_instance_valid(target) or target.entering or target.leaving or (target.is_user and not user_on_court):
 		target = _inbound_receiver
+	if target == null or not is_instance_valid(target) or target.entering or target.leaving or (target.is_user and not user_on_court):
+		for mate in players:
+			if mate.team == possession and mate != _inbounder and not mate.entering and not mate.leaving and (not mate.is_user or user_on_court):
+				target = mate
+				break
 	if _inbounder != null and is_instance_valid(_inbounder) \
 	and target != null and is_instance_valid(target) and target != _inbounder:
 		_inbounder.do_pass(target)
@@ -1621,18 +1645,24 @@ func _turnover_to(team: int) -> void:
 	_restart_play(team)
 
 func call_foul(defender: BallPlayer, victim: BallPlayer, pts_attempt := 0) -> void:
+	Sfx.play("whistle")
 	Events.toast.emit("Foul on #%d" % defender.jersey_num)
+	Events.foul_called.emit()
 	possession = victim.team
 	if defender.is_user:
 		stat_add("pf", 1)
-	# Street 1v1 has check-ball restarts, never NBA free throws.
 	if one_on_one:
 		_restart_play(victim.team)
 		return
-	# Every foul sends the fouled man to the line: 2 shots, or 3 when the
-	# contact came on a three-point attempt.
-	var shots := 3 if pts_attempt >= 3 else 2
-	_start_free_throws(victim, shots)
+	team_fouls[defender.team] += 1
+	# Shooting fouls: 2 or 3. Other defensive fouls: inbound unless the
+	# defensive team is in the FIBA bonus (fifth foul this quarter).
+	if pts_attempt > 0:
+		_start_free_throws(victim, 3 if pts_attempt >= 3 else 2)
+	elif defender.team != victim.team and team_fouls[defender.team] >= 5:
+		_start_free_throws(victim, 2)
+	else:
+		_restart_play(victim.team)
 
 # ------------------------------------------------------------------ free throws
 ## The clock STOPS (play_live goes false), the fouled player walks to the
@@ -1651,15 +1681,20 @@ func _start_free_throws(victim: BallPlayer, shots: int) -> void:
 	victim.global_position = hoop + Vector2(dir * FT_PX, 0.0)
 	victim.velocity = Vector2.ZERO
 	victim.move_input = Vector2.ZERO
-	# Everyone else steps out of the lane, so the line is clear.
-	var side := 1.0
+	# Alternate opponents and teammates on the two lane lines. Additional
+	# players wait behind the free-throw line rather than overlapping.
+	var slots := [0, 0]
 	for p in players:
-		if p == victim:
-			continue
-		p.global_position = hoop + Vector2(dir * (FT_PX + 240.0), side * 180.0)
+		if p == victim or p.entering or p.leaving: continue
+		var slot: int = slots[p.team]
+		slots[p.team] += 1
+		var lane: float = -1.0 if slot % 2 == 0 else 1.0
+		var row: int = slot / 2
+		var depth: float = 95.0 + row * 90.0 + (55.0 if p.team == victim.team else 0.0)
+		p.global_position = hoop + Vector2(dir * minf(depth, FT_PX + 150.0), lane * (145.0 if row < 2 else 260.0))
 		p.velocity = Vector2.ZERO
 		p.move_input = Vector2.ZERO
-		side = -side
+		p.clear_defensive_pose()
 	if ball != null:
 		ball.live = false
 		ball.shot_result_pending = false
@@ -1680,7 +1715,9 @@ func _ft_shoot(err: float) -> void:
 	var made := randf() < clampf(q * (0.60 + float(ft_shooter.ratings["close"]) / 200.0), 0.05, 0.97)
 	var hoop := hoop_for(ft_shooter.team)
 	Sfx.play("shot_release", -8.0)
-	ball.shoot(ft_shooter.global_position + Vector2(0, -50), hoop, 420.0, 0.75, made, ft_shooter)
+	# Misses physically strike the rim instead of flying to the dead centre.
+	var aim: Vector2 = hoop if made else hoop + Vector2(randf_range(30.0, 38.0) * (-1.0 if hoop.x > 0.0 else 1.0), randf_range(-5.0, 5.0))
+	ball.shoot(ft_shooter.global_position + Vector2(0, -50), aim, 420.0, 0.75, made, ft_shooter)
 	# Flag AFTER shoot(): shoot() resets the flag to false for every launch.
 	ball.is_free_throw = true
 	ft_shooter.has_ball = false
@@ -1697,7 +1734,7 @@ func _process(delta: float) -> void:
 	if ft_shooter == null or not is_instance_valid(ft_shooter):
 		_end_free_throws()
 		return
-	if ft_shooter.is_user:
+	if ft_shooter.is_user or (ball != null and (ball.is_free_throw or ball.dunk_drop > 0.0)):
 		return
 	ft_timer -= delta
 	if ft_timer <= 0.0:
@@ -1943,7 +1980,7 @@ func bench_user() -> void:
 	if not is_fixture or not user_on_court or finished:
 		return
 	# Only at a safe moment: never mid-shot, mid-FT or holding the rock.
-	if ft_active or user.has_ball or user.shot_charge >= 0.0 \
+	if ft_active or restarting or pass_target != null or user.has_ball or user.shot_charge >= 0.0 \
 			or (ball != null and ball.live and ball.shooter == user):
 		bench_request = true
 		return
@@ -1978,7 +2015,7 @@ func unbench_user() -> void:
 		bench_changed.emit(false)
 		_refresh_bench_vis()
 		return
-	if ft_active or sub_partner.has_ball \
+	if ft_active or restarting or pass_target != null or sub_partner.has_ball \
 			or (ball != null and ball.live and ball.shooter == sub_partner):
 		unbench_request = true
 		return

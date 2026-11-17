@@ -21,6 +21,7 @@ signal attribute_up(attr: String, value: int)
 signal badge_unlocked(badge_id: String)
 
 # --- Match ---
+signal foul_called
 signal score_changed(home: int, away: int)
 signal possession_changed(team: int)
 signal shot_taken(quality: String, made: bool, points: int)

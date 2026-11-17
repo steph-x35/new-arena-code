@@ -72,6 +72,7 @@ func _ready() -> void:
 		add_child(coach)
 	Events.score_changed.connect(_on_score)
 	Events.toast.connect(_on_toast)
+	Events.foul_called.connect(_on_foul)
 	Events.shot_taken.connect(_on_shot_taken)
 	Events.match_finished.connect(_on_finished)
 	Events.quarter_ended.connect(_on_quarter_ended)
@@ -1342,6 +1343,9 @@ func _big_banner(text: String, col: Color) -> void:
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tw.tween_interval(0.7)
 	tw.tween_property(lbl_banner, "modulate:a", 0.0, 0.4)
+
+func _on_foul() -> void:
+	_big_banner("FALLO" if Loc.lang == "it" else "FOUL", Color(1.0, 0.38, 0.25))
 
 func _on_toast(t: String) -> void:
 	lbl_toast.text = Loc.tx(t)
