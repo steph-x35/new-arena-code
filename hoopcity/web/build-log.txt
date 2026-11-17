@@ -8,16 +8,16 @@ web_nothreads_debug.zip
 web_nothreads_release.zip
 web_release.zip
 total 72960
-drwxr-xr-x 2 runner runner     4096 Nov 17 18:41 .
-drwxr-xr-x 3 runner runner     4096 Nov 17 18:41 ..
--rw-r--r-- 1 runner runner  8972312 Nov 17 18:41 web_debug.zip
--rw-r--r-- 1 runner runner 10450872 Nov 17 18:41 web_dlink_debug.zip
--rw-r--r-- 1 runner runner 10596848 Nov 17 18:41 web_dlink_nothreads_debug.zip
--rw-r--r-- 1 runner runner  9681918 Nov 17 18:41 web_dlink_nothreads_release.zip
--rw-r--r-- 1 runner runner  9613206 Nov 17 18:41 web_dlink_release.zip
--rw-r--r-- 1 runner runner  9082643 Nov 17 18:41 web_nothreads_debug.zip
--rw-r--r-- 1 runner runner  8168102 Nov 17 18:41 web_nothreads_release.zip
--rw-r--r-- 1 runner runner  8120251 Nov 17 18:41 web_release.zip
+drwxr-xr-x 2 runner runner     4096 Nov 17 18:45 .
+drwxr-xr-x 3 runner runner     4096 Nov 17 18:44 ..
+-rw-r--r-- 1 runner runner  8972312 Nov 17 18:45 web_debug.zip
+-rw-r--r-- 1 runner runner 10450872 Nov 17 18:45 web_dlink_debug.zip
+-rw-r--r-- 1 runner runner 10596848 Nov 17 18:45 web_dlink_nothreads_debug.zip
+-rw-r--r-- 1 runner runner  9681918 Nov 17 18:45 web_dlink_nothreads_release.zip
+-rw-r--r-- 1 runner runner  9613206 Nov 17 18:45 web_dlink_release.zip
+-rw-r--r-- 1 runner runner  9082643 Nov 17 18:45 web_nothreads_debug.zip
+-rw-r--r-- 1 runner runner  8168102 Nov 17 18:45 web_nothreads_release.zip
+-rw-r--r-- 1 runner runner  8120251 Nov 17 18:45 web_release.zip
 === IMPORT ===
 SCRIPT ERROR: Parse Error: Preload file "res://assets/sfx/user/defense-chant.mp3" has no resource loaders (unrecognized file extension).
           at: GDScript::reload (res://src/core/Sfx.gd:9)
@@ -664,13 +664,13 @@ savepack: begin: Packing steps: 102
 savepack: end
 === OUT ===
 total 55104
-drwxr-xr-x  2 runner runner     4096 Nov 17 18:41 .
-drwxrwxrwt 15 root   root       4096 Nov 17 18:41 ..
--rw-rw-rw-  1 runner runner    24139 Nov 17 18:41 index.apple-touch-icon.png
--rw-rw-rw-  1 runner runner     7298 Nov 17 18:41 index.audio.worklet.js
--rw-rw-rw-  1 runner runner     4850 Nov 17 18:41 index.html
--rw-rw-rw-  1 runner runner    44517 Nov 17 18:41 index.icon.png
--rw-rw-rw-  1 runner runner   331495 Nov 17 18:41 index.js
--rw-rw-rw-  1 runner runner 20597824 Nov 17 18:41 index.pck
--rw-rw-rw-  1 runner runner    21443 Nov 17 18:41 index.png
--rw-rw-rw-  1 runner runner 35376909 Nov 17 18:41 index.wasm
+drwxr-xr-x  2 runner runner     4096 Nov 17 18:45 .
+drwxrwxrwt 14 root   root       4096 Nov 17 18:45 ..
+-rw-rw-rw-  1 runner runner    24139 Nov 17 18:45 index.apple-touch-icon.png
+-rw-rw-rw-  1 runner runner     7298 Nov 17 18:45 index.audio.worklet.js
+-rw-rw-rw-  1 runner runner     4850 Nov 17 18:45 index.html
+-rw-rw-rw-  1 runner runner    44517 Nov 17 18:45 index.icon.png
+-rw-rw-rw-  1 runner runner   331495 Nov 17 18:45 index.js
+-rw-rw-rw-  1 runner runner 20597984 Nov 17 18:45 index.pck
+-rw-rw-rw-  1 runner runner    21443 Nov 17 18:45 index.png
+-rw-rw-rw-  1 runner runner 35376909 Nov 17 18:45 index.wasm
