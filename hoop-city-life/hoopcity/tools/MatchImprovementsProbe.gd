@@ -20,6 +20,7 @@ func _ready() -> void:
 	c.ball.set_physics_process(false)
 	c._inbound(0)
 	var target: BallPlayer = c.user
+	c.inbound_elapsed = 2.0
 	c._finish_inbound(target)
 	var flight: float = c.ball._pass_duration
 	target.global_position += Vector2(130, 50)
