@@ -16,6 +16,8 @@ func _ready() -> void:
 	c.give_ball(c.user)
 	c.play_live = true
 	var started: bool = c.call_timeout(0)
+	ok = ok and started and c.play_live and c.timeout_requested == 0 and c.timeout_active == 0.0
+	c._inbound(0)
 	var before: float = c.user.global_position.distance_to(c.seat_world(0, 0))
 	c._process_bench_and_timeouts(1.0)
 	var after: float = c.user.global_position.distance_to(c.seat_world(0, 0))

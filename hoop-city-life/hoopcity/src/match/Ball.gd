@@ -165,11 +165,7 @@ func _physics_process(delta: float) -> void:
 		# Stesso percorso deterministico del campetto; niente lettura del
 		# palmo salvato dal frame precedente, che causava scatti e disallineamento.
 		var off: Dictionary = holder.dribble_ball_offset()
-		if not holder.embedded_dribble and holder.move_t <= 0.0 \
-		and holder.fake_t <= 0.0 and not holder.fake_locked \
-		and Avatar.palms.has(holder.get_instance_id()):
-			var palm: Vector2 = Avatar.palms[holder.get_instance_id()]
-			off = {"x": palm.x, "h": maxf(-palm.y, 4.0)}
+
 		global_position = holder.global_position + Vector2(off["x"], 0)
 		h = off["h"]
 		# Thud exactly at the bottom of the dribble arc. The holder controls

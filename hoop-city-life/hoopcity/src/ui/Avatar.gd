@@ -504,17 +504,13 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			var sw2: float = arm_swing * 0.35 * sx
 			hand = Vector2(sh_p.x + sx * h * 0.28 + sw2, hip_y - h * 0.10 + absf(sw2) * 0.25)
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.55), lerpf(sh_p.y, hand.y, 0.42) - h * 0.03)
-		elif kind == DRIBBLE and strong and p.has("dribble_hand"):
-			# Il palmo segue la stessa traiettoria della palla durante il trick.
-			hand = base + (p["dribble_hand"] as Vector2)
-			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.42) + sx * h * 0.05, lerpf(sh_p.y, hand.y, 0.40) + h * 0.03)
 		elif kind == DRIBBLE and strong:
-			# Hand rides the ball: bounce and palm stay glued.
-			var br0: float = h * 0.105 if ball_r < 0.0 else ball_r
-			var bounce: float = absf(sin(ph * 1.15))
-			hand = Vector2(base.x + hd * h * 0.30, floor_y - bounce * h * 0.55 - br0)
+			# The hand pushes at hip height; the ball continues to the floor
+			# and rebounds on its own, not glued to an elongating arm.
+			var push: float = 0.07 * h * maxf(0.0, sin(ph * 2.3))
+			hand = Vector2(base.x + hd * h * 0.30, hip_y + push)
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.42) + sx * h * 0.05,
-				lerpf(sh_p.y, hand.y, 0.40) + h * 0.03)
+				lerpf(sh_p.y, hand.y, 0.40))
 		elif bool(p.get("hang", false)) and not bool(p.get("hang_one", false)):
 			# APPESO A DUE MANI: le mani CONVERGONO sul tubo del ferro,
 			# vicine (una appena davanti all'altra, come una vera presa a
@@ -652,8 +648,9 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	var bp: Vector2 = ball_pos
 	match kind:
 		DRIBBLE:
-			# Same point the palm already occupies.
-			bp = ball_pos
+			# Ball separates from the hand on each bounce in the street court.
+			bp = Vector2(base.x + hd * h * 0.30,
+				floor_y - absf(sin(ph * 1.15)) * h * 0.55 - br)
 		SHOOT:
 			# cocked above the shoulder, released as amount -> 1
 			bp = Vector2(ball_pos.x + hd * br * 0.4, ball_pos.y - br * 0.9)

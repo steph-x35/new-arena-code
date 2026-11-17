@@ -122,6 +122,23 @@ func _ready() -> void:
 	add_to_group("players")
 	add_to_group("team_%d" % team)
 
+func reset_action_state() -> void:
+	shot_charge = -1.0
+	shot_anim = 0.0
+	ai_windup_t = -1.0
+	dunking = false
+	dunk_held = false
+	hanging = false
+	jumping = false
+	air = 0.0
+	air_v = 0.0
+	landing = 0.0
+	move_t = 0.0
+	move_input = Vector2.ZERO
+	velocity = Vector2.ZERO
+	fake_locked = false
+	queue_redraw()
+
 func clear_defensive_pose() -> void:
 	stance = false
 	block_window = 0.0
@@ -794,13 +811,11 @@ func dribble_ball_offset() -> Dictionary:
 		return {"x": hs * hb * 0.20, "h": air + hb * (0.42 if fake_t > 0.12 else 0.55)}
 	var side: float = hs * hb * 0.30
 	var hh: float = absf(sin(dribble_phase * 1.15)) * hb * 0.55 + Court.BALL_R
-	if move_t > 0.0:
+	if move_t > 0.0 and move_kind in ["crossover", "hand_switch", "behind", "between", "spin", "euro", "dropstep"]:
 		var f: float = 1.0 - move_t / move_duration
-		var low: float = sin(f * PI)
 		side = lerpf(-hs, hs, smoothstep(0.0, 1.0, f)) * hb * 0.34
-		hh = hb * 0.16 + low * hb * 0.10
-		if move_kind == "behind":
-			hh = hb * 0.30 - low * hb * 0.06
+		# Down to the parquet halfway through, then back to the other hand.
+		hh = Court.BALL_R + absf(cos(f * PI)) * hb * 0.48
 	return {"x": side, "h": hh}
 
 ## An off-ball cut: a short burst in the direction you are pushing, used to
@@ -836,7 +851,7 @@ static func user_steal_outcome(attempt: int, roll: float) -> String:
 	return "steal" if roll < (0.1 if attempt == 1 else 0.3) else "miss"
 
 func try_steal() -> void:
-	if cooldown_steal > 0.0: return
+	if cooldown_steal > 0.0 or air > 8.0 or jumping: return
 	cooldown_steal = 1.15
 	steal_t = 0.38
 	var bh: BallPlayer = court.ball_handler()

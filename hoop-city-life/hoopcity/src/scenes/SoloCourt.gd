@@ -950,7 +950,8 @@ func _do_trick() -> void:
 	# Same joystick mapping as the match: TRICK + stick direction.
 	var mv: Vector2 = joystick.output if joystick else Vector2.ZERO
 	if mv.length() < 0.25:
-		trick_kind = "hesi"
+		trick_kind = "hand_switch"
+		hand_left = not hand_left
 	elif mv.y > 0.35:
 		trick_kind = "hand_switch"
 		hand_left = not hand_left
@@ -1997,10 +1998,8 @@ func _draw_player() -> void:
 		var from_side: float = 1.0 if hand_left else -1.0
 		var to_side: float = -from_side
 		var sway: float = lerpf(from_side, to_side, smoothstep(0.0, 1.0, f))
-		var low: float = sin(f * PI)
-		var bp := screen + Vector2(sway * h * 0.34, -h * 0.16 - low * h * 0.10)
-		if trick_kind == "behind":
-			bp.y = screen.y - h * 0.30 + low * h * 0.06
+		var bounce_height: float = BALL_R + absf(cos(f * PI)) * h * 0.48
+		var bp := screen + Vector2(sway * h * 0.34, -bounce_height)
 		_draw_ball_at(bp, BALL_R)
 
 	if ball_live:

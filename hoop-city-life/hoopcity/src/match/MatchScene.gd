@@ -107,6 +107,8 @@ func _ready() -> void:
 		vis.crowd_on = not court.one_on_one and court.team_size != 2
 		vis.request_rebake()
 	court.bench_changed.connect(_on_bench_changed)
+	court.violation_called.connect(_on_violation)
+	court.inbound_started.connect(_on_inbound_transition)
 	# Near half of each net, painted OVER the ball so a make reads as dropping
 	# through the mesh instead of sliding across its front.
 	var nf = preload("res://src/match/NetFront.gd").new()
@@ -384,9 +386,9 @@ func _process(delta: float) -> void:
 		var tl: String = Loc.t("match.timeout") + " (%d)" % court.timeouts_left[0]
 		if btn_timeout.text != tl:
 			btn_timeout.text = tl
-		btn_timeout.disabled = court.timeouts_left[0] <= 0 or court.timeout_active > 0.0
+		btn_timeout.disabled = court.timeouts_left[0] <= 0 or court.timeout_active > 0.0 or court.timeout_requested >= 0
 	if btn_shoot:
-		var want: String = Loc.t("match.dunk") if (u.hanging or u.can_dunk()) else Loc.t("match.shoot")
+		var want: String = Loc.t("match.shoot")
 		if btn_shoot.text != want:
 			btn_shoot.text = want
 	if btn_guard:
@@ -1076,7 +1078,7 @@ func _dribble_move() -> void:
 		elif u.posting:
 			kind = "dropstep"
 		elif mi.length() < 0.25:
-			kind = "hesi"
+			kind = "hand_switch"
 		elif mi.y > 0.35:
 			kind = "hand_switch"
 		elif mi.x < -0.35:
@@ -1364,6 +1366,22 @@ func _big_banner(text: String, col: Color) -> void:
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tw.tween_interval(0.7)
 	tw.tween_property(lbl_banner, "modulate:a", 0.0, 0.4)
+
+func _on_violation(reason: String) -> void:
+	_big_banner(reason, Color(1.0, 0.75, 0.25))
+
+func _on_inbound_transition() -> void:
+	# Brief dissolve makes the stoppage/readjustment legible without hiding
+	# the court for the two-second inbound hold.
+	var veil := ColorRect.new()
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	veil.color = Color(0.02, 0.025, 0.04, 0.0)
+	hud.add_child(veil)
+	var tw := create_tween()
+	tw.tween_property(veil, "color:a", 0.32, 0.2)
+	tw.tween_property(veil, "color:a", 0.0, 0.4)
+	tw.tween_callback(veil.queue_free)
 
 func _on_foul() -> void:
 	_big_banner("FALLO" if Loc.lang == "it" else "FOUL", Color(1.0, 0.38, 0.25))

@@ -78,6 +78,10 @@ var _defense_chant_left := 0.0
 var _dead_time := 0.0               # watchdog accumulator, see _deadball_watchdog
 var restarting := false             # true during a scripted inbound/check pause
 var awaiting_check := false         # 1v1: CHECK button before the ball is live
+signal violation_called(reason: String)
+signal inbound_started
+var inbound_elapsed := 0.0
+var timeout_requested := -1
 var inbound_wait := 0.0             # >0: your inbound, call it or it auto-passes
 var intermission := false           # between quarters: teams jog to huddles
 var _voice_cd := {}                 # per-shout cooldowns
@@ -458,6 +462,7 @@ func try_grab(p: BallPlayer) -> bool:
 ## which makes GET BALL useful even when the ball is nowhere near you.
 func request_pass(to: BallPlayer) -> bool:
 	if inbound_wait > 0.0 and to.team == possession and to != _inbounder:
+		if inbound_elapsed < 2.0: return false
 		_finish_inbound(to)
 		return true
 	var h: BallPlayer = ball_handler()
@@ -647,6 +652,7 @@ func _physics_process(delta: float) -> void:
 			else:
 				p.velocity = Vector2.ZERO
 	if inbound_wait > 0.0:
+		inbound_elapsed += delta
 		inbound_wait -= delta
 		if inbound_wait <= 0.0:
 			_finish_inbound(null)
@@ -664,6 +670,7 @@ func _physics_process(delta: float) -> void:
 		try_grab(user)
 	# Una palla libera che esce non deve trascinare tutti nell'angolo.
 	if ball != null and ball.live and not ball.practice_shot and not ball.shot_result_pending and pass_target == null 	and (absf(ball.global_position.x) > COURT_W * 0.5 + 30.0 or absf(ball.global_position.y) > COURT_H * 0.5 + 30.0):
+		violation_called.emit("PALLA FUORI" if Loc.lang == "it" else "OUT OF BOUNDS")
 		_restart_play(1 - ball.last_touch_team)
 		return
 	game_clock -= delta
@@ -698,6 +705,7 @@ func _physics_process(delta: float) -> void:
 		if game_clock > 0.0 and not one_on_one:
 			Sfx.play("buzzer")
 		Events.toast.emit("Shot clock violation")
+		violation_called.emit("TEMPO SCADUTO" if Loc.lang == "it" else "SHOT CLOCK")
 		_turnover_to(1 - possession)
 	if game_clock <= 0.0:
 		if not _buzzer_sounded:
@@ -822,6 +830,10 @@ func _end_quarter() -> void:
 		Sfx.play("buzzer")
 		_buzzer_sounded = true
 	_close_quarter_book()
+	# A buzzer can interrupt a gather, jump or dunk. Clear those transient
+	# states before the next period, otherwise a player can remain frozen.
+	for p in players:
+		p.reset_action_state()
 	quarter += 1
 	team_fouls = [0, 0]
 	if quarter > QUARTERS or team_size == 2:
@@ -1122,7 +1134,7 @@ func _block_check(shooter: BallPlayer, contest: float, floater := false) -> Ball
 			# La difficolta' pesa SOLO sull'AI che difende l'utente: a Incubo
 			# il salto a tempo si paga, a Facile si perdona di piu'.
 			if shooter.is_user:
-				block_ch *= [0.75, 0.95, 1.15, 1.35][Game.difficulty()]
+				block_ch *= 0.35 * [0.75, 0.95, 1.15, 1.35][Game.difficulty()]
 			if randf() < block_ch:
 				if d.is_user: box["blk"] += 1
 				return d
@@ -1169,6 +1181,7 @@ func _try_inflight_block() -> void:
 		var apex_q: float = clampf(0.55 + 0.55 * d.air / maxf(peak, 1.0), 0.55, 1.10)
 		var ch: float = clampf((float(d.ratings["block"]) / 99.0) * d.height_f
 			* (1.0 - dist / 70.0) * apex_q * 0.72, 0.04, 0.55)
+		if ball.shooter != null and ball.shooter.is_user: ch *= 0.35
 		if randf() >= ch:
 			d.block_window = 0.0
 			continue
@@ -1291,6 +1304,7 @@ func on_dunk_started(p: BallPlayer) -> void:
 			var stop: float = clampf(float(o.ratings["block"]) / 125.0, 0.05, 0.62)
 			# Chi schiaccia meglio resiste un po' di più alla stoppata.
 			stop *= lerpf(1.15, 0.75, clampf((float(p.ratings.get("dunk", 52)) - 30.0) / 69.0, 0.0, 1.0))
+			stop *= 0.18  # rim blocks are exceptional, not routine
 			if p.is_user:
 				stop *= [0.80, 1.00, 1.20, 1.40][Game.difficulty()]
 			if randf() < stop:
@@ -1592,8 +1606,15 @@ func resolve_missed_shot(b: Ball) -> void:
 	if best.is_user: box["reb"] += 1
 	Events.toast.emit("Rebound #%d" % best.jersey_num)
 
-func _inbound(team: int) -> void:
+func _inbound(team: int, violation := false) -> void:
+	if timeout_requested >= 0 and (violation or timeout_requested == team):
+		var requester := timeout_requested
+		timeout_requested = -1
+		_start_timeout(requester, team)
+		return
 	_reset_user_steal_attempts()
+	inbound_elapsed = 0.0
+	inbound_started.emit()
 	possession = team
 	restarting = true
 	play_live = false
@@ -1637,6 +1658,7 @@ func _inbound(team: int) -> void:
 ## Ends the inbound wait: pass to `caller` if he called for it, otherwise to
 ## the default receiver (a team-mate, never the inbounder himself).
 func _finish_inbound(caller: BallPlayer) -> void:
+	if caller != null and inbound_elapsed < 2.0: return
 	if finished or not restarting:
 		return
 	restarting = false
@@ -1696,6 +1718,8 @@ func on_turnover(from: BallPlayer, to: BallPlayer) -> void:
 ## possesso, stesso percorso del shot clock violation.
 func travel_violation(p: BallPlayer) -> void:
 	Events.toast.emit("Traveling!")
+	Sfx.play("whistle")
+	violation_called.emit("PASSI" if Loc.lang == "it" else "TRAVELING")
 	_turnover_to(1 - p.team)
 
 ## Ripartenza palla ferma: nel 5v5 rimessa dalla linea, nell'1v1 SEMPRE
@@ -1704,7 +1728,7 @@ func _restart_play(team: int) -> void:
 	if one_on_one:
 		_check_ball(team)
 	else:
-		_inbound(team)
+		_inbound(team, true)
 
 func _turnover_to(team: int) -> void:
 	_restart_play(team)
@@ -2168,29 +2192,35 @@ func _process_subs(delta: float) -> void:
 
 # ================================================================== timeouts
 func call_timeout(team: int) -> bool:
-	if one_on_one or finished or timeout_active > 0.0 or restarting or ft_active or not play_live:
-		return false
-	if ball_handler() == null or possession != team:
-		Events.toast.emit(Loc.tx("Timeout: serve il possesso della palla"))
+	# FIBA: the coach requests it now; it is granted at the next eligible
+	# dead ball, or after a basket against the requesting team.
+	if one_on_one or finished or timeout_active > 0.0 or timeout_requested >= 0 or team < 0 or team > 1:
 		return false
 	if timeouts_left[team] <= 0:
 		Events.toast.emit(Loc.tx("No timeouts left!"))
 		Sfx.play("beep", -6.0)
 		return false
-	timeouts_left[team] -= 1
-	timeout_team = team
+	timeout_requested = team
+	Events.toast.emit("TIMEOUT RICHIESTO · alla prossima pausa" if Loc.lang == "it" else "TIMEOUT REQUESTED · next stoppage")
+	return true
+
+func _start_timeout(requester: int, resume_team: int) -> void:
+	timeouts_left[requester] -= 1
+	timeout_team = resume_team
 	timeout_active = 7.0
 	_pass_serial += 1
 	pass_target = null
+	inbound_wait = 0.0
+	restarting = false
 	play_live = false
-	if ball != null and ball.live:
+	for p in players: p.reset_action_state()
+	if ball != null:
 		ball.kill_analytic()
 		ball.live = false
 		ball.vel = Vector2.ZERO
 		ball.shot_result_pending = false
 	Sfx.add_hype(0.15)
-	Events.toast.emit("TIMEOUT  -  " + Loc.tx("%d left") % timeouts_left[team])
-	return true
+	Events.toast.emit("TIMEOUT  -  " + Loc.tx("%d left") % timeouts_left[requester])
 
 func _resume_after_timeout() -> void:
 	if finished:

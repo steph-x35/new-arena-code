@@ -504,6 +504,15 @@ func _do_pnr(_delta: float) -> void:
 func _defend_on_ball(delta: float) -> void:
 	var bh: BallPlayer = court.ball_handler()
 	if bh == null: return
+	# The selected defender must actually navigate around the planted screen.
+	# No teleport or artificial tackle: contact only after the feet are set.
+	var screener: BallPlayer = court.pnr_screener
+	if court.pnr_screening and screener != null and is_instance_valid(screener):
+		for brain in screener.get_children():
+			if brain is AIBrain and brain.screen_on == p and brain.screen_planted and p.global_position.distance_to(screener.global_position) < 64.0:
+				p.move_input = Vector2.ZERO
+				p.velocity *= 0.25
+				return
 	# the basket I am protecting is the one my opponents attack
 	var own_hoop: Vector2 = court.hoop_for(1 - p.team)
 	var gathering: bool = bh.has_method("is_gathering") and bh.is_gathering()
@@ -595,8 +604,8 @@ func _defend_on_ball(delta: float) -> void:
 	# contest / steal
 	if bh.shot_charge >= 0.0 and d0 < 80.0:
 		p.stance = true
-	if d0 < 46.0 and randf() < (0.006 + aggression * 0.010) * lerpf(0.75, 1.7, skill) \
-		* lerpf(1.0, 1.30, float(Game.difficulty()) / 3.0):
+	if d0 < 65.0 and randf() < (0.006 + aggression * 0.010) * lerpf(0.75, 1.7, skill) \
+		* lerpf(1.0, 1.30, float(Game.difficulty()) / 3.0) * (1.5 if not bh.is_user else 1.0):
 		p.try_steal()
 	# INCUBO nel duello: se fai un trick DENTRO il suo raggio te lo paga
 	# spesso: la palla viene pescata di braccio durante la mossa.
