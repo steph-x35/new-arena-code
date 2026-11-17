@@ -196,6 +196,7 @@ func _ready() -> void:
 			func(t): return t != Season.my_team()).pick_random()
 		Game.profile["next_home"] = true
 		Game.set_team_kit(1, Season.kit_for(String(Game.profile["next_opponent"])))
+		SceneRouter.pregame_return_path = "res://src/scenes/MainMenu.tscn"
 		SceneRouter.goto("res://src/scenes/PregameWarmup.tscn"), "", _btn_w)
 	UIKit.big_button(v, Loc.t("menu.multi"), func():
 		if SaveSystem.has_save():

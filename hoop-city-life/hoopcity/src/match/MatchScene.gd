@@ -47,6 +47,7 @@ var intro_panel: Control
 var intro_left := 0.0
 var lineup_left := 0.0
 var lineup_panel: Control
+var lineup_team := 0
 var goal := {}               # obiettivo di partita corrente (MatchGoals)
 var goal_done := false
 var goal_lbl: Label          # ticker live in alto sotto il punteggio
@@ -1274,8 +1275,8 @@ func _intro_done() -> void:
 
 func _show_lineup() -> void:
 	var card = preload("res://src/match/LineupCard.gd").new()
-	card.squad = court.players.filter(func(p): return p.team == 0)
-	card.club = Season.my_team()
+	card.squad = court.players.filter(func(p): return p.team == lineup_team)
+	card.club = Season.my_team() if lineup_team == 0 else String(Game.profile.get("next_opponent", "Visitors"))
 	card.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	hud.add_child(card)
 	lineup_panel = card
@@ -1284,6 +1285,10 @@ func _show_lineup() -> void:
 func _finish_lineup() -> void:
 	if is_instance_valid(lineup_panel): lineup_panel.queue_free()
 	lineup_panel = null
+	if lineup_team == 0:
+		lineup_team = 1
+		_show_lineup()
+		return
 	court.pre_tip_ceremony = false
 	court._jump_watch = 0.0
 	tip_left = 3.0

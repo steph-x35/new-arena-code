@@ -112,6 +112,7 @@ func _start() -> void:
 	Game.profile["next_match_mode"] = mode
 	Game.profile["next_opponent"] = opponent
 	if mode == "full" and bool(Game.profile.get("match_is_fixture", false)):
+		SceneRouter.pregame_return_path = String(Game.profile.get("next_kit_return", "res://src/scenes/TeamCourt.tscn"))
 		SceneRouter.goto("res://src/scenes/PregameWarmup.tscn")
 	else:
 		SceneRouter.goto("res://src/match/MatchScene.tscn")

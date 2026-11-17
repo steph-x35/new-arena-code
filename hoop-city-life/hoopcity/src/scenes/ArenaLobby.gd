@@ -168,6 +168,7 @@ func _tip_off(e: Dictionary) -> void:
 	# Club colours travel with the club: the visitors never show up in our
 	# last-picked practice kit.
 	Game.set_team_kit(1, Season.kit_for(opp))
+	SceneRouter.pregame_return_path = "res://src/scenes/ArenaLobby.tscn"
 	SceneRouter.goto("res://src/scenes/PregameWarmup.tscn")
 
 func _show_schedule() -> void:

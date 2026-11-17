@@ -34,6 +34,8 @@ func _ready() -> void:
 	ok = ok and match_scene.lineup_panel != null and match_scene.lineup_left > 0.0
 	ok = ok and match_scene.lineup_panel.squad.size() == 5 and court.pre_tip_ceremony
 	match_scene._finish_lineup()
+	ok = ok and match_scene.lineup_team == 1 and match_scene.lineup_panel.squad.size() == 5 and court.pre_tip_ceremony
+	match_scene._finish_lineup()
 	ok = ok and not court.pre_tip_ceremony and match_scene.tip_left == 3.0 and court.jump_pending
 	print("PREGAME_OK=", ok)
 	get_tree().quit(0 if ok else 1)

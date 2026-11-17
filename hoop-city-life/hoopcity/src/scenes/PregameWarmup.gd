@@ -45,7 +45,7 @@ func _exit_tree() -> void:
 func _leave() -> void:
 	# Back cancels the pregame instead of silently starting a fixture.
 	if starting: return
-	SceneRouter.goto("res://src/scenes/ArenaLobby.tscn")
+	SceneRouter.goto(SceneRouter.pregame_return_path)
 
 func _start_match() -> void:
 	if starting: return
