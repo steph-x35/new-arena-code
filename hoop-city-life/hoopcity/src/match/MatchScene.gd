@@ -70,6 +70,10 @@ func _ready() -> void:
 	if court.team_size == 2:
 		var coach := preload("res://src/scenes/PracticeCoach.gd").new()
 		add_child(coach)
+		var practice_background := preload("res://src/scenes/PracticeBackground.gd").new()
+		practice_background.name = "PracticeBackground"
+		practice_background.setup(court)
+		add_child(practice_background)
 	Events.score_changed.connect(_on_score)
 	Events.toast.connect(_on_toast)
 	Events.foul_called.connect(_on_foul)

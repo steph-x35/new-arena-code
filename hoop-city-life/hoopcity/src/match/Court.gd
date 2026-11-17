@@ -1363,6 +1363,17 @@ func _dunk_scored(p: BallPlayer) -> void:
 	Sfx.haptic(60)
 	Events.toast.emit("%s! +%d" % [DunkStyle.label(p.dunk_style), pts])
 	p.has_ball = false
+	if team_size == 2 and not one_on_one:
+		# A made dunk is immediately dead: nobody may recover and dunk the
+		# falling ball while the scorer is hanging from the rim.
+		play_live = false
+		restarting = true
+		var next_team: int = 1 - p.team
+		await get_tree().create_timer(0.7).timeout
+		if not is_inside_tree() or finished: return
+		if is_instance_valid(p): p.release_rim()
+		_inbound(next_team)
+		return
 	# Hang on the rim until the player (or AI) lets go of dunk.
 	var waited := 0.0
 	while is_instance_valid(p) and p.hanging and waited < 4.0:

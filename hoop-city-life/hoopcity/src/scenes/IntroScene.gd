@@ -32,10 +32,13 @@ const FLOOR_Y := 250.0
 ## Rim sits 370px above the floor line -- a believable 10ft at this scale.
 const HOOP := Vector2(340.0, -120.0)
 const T_SWISH := 3.05
+var intro_music_before := 0.0
 var _news_shown := false       # la finestra NOVITA' esce una volta sola
 
 func _ready() -> void:
 	Sfx.play_life()
+	intro_music_before = Sfx.music.volume_db
+	Sfx.music.volume_db = minf(intro_music_before + 3.0, 0.0)
 	var layer := CanvasLayer.new()
 	add_child(layer)
 	ui = Control.new()
@@ -381,3 +384,6 @@ func _draw_ball() -> void:
 		Color(0.30, 0.15, 0.06), 2.2)
 	draw_arc(c + Vector2(cos(a1), sin(a1)) * 9.0, 24.0, a1 + 1.1, a1 + 2.1, 12,
 		Color(0.30, 0.15, 0.06), 2.0)
+
+func _exit_tree() -> void:
+	if Sfx.music != null: Sfx.music.volume_db = intro_music_before
