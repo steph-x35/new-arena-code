@@ -1071,7 +1071,7 @@ func _block_check(shooter: BallPlayer, contest: float, floater := false) -> Ball
 	for d in players:
 		if d.team == shooter.team: continue
 		var dist := d.global_position.distance_to(shooter.global_position)
-		if dist > 95.0: continue
+		if dist > 110.0: continue
 		# Timed BLOCK: jumping while the shot leaves the hand contests it
 		# automatically (see contest_value_against x1.35), but an actual SWAT
 		# still has to be earned -- close to the shooter, near the apex of the
@@ -1079,10 +1079,11 @@ func _block_check(shooter: BallPlayer, contest: float, floater := false) -> Ball
 		# "giusto" non bloccava quasi MAI (88px, apex stretto, coeff basso):
 		# ora salto + distanza + timing pagano davvero, scalati per diff.
 		if d.block_window > 0.0 and dist < (70.0 if floater else 120.0) and d.air > 8.0:
-			var apex_q: float = clampf(1.0 - absf(d.air / d.jump_height() - 0.5) / 0.6, 0.30, 1.25)
+			var jump_peak: float = d.jump_height() * d.jump_height() / (2.0 * BallPlayer.GRAV)
+			var apex_q: float = clampf(0.55 + 0.55 * d.air / maxf(jump_peak, 1.0), 0.55, 1.10)
 			var block_ch: float = clampf(
-				(float(d.ratings["block"]) / 99.0) * d.height_f * 0.95
-				* (1.15 - dist / 120.0) * apex_q, 0.05, 0.78)
+				(float(d.ratings["block"]) / 99.0) * d.height_f * 1.08
+				* (1.20 - dist / 145.0) * apex_q, 0.05, 0.85)
 			if floater:
 				block_ch *= 0.4   # palla tirata SOPRA la mano: stenzata rara
 			# La difficolta' pesa SOLO sull'AI che difende l'utente: a Incubo
@@ -1097,7 +1098,7 @@ func _block_check(shooter: BallPlayer, contest: float, floater := false) -> Ball
 		# GROUNDED defender: only a serious in-his-jersey contest pokes the
 		# release away; a mistimed jump's tail adds a small bonus.
 		if contest < 0.28: continue
-		var ch: float = (d.ratings["block"] / 99.0) * 0.18 * d.height_f * (1.0 - dist / 95.0)
+		var ch: float = (d.ratings["block"] / 99.0) * 0.18 * d.height_f * maxf(0.0, 1.0 - dist / 110.0)
 		if d.block_window > 0.0:
 			ch = minf(ch * 1.8, 0.40)
 		if randf() < ch:
@@ -1131,9 +1132,10 @@ func _try_inflight_block() -> void:
 		if travelled < 60.0:
 			continue
 		# Volleyball-style pins at the apex are rare and skill-based.
-		var apex_q: float = clampf(1.0 - absf(d.air / d.jump_height() - 0.6) / 0.6, 0.2, 1.2)
+		var peak: float = d.jump_height() * d.jump_height() / (2.0 * BallPlayer.GRAV)
+		var apex_q: float = clampf(0.55 + 0.55 * d.air / maxf(peak, 1.0), 0.55, 1.10)
 		var ch: float = clampf((float(d.ratings["block"]) / 99.0) * d.height_f
-			* (1.0 - dist / 70.0) * apex_q * 0.6, 0.04, 0.5)
+			* (1.0 - dist / 70.0) * apex_q * 0.72, 0.04, 0.55)
 		if randf() >= ch:
 			d.block_window = 0.0
 			continue
@@ -1252,7 +1254,7 @@ func on_dunk_started(p: BallPlayer) -> void:
 		if o.team == p.team or not is_instance_valid(o):
 			continue
 		if o.block_window > 0.0 and o.global_position.distance_to(p.global_position) < 90.0:
-			var stop: float = clampf(float(o.ratings["block"]) / 140.0, 0.05, 0.55)
+			var stop: float = clampf(float(o.ratings["block"]) / 125.0, 0.05, 0.62)
 			# Chi schiaccia meglio resiste un po' di più alla stoppata.
 			stop *= lerpf(1.15, 0.75, clampf((float(p.ratings.get("dunk", 52)) - 30.0) / 69.0, 0.0, 1.0))
 			if p.is_user:

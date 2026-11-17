@@ -493,6 +493,18 @@ func add_social_post(author: String, text: String, likes: int) -> void:
 		profile["social"].resize(60)
 	Events.social_post_added.emit(post)
 
+func toggle_social_like(post: Dictionary) -> void:
+	var was_liked := bool(post.get("liked_by_player", false))
+	post["liked_by_player"] = not was_liked
+	post["likes"] = maxi(0, int(post.get("likes", 0)) + (-1 if was_liked else 1))
+	SaveSystem.save_game()
+
+func comment_social_post(post: Dictionary, text: String) -> void:
+	if not post.has("comments") or not post["comments"] is Array:
+		post["comments"] = []
+	post["comments"].append({"author": String(profile.get("name", "Player")), "text": text})
+	SaveSystem.save_game()
+
 func add_message(from: String, text: String) -> void:
 	profile["messages"].push_front({"from": from, "text": text, "day": profile["day"], "time": clock_string()})
 	push_notification("Messages", from, text)

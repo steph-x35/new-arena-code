@@ -102,10 +102,15 @@ func _ready() -> void:
 		24, Color(0.965, 0.949, 0.906, 0.75))
 
 	var b := Button.new()
-	b.text = Loc.t("post.city")
+	b.text = "TORNA AL CAMPO" if SceneRouter.friendly_1v1 else Loc.t("post.city")
 	b.custom_minimum_size = Vector2(520, 96)
 	b.add_theme_font_size_override("font_size", 26)
-	b.pressed.connect(func(): SceneRouter.goto("res://src/scenes/CityScene.tscn"))
+	b.pressed.connect(func():
+		if SceneRouter.friendly_1v1:
+			Game.profile["next_match_mode"] = "full"
+			SceneRouter.goto("res://src/scenes/SoloCourt.tscn")
+		else:
+			SceneRouter.goto("res://src/scenes/CityScene.tscn"))
 	v.add_child(b)
 
 	var p := Button.new()

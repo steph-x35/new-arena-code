@@ -494,24 +494,42 @@ func _social() -> void:
 	var posts: Array = Game.profile["social"]
 	if posts.is_empty():
 		_txt("Nothing yet. Go play a game.", 20, Color(1, 1, 1, 0.5))
-	for p in posts:
-		_txt("%s  ·  Day %d %s" % [p["author"], p["day"], p["time"]], 17, Color(0.55, 0.78, 1.0))
-		_txt(String(p["text"]), 20)
-		var likes_row := HBoxContainer.new()
-		likes_row.add_theme_constant_override("separation", 6)
-		body.add_child(likes_row)
-		for cfg in [["heart", int(p["likes"])], ["chat", int(p["comments"].size())]]:
-			var sic := Control.new()
-			sic.custom_minimum_size = Vector2(18, 18)
-			sic.draw.connect(func(): Art.draw_icon(sic, String(cfg[0]),
-				Rect2(Vector2.ZERO, sic.size), Color(1, 1, 1, 0.55)))
-			likes_row.add_child(sic)
-			var sl := Label.new()
-			sl.text = str(cfg[1])
-			sl.add_theme_font_size_override("font_size", 15)
-			sl.modulate = Color(1, 1, 1, 0.45)
-			likes_row.add_child(sl)
+	for post in posts:
+		var p: Dictionary = post
+		_txt("%s  ·  Day %d %s" % [p.get("author", ""), p.get("day", 1), p.get("time", "")], 17, Color(0.55, 0.78, 1.0))
+		_txt(String(p.get("text", "")), 20)
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		body.add_child(row)
+		var like := Button.new()
+		like.text = "%s %d" % ["♥" if bool(p.get("liked_by_player", false)) else "♡", int(p.get("likes", 0))]
+		like.custom_minimum_size = Vector2(105, 48)
+		like.pressed.connect(func(): Game.toggle_social_like(p); _refresh())
+		row.add_child(like)
+		var reply := Button.new()
+		var comments: Array = p.get("comments", [])
+		reply.text = "Rispondi · %d" % comments.size() if Loc.lang == "it" else "Reply · %d" % comments.size()
+		reply.custom_minimum_size = Vector2(160, 48)
+		reply.pressed.connect(func(): _social_reply(p))
+		row.add_child(reply)
+		for c in comments:
+			if c is Dictionary:
+				_txt("%s: %s" % [String(c.get("author", "")), String(c.get("text", ""))], 16, Color(0.8, 0.85, 0.95))
+			elif c is String:
+				_txt(String(c), 16, Color(0.8, 0.85, 0.95))
 		_sep()
+
+func _social_reply(post: Dictionary) -> void:
+	var panel := GamePanel.new().build("Rispondi" if Loc.lang == "it" else "Reply", Vector2(720, 440))
+	add_child(panel)
+	var replies := ["Grazie per il supporto! 🏀", "Continuiamo a lavorare 💪", "Alla prossima, squadra!"] if Loc.lang == "it" else ["Thanks for the support! 🏀", "Keep working 💪", "On to the next one, team!"]
+	for text in replies:
+		var message: String = text
+		panel.add_button(message, func():
+			Game.comment_social_post(post, message)
+			panel.close()
+			_refresh())
+	panel.add_button("Annulla" if Loc.lang == "it" else "Cancel", func(): panel.close())
 
 func _calendar() -> void:
 	var day: int = Game.profile["day"]

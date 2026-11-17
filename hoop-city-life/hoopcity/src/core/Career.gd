@@ -471,11 +471,18 @@ func _social_reaction(pts: int, won: bool, grade: String, perf: float) -> void:
 			"Dove era %s stanotte?" % name, 10 + rep)
 	if won:
 		Game.add_social_post(Season.handle(), "W. Sul prossimo. \ud83d\udcaa", 150 + rep * 5)
+	var teammate_line := ("Grande lavoro di squadra stasera, %s!" if won else "Testa alta %s, ci rifacciamo insieme.") % name
+	Game.add_social_post("@DeeWhitlock", teammate_line, 55 + rep * 3)
+	Game.add_social_post("@MayaCourtSide", "%s chiude con %d punti. %s" % [name, pts, "Vittoria meritata." if won else "Si torna al lavoro."], 90 + rep * 5)
+	if pts >= 22 or (won and perf >= 0.55):
+		Game.add_social_post("@LegendMalikStone", "Sto seguendo %s: bella energia in campo." % name, 250 + rep * 12)
 	if not won and perf < 0.4:
 		# Il coach commenta pubblicamente solo le serate davvero dure
 		Game.add_social_post("@CoachOfficial",
 			"Abbiamo bisogno di risposte. Dal 1.", 80)
 
+# Reactions from fictional teammates, broadcasters and basketball personalities
+# are tied to the real result rather than suggesting real people posted them.
 func apply_drill_result(drill: String, score01: float) -> void:
 	var grade := grade_from_score(score01)
 	Contacts.on_drill(drill, grade)

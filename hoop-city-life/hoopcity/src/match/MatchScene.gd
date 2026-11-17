@@ -77,7 +77,7 @@ func _ready() -> void:
 	Events.quarter_ended.connect(_on_quarter_ended)
 	Events.shake.connect(_on_shake)
 	Events.popup.connect(_on_popup)
-	if court.one_on_one:
+	if court.one_on_one or court.team_size == 2:
 		Sfx.stop_crowd()
 		Sfx.set_match_live(false)
 	else:
@@ -91,14 +91,14 @@ func _ready() -> void:
 	# between quarters.
 	var vis = $CourtVisual
 	if vis != null:
-		vis.show_cheer = not court.one_on_one
+		vis.show_cheer = not court.one_on_one and court.team_size != 2
 		# Benches/scorer's table follow the match state; the stands get people
 		# ONLY for a real league game -- scrimmages and 1v1 play in an empty
 		# bowl. The crowd is baked into the static layer, so rebake it.
 		vis.court = court
 		# Il caos delle tribune vale per OGNI partita, anche scrimmage e 1v1:
 		# gente sui gradoni, swell e fischi dall'inizio alla fine.
-		vis.crowd_on = not court.one_on_one
+		vis.crowd_on = not court.one_on_one and court.team_size != 2
 		vis.request_rebake()
 	court.bench_changed.connect(_on_bench_changed)
 	# Near half of each net, painted OVER the ball so a make reads as dropping
@@ -582,7 +582,7 @@ func _build_hud() -> void:
 	# Way out: a compact icon slab, not a grey default button eating the
 	# corner of the court. A match with no exit meant force-quitting to leave.
 	var quit_btn := Button.new()
-	quit_btn.text = Loc.t("match.exit")
+	quit_btn.text = "LASCIA 1v1" if court.friendly_1v1 else Loc.t("match.exit")
 	quit_btn.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	quit_btn.position = Vector2(18, 14)
 	quit_btn.custom_minimum_size = Vector2(96, 50)
@@ -1371,6 +1371,15 @@ func _on_finished(res: Dictionary) -> void:
 	hud.add_child(panel)
 
 func _confirm_exit() -> void:
+	if court.friendly_1v1:
+		var dialog := GamePanel.new().build("Lasciare 1v1?", Vector2(720, 380))
+		hud.add_child(dialog)
+		dialog.add_text("Torni al campo libero, senza lasciare la palestra.", 22)
+		dialog.add_button("Torna al campo", func():
+			Game.profile["next_match_mode"] = "full"
+			SceneRouter.goto("res://src/scenes/SoloCourt.tscn"))
+		dialog.add_button("Continua a giocare", func(): dialog.close())
+		return
 	if court.team_size == 2:
 		var quit := GamePanel.new().build("Lasciare l'allenamento?", Vector2(720, 380))
 		hud.add_child(quit)

@@ -2392,9 +2392,9 @@ func _draw_char(mine: bool) -> void:
 	# mezz'aria. Ora sale e basta, e l'ombra resta dove ha i piedi.
 	var jump_lift := 0.0
 	if mine and _jump_t > 0.0:
-		jump_lift = 92.0 * sin(PI * (1.0 - _jump_t / 0.45))
+		jump_lift = 60.0 * sin(PI * (1.0 - _jump_t / 0.45))
 	elif not mine and _foe_jump_t > 0.0:
-		jump_lift = 92.0 * sin(PI * (1.0 - _foe_jump_t / 0.45))
+		jump_lift = 60.0 * sin(PI * (1.0 - _foe_jump_t / 0.45))
 	var f: float = facing if mine else float(foe.get("facing", -1.0))
 	var kind: String = _my_kind() if mine else String(foe.get("kind", Avatar.DRIBBLE))
 	var amount: float = _my_amount() if mine else float(foe.get("amount", 0.0))
@@ -2510,9 +2510,6 @@ func _draw_char(mine: bool) -> void:
 			if dunk_phase == "rise":
 				var dw: Vector2 = _dunk_window()
 				Avatar.draw_dunk_ring(self, feet, h, _dunk_prog(), dw.x, dw.y, dunk_timed)
-			elif charging:
-				Avatar.draw_contest_ring(self, feet, h,
-					_contest_now() if duel_on else 0.0, tt)
 			if _lockdown and duel_on:
 				Avatar.draw_lockdown_ring(self, feet, h, tt)
 		elif bool(foe.get("ld", false)):

@@ -122,6 +122,7 @@ var talk_button: Button
 var talk_index := -1
 var talking := false
 var rebound_helper := -1
+var stop_helper_button: Button
 
 var lbl_top: Label
 var lbl_mid: Label
@@ -231,6 +232,14 @@ func _build_hud() -> void:
 		talk_button.visible = false
 		talk_button.pressed.connect(_talk_to_nearby)
 		root.add_child(talk_button)
+		stop_helper_button = Button.new()
+		stop_helper_button.text = "STOP RIMBALZI"
+		stop_helper_button.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		stop_helper_button.position = Vector2(18, 105)
+		stop_helper_button.custom_minimum_size = Vector2(200, 48)
+		stop_helper_button.visible = false
+		stop_helper_button.pressed.connect(_stop_rebound_helper)
+		root.add_child(stop_helper_button)
 
 	lbl_top = Label.new()
 	lbl_top.add_theme_font_size_override("font_size", 24)
@@ -400,6 +409,7 @@ func _spawn_npcs() -> void:
 func _update_npcs(delta: float) -> void:
 	for n in npcs:
 		if talking and talk_index >= 0 and talk_index < npcs.size() and n == npcs[talk_index]:
+			n["moving"] = false
 			continue
 		n["moving"] = false
 		match String(n["state"]):
@@ -469,6 +479,15 @@ func _update_npcs(delta: float) -> void:
 					n["moving"] = true
 					if absf(to.x) > 1.0: n["face"] = signf(to.x)
 					n["pos"] += to.normalized() * minf(150.0 * delta, to.length())
+
+func _stop_rebound_helper() -> void:
+	if rebound_helper >= 0 and rebound_helper < npcs.size():
+		var mate: Dictionary = npcs[rebound_helper]
+		mate["state"] = "relocate"
+		mate["target"] = Vector2(randf_range(-640.0, -260.0), randf_range(-245.0, 245.0))
+		mate["moving"] = false
+	rebound_helper = -1
+	if stop_helper_button != null: stop_helper_button.visible = false
 
 func _update_talk_button() -> void:
 	if outdoor or talk_button == null:
@@ -625,6 +644,7 @@ func _process(delta: float) -> void:
 			cam.zoom = cam.zoom.lerp(Vector2.ONE * CAM_ZOOM * 1.45, clampf(delta * 4.0, 0.0, 1.0))
 	_update_npcs(delta)
 	_update_talk_button()
+	if stop_helper_button != null: stop_helper_button.visible = rebound_helper >= 0 and not talking
 	if outdoor:
 		# Fade the whole park with the day/night cycle, like the city street.
 		if night_tint != null:
@@ -1917,11 +1937,6 @@ func _draw_player() -> void:
 		if dunk_phase == "rise":
 			var dw: Vector2 = _dunk_window()
 			Avatar.draw_dunk_ring(self, feet, h, _dunk_prog(), dw.x, dw.y, dunk_timed)
-		elif charging:
-			# al campetto nessuno difende: verde, cioe' "sei libero". La
-			# stessa lingua del 1v1, cosi' si impara in un posto e vale
-			# nell'altro.
-			Avatar.draw_contest_ring(self, feet, h, 0.0, Time.get_ticks_msec() / 1000.0)
 	# SCIA PALLA in volo (stessa del match): fantasmi che svaniscono.
 	# Scia rimossa su richiesta utente.
 	var hold_ball: bool = carry and not ball_live and not solo_loose and trick_t <= 0.0

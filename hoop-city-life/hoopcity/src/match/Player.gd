@@ -108,7 +108,7 @@ var friendly_look: Dictionary = {}
 var hair_style_v := 0          # taglio PROPRIO (gli NPC non copiano il profilo)
 
 const GRAV := 2600.0
-const JUMP_V := 900.0
+const JUMP_V := 760.0
 const DUNK_RANGE_FT := 6.5
 
 var court: Node2D
@@ -952,8 +952,6 @@ func _draw() -> void:
 	if not bool(Settings.get_v("lowgfx", false)):
 		var feet: Vector2 = proj
 		var tt: float = Time.get_ticks_msec() / 1000.0
-		if is_user and shot_charge >= 0.0 and court != null:
-			Avatar.draw_contest_ring(self, feet, h, court.pressure_on(self), tt)
 		if lockdown:
 			Avatar.draw_lockdown_ring(self, feet, h, tt)
 	# Pass aim: a blue disc on the floor under the teammate the joystick

@@ -25,7 +25,7 @@ const SEASON_DAYS := 30 # 10 gare, ogni terzo giorno
 ## game at the Pavilion. The user's club keeps the kit picked in the kit
 ## picker; identity kits pre-fill the OPPONENT side before tip-off.
 const TEAM_META := {
-	"Riverside Ravens":   {"short": "RAV", "kit": "royal",    "arena": "Riverside Pavilion", "style": "run",
+	"Riverside Ravens":   {"short": "RAV", "kit": "royal",    "arena": "Hoop City Arena", "style": "run",
 		"names": ["Ferro", "Vance", "Okoye", "Duarte", "Silva"]},
 	"Eastport Dockers":   {"short": "DOC", "kit": "teal",     "arena": "Harbour Yard",       "style": "inside",
 		"names": ["Marek", "Kolo", "Bran", "Osei", "Pike"]},
@@ -41,7 +41,7 @@ const TEAM_META := {
 		"names": ["Nero", "Salt", "Ito", "Maro", "Quist"]},
 	"Cedar Park Rangers": {"short": "CPR", "kit": "scarlet",  "arena": "Cedar Grove",        "style": "grit",
 		"names": ["Wood", "Fenn", "Aro", "Tilo", "Garn"]},
-	"Practice Squad":     {"short": "PRA", "kit": "white",    "arena": "Riverside Pavilion", "style": "none", "names": []},
+	"Practice Squad":     {"short": "PRA", "kit": "white",    "arena": "Hoop City Arena", "style": "none", "names": []},
 	"The Challenger":     {"short": "CHL", "kit": "pink",     "arena": "Streetball Cage",    "style": "none", "names": []},
 }
 
