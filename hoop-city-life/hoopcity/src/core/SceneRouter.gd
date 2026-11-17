@@ -5,6 +5,7 @@ var phone_instance: Node = null
 # Transient hand-off from a teammate conversation; never written to a save.
 var friendly_1v1 := false
 var friendly_look: Dictionary = {}
+var friendly_name := ""
 
 const COURT_SCENES := ["MatchScene", "DrillScene", "GymScene", "SoloCourt", "TeamCourt", "DuelScene"]
 

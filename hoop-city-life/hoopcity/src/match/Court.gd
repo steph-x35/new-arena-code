@@ -197,7 +197,7 @@ func _spawn_teams() -> void:
 				_randomize_npc(p, t, i)
 				if friendly_1v1 and t == 1:
 					p.friendly_look = SceneRouter.friendly_look.duplicate(true)
-					p.display_name = "Compagno"
+					p.display_name = SceneRouter.friendly_name if not SceneRouter.friendly_name.is_empty() else p.display_name
 				var brain := preload("res://src/match/AIBrain.gd").new()
 				p.add_child(brain)
 				brain.setup(p, self)

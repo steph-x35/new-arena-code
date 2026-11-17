@@ -394,6 +394,7 @@ func _spawn_npcs() -> void:
 		look["hst"] = hair_styles[i]
 		look["hair"] = Game.HAIR_COLORS.pick_random()
 		npcs.append({
+			"name": Season.roster_full_name(Season.my_team(), i + 1),
 			"pos": homes[i],
 			"state": ("rest" if randf() < 0.5 else "chat") if not outdoor and i == 1 else "wait",
 			"face": -1.0,
@@ -542,7 +543,7 @@ func _talk_to_nearby() -> void:
 	col.add_theme_constant_override("separation", 8)
 	card.add_child(col)
 	var who := Label.new()
-	who.text = "COMPAGNO DI SQUADRA"
+	who.text = String(n.get("name", "Compagno di squadra")).to_upper()
 	who.add_theme_font_size_override("font_size", 21)
 	who.add_theme_color_override("font_color", Color(0.72, 0.24, 0.13))
 	col.add_child(who)
@@ -574,9 +575,10 @@ func _talk_to_nearby() -> void:
 		duel.pressed.connect(func():
 			SceneRouter.friendly_1v1 = true
 			SceneRouter.friendly_look = n["look"].duplicate(true)
+			SceneRouter.friendly_name = String(n.get("name", "Compagno"))
 			Game.profile["next_match_mode"] = "1v1"
 			Game.profile["match_is_fixture"] = false
-			Game.profile["next_opponent"] = "Compagno di squadra"
+			Game.profile["next_opponent"] = SceneRouter.friendly_name
 			Game.profile["next_kit_return"] = "res://src/scenes/TeamCourt.tscn"
 			SceneRouter.goto("res://src/match/MatchScene.tscn"))
 		var later := Button.new()

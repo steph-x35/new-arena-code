@@ -36,6 +36,8 @@ func _ready() -> void:
 	session._action_down()
 	game.court.ball._physics_process(2.0)
 	session._step_pass()
+	ok = ok and session.play_step == "finish_shot" and session.completed == 0
+	session._physics_process(1.4)
 	ok = ok and session.completed == 1 and session.mode == "choose"
 	# One shot each: rotate the real five-player line and enable finish only
 	# after the whole line has completed its turns.
@@ -48,6 +50,17 @@ func _ready() -> void:
 		session._shoot_free_throw(true)
 		session._step_free_throws(1.1)
 		session._step_free_throws(0.6)
+		ok = ok and session.ft_state == "rebound"
+		if session.shot_queue[0] == session.user:
+			session.user.global_position = session.ft_land
+			session._step_free_throws(0.05)
+			ok = ok and session.ft_state == "pass_ball"
+			session._action_down()
+		else:
+			session._step_free_throws(5.0)
+			session._step_free_throws(0.05)
+		game.court.ball._physics_process(2.0)
+		session._step_free_throws(0.05)
 		ok = ok and session.ft_shots == i + 1
 	ok = ok and session.finish.visible and session.shot_queue[0] == session.user
 	ok = ok and game.court.get_parent() == game

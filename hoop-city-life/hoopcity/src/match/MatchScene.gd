@@ -1302,6 +1302,7 @@ func _exit_tree() -> void:
 	if court != null and court.friendly_1v1:
 		SceneRouter.friendly_1v1 = false
 		SceneRouter.friendly_look.clear()
+		SceneRouter.friendly_name = ""
 	Engine.time_scale = 1.0
 	Sfx.set_match_live(false)
 	Sfx.stop_crowd()

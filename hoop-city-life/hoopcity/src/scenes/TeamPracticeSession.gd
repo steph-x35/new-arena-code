@@ -44,6 +44,14 @@ var joystick: VirtualJoystick
 var action: TouchButton
 var finish: Button
 var marker := Vector2.ZERO
+var meter: ShotMeter
+var finish_shot_time := 0.0
+var finish_shot_start := Vector2.ZERO
+var ambient_balls := [
+	{"state": "ready", "time": -0.8, "pos": Vector2.ZERO, "height": 45.0},
+	{"state": "ready", "time": -2.0, "pos": Vector2.ZERO, "height": 45.0}]
+
+var ft_land := Vector2.ZERO
 
 func setup(scene: Node2D) -> void:
 	game = scene
@@ -73,8 +81,18 @@ func _ready() -> void:
 			court.add_child(player)
 			court._randomize_npc(player, team, i)
 			court.players.append(player)
+	var numbers := range(1, 100)
+	numbers.shuffle()
+	var shirts := [Game.team_colour(0), Color(0.18, 0.35, 0.68), Color(0.72, 0.23, 0.18), Color(0.18, 0.52, 0.40), Color(0.67, 0.59, 0.43), Color(0.28, 0.25, 0.47)]
+	shirts.shuffle()
+	var shirt_index := 0
 	for p in court.players:
 		p.set_meta("practice_kit", true)
+		if p != user:
+			while numbers[0] == user.jersey_num: numbers.pop_front()
+			p.jersey_num = numbers.pop_front()
+			p.set_meta("practice_colour", shirts[shirt_index % shirts.size()])
+			shirt_index += 1
 		if p.team == 0: attack.append(p)
 		else: defense.append(p)
 		if p != user:
@@ -104,7 +122,7 @@ func _build_ui() -> void:
 	joystick.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	joystick.sensitivity = float(Settings.get_v("joystick_sensitivity", 1.0))
 	joystick.moved.connect(func(v):
-		if mode == "play": user.move_input = v)
+		if mode == "play" or (mode == "ft" and ft_state == "rebound"): user.move_input = v)
 	left.add_child(joystick)
 	joystick.set_process_input(false)
 	title = Label.new()
@@ -128,6 +146,10 @@ func _build_ui() -> void:
 	action.pressed_down.connect(_action_down)
 	action.released.connect(_action_up)
 	root.add_child(action)
+	meter = ShotMeter.new()
+	meter.size = Vector2(120, 78)
+	meter.visible = false
+	root.add_child(meter)
 	finish = Button.new()
 	finish.text = "FINE ALLENAMENTO"
 	finish.set_anchors_preset(Control.PRESET_TOP_RIGHT)
@@ -214,11 +236,18 @@ func _action_down() -> void:
 			detail.text = "Passaggio finale..."
 	elif mode == "ft" and ft_state == "user_ready":
 		ft_charge = 0.0
+		user.shot_charge = 0.0
+		user.shot_ideal = 0.5
 		ft_state = "charging"
+	elif mode == "ft" and ft_state == "pass_ball" and user.has_ball:
+		_start_pass(user, shot_queue[1])
+		ft_state = "passing"
+		action.visible = false
+		action.set_process_input(false)
 
 func _action_up() -> void:
 	if mode == "ft" and ft_state == "charging":
-		_shoot_free_throw(absf(ft_charge - 0.55) < 0.20)
+		_release_user_ft()
 
 func _start_pass(from: BallPlayer, to: BallPlayer) -> void:
 	pass_active = true
@@ -226,6 +255,7 @@ func _start_pass(from: BallPlayer, to: BallPlayer) -> void:
 	pass_to = to
 	from.has_ball = false
 	court.ball.live = true
+	court.ball.set_physics_process(true)
 	court.ball.pass_to(from.global_position, to.global_position, 850.0, from, to)
 	Sfx.play("pass", -8.0)
 
@@ -240,9 +270,15 @@ func _step_pass() -> void:
 		play_step = "pass_again"
 		detail.text = "Passa al compagno indicato."
 	elif play_step == "passing_final":
-		completed += 1
-		Events.toast.emit("SCHEMA COMPLETATO")
-		_show_choices()
+		# The receiver finishes at the hoop before the play is complete.
+		play_step = "finish_shot"
+		finish_shot_time = 0.0
+		finish_shot_start = receiver.global_position
+		receiver.has_ball = false
+		receiver.shot_anim = 0.65
+		court.ball.holder = null
+		court.ball.set_physics_process(false)
+		detail.text = "%s conclude a canestro!" % receiver.display_name
 
 func _start_free_throws() -> void:
 	mode = "ft"
@@ -265,6 +301,15 @@ func _start_free_throws() -> void:
 	title.text = "TIRI LIBERI · UN TIRO A TESTA"
 	detail.text = "Raggiungi la linea con la squadra."
 
+func _release_user_ft() -> void:
+	var err: float = ft_charge - user.shot_ideal
+	var q := clampf(1.0 - absf(err) * 3.0, 0.0, 1.0)
+	var made := randf() < clampf(q * (0.60 + float(user.ratings["close"]) / 200.0), 0.05, 0.97)
+	var timing := ShotSystem.timing_from_error(err)
+	meter.show_release(ShotSystem.timing_name(timing), Color.GREEN if timing == ShotSystem.Timing.PERFECT else Color.YELLOW)
+	user.shot_charge = -1.0
+	_shoot_free_throw(made)
+
 func _shoot_free_throw(made: bool) -> void:
 	ft_made = made
 	ft_state = "flight"
@@ -284,6 +329,20 @@ func _physics_process(delta: float) -> void:
 	clock += delta
 	if mode == "play":
 		_step_pass()
+		if play_step == "finish_shot":
+			finish_shot_time += delta
+			var t: float = clampf(finish_shot_time / 0.85, 0.0, 1.0)
+			court.ball.global_position = finish_shot_start.lerp(court.hoop_for(0), t)
+			court.ball.h = lerpf(55.0, Court.RIM_HEIGHT, t) + sin(PI * t) * 150.0
+			if finish_shot_time > 0.85:
+				court.ball.h = Court.RIM_HEIGHT * (1.0 - clampf((finish_shot_time - 0.85) / 0.45, 0.0, 1.0))
+			court.ball.queue_redraw()
+			if finish_shot_time >= 1.3:
+				Sfx.play("swish", -4.0)
+				completed += 1
+				court.ball.set_physics_process(true)
+				Events.toast.emit("CANESTRO · SCHEMA COMPLETATO")
+				_show_choices()
 		# Five defenders shadow their assignments without breaking the drill's
 		# scripted passes; they move as the offence cuts and changes sides.
 		for i in 5:
@@ -331,6 +390,7 @@ func _step_free_throws(delta: float) -> void:
 	var all_ready := true
 	for i in shot_queue.size():
 		var p: BallPlayer = shot_queue[i]
+		if i == 0 and ft_state in ["rebound", "pass_ball", "passing"]: continue
 		var spot: Vector2 = line + Vector2(-float(i) * 95.0, 0.0)
 		if not _move_npc(p, spot, delta): all_ready = false
 	# Other teammates keep the gym alive: two talk, one walks and two shoot
@@ -339,8 +399,9 @@ func _step_free_throws(delta: float) -> void:
 		var ambient: BallPlayer = defense[i]
 		var pos: Vector2 = [Vector2(-330, -265), Vector2(-370, -260), Vector2(-180, 200), Vector2(-620, 150), Vector2(-500, -100)][i]
 		if i == 2: pos.x += sin(clock * 0.65) * 130.0
-		_move_npc(ambient, pos, delta)
+		if i < 3: _move_npc(ambient, pos, delta)
 		ambient.stance = false
+	_step_ambient(delta)
 	if ft_state == "walking" and all_ready:
 		var shooter: BallPlayer = shot_queue[0]
 		for p in attack: p.has_ball = false
@@ -350,6 +411,8 @@ func _step_free_throws(delta: float) -> void:
 		if shooter == user:
 			ft_state = "user_ready"
 			detail.text = "Il tuo turno: tieni premuto TIRA e rilascia."
+			action.text = "TIRA"
+			action.icon = Art.icon_for("SHOOT")
 			action.visible = true
 			action.set_process_input(true)
 		else:
@@ -362,8 +425,15 @@ func _step_free_throws(delta: float) -> void:
 		court.ball.queue_redraw()
 	if ft_state == "charging":
 		ft_charge += delta
-		detail.text = "Rilascia vicino a 0,55 s: %.2f" % ft_charge
-		if ft_charge >= 1.2: _shoot_free_throw(false)
+		user.shot_charge = ft_charge
+		meter.visible = true
+		meter.charge = ft_charge
+		meter.ideal = user.shot_ideal
+		meter.max_charge = user.MAX_CHARGE
+		var world: Vector2 = CourtStage.m_project(user.global_position, Court.COURT_H) - Vector2(0, 100)
+		meter.position = get_viewport().get_canvas_transform() * world - Vector2(60, 78)
+		detail.text = "Rilascia sul verde."
+		if ft_charge >= user.MAX_CHARGE: _release_user_ft()
 	elif ft_state == "npc_ready":
 		ft_time += delta
 		if ft_time > 1.0: _shoot_free_throw(randf() < 0.65)
@@ -387,6 +457,36 @@ func _step_free_throws(delta: float) -> void:
 		court.ball.h = maxf(Court.RIM_HEIGHT * (1.0 - ft_time / 0.55), 0.0)
 		court.ball.queue_redraw()
 		if ft_time >= 0.55:
+			ft_land = ft_end + Vector2(-55.0, 25.0 if ft_made else -30.0)
+			court.ball.global_position = ft_land
+			court.ball.h = 0.0
+			ft_state = "rebound"
+			if shot_queue[0] == user:
+				user.set_physics_process(true)
+				joystick.set_process_input(true)
+				detail.text = "Prendi il rimbalzo, poi passa al prossimo."
+	elif ft_state == "rebound":
+		var shooter: BallPlayer = shot_queue[0]
+		if shooter != user: _move_npc(shooter, ft_land, delta)
+		if shooter.global_position.distance_to(ft_land) < 38.0:
+			court.give_ball(shooter)
+			if shooter == user:
+				user.move_input = Vector2.ZERO
+				user.set_physics_process(false)
+				joystick.set_process_input(false)
+				ft_state = "pass_ball"
+				action.text = "PASSA"
+				action.visible = true
+				action.set_process_input(true)
+				detail.text = "Passa al prossimo compagno."
+			else:
+				_start_pass(shooter, shot_queue[1])
+				ft_state = "passing"
+	elif ft_state == "passing":
+		# The main ball runs independently while the pass is in flight.
+		_step_pass()
+		if not pass_active:
+			court.ball.set_physics_process(false)
 			var last: BallPlayer = shot_queue.pop_front()
 			shot_queue.append(last)
 			ft_shots += 1
@@ -405,15 +505,47 @@ func _draw() -> void:
 		var target: Vector2 = CourtStage.m_project(receiver.global_position, Court.COURT_H)
 		draw_arc(target, 34, 0, TAU, 32, Color(0.35, 0.75, 1.0, 0.85), 4)
 	elif mode == "ft":
-		# Two independent balls at the far hoop sell the live gym, without
-		# interfering with the queued free throw or its scoring.
-		for i in [3, 4]:
-			var phase: float = fmod(clock * 0.35 + float(i) * 0.4, 1.0)
-			var from: Vector2 = defense[i].global_position
-			var to := Vector2(-Court.COURT_W * 0.5 + Court.FIBA_HOOP_INSET, 0)
-			var point: Vector2 = CourtStage.m_project(from.lerp(to, phase), Court.COURT_H)
-			point.y -= lerpf(50.0, Court.RIM_HEIGHT, phase) + sin(phase * PI) * 130.0
+		for ball_data in ambient_balls:
+			var point: Vector2 = CourtStage.m_project(ball_data["pos"], Court.COURT_H)
+			point.y -= float(ball_data["height"])
 			draw_circle(point, Court.BALL_R, Color(0.95, 0.55, 0.15))
+
+func _step_ambient(delta: float) -> void:
+	var hoop: Vector2 = court.hoop_for(1)
+	for i in 2:
+		var actor: BallPlayer = defense[i + 3]
+		var b: Dictionary = ambient_balls[i]
+		var spot: Vector2 = hoop + Vector2(Court.FT_PX if i == 0 else Court.FT_PX + 120.0, 0.0 if i == 0 else 160.0)
+		match String(b["state"]):
+			"ready":
+				if _move_npc(actor, spot, delta):
+					b["time"] = float(b["time"]) + delta
+					if float(b["time"]) >= 0.7:
+						b["state"] = "flight"
+						b["time"] = 0.0
+						b["from"] = actor.global_position
+						b["land"] = hoop + Vector2(45.0, randf_range(-55.0, 55.0))
+						actor.shot_anim = 0.65
+				b["pos"] = actor.global_position + Vector2(12, 0)
+				b["height"] = 45.0
+			"flight":
+				b["time"] = float(b["time"]) + delta
+				var t: float = clampf(float(b["time"]) / 0.9, 0.0, 1.0)
+				b["pos"] = Vector2(b["from"]).lerp(hoop, t)
+				b["height"] = lerpf(50.0, Court.RIM_HEIGHT, t) + sin(PI * t) * 155.0
+				if t >= 1.0:
+					b["state"] = "drop"
+					b["time"] = 0.0
+			"drop":
+				b["time"] = float(b["time"]) + delta
+				var t: float = clampf(float(b["time"]) / 0.45, 0.0, 1.0)
+				b["pos"] = hoop.lerp(b["land"], t)
+				b["height"] = Court.RIM_HEIGHT * (1.0 - t)
+				if t >= 1.0: b["state"] = "retrieve"
+			"retrieve":
+				if _move_npc(actor, b["land"], delta):
+					b["state"] = "ready"
+					b["time"] = -0.4
 
 func _finish_practice() -> void:
 	if ft_shots < attack.size(): return

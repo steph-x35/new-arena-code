@@ -1058,8 +1058,8 @@ func _draw() -> void:
 		cols["skin"] = skin_col
 		cols["hair"] = hair_col
 		cols["shoes"] = shoe_col
-		cols["jersey"] = col
-		cols["shorts"] = col.darkened(0.40)
+		cols["jersey"] = get_meta("practice_colour", col)
+		cols["shorts"] = Color(cols["jersey"]).darkened(0.40)
 		cols["muscle"] = 0.0
 	# The teammate challenge is casual: keep the player's street clothes and
 	# the very same teammate appearance instead of forcing team uniforms.

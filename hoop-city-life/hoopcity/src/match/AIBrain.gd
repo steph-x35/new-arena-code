@@ -37,6 +37,7 @@ var _one_on_one_trick_wait := 2.5
 var _move_rep := 0
 var _on_ball_time := 0.0
 var _was_ball_handler := false
+var _practice_play_phase := -1
 
 func setup(player: BallPlayer, c: Node2D) -> void:
 	p = player
@@ -409,6 +410,9 @@ func _attack_on_ball(delta: float) -> void:
 	p.move_input = dir.normalized() if p.global_position.distance_to(tgt) > 22.0 else Vector2.ZERO
 
 func _attack_off_ball(delta: float) -> void:
+	# Team offence reuses the spacing and cuts practised in the gym. It only
+	# directs CPU team-mates; the human's movement and decisions stay free.
+	if _team_play(): return
 	cut_t -= delta
 	var hoop: Vector2 = court.hoop_for(p.team)
 	if cut_t <= 0.0:
@@ -426,6 +430,39 @@ func _attack_off_ball(delta: float) -> void:
 				target = bh.global_position + (hoop - bh.global_position).normalized() * 55.0
 	var d := target - p.global_position
 	p.move_input = d.normalized() if d.length() > 18.0 else Vector2.ZERO
+
+func _team_play() -> bool:
+	if court.one_on_one or court.team_size != 5 or p.team != 0 or court.ft_active:
+		return false
+	var handler: BallPlayer = court.ball_handler()
+	if handler == null or handler.team != p.team:
+		return false
+	var mates: Array = court.players.filter(func(q): return q.team == p.team and not q.is_user and not q.leaving)
+	var slot: int = mates.find(p)
+	if slot < 0: return false
+	var elapsed: float = maxf(court.quarter_len - court.game_clock, 0.0)
+	var phase: int = int(elapsed / 12.0)
+	var play: int = phase % 5
+	var hoop: Vector2 = court.hoop_for(p.team)
+	var direction: float = signf(hoop.x)
+	if play == 2 and slot == 0:
+		if _practice_play_phase != phase:
+			_practice_play_phase = phase
+			run_pick_and_roll(handler)
+		return pnr_t > 0.0
+	_practice_play_phase = phase
+	var targets := [
+		hoop + Vector2(-direction * 250.0, -220.0),
+		hoop + Vector2(-direction * 250.0, 220.0),
+		hoop + Vector2(-direction * 410.0, -100.0),
+		hoop + Vector2(-direction * 410.0, 120.0)]
+	var cutter: int = (play + phase) % maxi(mates.size(), 1)
+	if slot == cutter and fmod(elapsed, 12.0) >= 3.0 and fmod(elapsed, 12.0) < 7.0:
+		targets[slot % 4] = hoop + Vector2(-direction * 85.0, (float(slot % 2) - 0.5) * 100.0)
+	var target: Vector2 = targets[slot % 4]
+	var d: Vector2 = target - p.global_position
+	p.move_input = d.normalized() if d.length() > 22.0 else Vector2.ZERO
+	return true
 
 # ------------------------------------------------------------------ defense
 func _do_pnr(_delta: float) -> void:
