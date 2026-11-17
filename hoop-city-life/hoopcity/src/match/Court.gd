@@ -1672,6 +1672,9 @@ func _start_free_throws(victim: BallPlayer, shots: int) -> void:
 	play_live = false
 	restarting = true
 	ft_active = true
+	inbound_wait = 0.0
+	_inbounder = null
+	_inbound_receiver = null
 	ft_shooter = victim
 	ft_total = shots
 	ft_left = shots

@@ -30,6 +30,8 @@ func _ready() -> void:
 	c._on_ft_result(false)
 	ok = ok and c.ft_active and c.ft_left == 2
 	c.ft_left = 1
+	c.ball.detach()
+	c.user.has_ball = false
 	c.ball.is_free_throw = true
 	c.ball.rattled = true
 	c.ball.live = true
@@ -38,6 +40,8 @@ func _ready() -> void:
 	ok = ok and not c.ft_active and c.play_live and c.ball.holder == null and c.ball.live
 	c.call_foul(opponent, c.user, 2)
 	c.ft_left = 1
+	c.ball.detach()
+	c.user.has_ball = false
 	c.ball.is_free_throw = true
 	c.ball.rattled = false
 	c.resolve_missed_shot(c.ball)
