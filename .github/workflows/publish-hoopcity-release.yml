@@ -1,0 +1,31 @@
+name: Publish Hoop City official release
+on:
+  push:
+    branches: [arena/5469f1e0-new-arena-code]
+    paths: [.github/workflows/publish-hoopcity-release.yml]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Retrieve tested APK
+        uses: actions/download-artifact@v4
+        with:
+          name: HoopCity-anteprima-android
+          run-id: 44305738692
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: release-apk
+      - name: Publish official APK
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          test -s release-apk/HoopCity-v2.49.8.apk
+          gh release create v2.49.8 release-apk/HoopCity-v2.49.8.apk \
+            --target e8bc940e776d96f851280420498418e8e939690f \
+            --title 'Hoop City Life v2.49.8' \
+            --notes 'Allenamento di squadra, riscaldamento prepartita, fisica della palla, falli e tiri liberi, riepilogo partita e pannello novità aggiornato.' \
+            --latest
