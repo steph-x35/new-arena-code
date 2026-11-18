@@ -33,7 +33,7 @@ func _ready() -> void:
 	add_child(card)
 
 	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 10)
+	v.add_theme_constant_override("separation", 6)
 	card.add_child(v)
 
 	# Header: FINAL · arena
@@ -86,7 +86,7 @@ func _ready() -> void:
 			String(tops[1]["name"]), int(tops[1]["pts"])],
 			20, Color(0.965, 0.949, 0.906, 0.75))
 
-	_l(v, "", 8, Color.WHITE)
+	_l(v, String(Game.profile.get("name", "YOU")).to_upper() + "  ·  " + ("LE TUE PRESTAZIONI" if Loc.lang == "it" else "YOUR PERFORMANCE"), 24, Color(0.45, 0.78, 1.0))
 	_l(v, Loc.t("post.win") if result.get("won") else Loc.t("post.loss"),
 		44, Color(0.55, 1.0, 0.55) if result.get("won") else Color(1.0, 0.5, 0.4))
 	var perf := clampf((result.get("pts",0)*1.0 + result.get("ast",0)*1.6 + result.get("reb",0)*1.2
@@ -101,16 +101,30 @@ func _ready() -> void:
 		int(100.0 * result.get("fgm",0) / maxf(fga, 1)), result.get("tpm",0), result.get("tpa",0)],
 		24, Color(0.965, 0.949, 0.906, 0.75))
 
+	var fta: int = int(result.get("fta", 0))
+	var tpa: int = int(result.get("tpa", 0))
+	var fmt_pct := func(made: int, attempted: int) -> String:
+		return "%d%%" % int(round(100.0 * float(made) / float(attempted))) if attempted > 0 else "—"
+	_l(v, "3PT %s   ·   FT %d/%d (%s)   ·   PF %d" % [fmt_pct.call(int(result.get("tpm", 0)), tpa), int(result.get("ftm", 0)), fta, fmt_pct.call(int(result.get("ftm", 0)), fta), int(result.get("pf", 0))], 22, Color(0.72, 0.84, 0.94))
+	if result.has("played_seconds"):
+		var sec := int(result["played_seconds"])
+		_l(v, ("MINUTI IN CAMPO  " if Loc.lang == "it" else "TIME PLAYED  ") + "%d:%02d" % [sec / 60, sec % 60], 20, Color(0.72, 0.84, 0.94))
+
 	var b := Button.new()
-	b.text = Loc.t("post.city")
-	b.custom_minimum_size = Vector2(520, 96)
+	b.text = "TORNA AL CAMPO" if SceneRouter.friendly_1v1 else Loc.t("post.city")
+	b.custom_minimum_size = Vector2(520, 65)
 	b.add_theme_font_size_override("font_size", 26)
-	b.pressed.connect(func(): SceneRouter.goto("res://src/scenes/CityScene.tscn"))
+	b.pressed.connect(func():
+		if SceneRouter.friendly_1v1:
+			Game.profile["next_match_mode"] = "full"
+			SceneRouter.goto("res://src/scenes/SoloCourt.tscn")
+		else:
+			SceneRouter.goto("res://src/scenes/CityScene.tscn"))
 	v.add_child(b)
 
 	var p := Button.new()
 	p.text = Loc.t("post.phone")
-	p.custom_minimum_size = Vector2(520, 84)
+	p.custom_minimum_size = Vector2(520, 56)
 	p.add_theme_font_size_override("font_size", 22)
 	p.pressed.connect(func(): SceneRouter.open_phone())
 	v.add_child(p)

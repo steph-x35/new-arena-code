@@ -165,6 +165,14 @@ func send(cid: String, text: String) -> void:
 
 func reply_options(cid: String) -> Array:
 	var out := []
+	var last: Array = Game.profile.get("last_games", [])
+	if not last.is_empty() and cid in [MUM, DAD, SIS, BEST, TEAMMATE]:
+		var game: Dictionary = last[0]
+		var it := Loc.lang == "it"
+		var won := bool(game.get("won", false))
+		var line: String = ("Che partita! L'hai vista?" if won else "Non è andata bene, ma ci riproviamo.") if it else ("What a game! Did you see it?" if won else "Tough night, but we'll bounce back.")
+		var answer: String = ("Certo! Sono con te, vittoria o sconfitta." if it else "Of course! I'm with you, win or lose.")
+		out.append({"label": line, "reply": answer})
 	for r in REPLIES.get(cid, []):
 		var reply: String = String(r["reply"])
 		if reply.contains("%s"):
@@ -183,21 +191,23 @@ func _weakest_attr() -> String:
 
 # ------------------------------------------------------------------ reactive
 func on_game_played(pts: int, grade: String, won: bool) -> void:
-	## Called by Career after a match. Different people react differently.
+	# Messages respond to the actual result instead of a fixed compliment every
+	# game. Names are fictional and already belong to the contact book.
+	var it := Loc.lang == "it"
 	var top := grade.begins_with("A")
 	if top:
-		receive(COACH, "That's the standard now. %d points and you controlled the tempo." % pts)
-		receive(MUM, "I don't understand the rules but I understand %d points. So proud." % pts)
-		receive(BEST, "%d?! I was screaming at my screen bro 😭🔥" % pts)
-		if int(Game.profile.get("rep", 0)) >= 35:
-			receive(AGENT, "Two brands messaged me during the 4th quarter. Keep this up.")
+		receive(COACH, ("%d punti e buone scelte. Rivediamo la partita domani." if it else "%d points and good decisions. Let's review the game tomorrow.") % pts)
+		receive(MUM, ("Ho visto la partita! %d punti... come ti senti?" if it else "I watched the game! %d points... how are you feeling?") % pts)
+		receive(BEST, ("%d punti?! Ti ho visto! Ci sentiamo dopo?" if it else "%d points?! I saw that! Catch up later?") % pts)
 	elif grade == "F" or grade == "D":
-		receive(COACH, "Not our night. Gym tomorrow, we fix the rhythm early.")
-		receive(DAD, "Head up. Your release was rushing. Slow feet, quick hands.")
+		receive(COACH, "Non è andata come volevamo. Domani la riguardiamo insieme." if it else "Not the night we wanted. We'll review it together tomorrow.")
+		receive(DAD, "Testa alta. Se ti va, domani facciamo due tiri." if it else "Head up. If you're up for it, let's shoot tomorrow.")
 	else:
-		receive(TEAMMATE, "Decent work out there. Film session tonight?")
+		receive(TEAMMATE, ("Bella lotta oggi. %d punti: ci rivediamo in palestra?" if it else "Good battle today. %d points: see you at practice?") % pts)
 	if won:
-		receive(SIS, "WE WON!! Everyone at school is going to hear about this 😤")
+		receive(SIS, "Vi ho seguiti! Che vittoria 😄" if it else "I watched! What a win 😄")
+	elif not top:
+		receive(MUM, "Mi dispiace per la partita. Ti va di chiamarmi quando arrivi?" if it else "Sorry about the game. Call me when you get home?")
 
 func on_drill(kind: String, grade: String) -> void:
 	if grade.begins_with("A"):

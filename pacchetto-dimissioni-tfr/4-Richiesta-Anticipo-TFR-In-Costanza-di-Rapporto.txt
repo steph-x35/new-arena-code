@@ -1,66 +1,55 @@
 ================================================================================
-MODELLO 4: RICHIESTA DI ANTICIPAZIONE DEL T.F.R. DURANTE IL RAPPORTO
-LavoroFacile — Strumenti e Modelli Pronti per i Lavoratori
+MODELLO 4: RICHIESTA DI ANTICIPAZIONE DEL TFR DURANTE IL RAPPORTO
+LavoroFacile — Strumenti e modelli per i lavoratori
 ================================================================================
 
-NORMATIVA DI RIFERIMENTO (Art. 2120 Codice Civile):
-- Anzianità minima richiesta: ALMENO 8 ANNI di servizio continuo presso lo stesso datore di lavoro.
-- Importo massimo richiedibile: Fino al 70% del TFR complessivamente maturato fino a quel momento.
-- Motivazioni ammesse per legge:
-  1) Acquisto prima casa di abitazione per sé o per i figli;
-  2) Ristrutturazione straordinaria prima casa (se prevista dal CCNL);
-  3) Spese sanitarie straordinarie per terapie e interventi necessari riconosciuti;
-  4) Spese durante i congedi per maternità facoltativa / formazione.
+PRIMA DI COMPILARE
+
+Questo modello è rivolto al datore di lavoro per una richiesta relativa al TFR
+in regime ordinario. È informativo, va adattato e non garantisce l'erogazione.
+Se hai destinato il TFR a un fondo pensione, consulta il fondo: presupposti,
+procedure e documenti per le anticipazioni seguono regole diverse.
+
+Per il regime ordinario verifica i requisiti dell'art. 2120 del Codice civile:
+tra quelli previsti vi sono, in linea generale, almeno otto anni di servizio
+presso lo stesso datore e un importo non superiore al 70% del TFR maturato.
+Sono previsti anche condizioni, causali e limiti alle richieste; contratti o
+accordi possono prevedere condizioni di miglior favore. Non presumere che la
+richiesta sia automaticamente accolta.
+
+Tra le causali di legge rientrano, a determinate condizioni, spese sanitarie
+straordinarie e acquisto della prima casa per sé o per i figli. Altre ipotesi
+vanno verificate con riferimento alla legge e al contratto applicabile.
+
+Chiedi all'ufficio del personale o a un professionista quali documenti siano
+necessari. Invia dati e documenti sensibili solo attraverso canali adeguati.
 
 --------------------------------------------------------------------------------
 
-Spett.le Azienda:
-[Ragione Sociale Datore di Lavoro]
-Alla c.a. della Direzione del Personale / Ufficio Risorse Umane
+Spett.le [Ragione sociale del datore di lavoro]
+[Indirizzo / ufficio competente]
 
-Luogo e Data: [Città], [Data]
+Luogo e data: [Città, data]
 
-Oggetto: Istanza di anticipazione del Trattamento di Fine Rapporto (T.F.R.) ex art. 2120 c.c.
+Oggetto: richiesta di anticipazione del trattamento di fine rapporto
 
-Io sottoscritto/a:
-Nome e Cognome: [Il tuo Nome e Cognome]
-Codice Fiscale: [Il tuo Codice Fiscale]
-In servizio presso codesta azienda dal [Data assunzione, es. 10/03/2016] (anzianità pari
-a oltre 8 anni continuativi);
-Inquadrato/a con qualifica di: [Tua qualifica e livello];
+Io sottoscritto/a [Nome e cognome], dipendente dal [data di assunzione],
+con qualifica [qualifica e livello] e CCNL [contratto applicato],
 
-CHIEDO FORMALMENTE
+CHIEDO
 
-ai sensi e per gli effetti dell'art. 2120, commi 6 e seguenti, del Codice Civile e delle
-norme di miglior favore previste dal vigente CCNL [es. Commercio / Metalmeccanico], la
-concessione di un'ANTICIPAZIONE sul Trattamento di Fine Rapporto (T.F.R.) maturato, pari
-al [es. 70%, o indicare cifra fissa es. 15.000 €].
+un'anticipazione del TFR maturato per l'importo di [importo o percentuale
+da verificare], per la seguente motivazione:
 
-Tale richiesta è motivata dalla seguente causale prevista dalla legge:
+[Indicare la causale applicabile e descrivere la richiesta in modo essenziale.]
 
-[SCEGLIERE L'OPZIONE APPLICABILE]:
+Chiedo di conoscere le condizioni applicabili, la documentazione necessaria
+e l'esito della richiesta. Mi rendo disponibile a trasmettere gli eventuali
+documenti richiesti attraverso i canali indicati dall'azienda.
 
-[OPZIONE 1 - ACQUISTO PRIMA CASA]:
-Necessità di provvedere all'acquisto della prima casa di abitazione per sé [oppure: per
-il/la proprio/a figlio/a Sig./Sig.ra ______________], come da documentazione allegata.
+Cordiali saluti.
 
-[OPZIONE 2 - SPESE SANITARIE]:
-Necessità di sostenere spese sanitarie straordinarie e urgenti per terapie e interventi
-medici necessari riconosciuti dalle competenti strutture sanitarie pubbliche, come da
-documentazione clinica e preventivi allegati.
-
-ALLEGATI A SUPPORTO:
-1. Copia documento di identità e codice fiscale;
-2. [Se casa]: Copia del compromesso/preliminare di compravendita registrato o rogito notarile;
-3. [Se spese sanitarie]: Certificazione medica specialistica rilasciata da struttura pubblica e preventivo di spesa.
-
-Resto a disposizione per fornire ogni eventuale ulteriore documentazione e chiedo che
-l'importo accordato venga accreditato con la prima retribuzione utile sul conto corrente
-bancario a me intestato (IBAN: [Il tuo IBAN]).
-
-In fede.
-
-
-Firma del Lavoratore:
-_________________________________
-[Tuo Nome e Cognome]
+[Nome e cognome]
+[Recapito]
+[Firma, se necessaria]
+Allegati, se richiesti: [elencare soltanto quanto effettivamente allegato]

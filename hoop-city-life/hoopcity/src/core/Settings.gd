@@ -12,6 +12,7 @@ var data := {
 	"crowd": 1.0,
 	"left_handed_ui": false,
 	"show_shot_meter": true,
+	"show_player_names": true,
 	"vibration": true,
 }
 
