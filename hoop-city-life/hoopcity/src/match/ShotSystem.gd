@@ -42,7 +42,7 @@ static func timing_mod(t: int) -> float:
 ## PERFECT/GOOD bands; from deep out (past ~24 ft, i.e. once you are standing
 ## around half court) the green band visibly shrinks and the shot genuinely
 ## gets harder to time. Returns {"perfect": s, "good": s} in seconds.
-static func shot_windows(dist_ft: float, heat := false) -> Dictionary:
+static func shot_windows(dist_ft: float, heat := false, skill := 60.0) -> Dictionary:
 	var pw := PERFECT_WINDOW
 	var gw := GOOD_WINDOW
 	if dist_ft > 24.0:
@@ -54,7 +54,9 @@ static func shot_windows(dist_ft: float, heat := false) -> Dictionary:
 		# resta: rosso=mai, giallo=50/50, verde=100% — il verde e' piu' largo.
 		pw *= 1.18
 		gw *= 1.15
-	return {"perfect": pw, "good": gw}
+	# Il talento allarga o restringe la finestra, non cambia la regola dei colori.
+	var skill_factor: float = lerpf(0.80, 1.20, clampf((skill - 30.0) / 69.0, 0.0, 1.0))
+	return {"perfect": pw * skill_factor, "good": gw * skill_factor}
 
 ## Base shooting rating for a distance, in feet-equivalent.
 static func rating_for_distance(a_close: float, a_mid: float, a_three: float, dist_ft: float) -> float:

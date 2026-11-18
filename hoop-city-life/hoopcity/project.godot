@@ -28,6 +28,8 @@ Pets="*res://src/core/Pets.gd"
 Library="*res://src/core/Library.gd"
 UIKit="*res://src/ui/UIKit.gd"
 SceneRouter="*res://src/core/SceneRouter.gd"
+MoneyReward="*res://src/ui/MoneyReward.gd"
+FoodReward="*res://src/ui/FoodReward.gd"
 NetLayer="*res://src/net/NetLayer.gd"
 
 [gui]

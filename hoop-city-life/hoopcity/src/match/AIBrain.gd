@@ -18,6 +18,8 @@ var cut_t := 0.0
 var pnr_t := 0.0
 var pnr_from: BallPlayer = null
 var pnr_hold := false
+var screen_planted := false
+var screen_set_time := 0.0
 var screen_on: BallPlayer = null
 var aggression := 0.5
 var shot_cd := 0.0
@@ -31,7 +33,11 @@ var _last_poss := -1
 var _chase_t := 0.0           # cooldown dello scatto d'inseguimento
 var _last_mark_move := ""      # memoria dei move dell'attaccante
 var _last_mark_move_t := -10.0
+var _one_on_one_trick_wait := 2.5
 var _move_rep := 0
+var _on_ball_time := 0.0
+var _was_ball_handler := false
+var _practice_play_phase := -1
 
 func setup(player: BallPlayer, c: Node2D) -> void:
 	p = player
@@ -51,7 +57,7 @@ func setup(player: BallPlayer, c: Node2D) -> void:
 	if court.one_on_one:
 		skill = clampf(skill + 0.04, Game.diff_floor(), 0.99)
 		aggression = clampf(aggression + 0.05, 0.0, 0.95)
-	spot = p.global_position
+	spot = Vector2.ZERO
 
 func _physics_process(delta: float) -> void:
 	if p != null and (p.entering or p.leaving):
@@ -63,7 +69,7 @@ func _physics_process(delta: float) -> void:
 		and p.team != int(court.possession) and not court.one_on_one:
 			var mk: BallPlayer = court.man_mark_for(p)
 			if mk != null:
-				var goal: Vector2 = (mk.global_position + court.hoop_for(p.team)) * 0.5
+				var goal: Vector2 = mk.global_position + (court.hoop_for(mk.team) - mk.global_position).normalized() * 55.0
 				var dvec: Vector2 = goal - p.global_position
 				p.move_input = dvec.normalized() if dvec.length() > 26.0 else Vector2.ZERO
 				if absf(dvec.x) > 4.0:
@@ -71,6 +77,19 @@ func _physics_process(delta: float) -> void:
 		elif p != null:
 			p.move_input = Vector2.ZERO
 		return
+	if p.has_ball and not _was_ball_handler:
+		spot = Vector2.ZERO
+		_on_ball_time = 0.0
+		# A former screener who receives the ball must attack immediately,
+		# never continue a stale off-ball screen/roll while holding it.
+		pnr_t = 0.0
+		pnr_hold = false
+		screen_planted = false
+		role = "spot"
+		think_t = 0.0
+	_was_ball_handler = p.has_ball
+	if not p.has_ball:
+		_on_ball_time = 0.0
 	think_t -= delta
 	shot_cd = maxf(0.0, shot_cd - delta)
 	if think_t <= 0.0:
@@ -85,7 +104,30 @@ func _decide() -> void:
 		return
 	var bh: BallPlayer = court.ball_handler()
 	if bh == null:
-		state = S.REBOUND
+		# Un passaggio in volo non è un rimbalzo: non far correre tutti
+		# verso lo stesso angolo. La squadra rimane in posizione.
+		if court.pass_target != null and is_instance_valid(court.pass_target) and ball.live:
+			if p == court.pass_target:
+				state = S.IDLE
+			elif p.team == court.possession:
+				state = S.ATK_OFF
+			else:
+				mark = court.man_mark_for(p)
+				state = S.DEF_OFF
+		elif not court.one_on_one and not ball.shot_result_pending:
+			# Sulla palla libera ne va uno per squadra, gli altri non si
+			# ammassano nell'angolo inseguendo tutti lo stesso punto.
+			var closest: BallPlayer = null
+			var nearest := INF
+			for mate in court.players:
+				if mate.team != p.team or mate.is_user: continue
+				var distance: float = mate.global_position.distance_squared_to(ball.global_position)
+				if distance < nearest:
+					nearest = distance
+					closest = mate
+			state = S.REBOUND if closest == p else S.IDLE
+		else:
+			state = S.REBOUND
 		return
 	if bh.team == p.team:
 		state = S.ATK_ON if bh == p else S.ATK_OFF
@@ -98,6 +140,8 @@ func _decide() -> void:
 
 func begin_screen(baller: BallPlayer) -> void:
 	pnr_from = baller
+	screen_planted = false
+	screen_set_time = 0.0
 	pnr_t = 99.0
 	pnr_hold = true
 	role = "screener"
@@ -106,7 +150,9 @@ func set_screen_target(d: BallPlayer) -> void:
 	screen_on = d
 
 func begin_roll() -> void:
+	screen_planted = false
 	pnr_hold = false
+	p.stance = false
 	pnr_t = 3.0
 	role = "roller"
 	screen_on = null
@@ -122,12 +168,14 @@ func _act(delta: float) -> void:
 		_last_poss = int(court.possession)
 		_bites = 0   # nuova azione: la memoria delle finte riparte
 	if pnr_t > 0.0:
-		pnr_t -= delta
+		# AI screen countdown begins only when feet are set.
+		if role != "screener" or screen_planted:
+			pnr_t -= delta
 		_do_pnr(delta)
 		# Screen held its angle long enough: slip into the paint on my own so
 		# an AI-called pick still produces a roll (the user flow releases via
 		# the P&R button instead).
-		if role == "screener" and not pnr_hold and pnr_t < 1.0:
+		if role == "screener" and not pnr_hold and screen_planted and screen_set_time >= 1.1:
 			begin_roll()
 			court.pnr_roller = p
 			court.roller_t = 3.5
@@ -205,6 +253,8 @@ func _nearest_mate_brain() -> Node:
 
 # ------------------------------------------------------------------ offense
 func _attack_on_ball(delta: float) -> void:
+	_one_on_one_trick_wait = maxf(0.0, _one_on_one_trick_wait - delta)
+	_on_ball_time += delta
 	var hoop: Vector2 = court.hoop_for(p.team)
 	var to_hoop: Vector2 = hoop - p.global_position
 	var dist_ft: float = court.px_to_ft(to_hoop.length())
@@ -251,6 +301,12 @@ func _attack_on_ball(delta: float) -> void:
 			shot_cd = 0.8
 			spot = Vector2.ZERO
 		return
+	# Non restare fermi su un ruolo/bersaglio ereditato da un'altra azione.
+	if not role in ["three", "mid", "drive"]:
+		spot = Vector2.ZERO
+	if _on_ball_time > 7.0 and role != "drive":
+		role = "drive"
+		spot = hoop + Vector2(-signf(hoop.x) * 100.0, 0.0)
 	# Pick a real basketball play instead of always crashing the rim.
 	if spot.length() < 1.0:
 		var r: float = randf()
@@ -295,6 +351,8 @@ func _attack_on_ball(delta: float) -> void:
 			pull = true
 		elif used >= 11.0 and dist_ft < 24.0 and pressure < 0.5:
 			pull = true
+		elif _on_ball_time > 10.0 and dist_ft < 30.0:
+			pull = true
 		if pull:
 			# Release quality follows the rating of the shot being taken: a
 			# sharpshooter's threes and a finisher's mid-rangers both gather
@@ -311,7 +369,7 @@ func _attack_on_ball(delta: float) -> void:
 	# Beat the on-ball defender with the handle before driving on. Drives throw
 	# crossovers and behind-the-back moves, spot-up men jab into a stepback to
 	# make room, and an occasional hesitation freezes the defender's feet.
-	if p.cooldown_move <= 0.0:
+	if p.cooldown_move <= 0.0 and (not court.one_on_one or _one_on_one_trick_wait <= 0.0):
 		var nd: BallPlayer = null
 		var ndist := 1e9
 		for d in court.players:
@@ -330,6 +388,7 @@ func _attack_on_ball(delta: float) -> void:
 			elif ndist < 140.0 and randf() < 0.10:
 				move = "hesi"
 			if move != "" and p.do_move(move):
+				if court.one_on_one: _one_on_one_trick_wait = randf_range(3.0, 4.5)
 				return
 	if pressure > 0.78 and not court.one_on_one:
 		var mate: BallPlayer = court.best_pass_option(p)
@@ -351,6 +410,9 @@ func _attack_on_ball(delta: float) -> void:
 	p.move_input = dir.normalized() if p.global_position.distance_to(tgt) > 22.0 else Vector2.ZERO
 
 func _attack_off_ball(delta: float) -> void:
+	# Team offence reuses the spacing and cuts practised in the gym. It only
+	# directs CPU team-mates; the human's movement and decisions stay free.
+	if _team_play(): return
 	cut_t -= delta
 	var hoop: Vector2 = court.hoop_for(p.team)
 	if cut_t <= 0.0:
@@ -369,6 +431,39 @@ func _attack_off_ball(delta: float) -> void:
 	var d := target - p.global_position
 	p.move_input = d.normalized() if d.length() > 18.0 else Vector2.ZERO
 
+func _team_play() -> bool:
+	if court.one_on_one or court.team_size != 5 or p.team != 0 or court.ft_active:
+		return false
+	var handler: BallPlayer = court.ball_handler()
+	if handler == null or handler.team != p.team:
+		return false
+	var mates: Array = court.players.filter(func(q): return q.team == p.team and not q.is_user and not q.leaving)
+	var slot: int = mates.find(p)
+	if slot < 0: return false
+	var elapsed: float = maxf(court.quarter_len - court.game_clock, 0.0)
+	var phase: int = int(elapsed / 12.0)
+	var play: int = phase % 5
+	var hoop: Vector2 = court.hoop_for(p.team)
+	var direction: float = signf(hoop.x)
+	if play == 2 and slot == 0:
+		if _practice_play_phase != phase:
+			_practice_play_phase = phase
+			run_pick_and_roll(handler)
+		return pnr_t > 0.0
+	_practice_play_phase = phase
+	var targets := [
+		hoop + Vector2(-direction * 250.0, -220.0),
+		hoop + Vector2(-direction * 250.0, 220.0),
+		hoop + Vector2(-direction * 410.0, -100.0),
+		hoop + Vector2(-direction * 410.0, 120.0)]
+	var cutter: int = (play + phase) % maxi(mates.size(), 1)
+	if slot == cutter and fmod(elapsed, 12.0) >= 3.0 and fmod(elapsed, 12.0) < 7.0:
+		targets[slot % 4] = hoop + Vector2(-direction * 85.0, (float(slot % 2) - 0.5) * 100.0)
+	var target: Vector2 = targets[slot % 4]
+	var d: Vector2 = target - p.global_position
+	p.move_input = d.normalized() if d.length() > 22.0 else Vector2.ZERO
+	return true
+
 # ------------------------------------------------------------------ defense
 func _do_pnr(_delta: float) -> void:
 	var hoop: Vector2 = court.hoop_for(p.team)
@@ -377,13 +472,18 @@ func _do_pnr(_delta: float) -> void:
 		pnr_hold = false
 		return
 	if pnr_hold or role == "screener":
+		if screen_planted:
+			screen_set_time += _delta
+			p.move_input = Vector2.ZERO
+			p.velocity = Vector2.ZERO
+			return
 		# Walk to the defender, then PLANT. A good screen is a still body.
 		var tgt: Vector2
 		if screen_on != null and is_instance_valid(screen_on):
 			var between: Vector2 = (pnr_from.global_position - screen_on.global_position)
 			if between.length() < 4.0:
 				between = Vector2(-pnr_from.facing, 0.0)
-			tgt = screen_on.global_position + between.normalized() * 18.0
+			tgt = screen_on.global_position + between.normalized() * 70.0
 		else:
 			tgt = pnr_from.global_position + Vector2(-pnr_from.facing * 28.0, 0.0)
 		var d: Vector2 = tgt - p.global_position
@@ -391,8 +491,10 @@ func _do_pnr(_delta: float) -> void:
 			p.move_input = d.normalized()
 		else:
 			p.move_input = Vector2.ZERO
-			p.velocity *= 0.35
+			p.velocity = Vector2.ZERO
 			p.stance = true
+			screen_planted = true
+			screen_set_time = 0.0
 	else:
 		# Roll: dive into the paint, under the rim.
 		var paint: Vector2 = hoop + Vector2(-signf(hoop.x) * 70.0, 0.0)
@@ -402,6 +504,15 @@ func _do_pnr(_delta: float) -> void:
 func _defend_on_ball(delta: float) -> void:
 	var bh: BallPlayer = court.ball_handler()
 	if bh == null: return
+	# The selected defender must actually navigate around the planted screen.
+	# No teleport or artificial tackle: contact only after the feet are set.
+	var screener: BallPlayer = court.pnr_screener
+	if court.pnr_screening and screener != null and is_instance_valid(screener):
+		for brain in screener.get_children():
+			if brain is AIBrain and brain.screen_on == p and brain.screen_planted and p.global_position.distance_to(screener.global_position) < 64.0:
+				p.move_input = Vector2.ZERO
+				p.velocity *= 0.25
+				return
 	# the basket I am protecting is the one my opponents attack
 	var own_hoop: Vector2 = court.hoop_for(1 - p.team)
 	var gathering: bool = bh.has_method("is_gathering") and bh.is_gathering()
@@ -493,8 +604,8 @@ func _defend_on_ball(delta: float) -> void:
 	# contest / steal
 	if bh.shot_charge >= 0.0 and d0 < 80.0:
 		p.stance = true
-	if d0 < 46.0 and randf() < (0.006 + aggression * 0.010) * lerpf(0.75, 1.7, skill) \
-		* lerpf(1.0, 1.30, float(Game.difficulty()) / 3.0):
+	if d0 < 65.0 and randf() < (0.006 + aggression * 0.010) * lerpf(0.75, 1.7, skill) \
+		* lerpf(1.0, 1.30, float(Game.difficulty()) / 3.0) * (1.5 if not bh.is_user else 1.0):
 		p.try_steal()
 	# INCUBO nel duello: se fai un trick DENTRO il suo raggio te lo paga
 	# spesso: la palla viene pescata di braccio durante la mossa.
@@ -511,8 +622,8 @@ func _defend_off_ball(delta: float) -> void:
 	# deny line: one third toward the ball, two thirds on the man
 	var cutting: bool = mark.move_t > 0.0 or mark.velocity.length() > 140.0
 	var deny_k: float = 0.32 if cutting else 0.22   # sul taglio si sta sul linea
-	var help: Vector2 = mark.global_position.lerp(own_hoop, deny_k)
-	help = help.lerp(ball_pos, 0.20)
+	var help: Vector2 = mark.global_position.lerp(own_hoop, 0.08 if mark.is_user else deny_k)
+	help = help.lerp(ball_pos, 0.03 if mark.is_user else 0.20)
 	var d := help - p.global_position
 	p.move_input = d.normalized() if d.length() > 14.0 else Vector2.ZERO
 	p.stance = d.length() < 70.0

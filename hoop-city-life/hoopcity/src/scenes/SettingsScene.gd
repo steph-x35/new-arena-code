@@ -22,9 +22,56 @@ func _ready() -> void:
 	_row_toggle(v, Loc.t("settings.fps"), "target_fps", 60, 30)
 	_row_toggle(v, "Prestazioni (dispositivi lenti)", "lowgfx", false, true)
 	_row_toggle(v, Loc.t("settings.meter"), "show_shot_meter", true, false)
+	_row_toggle(v, Loc.t("settings.names"), "show_player_names", true, false)
 	_row_toggle(v, Loc.t("settings.left"), "left_handed_ui", true, false)
 
 	_lang_row(v)
+
+	# HALLOWEEN: zucche e pipistrelli. Di serie decide il calendario del
+	# telefono; questo interruttore scrive una scelta fissa (e la toglie).
+	_section(v, "HALLOWEEN")
+	var hbtn := Button.new()
+	hbtn.custom_minimum_size = Vector2(620, 62)
+	hbtn.add_theme_font_size_override("font_size", 22)
+	var paint_h := func():
+		hbtn.text = "%s    [%s]" % [Loc.t("spooky.title"),
+			"ON" if Spooky.active() else "OFF"]
+	paint_h.call()
+	hbtn.pressed.connect(func():
+		Settings.set_v("halloween", not Spooky.active())
+		Spooky.refresh()          # la cache di Spooky e' per frame
+		paint_h.call())
+	v.add_child(hbtn)
+	var hhint := Label.new()
+	hhint.text = Loc.t("spooky.hint")
+	hhint.add_theme_font_size_override("font_size", 16)
+	hhint.modulate = Color(1, 1, 1, 0.5)
+	hhint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	v.add_child(hhint)
+
+	# CAMPO: il colore del parquet indoor. Quattro scelte, un tasto che gira.
+	_section(v, Loc.t("floor.title"))
+	var flbl := Label.new()
+	flbl.add_theme_font_size_override("font_size", 21)
+	flbl.text = "%s:  %s" % [Loc.t("floor.title"),
+		Loc.t(CourtStage.floor_name_key(CourtStage.floor_style()))]
+	v.add_child(flbl)
+	var fbtn := Button.new()
+	fbtn.text = Loc.t("floor.change")
+	fbtn.custom_minimum_size = Vector2(420, 64)
+	fbtn.add_theme_font_size_override("font_size", 20)
+	fbtn.pressed.connect(func():
+		var n: int = (CourtStage.floor_style() + 1) % CourtStage.FLOOR_STYLES
+		Settings.set_v("floor_style", n)
+		flbl.text = "%s:  %s" % [Loc.t("floor.title"), Loc.t(CourtStage.floor_name_key(n))]
+		Events.toast.emit(Loc.t(CourtStage.floor_name_key(n))))
+	v.add_child(fbtn)
+	var fhint := Label.new()
+	fhint.text = Loc.t("floor.hint")
+	fhint.add_theme_font_size_override("font_size", 16)
+	fhint.modulate = Color(1, 1, 1, 0.5)
+	fhint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	v.add_child(fhint)
 
 	_section(v, Loc.t("settings.controls"))
 	_row_slider(v, Loc.t("settings.stick"), "joystick_sensitivity", 0.4, 2.0, 0.1)
@@ -69,6 +116,13 @@ func _ready() -> void:
 		Events.toast.emit(Loc.t("settings.deleted")))
 	v.add_child(del)
 
+
+	_section(v, "CREDITI AUDIO")
+	var credits := Label.new()
+	credits.text = "Indoor basketball game — Tomlija, Freesound (CC BY 3.0).\nModificato: mono, compressione e dissolvenze.\nhttps://freesound.org/people/Tomlija/sounds/99201/\nhttps://creativecommons.org/licenses/by/3.0/"
+	credits.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	credits.add_theme_font_size_override("font_size", 16)
+	v.add_child(credits)
 
 	info = Label.new()
 	info.add_theme_font_size_override("font_size", 18)

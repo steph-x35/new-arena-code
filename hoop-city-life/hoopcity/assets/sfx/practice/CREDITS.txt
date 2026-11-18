@@ -1,0 +1,5 @@
+Gym practice ambience: "indoor basketball game.wav" by Tomlija
+Source: https://freesound.org/people/Tomlija/sounds/99201/
+License: Creative Commons Attribution 3.0 Unported
+https://creativecommons.org/licenses/by/3.0/
+Changes: converted to mono Ogg Vorbis and added short fade-in and fade-out.
