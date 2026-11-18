@@ -5,7 +5,7 @@ const BUILDINGS := [
 	{"id": "home",  "name": "Home",         "pos": Vector2(-760, 60),  "scene": "res://src/scenes/HomeScene.tscn",  "color": Color(0.35, 0.45, 0.62)},
 	{"id": "gym",   "name": "Iron Gym",     "pos": Vector2(-260, 60),  "scene": "res://src/scenes/GymScene.tscn",   "color": Color(0.62, 0.38, 0.30)},
 	{"id": "court", "name": "Team Court",   "pos": Vector2(300, 60),   "scene": "res://src/scenes/TeamCourt.tscn",  "color": Color(0.30, 0.55, 0.42)},
-	{"id": "arena", "name": "Riverside Arena","pos": Vector2(880, 60), "scene": "res://src/scenes/ArenaLobby.tscn",  "color": Color(0.55, 0.35, 0.62)},
+	{"id": "arena", "name": "Hoop City Arena","pos": Vector2(880, 60), "scene": "res://src/scenes/ArenaLobby.tscn",  "color": Color(0.55, 0.35, 0.62)},
 	{"id": "shop",  "name": "Fit & Kicks",  "pos": Vector2(-1180, 60), "scene": "res://src/scenes/ShopScene.tscn",  "color": Color(0.66, 0.56, 0.25)},
 	{"id": "furn",  "name": "Home & Hearth","pos": Vector2(-1460, 60), "scene": "res://src/scenes/FurnitureShop.tscn",  "color": Color(0.55, 0.50, 0.35)},
 	{"id": "books", "name": "Page & Print", "pos": Vector2(1340, 60), "scene": "res://src/scenes/BookShop.tscn", "color": Color(0.42, 0.35, 0.58)},

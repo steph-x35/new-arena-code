@@ -21,6 +21,8 @@ signal released()
 @export var accent := Color(0.92, 0.55, 0.16)
 @export var hold_mode := false        ## true = emits pressed_down/released, false = tap only
 
+@export var keyboard_key: Key = KEY_NONE
+var _keyboard_held := false
 var _touch := -1                       # active touch index, -1 = idle
 var _held := false
 var _flash := 0.0
@@ -42,6 +44,27 @@ func _input(event: InputEvent) -> void:
 	# The two pads (attack/defence) share the same screen slots, and one of
 	# them is always hidden. A hidden Control still received _input, so both
 	# STOPPATA and TIRA fired on the same tap and the player just hopped.
+	if event is InputEventKey and not event.echo:
+		var key: Key = keyboard_key
+		# The practice action changes between PASS and SHOOT.
+		if key == KEY_NONE:
+			match text.to_upper():
+				"SHOOT", "TIRA", "SCHIACCIA", "HOLD": key = KEY_SPACE
+				"TRICK": key = KEY_X
+				"POST": key = KEY_V
+				"PASSA", "PASS": key = KEY_E
+		if event.keycode != key or key == KEY_NONE: return
+		if not event.pressed and _keyboard_held:
+			_keyboard_held = false
+			_release()
+			get_viewport().set_input_as_handled()
+		elif event.pressed and is_visible_in_tree() and not _held:
+			var focus := get_viewport().gui_get_focus_owner()
+			if focus is LineEdit or focus is TextEdit: return
+			_keyboard_held = true
+			_claim(-2)
+			get_viewport().set_input_as_handled()
+		return
 	if not is_visible_in_tree():
 		return
 	if event is InputEventScreenTouch:
@@ -73,6 +96,7 @@ func _claim(idx: int) -> void:
 
 func _release() -> void:
 	_touch = -1
+	_keyboard_held = false
 	_held = false
 	queue_redraw()
 	released.emit()

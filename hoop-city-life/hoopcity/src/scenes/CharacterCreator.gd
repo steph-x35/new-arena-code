@@ -7,6 +7,7 @@ var name_edit: LineEdit
 var info: Label
 var h_lbl: Label
 var w_lbl: Label
+var builder_started := false
 const POSITIONS := ["PG", "SG", "SF", "PF", "C"]
 const POS_PRESETS := {
 	"PG": {"h": 185, "w": 80, "handle": 8, "pass": 8, "speed": 6, "rebound": -8, "block": -8},
@@ -51,7 +52,7 @@ func _ready() -> void:
 			Game.profile["skin"] = (Game.profile["skin"] + 1) % 5
 			_refresh()],
 		[Loc.t("creator.hair"), func():
-			Game.profile["hair_style"] = (int(Game.profile.get("hair_style", 0)) + 1) % 6
+			Game.profile["hair_style"] = (int(Game.profile.get("hair_style", 0)) + 1) % 8
 			_refresh()],
 		[Loc.t("Colore capelli"), func():
 			Game.profile["hair"] = (Game.profile["hair"] + 1) % Game.HAIR_COLORS.size()
@@ -141,22 +142,47 @@ func _cycle_team() -> void:
 	_refresh()
 
 func _apply_position(pos: String) -> void:
+	# Cambiare ruolo nel creator ricomincia la distribuzione iniziale.
+	Game.profile.erase("attribute_base")
+	Game.profile.erase("attribute_alloc")
+	Game.profile["attr_points"] = 0
+	builder_started = false
 	var base := Game.default_profile()
 	Game.profile["position"] = pos
-	Game.profile["attrs"] = base["attrs"].duplicate()
 	var pr: Dictionary = POS_PRESETS[pos]
 	Game.profile["height_cm"] = pr["h"]
 	Game.profile["weight_kg"] = pr["w"]
+	_rebuild_physical_ratings()
+
+func _rebuild_physical_ratings() -> void:
+	# Original Hoop City tradeoffs, not NBA's unpublished formulas. Recompute
+	# from the role preset every time so +/- never accumulates rounding drift.
+	var pos := String(Game.profile["position"])
+	var pr: Dictionary = POS_PRESETS[pos]
+	var attrs: Dictionary = Game.default_profile()["attrs"].duplicate()
 	for k in pr:
-		if k in ["h", "w"]: continue
-		Game.profile["attrs"][k] = clampi(Game.profile["attrs"][k] + pr[k], 25, 90)
+		if k not in ["h", "w"]:
+			attrs[k] = clampi(int(attrs[k]) + int(pr[k]), 25, 90)
+	var height: float = (float(Game.profile["height_cm"]) - float(pr["h"])) / 5.0
+	var mass: float = (float(Game.profile["weight_kg"]) - float(pr["w"])) / 6.0
+	var adjustments := {
+		"three": -height * 1.0 - mass * 0.4, "mid": -height * 0.5,
+		"handle": -height * 0.8 - mass * 0.5, "speed": -height * 0.5 - mass * 0.8,
+		"accel": -height * 0.4 - mass * 0.9, "rebound": height * 1.1 + mass * 0.4,
+		"block": height * 1.2, "close": height * 0.4 + mass * 0.5,
+	}
+	for key in adjustments:
+		attrs[key] = clampi(int(attrs[key]) + int(round(float(adjustments[key]))), 25, 90)
+	Game.profile["attrs"] = attrs
 
 func _adj_h(d: int) -> void:
 	Game.profile["height_cm"] = clampi(Game.profile["height_cm"] + d, 175, 220)
+	_rebuild_physical_ratings()
 	_refresh()
 
 func _adj_w(d: int) -> void:
 	Game.profile["weight_kg"] = clampi(Game.profile["weight_kg"] + d, 68, 135)
+	_rebuild_physical_ratings()
 	_refresh()
 
 func _adj_jersey(d: int) -> void:
@@ -186,6 +212,22 @@ func _refresh() -> void:
 
 func _start() -> void:
 	Game.profile["name"] = name_edit.text.strip_edges() if name_edit.text.strip_edges() != "" else "Alex Reyes"
+	var panel: GamePanel = GamePanel.new().build("SCHEDA GIOCATORE", Vector2(1020, 660))
+	$UI.add_child(panel)
+	panel.add_text("%s  ·  %s  ·  %d cm  ·  %d kg" % [Game.profile["name"], Game.profile["position"], Game.profile["height_cm"], Game.profile["weight_kg"]], 24, Color(1.0, 0.69, 0.35))
+	Game.ensure_attribute_builder()
+	if not builder_started:
+		Game.profile["attr_points"] = int(Game.profile.get("attr_points", 0)) + 95
+		builder_started = true
+	panel.add_text("Scegli la tua specialità: le valutazioni alte costano più punti.", 18)
+	var editor = preload("res://src/ui/AttributeBuilder.gd").new()
+	panel.body.add_child(editor)
+	editor.build(2, false)
+	panel.add_button("INIZIA LA CARRIERA", func():
+		panel.close()
+		_confirm_start(), true)
+
+func _confirm_start() -> void:
 	Contacts.seed_intro()
 	# Fix the league schedule for this career, then build it once.
 	Game.profile["seed"] = randi()

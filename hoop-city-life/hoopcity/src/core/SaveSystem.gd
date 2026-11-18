@@ -40,6 +40,7 @@ func load_game(slot := AUTOSAVE) -> bool:
 		push_error("SaveSystem: corrupt save, ignoring")
 		return false
 	Game.profile = _migrate(_merge_defaults(parsed))
+	Events.money_rewards_pending.emit()
 	return true
 
 func delete_save(slot := AUTOSAVE) -> void:
