@@ -82,8 +82,15 @@ html.vice .road li, html.vice .faq details {
 html.vice .final-cta { border-image: linear-gradient(90deg, #f77caf, #8fe5e0, #ffb58d) 1; }
 @media (max-width: 600px) {
   html.vice .hero {
-    background: linear-gradient(90deg, rgba(43,17,74,.58), rgba(60,23,83,.25)),
-                linear-gradient(0deg, #261b39 0%, transparent 15%),
-                url('vice-court.jpg') 60% center / cover no-repeat;
+    /* Keep the complete wide artwork in view on narrow, tall screens.
+       A matching gradient carries it down the longer hero without cropping. */
+    background:
+      linear-gradient(to bottom, rgba(45, 20, 70, .38) 0px, rgba(45, 20, 70, .14) 215px, #261b39 420px),
+      url('vice-court.jpg') center 75px / 100% auto no-repeat,
+      linear-gradient(180deg, #5267a2 0%, #e253a2 35%, #261b39 100%);
+  }
+  html.vice .hero h1 {
+    max-width: 100%;
+    font-size: clamp(48px, 12.7vw, 76px);
   }
 }
