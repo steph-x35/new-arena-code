@@ -43,6 +43,16 @@ const STR := {
 	"news.b6":        ["• Career counters: dunks, hangs on the rim, best green streak.", "• Contatori di carriera: schiacciate, appese al ferro, miglior serie di GREEN."],
 	"news.b7":        ["• The dunk camera: a zoom that sways with your swing on the rim.", "• La camera della schiacciata: zoom che ondeggia col tuo dondolio sul ferro."],
 	"news.outro":     ["And yes — dunks still hang on the rim.", "E sì: le schiacciate si appendono ancora al ferro."],
+	"news.practice_new": ["TEAM PRACTICE", "ALLENAMENTO DI SQUADRA"],
+	"news.practice_new.b": ["Play 2v2, choose a 5v5 play and take turns at the free-throw line. Shoot or dunk to finish a play.", "Gioca il 2v2, scegli uno schema 5v5 e mettiti in fila ai tiri liberi. Puoi concludere lo schema con un tiro o una schiacciata."],
+	"news.warmup_new": ["PREGAME WARMUP", "RISCALDAMENTO PREPARTITA"],
+	"news.warmup_new.b": ["Warm up with both teams, then see the lineups before tip-off.", "Scaldati con le due squadre, poi guarda la presentazione dei quintetti prima della palla a due."],
+	"news.ball_new": ["THE BALL IS ALIVE", "LA PALLA È VIVA"],
+	"news.ball_new.b": ["Layups off the glass, more varied rebounds and loose balls to chase down. Shots and dunks in practice use the match ball.", "Layup sul tabellone, rimbalzi più vari e palloni da recuperare. Tiri e schiacciate negli schemi usano la palla della partita."],
+	"news.rules_new": ["MATCH DAY", "GIORNO DI PARTITA"],
+	"news.rules_new.b": ["Fouls, free throws and and-one opportunities, with clearer violations and inbound plays.", "Falli, tiri liberi e possibilità di canestro più fallo, con infrazioni e rimesse più chiare."],
+	"news.career_new": ["YOUR CAREER", "LA TUA CARRIERA"],
+	"news.career_new.b": ["A detailed postgame summary, a 10-game regular season and attribute points to develop your player.", "Riepilogo dettagliato dopo la partita, stagione regolare di 10 gare e punti attributo per far crescere il tuo giocatore."],
 	# --- v2.49.x: le cose che si VEDONO appena apri il gioco
 	# v2.49.4: non e' piu' una prova, e' la regola.
 	"news.match_new": ["NEW ON THE COURT", "NOVITÀ IN CAMPO"],

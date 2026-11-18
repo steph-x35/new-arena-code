@@ -6,13 +6,12 @@ class_name News
 
 ## Titolo grosso (colore caldo) e corpo, uno dopo l'altro.
 const ITEMS := [
-	["news.match_new", "news.match_new.b"],
-	["news.rewards", "news.rewards.b"],
-	["news.builder", "news.builder.b"],
-	["news.season", "news.season.b"],
+	["news.practice_new", "news.practice_new.b"],
+	["news.warmup_new", "news.warmup_new.b"],
+	["news.ball_new", "news.ball_new.b"],
+	["news.rules_new", "news.rules_new.b"],
+	["news.career_new", "news.career_new.b"],
 	["news.gameplay", "news.gameplay.b"],
-	["news.courts", "news.courts.b"],
-	["news.v1", "news.v1.b"],
 ]
 
 const TITLE_COL := Color(1.0, 0.80, 0.34)
