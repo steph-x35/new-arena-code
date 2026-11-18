@@ -37,8 +37,8 @@ html.vice .hero h1 {
   text-shadow: 0 3px 24px rgba(23, 14, 39, .75), 3px 4px 0 rgba(117, 66, 112, .60);
 }
 html.vice .hero h1 em {
-  color: #ffa6c9;
-  text-shadow: 0 2px 22px rgba(254, 105, 174, .28), 3px 4px 0 rgba(117, 66, 112, .70);
+  color: #ff38a6;
+  text-shadow: 0 2px 22px rgba(255, 56, 166, .45), 3px 4px 0 rgba(75, 23, 85, .9);
 }
 html.vice .hero .tag { color: #fff3f5; text-shadow: 0 2px 12px #211328; }
 html.vice .badge {
