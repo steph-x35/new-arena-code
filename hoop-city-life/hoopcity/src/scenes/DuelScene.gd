@@ -383,7 +383,7 @@ func _build_hud() -> void:
 	# DIFENDI: stessa casella del POST, ma in difesa — come l'indoor, dove
 	# attacco e difesa si scambiano le stesse tre caselle.
 	btn_guard = TouchButton.new()
-	btn_guard.keyboard_key = KEY_C
+	btn_guard.keyboard_key = KEY_F
 	btn_guard.text = Loc.t("match.defend")
 	btn_guard.icon = Art.icon_for("DEFEND")
 	btn_guard.hold_mode = true

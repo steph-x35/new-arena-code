@@ -72,6 +72,8 @@ func _ready() -> void:
 	court.set_process(false)
 	court.set_physics_process(false)
 	court.finished = false
+	court.practice_drill = true
+	court.practice_finish.connect(_on_practice_finish)
 	court.play_live = true
 	court.restarting = false
 	# Do not carry a 2v2 screen marker into the next drill.
@@ -184,19 +186,26 @@ func _build_ui() -> void:
 	root.add_child(meter)
 	finish = Button.new()
 	finish.text = "FINE ALLENAMENTO"
-	finish.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	finish.position = Vector2(-230, 18)
-	finish.custom_minimum_size = Vector2(210, 50)
+	finish.add_theme_font_size_override("font_size", 20)
+	finish.custom_minimum_size = Vector2(260, 50)
 	finish.pressed.connect(_finish_practice)
 	finish.visible = false
 	root.add_child(finish)
+	finish.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	finish.offset_left = -280.0
+	finish.offset_right = -20.0
+	finish.offset_top = 18.0
+	finish.offset_bottom = 68.0
 	var quit := Button.new()
 	quit.text = "LASCIA"
-	quit.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	quit.position = Vector2(-130, 76)
 	quit.custom_minimum_size = Vector2(110, 45)
 	quit.pressed.connect(_confirm_quit)
 	root.add_child(quit)
+	quit.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	quit.offset_left = -130.0
+	quit.offset_right = -20.0
+	quit.offset_top = 76.0
+	quit.offset_bottom = 121.0
 
 func _position_plays() -> void:
 	var a := [Vector2(290, -40), Vector2(440, -235), Vector2(555, 190), Vector2(325, 270), Vector2(610, -265)]
@@ -286,49 +295,46 @@ func _action_up() -> void:
 func _play_shoot_down() -> void:
 	if mode != "play" or play_step != "pass_again" or not user.has_ball: return
 	if user.can_dunk():
-		_begin_user_finish(true, true)
+		_begin_user_finish()
+		user.dunk_held = false
+		user.do_dunk()
 		return
+	var drive: Vector2 = court.hoop_for(0) - user.global_position
+	if not court.behind_hoop(user) and court.px_to_ft(drive.length()) < 8.0:
+		_begin_user_finish()
+		user.do_layup()
+		return
+	if court.behind_hoop(user): return
 	play_charge = 0.0
-	user.set_physics_process(false)
-	user.move_input = Vector2.ZERO
 	user.shot_charge = 0.0
-	var dist: float = court.px_to_ft(user.global_position.distance_to(court.hoop_for(0)))
-	user.shot_ideal = clampf(0.42 + dist * 0.012, 0.42, 0.78)
+	user.shot_ideal = clampf(0.42 + court.px_to_ft(drive.length()) * 0.012, 0.42, 0.78)
 
 func _play_shoot_up() -> void:
 	if play_charge < 0.0: return
-	var dist: float = court.px_to_ft(user.global_position.distance_to(court.hoop_for(0)))
-	var windows: Dictionary = ShotSystem.shot_windows(dist, court.user_heat, Game.shot_skill(dist))
-	var error := absf(play_charge - user.shot_ideal)
-	var made: bool = error <= float(windows["perfect"]) or (error <= float(windows["good"]) and randf() < 0.5)
-	meter.show_release("PERFECT" if error <= float(windows["perfect"]) else "GOOD", Color.GREEN if error <= float(windows["perfect"]) else Color.YELLOW)
 	play_charge = -1.0
-	user.shot_charge = -1.0
-	_begin_user_finish(made, false)
+	_begin_user_finish()
+	user.do_shot_release()
 
-func _begin_user_finish(made: bool, dunk: bool) -> void:
+func _begin_user_finish() -> void:
 	finish_by_user = true
-	finish_made = made
-	finish_dunk = dunk
-	finish_shot_time = 0.0
-	finish_shot_start = user.global_position
 	play_step = "finish_shot"
-	user.has_ball = false
-	user.set_physics_process(false)
-	user.velocity = Vector2.ZERO
-	user.move_input = Vector2.ZERO
-	user.shot_anim = 0.5
-	if dunk:
-		user.dunking = true
-		user.dunk_style = DunkStyle.pick()
-		user.dunk_t = 0.0
-	court.ball.holder = null
-	court.ball.set_physics_process(false)
+	finish_shot_time = 0.0
 	shoot_button.visible = false
 	shoot_button.set_process_input(false)
 	action.visible = false
 	action.set_process_input(false)
 	detail.text = "Concludi a canestro!"
+
+func _on_practice_finish(made: bool) -> void:
+	if mode != "play" or play_step != "finish_shot": return
+	finish_made = made
+	finish_shot_time = 0.0
+	if made:
+		play_step = "finish_wait"
+		detail.text = "Canestro!"
+	else:
+		play_step = "finish_rebound"
+		detail.text = "Prendi il rimbalzo e riprova."
 
 func _start_pass(from: BallPlayer, to: BallPlayer) -> void:
 	pass_active = true
@@ -353,19 +359,15 @@ func _step_pass() -> void:
 		shoot_button.visible = true
 		shoot_button.set_process_input(true)
 	elif play_step == "passing_final":
-		# The receiver finishes at the hoop before the play is complete.
+		# Use exactly the match shot and ball, rather than a scripted fake arc.
 		play_step = "finish_shot"
-		finish_shot_time = 0.0
 		finish_by_user = false
-		finish_made = true
-		finish_dunk = false
 		shoot_button.visible = false
 		shoot_button.set_process_input(false)
-		finish_shot_start = receiver.global_position
-		receiver.has_ball = false
-		receiver.shot_anim = 0.65
-		court.ball.holder = null
-		court.ball.set_physics_process(false)
+		action.visible = false
+		action.set_process_input(false)
+		receiver.shot_anim = 0.26
+		court.attempt_shot(receiver, 0.0)
 		detail.text = "%s conclude a canestro!" % receiver.display_name
 
 func _start_free_throws() -> void:
@@ -422,9 +424,12 @@ func _physics_process(delta: float) -> void:
 	clock += delta
 	if mode == "play":
 		_step_pass()
+		if play_charge >= 0.0 and user.shot_charge < 0.0:
+			# Player's normal safety release fired at maximum charge.
+			play_charge = -1.0
+			_begin_user_finish()
 		if play_charge >= 0.0:
-			play_charge += delta
-			user.shot_charge = play_charge
+			play_charge = user.shot_charge
 			meter.visible = true
 			meter.charge = play_charge
 			meter.ideal = user.shot_ideal
@@ -436,39 +441,22 @@ func _physics_process(delta: float) -> void:
 			var head: Vector2 = CourtStage.m_project(user.global_position, Court.COURT_H) - Vector2(0, 100)
 			meter.position = get_viewport().get_canvas_transform() * head - Vector2(60, 78)
 			if play_charge >= user.MAX_CHARGE: _play_shoot_up()
-		if play_step == "finish_shot":
+		if play_step == "finish_wait":
 			finish_shot_time += delta
-			var t: float = clampf(finish_shot_time / 0.85, 0.0, 1.0)
-			var aim: Vector2 = court.hoop_for(0) + (Vector2.ZERO if finish_made else Vector2(-50, 15))
-			court.ball.global_position = finish_shot_start.lerp(aim, t)
-			court.ball.h = lerpf(55.0, Court.RIM_HEIGHT, t) + sin(PI * t) * (45.0 if finish_dunk else 150.0)
-			if finish_dunk:
-				user.dunk_t = t
-				user.global_position = finish_shot_start.lerp(court.dunk_hang_pos(user), t)
-				user.air = user._dunk_air() * t
-				user.queue_redraw()
-			if finish_shot_time > 0.85:
-				court.ball.h = Court.RIM_HEIGHT * (1.0 - clampf((finish_shot_time - 0.85) / 0.45, 0.0, 1.0))
-			court.ball.queue_redraw()
-			if finish_shot_time >= 1.3:
-				court.ball.set_physics_process(true)
-				if finish_by_user:
-					user.dunking = false
-					user.air = 0.0
-					user.set_physics_process(true)
-				if finish_made:
-					Sfx.play("dunk" if finish_dunk else "swish", -4.0)
-					completed += 1
-					Events.toast.emit("CANESTRO · SCHEMA COMPLETATO")
-					_show_choices()
-				else:
-					court.give_ball(user)
-					play_step = "pass_again"
-					detail.text = "Riprova il tiro o passa al compagno."
-					action.visible = true
-					action.set_process_input(true)
-					shoot_button.visible = true
-					shoot_button.set_process_input(true)
+			if finish_shot_time >= 0.85:
+				if user.hanging: user.release_rim()
+				completed += 1
+				Events.toast.emit("CANESTRO · SCHEMA COMPLETATO")
+				_show_choices()
+		elif play_step == "finish_rebound":
+			if user.global_position.distance_to(court.ball.global_position) < 38.0 and court.ball.h < 50.0:
+				court.give_ball(user)
+				play_step = "pass_again"
+				detail.text = "Riprova il tiro o passa al compagno."
+				action.visible = true
+				action.set_process_input(true)
+				shoot_button.visible = true
+				shoot_button.set_process_input(true)
 		# Five defenders shadow their assignments without breaking the drill's
 		# scripted passes; they move as the offence cuts and changes sides.
 		for i in 5:

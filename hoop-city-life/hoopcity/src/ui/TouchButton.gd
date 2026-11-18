@@ -52,7 +52,7 @@ func _input(event: InputEvent) -> void:
 				"SHOOT", "TIRA", "SCHIACCIA", "HOLD": key = KEY_SPACE
 				"TRICK": key = KEY_X
 				"POST": key = KEY_V
-				"PASSA", "PASS": key = KEY_C
+				"PASSA", "PASS": key = KEY_E
 		if event.keycode != key or key == KEY_NONE: return
 		if not event.pressed and _keyboard_held:
 			_keyboard_held = false

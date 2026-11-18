@@ -42,6 +42,9 @@ var friendly_1v1 := false
 @export var target_score := 11
 var must_clear := false             # true until the new offense clears the arc
 
+signal practice_finish(made: bool)
+var practice_drill := false
+
 var ball: Ball
 var players: Array[BallPlayer] = []
 var user: BallPlayer
@@ -921,7 +924,7 @@ func attempt_shot(shooter: BallPlayer, timing_err: float, layup := false) -> voi
 
 	# Shooting foul: a defender closing hard can catch the shooter on the arm.
 	# The free throws match the attempt: two for a two, three for a three.
-	var fouler := _shooting_foul_check(shooter, contest)
+	var fouler: BallPlayer = null if practice_drill else _shooting_foul_check(shooter, contest)
 	if fouler != null and one_on_one:
 		call_foul(fouler, shooter, 3 if dist_ft > THREE_FT else 2)
 		return
@@ -992,7 +995,7 @@ func attempt_shot(shooter: BallPlayer, timing_err: float, layup := false) -> voi
 				d.def_credit()
 				break
 	# blocked?
-	var blocker: BallPlayer = null if fouled_shot else _block_check(shooter, contest, _floater_shot)
+	var blocker: BallPlayer = null if fouled_shot or practice_drill else _block_check(shooter, contest, _floater_shot)
 	if blocker != null:
 		Events.toast.emit("BLOCKED by #%d" % blocker.jersey_num)
 		Sfx.play("block", -1.0)
@@ -1067,13 +1070,13 @@ func attempt_shot(shooter: BallPlayer, timing_err: float, layup := false) -> voi
 		_begin_shooting_foul(fouler, shooter, 3 if dist_ft > THREE_FT else 2)
 
 	# Bullet-time / Slow-mo al buzzer o tiro clutch decisivo nei finali
-	var is_clutch_shot: bool = play_live and not one_on_one and (game_clock <= 2.8 or shot_clock <= 1.2 or (quarter >= QUARTERS and abs(score[0] - score[1]) <= 3 and game_clock <= 6.0))
+	var is_clutch_shot: bool = not practice_drill and play_live and not one_on_one and (game_clock <= 2.8 or shot_clock <= 1.2 or (quarter >= QUARTERS and abs(score[0] - score[1]) <= 3 and game_clock <= 6.0))
 	if is_clutch_shot and Engine.time_scale <= 1.05:
 		_clutch_slowmo = true
 		Engine.time_scale = 0.45
 		Events.popup.emit("CLUTCH!", shooter.global_position + Vector2(0, -70), Color(1.0, 0.85, 0.2), true)
 
-	if shooter.is_user and not fouled_shot:
+	if shooter.is_user and not fouled_shot and not practice_drill:
 		box["fga"] += 1
 		if res["points"] == 3: box["tpa"] += 1
 		Career.on_user_shot(res)
@@ -1375,6 +1378,11 @@ func on_dunk_started(p: BallPlayer) -> void:
 	_dunk_scored(p)
 
 func _dunk_scored(p: BallPlayer) -> void:
+	if practice_drill:
+		p.has_ball = false
+		_net_bump(0 if hoop_for(p.team).x < 0.0 else 1, 1.0)
+		practice_finish.emit(true)
+		return
 	if _clutch_slowmo:
 		_clutch_slowmo = false
 		Engine.time_scale = 1.0
@@ -1422,6 +1430,19 @@ func _dunk_scored(p: BallPlayer) -> void:
 	_inbound(1 - p.team)
 
 func _score_basket(b: Ball) -> void:
+	if practice_drill:
+		var hoop: Vector2 = hoop_for(b.shooter.team)
+		b.shot_result_pending = false
+		b.live = false
+		b.dunk_drop = 1.0
+		b.dunk_from = hoop
+		b.dunk_to = hoop
+		b.global_position = hoop
+		b.h = RIM_HEIGHT + 8.0
+		_net_bump(0 if hoop.x < 0.0 else 1, 1.0)
+		Sfx.play("swish", -3.5)
+		practice_finish.emit(true)
+		return
 	# A free throw counts one and the FT sequence continues; there is no
 	# rebound and no inbound between free throws.
 	if b.is_free_throw:
@@ -1568,6 +1589,11 @@ func confirm_check() -> void:
 
 func resolve_missed_shot(b: Ball) -> void:
 	b.shot_result_pending = false
+	if practice_drill:
+		b.practice_shot = true
+		b.live = true
+		practice_finish.emit(false)
+		return
 	if _clutch_slowmo:
 		_clutch_slowmo = false
 		Engine.time_scale = 1.0

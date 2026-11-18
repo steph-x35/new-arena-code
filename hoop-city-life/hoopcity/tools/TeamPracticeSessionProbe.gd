@@ -49,26 +49,40 @@ func _ready() -> void:
 	game.court.ball._physics_process(2.0)
 	session._step_pass()
 	ok = ok and session.play_step == "finish_shot" and session.completed == 0
-	session._physics_process(1.4)
+	ok = ok and game.court.ball._ana and game.court.ball.shot_result_pending
+	game.court.ball.set_physics_process(false)
+	for tick in 180:
+		game.court.ball._physics_process(1.0 / 60.0)
+		if session.play_step != "finish_shot": break
+	ok = ok and session.play_step == "finish_wait"
+	session._physics_process(0.9)
 	ok = ok and session.completed == 1 and session.mode == "choose"
-	# The human may finish a drill with their own shot or a dunk.
+	# User shot invokes the same player release and analytic flight as match.
 	session._start_play(0)
 	game.court.give_ball(session.user)
 	session.play_step = "pass_again"
 	session.user.global_position = Vector2(300, 0)
 	session._play_shoot_down()
-	session.play_charge = session.user.shot_ideal
+	session.user.shot_charge = session.user.shot_ideal
 	session._play_shoot_up()
-	ok = ok and session.finish_made and session.finish_by_user and not session.finish_dunk
-	session._physics_process(1.4)
+	ok = ok and session.play_step == "finish_shot" and game.court.ball._ana
+	game.court.ball.set_physics_process(false)
+	for tick in 180:
+		game.court.ball._physics_process(1.0 / 60.0)
+		if session.play_step != "finish_shot": break
+	ok = ok and session.play_step == "finish_wait"
+	session._physics_process(0.9)
 	ok = ok and session.completed == 2 and session.mode == "choose"
+	# Dunk keeps the physical ball attached to the dunker's hand in ascent.
 	session._start_play(1)
 	game.court.give_ball(session.user)
 	session.play_step = "pass_again"
 	session.user.global_position = game.court.hoop_for(0) + Vector2(-60, 0)
 	session._play_shoot_down()
-	ok = ok and session.finish_dunk
-	session._physics_process(1.4)
+	ok = ok and session.user.dunking and game.court.ball.holder == session.user
+	await get_tree().create_timer(1.2).timeout
+	ok = ok and session.play_step == "finish_wait" and game.court.ball.dunk_drop > 0.0
+	session._physics_process(0.9)
 	ok = ok and session.completed == 3
 	# One shot each: rotate the real five-player line and enable finish only
 	# after the whole line has completed its turns.
