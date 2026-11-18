@@ -475,7 +475,7 @@ func _draw_gym(p: Vector2, col: Color) -> void:
 		draw_rect(Rect2(p.x - 118 + c * 64, p.y - 196, 48, 34),
 			Color(0.80, 0.88, 0.96, 0.55).lerp(Color(1.0, 0.90, 0.58, 0.95), night))
 
-## Riverside Arena: a domed bowl with floodlights and a marquee.
+## Hoop City Arena: a domed bowl with floodlights and a marquee.
 func _draw_arena(p: Vector2, col: Color) -> void:
 	var w := 380.0
 	# bowl
@@ -512,6 +512,7 @@ func _draw_arena(p: Vector2, col: Color) -> void:
 	# marquee band + entrance arches
 	draw_rect(Rect2(p.x - w * 0.5 + 14, p.y - 60, w - 28, 54),
 		Color(0.10, 0.10, 0.14).lerp(Color(0.95, 0.30, 0.35), 0.35 + night * 0.4))
+	draw_string(ThemeDB.fallback_font, Vector2(p.x - w * 0.5 + 14, p.y - 23), "HOOP CITY ARENA", HORIZONTAL_ALIGNMENT_CENTER, w - 28, 25, Color(1.0, 0.95, 0.84))
 	for c in 5:
 		draw_rect(Rect2(p.x - w * 0.5 + 30 + c * 68, p.y + 40, 46, 100),
 			Color(0.14, 0.12, 0.14).lerp(Color(1.0, 0.86, 0.52), night * 0.85))

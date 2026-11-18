@@ -45,6 +45,9 @@ var stamina_bar: ProgressBar
 ## Broadcast pass: intro card, commentator line, jumbotron hook.
 var intro_panel: Control
 var intro_left := 0.0
+var lineup_left := 0.0
+var lineup_panel: Control
+var lineup_team := 0
 var goal := {}               # obiettivo di partita corrente (MatchGoals)
 var goal_done := false
 var goal_lbl: Label          # ticker live in alto sotto il punteggio
@@ -65,16 +68,31 @@ var _last_count := ""
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color(0.10, 0.11, 0.14))
 	_build_hud()
-	_setup_broadcast()
+	if not court.friendly_1v1 and court.team_size != 2:
+		court.pre_tip_ceremony = not court.one_on_one
+		_setup_broadcast()
+	if court.team_size == 2:
+		var coach := preload("res://src/scenes/PracticeCoach.gd").new()
+		add_child(coach)
+		var practice_background := preload("res://src/scenes/PracticeBackground.gd").new()
+		practice_background.name = "PracticeBackground"
+		practice_background.setup(court)
+		add_child(practice_background)
+		_start_practice_ambience()
 	Events.score_changed.connect(_on_score)
 	Events.toast.connect(_on_toast)
+	Events.foul_called.connect(_on_foul)
 	Events.shot_taken.connect(_on_shot_taken)
 	Events.match_finished.connect(_on_finished)
 	Events.quarter_ended.connect(_on_quarter_ended)
 	Events.shake.connect(_on_shake)
 	Events.popup.connect(_on_popup)
-	Sfx.start_crowd()
-	Sfx.set_match_live(true)
+	if court.one_on_one or court.team_size == 2:
+		Sfx.stop_crowd()
+		Sfx.set_match_live(false)
+	else:
+		Sfx.start_crowd()
+		Sfx.set_match_live(true)
 	if court.is_fixture:
 		Sfx.court_jazz(true)   # low jazz bed under the crowd, user's call
 	else:
@@ -83,16 +101,18 @@ func _ready() -> void:
 	# between quarters.
 	var vis = $CourtVisual
 	if vis != null:
-		vis.show_cheer = true
+		vis.show_cheer = not court.one_on_one and court.team_size != 2
 		# Benches/scorer's table follow the match state; the stands get people
 		# ONLY for a real league game -- scrimmages and 1v1 play in an empty
 		# bowl. The crowd is baked into the static layer, so rebake it.
 		vis.court = court
 		# Il caos delle tribune vale per OGNI partita, anche scrimmage e 1v1:
 		# gente sui gradoni, swell e fischi dall'inizio alla fine.
-		vis.crowd_on = true
+		vis.crowd_on = not court.one_on_one and court.team_size != 2
 		vis.request_rebake()
 	court.bench_changed.connect(_on_bench_changed)
+	court.violation_called.connect(_on_violation)
+	court.inbound_started.connect(_on_inbound_transition)
 	# Near half of each net, painted OVER the ball so a make reads as dropping
 	# through the mesh instead of sliding across its front.
 	var nf = preload("res://src/match/NetFront.gd").new()
@@ -100,8 +120,25 @@ func _ready() -> void:
 	nf.z_index = 90
 	add_child(nf)
 	# Hold play for the countdown: nobody moves until "GO!".
-	court.play_live = false
-	tip_left = 3.0
+	if court.team_size != 2:
+		court.play_live = false
+	tip_left = 0.0 if court.friendly_1v1 or court.team_size == 2 else 3.0
+	if court.friendly_1v1 or court.team_size == 2:
+		_hinted = true
+
+func _start_practice_ambience() -> void:
+	# Real indoor game recording: a quiet Voice-bus bed, kept alive when the
+	# same scene switches from 2v2 to drills. No arena crowd in the gym.
+	var voices := AudioStreamPlayer.new()
+	voices.name = "PracticeVoices"
+	voices.bus = "Voice"
+	var track: AudioStreamOggVorbis = preload("res://assets/sfx/practice/gym-players.ogg").duplicate()
+	track.loop = true
+	voices.stream = track
+	voices.volume_db = -32.0
+	add_child(voices)
+	voices.play()
+	create_tween().tween_property(voices, "volume_db", -16.0, 2.0)
 
 ## 1v1 DI CARRIERA: la regola dell'uscita dalla linea dei tre esiste gia'
 ## (take it back past the arc) — la linea LAMPEGGIA finche' chi ha preso
@@ -150,6 +187,11 @@ func _process(delta: float) -> void:
 		intro_left -= delta
 		if intro_left <= 0.0:
 			_intro_done()
+		return
+	if lineup_left > 0.0:
+		lineup_left -= delta
+		if lineup_left <= 0.0:
+			_finish_lineup()
 		return
 	# ---- between-quarters: cheerleaders dance on the court for 10 seconds,
 	#      then the 3-2-1 countdown brings the next quarter in.
@@ -316,8 +358,8 @@ func _process(delta: float) -> void:
 	else:
 		_phase_hold = 0.0
 	_set_phase(want_phase)
-	# Free throws: only TIRA. Every other match moment keeps the SAME pad —
-	# attack and defence buttons stay put for the whole game.
+	# Only the actual free-throw shooter gets SHOOT; after the sequence the
+	# normal attack/defence pad is rebuilt on every frame.
 	if court.ft_active:
 		_show_btn(btn_crossover, false)
 		_show_btn(btn_pass, false)
@@ -325,7 +367,8 @@ func _process(delta: float) -> void:
 		_show_btn(btn_steal, false)
 		_show_btn(btn_guard, false)
 		_show_btn(btn_pnr, false)
-		_show_btn(btn_shoot, true)
+		_show_btn(btn_post, false)
+		_show_btn(btn_shoot, court.ft_shooter == u)
 	else:
 		_apply_pad(_phase_offence)
 	if btn_check:
@@ -341,7 +384,7 @@ func _process(delta: float) -> void:
 			_show_btn(btn_steal, false)
 			_show_btn(btn_guard, false)
 	if not court.user_on_court:
-		for b in [btn_shoot, btn_crossover, btn_pass, btn_pnr, btn_block, btn_steal, btn_guard, btn_check]:
+		for b in [btn_shoot, btn_crossover, btn_pass, btn_pnr, btn_block, btn_steal, btn_guard, btn_check, btn_post]:
 			_show_btn(b, false)
 		if joystick != null:
 			joystick.visible = false
@@ -352,9 +395,9 @@ func _process(delta: float) -> void:
 		var tl: String = Loc.t("match.timeout") + " (%d)" % court.timeouts_left[0]
 		if btn_timeout.text != tl:
 			btn_timeout.text = tl
-		btn_timeout.disabled = court.timeouts_left[0] <= 0 or court.timeout_active > 0.0
+		btn_timeout.disabled = court.timeouts_left[0] <= 0 or court.timeout_active > 0.0 or court.timeout_requested >= 0
 	if btn_shoot:
-		var want: String = Loc.t("match.dunk") if (u.hanging or u.can_dunk()) else Loc.t("match.shoot")
+		var want: String = Loc.t("match.shoot")
 		if btn_shoot.text != want:
 			btn_shoot.text = want
 	if btn_guard:
@@ -572,7 +615,7 @@ func _build_hud() -> void:
 	# Way out: a compact icon slab, not a grey default button eating the
 	# corner of the court. A match with no exit meant force-quitting to leave.
 	var quit_btn := Button.new()
-	quit_btn.text = Loc.t("match.exit")
+	quit_btn.text = "LASCIA 1v1" if court.friendly_1v1 else Loc.t("match.exit")
 	quit_btn.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	quit_btn.position = Vector2(18, 14)
 	quit_btn.custom_minimum_size = Vector2(96, 50)
@@ -792,6 +835,7 @@ const PAD_LOC := {
 func _button(txt: String, pos: Vector2, sz: Vector2, on_down: Callable, on_up: Callable) -> TouchButton:
 	var b := TouchButton.new()
 	b.icon = Art.icon_for(txt)
+	b.keyboard_key = {"SHOOT": KEY_SPACE, "JUMP": KEY_SPACE, "TRICK": KEY_X, "STEAL": KEY_X, "PASS": KEY_E, "DEFEND": KEY_F, "POST": KEY_V, "P&R": KEY_Q, "CHECK": KEY_E}.get(txt, KEY_NONE)
 	b.text = Loc.t(PAD_LOC.get(txt, ""), txt)
 	b.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	b.position = pos
@@ -818,8 +862,6 @@ func _shoot_down() -> void:
 		# No ball in your hands. Try to grab a loose one; if it is out of
 		# reach, either call for the pass (team-mate has it) or drive at the
 		# handler (opponent has it). The button always does something.
-		if court.try_grab(u):
-			return
 		var h: BallPlayer = court.ball_handler()
 		if h == null:
 			# loose ball somewhere: sprint at it
@@ -838,6 +880,11 @@ func _shoot_down() -> void:
 	if u.can_dunk() and not u.posting:
 		# Close enough to throw it down: skip the meter entirely.
 		u.do_dunk()
+		return
+	# Driving into the paint without a dunk: finish one-handed off the glass.
+	var drive: Vector2 = court.hoop_for(u.team) - u.global_position
+	if not court.ft_active and not u.posting and not court.behind_hoop(u) and court.px_to_ft(drive.length()) < 8.0:
+		u.do_layup()
 		return
 	# At the free-throw line the routine is always the same: charge the meter
 	# toward the fixed ideal and release.
@@ -873,13 +920,7 @@ func _shoot_up() -> void:
 		else:
 			u.shot_charge = -1.0
 		return
-	# COMBO FADE: TIRA rilasciato con lo stick che punta VIA dal canestro
-	# (o da POST): hop indietro -> famiglia fade con animazione.
-	if u.has_ball and not court.ft_active and not u.jumping:
-		var to_hoop: Vector2 = court.hoop_for(u.team) - u.global_position
-		if u.posting or (to_hoop.length() > 60.0 \
-		and u.move_input.dot(to_hoop.normalized()) < -0.45):
-			_post_shoot_hop(u)
+	# A jump shot is taken with planted feet, not a moving fade.
 	u.do_shot_release()
 
 func _post_shoot_hop(u: BallPlayer) -> void:
@@ -902,11 +943,6 @@ func _do_check() -> void:
 func _block() -> void:
 	var u := court.user
 	if u == null: return
-	# Over a loose ball STOPPATA snatches it instead of jumping.
-	if court.ball != null and court.ball.holder == null:
-		if not court.try_grab(u):
-			u.chase(court.ball.global_position)
-		return
 	u.do_jump(true)
 
 func _post_tap() -> void:
@@ -1050,7 +1086,7 @@ func _dribble_move() -> void:
 		elif u.posting:
 			kind = "dropstep"
 		elif mi.length() < 0.25:
-			kind = "hesi"
+			kind = "hand_switch"
 		elif mi.y > 0.35:
 			kind = "hand_switch"
 		elif mi.x < -0.35:
@@ -1114,10 +1150,14 @@ func _build_intro() -> void:
 	intro_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	intro_panel.gui_input.connect(_intro_input)
 	var bg := ColorRect.new()
-	bg.color = Color(0.02, 0.03, 0.05, 0.97)
+	bg.color = Color(0.02, 0.04, 0.08, 0.82)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	intro_panel.add_child(bg)
+	if not court.one_on_one:
+		var stage = preload("res://src/match/MatchupBackdrop.gd").new()
+		stage.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		intro_panel.add_child(stage)
 	var v := VBoxContainer.new()
 	v.set_anchors_preset(Control.PRESET_CENTER)
 	v.offset_left = -420
@@ -1128,6 +1168,9 @@ func _build_intro() -> void:
 	v.add_theme_constant_override("separation", 16)
 	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	intro_panel.add_child(v)
+	v.modulate.a = 0.0
+	var enter := create_tween()
+	enter.tween_property(v, "modulate:a", 1.0, 0.55)
 	var arena: String = Season.arena_of(opp) if court.one_on_one else Season.match_arena()
 	_big(v, "  " + arena, 24, Color(1.0, 0.82, 0.30))
 	_big(v, Loc.t("bc.tonight"), 40, Color(0.965, 0.949, 0.906, 0.5))
@@ -1224,6 +1267,30 @@ func _intro_done() -> void:
 	var tw := create_tween()
 	tw.tween_property(panel, "modulate:a", 0.0, 0.35)
 	tw.tween_callback(panel.queue_free)
+	if not court.one_on_one and court.team_size == 5:
+		_show_lineup()
+	else:
+		court.pre_tip_ceremony = false
+		tip_left = 3.0
+
+func _show_lineup() -> void:
+	var card = preload("res://src/match/LineupCard.gd").new()
+	card.squad = court.players.filter(func(p): return p.team == lineup_team)
+	card.club = Season.my_team() if lineup_team == 0 else String(Game.profile.get("next_opponent", "Visitors"))
+	card.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	hud.add_child(card)
+	lineup_panel = card
+	lineup_left = 4.0
+
+func _finish_lineup() -> void:
+	if is_instance_valid(lineup_panel): lineup_panel.queue_free()
+	lineup_panel = null
+	if lineup_team == 0:
+		lineup_team = 1
+		_show_lineup()
+		return
+	court.pre_tip_ceremony = false
+	court._jump_watch = 0.0
 	tip_left = 3.0
 
 ## The commentator's lane: one line at a time, then it fades.
@@ -1292,6 +1359,10 @@ func _sim_to_return() -> void:
 		bench_panel.visible = false
 
 func _exit_tree() -> void:
+	if court != null and court.friendly_1v1:
+		SceneRouter.friendly_1v1 = false
+		SceneRouter.friendly_look.clear()
+		SceneRouter.friendly_name = ""
 	Engine.time_scale = 1.0
 	Sfx.set_match_live(false)
 	Sfx.stop_crowd()
@@ -1335,6 +1406,25 @@ func _big_banner(text: String, col: Color) -> void:
 	tw.tween_interval(0.7)
 	tw.tween_property(lbl_banner, "modulate:a", 0.0, 0.4)
 
+func _on_violation(reason: String) -> void:
+	_big_banner(reason, Color(1.0, 0.75, 0.25))
+
+func _on_inbound_transition() -> void:
+	# Brief dissolve makes the stoppage/readjustment legible without hiding
+	# the court for the two-second inbound hold.
+	var veil := ColorRect.new()
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	veil.color = Color(0.02, 0.025, 0.04, 0.0)
+	hud.add_child(veil)
+	var tw := create_tween()
+	tw.tween_property(veil, "color:a", 0.32, 0.2)
+	tw.tween_property(veil, "color:a", 0.0, 0.4)
+	tw.tween_callback(veil.queue_free)
+
+func _on_foul() -> void:
+	_big_banner("FALLO" if Loc.lang == "it" else "FOUL", Color(1.0, 0.38, 0.25))
+
 func _on_toast(t: String) -> void:
 	lbl_toast.text = Loc.tx(t)
 	lbl_toast.modulate.a = 1.0
@@ -1343,6 +1433,11 @@ func _on_toast(t: String) -> void:
 	tw.tween_property(lbl_toast, "modulate:a", 0.0, 0.5)
 
 func _on_finished(res: Dictionary) -> void:
+	if court.team_size == 2 and String(Game.profile.get("team_practice_stage", "")) == "2v2":
+		var practice := preload("res://src/scenes/TeamPracticeSession.gd").new()
+		practice.setup(self)
+		add_child(practice)
+		return
 	# Verdetto FINALE sull'obiettivo (qui si giudica anche quello legato alla
 	# vittoria) e pagamento dell'XP extra: la busta base e' gia' di Career.
 	if not goal.is_empty():
@@ -1358,6 +1453,26 @@ func _on_finished(res: Dictionary) -> void:
 	hud.add_child(panel)
 
 func _confirm_exit() -> void:
+	if court.friendly_1v1:
+		var dialog := GamePanel.new().build("Lasciare 1v1?", Vector2(720, 380))
+		hud.add_child(dialog)
+		dialog.add_text("Torni al campo libero, senza lasciare la palestra.", 22)
+		dialog.add_button("Torna al campo", func():
+			Game.profile["next_match_mode"] = "full"
+			SceneRouter.goto("res://src/scenes/SoloCourt.tscn"))
+		dialog.add_button("Continua a giocare", func(): dialog.close())
+		return
+	if court.team_size == 2:
+		var quit := GamePanel.new().build("Lasciare l'allenamento?", Vector2(720, 380))
+		hud.add_child(quit)
+		quit.add_text("Se esci ora non riceverai la ricompensa.", 22)
+		quit.add_button("Esci", func():
+			Game.profile.erase("team_practice_day")
+			Game.profile.erase("team_practice_stage")
+			Game.profile["next_match_mode"] = "full"
+			SceneRouter.goto("res://src/scenes/TeamCourt.tscn"))
+		quit.add_button("Continua", func(): quit.close())
+		return
 	## Walking out mid-game forfeits it, so ask first rather than dumping the
 	## player back to the city on a mis-tap.
 	var p := GamePanel.new().build("Leave the game?", Vector2(720, 380))

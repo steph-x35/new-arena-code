@@ -1,6 +1,6 @@
 extends Node
 
-const VERSION := "2.49.7"
+const VERSION := "2.49.8"
 
 ## Difficoltà scelta nelle impostazioni: 0 Facile, 1 Normale, 2 Duro, 3 Incubo.
 ## Moltiplica la skill dell'AI e alza il suo MINIMO: con "Duro" anche i
@@ -138,7 +138,7 @@ const HAIR_COLORS := [
 
 func hair_style() -> int:
 	## 0 normale, 1 rasato, 2 afro, 3 trecce, 4 ricci.
-	return clampi(int(profile.get("hair_style", 0)), 0, 5)
+	return clampi(int(profile.get("hair_style", 0)), 0, 7)
 
 func skin_color() -> Color:
 	return SKIN_TONES[clampi(int(profile.get("skin", 1)), 0, SKIN_TONES.size() - 1)]
@@ -311,12 +311,30 @@ func add_health(v: float) -> void:
 	Events.health_changed.emit(profile["health"])
 
 func add_money(v: int) -> void:
-	# I GUADAGNI (non le spese) scalano con la difficolta scelta:
-	# FACILE 70% - NORMALE 85% - DURO 100% - INCUBO 125%.
+	# Rewards are calculated exactly once, then kept in the save until claimed.
 	if v > 0:
-		v = int(round(v * diff_pay()))
-	profile["money"] = max(0, profile["money"] + v)
+		var reward := int(round(v * diff_pay()))
+		if reward > 0:
+			var pending: Array = profile.get("pending_money_rewards", [])
+			pending.append(reward)
+			profile["pending_money_rewards"] = pending
+			Events.money_rewards_pending.emit()
+			# Let the caller finish updating the match/job before saving.
+			SaveSystem.call_deferred("save_game")
+		return
+	profile["money"] = maxi(0, int(profile["money"]) + v)
 	Events.money_changed.emit(profile["money"])
+
+func claim_money_reward() -> int:
+	var pending: Array = profile.get("pending_money_rewards", [])
+	if pending.is_empty():
+		return 0
+	var reward: int = maxi(0, int(pending.pop_front()))
+	profile["pending_money_rewards"] = pending
+	profile["money"] = int(profile["money"]) + reward
+	Events.money_changed.emit(profile["money"])
+	SaveSystem.save_game()
+	return reward
 
 func add_rep(v: int) -> void:
 	profile["rep"] = clampi(profile["rep"] + v, 0, 100)
@@ -474,6 +492,18 @@ func add_social_post(author: String, text: String, likes: int) -> void:
 	if profile["social"].size() > 60:
 		profile["social"].resize(60)
 	Events.social_post_added.emit(post)
+
+func toggle_social_like(post: Dictionary) -> void:
+	var was_liked := bool(post.get("liked_by_player", false))
+	post["liked_by_player"] = not was_liked
+	post["likes"] = maxi(0, int(post.get("likes", 0)) + (-1 if was_liked else 1))
+	SaveSystem.save_game()
+
+func comment_social_post(post: Dictionary, text: String) -> void:
+	if not post.has("comments") or not post["comments"] is Array:
+		post["comments"] = []
+	post["comments"].append({"author": String(profile.get("name", "Player")), "text": text})
+	SaveSystem.save_game()
 
 func add_message(from: String, text: String) -> void:
 	profile["messages"].push_front({"from": from, "text": text, "day": profile["day"], "time": clock_string()})

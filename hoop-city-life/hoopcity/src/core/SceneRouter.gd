@@ -2,8 +2,13 @@ extends Node
 ## Centralized navigation + phone overlay. Autoloaded as `SceneRouter`.
 
 var phone_instance: Node = null
+# Transient hand-off from a teammate conversation; never written to a save.
+var pregame_return_path := "res://src/scenes/ArenaLobby.tscn"
+var friendly_1v1 := false
+var friendly_look: Dictionary = {}
+var friendly_name := ""
 
-const COURT_SCENES := ["MatchScene", "DrillScene", "GymScene", "SoloCourt", "TeamCourt", "DuelScene"]
+const COURT_SCENES := ["MatchScene", "PregameWarmup", "DrillScene", "GymScene", "SoloCourt", "TeamCourt", "DuelScene"]
 
 func goto(path: String) -> void:
 	SaveSystem.save_game()

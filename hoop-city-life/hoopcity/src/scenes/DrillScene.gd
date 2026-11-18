@@ -28,6 +28,17 @@ var cone_index := 0
 var window_open := false
 var window_t := 0.0
 
+# A play is an actual pass, a cut to the marked space, a return pass and
+# another pass. Two random routes each session; no timer can complete it.
+var play_step := 0
+var play_round := 0
+var play_target := Vector2.ZERO
+var play_mate := Vector2(120.0, -150.0)
+var play_ball_t := -1.0
+var play_ball_from := Vector2.ZERO
+var play_ball_to := Vector2.ZERO
+var play_variant := -1
+
 # defense
 var attacker_x := 0.0
 var attacker_target := 0.0
@@ -180,7 +191,7 @@ func _ready() -> void:
 	else:
 		var b := Button.new()
 		b.text = {"handling": "TRICK", "defense": "CONTEST",
-			"weights": "DRIVE"}.get(drill_kind, "GO")
+			"weights": "DRIVE", "plays": "PASSA"}.get(drill_kind, "GO")
 		b.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 		b.position = Vector2(-220, -220)
 		b.custom_minimum_size = Vector2(180, 180)
@@ -201,7 +212,7 @@ func _ready() -> void:
 	# both baskets on screen. The weight room and cardio keep their close-up.
 	var cam := get_node_or_null("Camera2D")
 	if cam != null:
-		if drill_kind in ["shooting", "freethrow", "handling", "defense"]:
+		if drill_kind in ["shooting", "freethrow", "handling", "defense", "plays"]:
 			cam.position = Vector2(0.0, -40.0)
 			cam.zoom = Vector2.ONE * 1.04
 		else:
@@ -210,6 +221,8 @@ func _ready() -> void:
 		cam.enabled = true
 		cam.make_current()
 	_setup()
+	if String(Game.profile.get("team_practice_stage", "")) in ["plays", "freethrow"]:
+		add_child(preload("res://src/scenes/PracticeCoach.gd").new())
 
 ## The match court, instantiated as scenery for the ball drills -- the SAME
 ## full rectangle the scrimmage plays on, both baskets and all the lines.
@@ -261,6 +274,8 @@ func _drill_rim() -> Vector2:
 func _setup() -> void:
 	time_left = 30.0
 	match drill_kind:
+		"plays":
+			_new_play()
 		"shooting":
 			# Logical spots, not a random scatter: real shot locations around
 			# the right-hand basket (free-throw line, both wings at the arc,
@@ -327,6 +342,11 @@ func _setup() -> void:
 
 func _process(delta: float) -> void:
 	if not running: return
+	if drill_kind == "plays":
+		_proc_plays(delta)
+		_follow_cam(delta)
+		queue_redraw()
+		return
 	time_left -= delta
 	if time_left <= 0.0:
 		_finish()
@@ -361,7 +381,7 @@ func _follow_cam(delta: float) -> void:
 		return
 	var court_p := Vector2.ZERO
 	match drill_kind:
-		"shooting", "handling":
+		"shooting", "handling", "plays":
 			court_p = runner_pos
 		"freethrow":
 			court_p = spots[current_spot] if not spots.is_empty() else Vector2.ZERO
@@ -434,8 +454,6 @@ func _proc_shooting(delta: float) -> void:
 		runner_pos += mv * 255.0 * delta
 		runner_pos.x = clampf(runner_pos.x, -Court.COURT_W * 0.5 + 40.0, Court.COURT_W * 0.5 - 40.0)
 		runner_pos.y = clampf(runner_pos.y, -Court.COURT_H * 0.5 + 40.0, Court.COURT_H * 0.5 - 40.0)
-		if mv.length() > 0.12:
-			dribble_t += delta * 4.2
 		ghost_def = 0.0
 	if charging:
 		charge = minf(charge + delta, 1.4)
@@ -618,6 +636,7 @@ func _proc_handling(delta: float) -> void:
 	runner_pos += mv * 330.0 * delta
 	runner_pos.x = clampf(runner_pos.x, -Court.COURT_W * 0.5 + 60.0, Court.COURT_W * 0.5 - 60.0)
 	runner_pos.y = clampf(runner_pos.y, -Court.COURT_H * 0.5 + 60.0, Court.COURT_H * 0.5 - 60.0)
+	dribble_t += delta * 4.2
 	if mv.length() > 0.1:
 		dribble_phase += delta * (6.0 + mv.length() * 5.0)
 
@@ -671,6 +690,7 @@ func _handling_move() -> void:
 
 # ---------------------------------------------------------------- defense
 func _proc_defense(delta: float) -> void:
+	dribble_t += delta * 4.2
 	if randf() < delta * 1.4:
 		attacker_target = randf_range(-420, 420)
 	attacker_x = move_toward(attacker_x, attacker_target, 320.0 * delta)
@@ -753,12 +773,84 @@ func _weights_press() -> void:
 		fatigue = clampf(fatigue + 0.03, 0.0, 1.0)
 		lbl_mid.text = Loc.tx("TOO HIGH - let it come down") if bar_t < 0.5 else Loc.tx("FORM BREAK")
 
+func _new_play() -> void:
+	var next_variant := randi() % 4
+	if next_variant == play_variant:
+		next_variant = (next_variant + 1 + randi() % 3) % 4
+	play_variant = next_variant
+	var side := -1.0 if play_variant % 2 == 0 else 1.0
+	runner_pos = Vector2(-180, -side * 120.0)
+	play_mate = Vector2(160, side * 170.0)
+	play_target = Vector2(100 if play_variant < 2 else -60, -side * 260.0)
+	play_step = 0
+	play_ball_t = -1.0
+	lbl_mid.text = "PASSA AL COMPAGNO"
+
+func _play_pass() -> void:
+	if play_ball_t >= 0.0 or play_step not in [0, 3]: return
+	play_ball_from = runner_pos
+	play_ball_to = play_mate
+	play_ball_t = 0.0
+	lbl_mid.text = "PASSAGGIO!"
+
+func _proc_plays(delta: float) -> void:
+	dribble_t += delta * 4.2
+	var mv: Vector2 = joystick.output if play_ball_t < 0.0 else Vector2.ZERO
+	runner_pos += mv * 255.0 * delta
+	runner_pos.x = clampf(runner_pos.x, -Court.COURT_W * 0.5 + 40, Court.COURT_W * 0.5 - 40)
+	runner_pos.y = clampf(runner_pos.y, -Court.COURT_H * 0.5 + 40, Court.COURT_H * 0.5 - 40)
+	lbl_top.text = "SCHEMA %d/2  ·  %s" % [play_round + 1, ["PASSA", "TAGLIA SUL CERCHIO", "RICEVI", "PASSA ANCORA"][play_step]]
+	if play_step == 1 and runner_pos.distance_to(play_target) < 38.0:
+		play_step = 2
+		play_ball_from = play_mate
+		play_ball_to = runner_pos
+		play_ball_t = 0.0
+		lbl_mid.text = "RICEVI!"
+	if play_ball_t >= 0.0:
+		play_ball_t += delta / 0.55
+		if play_ball_t >= 1.0:
+			play_ball_t = -1.0
+			if play_step == 0:
+				play_step = 1
+				lbl_mid.text = "MUOVITI SUL CERCHIO"
+			elif play_step == 2:
+				play_step = 3
+				lbl_mid.text = "PASSA ANCORA"
+			elif play_step == 3:
+				play_round += 1
+				if play_round >= 2:
+					running = false
+					Game.profile["team_practice_stage"] = "freethrow"
+					Game.profile["pending_drill"] = {"kind": "freethrow", "return": "res://src/scenes/TeamCourt.tscn"}
+					SceneRouter.goto("res://src/scenes/DrillScene.tscn")
+				else:
+					_new_play()
+
+func _draw_play() -> void:
+	var mover: Vector2 = _drill_screen(runner_pos)
+	var mate: Vector2 = _drill_screen(play_mate)
+	if play_step == 1:
+		var dest := _drill_screen(play_target)
+		draw_arc(dest, 35, 0, TAU, 32, Color(0.35, 1, 0.55), 4)
+		draw_line(mover, dest, Color(0.35, 1, 0.55, 0.6), 3)
+	var has_ball := play_ball_t < 0.0 and play_step in [0, 3]
+	var moving := joystick.output.length() > 0.1
+	var face := -1.0 if joystick.output.x < -0.1 else 1.0
+	var pose := Avatar.pose(Avatar.DRIBBLE if has_ball else (Avatar.RUN if moving else Avatar.IDLE), dribble_t, 0.0, "", moving)
+	Avatar.draw_body(self, mover, _court_body_h(), face, pose, Avatar.colours(true), has_ball, true, true, DRILL_BALL_R)
+	var mp := Avatar.pose(Avatar.IDLE, dribble_t)
+	Avatar.draw_body(self, mate, _court_body_h(), -1.0, mp, Avatar.colours(false, Game.team_colour(0)), play_step == 1 and play_ball_t < 0.0)
+	if play_ball_t >= 0.0:
+		var point := _drill_screen(play_ball_from.lerp(play_ball_to, clampf(play_ball_t, 0.0, 1.0))) + Vector2(0, -38 - 35 * sin(play_ball_t * PI))
+		draw_circle(point, DRILL_BALL_R, Color(0.95, 0.55, 0.15))
+
 # ---------------------------------------------------------------- shell
 func _action() -> void:
 	match drill_kind:
 		"shooting": _shoot_release()
 		"freethrow": _shoot_release()
 		"handling": _handling_move()
+		"plays": _play_pass()
 		"defense": _defense_contest()
 		"weights": _weights_press()
 
@@ -770,7 +862,15 @@ func _finish() -> void:
 		s01 = clampf(in_band_time / maxf(total_time, 0.001), 0.0, 1.2)
 	else:
 		s01 = clampf(score / max_score, 0.0, 1.2)
-	Career.apply_drill_result(drill_kind, s01)
+	var team_session: bool = drill_kind == "freethrow" and int(Game.profile.get("team_practice_day", -1)) == int(Game.profile.get("day", 1))
+	if team_session:
+		if score > 0.0 and String(Game.profile.get("team_practice_stage", "")) == "freethrow":
+			Season.attend_practice(true)
+		else:
+			Events.toast.emit("Allenamento non completato: riprova")
+		Game.profile.erase("team_practice_day")
+	else:
+		Career.apply_drill_result(drill_kind, s01)
 	lbl_mid.text = Loc.tx("GRADE %s") % Career.grade_from_score(s01)
 	await get_tree().create_timer(2.0).timeout
 	_leave_drill()
@@ -782,6 +882,8 @@ func _leave_drill() -> void:
 	if pd is Dictionary:
 		back = String(pd.get("return", back))
 	Game.profile.erase("pending_drill")
+	Game.profile.erase("team_practice_day")
+	Game.profile.erase("team_practice_stage")
 	if drill_kind in ["shooting", "handling", "defense", "freethrow"]:
 		back = "res://src/scenes/TeamCourt.tscn"
 	SceneRouter.goto(back)
@@ -803,6 +905,8 @@ func _draw() -> void:
 	# horizontal court as a scrimmage.
 	pass
 	match drill_kind:
+		"plays":
+			_draw_play()
 		"shooting", "freethrow":
 			# One live circle. Walk onto it (green) before you can shoot.
 			if not spots.is_empty():
@@ -883,10 +987,13 @@ func _draw_shooter() -> void:
 func _draw_dribbler(pos: Vector2) -> void:
 	var facing: float = signf(joystick.output.x) if absf(joystick.output.x) > 0.1 else 1.0
 	var moving: bool = joystick.output.length() > 0.1
-	# The ball is drawn by the caller on the hand that is actually dribbling,
-	# so the avatar itself carries no ball here (no doubled-up basketballs).
-	Avatar.draw_body(self, pos, _court_body_h(), facing,
-		Avatar.pose(Avatar.DRIBBLE if moving else Avatar.DRIBBLE, dribble_t, 0.0, "", moving),
+	var pose := Avatar.pose(Avatar.DRIBBLE, dribble_t, 0.0, "crossover" if cross_flash > 0.0 else "", moving)
+	pose["hand"] = -1.0 if hand_left else 1.0
+	if cross_flash > 0.0:
+		var f := 1.0 - cross_flash
+		var side := (1.0 if hand_left else -1.0) * cos(f * PI)
+		pose["dribble_hand"] = Vector2(side * _court_body_h() * 0.30, -15.0 - sin(f * PI) * 8.0)
+	Avatar.draw_body(self, pos, _court_body_h(), facing, pose,
 		Avatar.colours(true), true, true, true, DRILL_BALL_R)
 
 ## Defence drill figures. The defender sits in a wide stance with arms out,
@@ -897,9 +1004,13 @@ func _draw_stick(pos: Vector2, col: Color, is_attacker: bool) -> void:
 	if not is_attacker:
 		cols["jersey"] = col
 	var facing: float = 1.0
-	var po: Dictionary = Avatar.pose(Avatar.DRIBBLE if is_attacker else Avatar.DEFEND, dribble_t, 0.0, "", true)
+	var moving: bool = is_attacker or (joystick != null and absf(joystick.output.x) > 0.08)
+	if not is_attacker and moving: facing = signf(joystick.output.x)
+	var po: Dictionary = Avatar.pose(Avatar.DRIBBLE if is_attacker else Avatar.DEFEND, dribble_t, 0.0, "", moving)
 	if not is_attacker and joystick != null and joystick.output.y < -0.22:
 		po["back"] = true
+	elif not is_attacker and joystick != null and joystick.output.y > 0.22:
+		po["front"] = true
 	Avatar.draw_body(self, pos, _court_body_h(), facing, po,
 		cols, is_attacker, true, true, DRILL_BALL_R)
 

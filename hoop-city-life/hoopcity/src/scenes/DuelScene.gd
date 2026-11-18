@@ -341,6 +341,7 @@ func _build_hud() -> void:
 	var slot_left := Vector2(-292.0, -258.0)
 	var slot_right := Vector2(-128.0, -258.0)
 	btn_shoot = TouchButton.new()
+	btn_shoot.keyboard_key = KEY_SPACE
 	# v2.48.1: gli stessi tasti dell'1v1 offline, parola per parola e icona
 	# per icona (MatchScene): TIRA / FINTA / POST in attacco, SALTA / RUBA /
 	# DIFENDI in difesa. Prima erano scritti a mano in inglese e senza icona,
@@ -357,6 +358,7 @@ func _build_hud() -> void:
 	root.add_child(btn_shoot)
 
 	btn_trick = TouchButton.new()
+	btn_trick.keyboard_key = KEY_X
 	btn_trick.text = Loc.t("match.trick")
 	btn_trick.icon = Art.icon_for("TRICK")
 	btn_trick.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -367,6 +369,7 @@ func _build_hud() -> void:
 	root.add_child(btn_trick)
 
 	btn_post = TouchButton.new()
+	btn_post.keyboard_key = KEY_V
 	btn_post.text = Loc.t("match.post")
 	btn_post.icon = Art.icon_for("POST")
 	btn_post.accent = Color(0.980, 0.780, 0.260)
@@ -380,6 +383,7 @@ func _build_hud() -> void:
 	# DIFENDI: stessa casella del POST, ma in difesa — come l'indoor, dove
 	# attacco e difesa si scambiano le stesse tre caselle.
 	btn_guard = TouchButton.new()
+	btn_guard.keyboard_key = KEY_F
 	btn_guard.text = Loc.t("match.defend")
 	btn_guard.icon = Art.icon_for("DEFEND")
 	btn_guard.hold_mode = true
@@ -395,6 +399,7 @@ func _build_hud() -> void:
 
 	# RUBATA: la casella sinistra in difesa, come lo STEAL dell'indoor.
 	btn_steal = TouchButton.new()
+	btn_steal.keyboard_key = KEY_X
 	btn_steal.text = Loc.t("match.steal")
 	btn_steal.icon = Art.icon_for("STEAL")
 	btn_steal.accent = Color(0.870, 0.290, 0.260)
@@ -411,6 +416,7 @@ func _build_hud() -> void:
 	# pad. Prima era un Button rettangolare senza icona: si vedeva che era
 	# un'altra cosa.
 	btn_check = TouchButton.new()
+	btn_check.keyboard_key = KEY_E
 	btn_check.text = Loc.t("match.check")
 	btn_check.icon = Art.icon_for("CHECK")
 	btn_check.accent = Color(0.980, 0.780, 0.260)
@@ -598,9 +604,6 @@ func _process(delta: float) -> void:
 		if duel_on and duel_phase == "live" and not i_attack and not ball_loose:
 			want = Loc.t("match.jump")
 			want_icon = Art.icon_for("JUMP")
-		elif not duel_on and not _pad_holding() and not ball_recall:
-			want = Loc.t("duel.grab")
-			want_icon = "ball"
 		elif dunk_phase == "hang":
 			want = "LET GO"
 		elif dunk_phase == "rise" or _can_dunk():
@@ -1001,15 +1004,6 @@ func _do_jump() -> void:
 	## la prendi al volo.
 	if duel_on and duel_phase != "live":
 		return
-	if duel_on and ball_loose:
-		if my_rebound and ball_live and _pick_ok and ball_h < 110.0 \
-		and player_pos.distance_to(ball_pos) < 130.0:
-			_take_ball(true)
-			return
-		elif not my_rebound and fb_live and _fb_pick_ok and fb_h < 110.0 \
-		and player_pos.distance_to(fb_pos) < 130.0:
-			_take_ball(false)
-			return
 	if _jump_t > 0.0:
 		return
 	_jump_t = 0.45
@@ -1143,14 +1137,9 @@ func _shoot_down() -> void:
 		_do_jump()           # in difesa il primario e' SALTO, come indoor
 		return
 	if not duel_on and ball_recall:
-		# PRENDI + ricarica subito: la palla in volo verso le mani arriva
-		# ALL'ISTANTE. Cosi' il tasto non muore mai mentre la palla vola,
-		# e la fine dell'animazione non puo' spegnere un tiro gia' partito.
-		ball_recall = false
-		ball_live = false
+		return # wait for a genuine pass rather than pulling it in on a tap
 	if not duel_on and not _pad_holding():
-		_try_grab_ball()     # libero senza palla: PRENDI PALLA
-		return
+		return # the ball is collected by walking over it
 	if not _net_ok or not _i_have_ball():
 		if duel_on and i_attack and must_clear:
 			_say(Loc.t("duel.clear"), 1.1)
@@ -1797,15 +1786,18 @@ func _duel_tick(delta: float) -> void:
 	# il primario diventa PRENDI PALLA.
 	var defending := duel_on and duel_phase == "live" and not i_attack and not ball_loose
 	var holding := _pad_holding()
+	# Keep the attack controls available during loose balls and shot flight;
+	# actions themselves still validate possession.
+	var attack_pad := not defending and (not duel_on or i_attack or ball_loose)
 	var checking := duel_on and duel_phase == "check"
 	# OFFLINE (MatchScene): quando si aspetta il CHECK resta SOLO il tasto
 	# CHECK, per chi ha la palla. Tutti gli altri spariscono — in attacco e
 	# in difesa — e nessuno dei due si muove finche' il check non da' il via.
 	var frozen := duel_on and (duel_phase == "count" or duel_phase == "reset" or checking)
 	if btn_trick != null:
-		btn_trick.visible = holding and not frozen
+		btn_trick.visible = attack_pad and not frozen
 	if btn_post != null:
-		btn_post.visible = holding and not frozen
+		btn_post.visible = attack_pad and not frozen
 	if btn_guard != null:
 		btn_guard.visible = defending
 	if btn_steal != null:
@@ -2392,9 +2384,9 @@ func _draw_char(mine: bool) -> void:
 	# mezz'aria. Ora sale e basta, e l'ombra resta dove ha i piedi.
 	var jump_lift := 0.0
 	if mine and _jump_t > 0.0:
-		jump_lift = 92.0 * sin(PI * (1.0 - _jump_t / 0.45))
+		jump_lift = 60.0 * sin(PI * (1.0 - _jump_t / 0.45))
 	elif not mine and _foe_jump_t > 0.0:
-		jump_lift = 92.0 * sin(PI * (1.0 - _foe_jump_t / 0.45))
+		jump_lift = 60.0 * sin(PI * (1.0 - _foe_jump_t / 0.45))
 	var f: float = facing if mine else float(foe.get("facing", -1.0))
 	var kind: String = _my_kind() if mine else String(foe.get("kind", Avatar.DRIBBLE))
 	var amount: float = _my_amount() if mine else float(foe.get("amount", 0.0))
@@ -2429,6 +2421,8 @@ func _draw_char(mine: bool) -> void:
 			or (duel_on and (not i_attack) and not ball_loose and duel_phase != "over"))
 
 	var po: Dictionary = Avatar.pose(kind, phase, amount, tk, walking)
+	if mine and joystick != null and joystick.output.y > 0.22 and dunk_phase == "":
+		po["front"] = true
 	po["hand"] = (-1.0 if hand_left else 1.0) if mine else (-1.0 if bool(foe.get("hl", false)) else 1.0)
 	po["yell"] = (dunk_phase != "") if mine else (String(foe.get("dp", "")) != "")
 	var lift := 0.0
@@ -2508,13 +2502,6 @@ func _draw_char(mine: bool) -> void:
 			if dunk_phase == "rise":
 				var dw: Vector2 = _dunk_window()
 				Avatar.draw_dunk_ring(self, feet, h, _dunk_prog(), dw.x, dw.y, dunk_timed)
-			elif charging:
-				Avatar.draw_contest_ring(self, feet, h,
-					_contest_now() if duel_on else 0.0, tt)
-			if _lockdown and duel_on:
-				Avatar.draw_lockdown_ring(self, feet, h, tt)
-		elif bool(foe.get("ld", false)):
-			Avatar.draw_lockdown_ring(self, feet, h, tt)
 	if hang_body:
 		draw_set_transform_matrix(Transform2D(hang_theta, hang_pivot))
 		Avatar.draw_body(self, hang_feet_off, h, f, po, cols, false, false, mine, BALL_R)
@@ -2587,16 +2574,28 @@ func _update_npcs(delta: float) -> void:
 						net_wobble = maxf(net_wobble, 0.5)
 						if court_art != null:
 							court_art.net_bump(0, 0.6)
+					n["state"] = "fall"
+					n["t"] = 0.0
+					n["target"] = LEFT_RIM + Vector2(randf_range(25.0, 90.0), randf_range(-40.0, 40.0))
+			"fall":
+				n["t"] += delta
+				if n["t"] >= 0.9:
 					n["state"] = "chase"
 					n["t"] = 0.0
-					n["target"] = Vector2(randf_range(-720.0, -260.0), randf_range(-220.0, 220.0))
 			"chase":
 				var to: Vector2 = n["target"] - n["pos"]
 				if to.length() < 14.0:
-					n["state"] = "wait"
-					n["t"] = randf_range(2.0, 5.0)
+					n["state"] = "relocate"
+					n["target"] = Vector2(randf_range(-640.0, -260.0), randf_range(-245.0, 245.0))
 				else:
-					n["pos"] += to.normalized() * 95.0 * delta
+					n["pos"] += to.normalized() * minf(140.0 * delta, to.length())
+			"relocate":
+				var to: Vector2 = n["target"] - n["pos"]
+				if to.length() < 14.0:
+					n["state"] = "wait"
+					n["t"] = randf_range(1.0, 3.0)
+				else:
+					n["pos"] += to.normalized() * minf(150.0 * delta, to.length())
 
 func _draw_three_flash() -> void:
 	## La linea dei tre LAMPEGGIA finche' chi ha subito canestro non e'
@@ -2624,9 +2623,12 @@ func _draw_npcs() -> void:
 			amount = clampf(n["t"], 0.0, 1.0)
 		elif n["state"] == "chase":
 			kind = Avatar.RUN
-		Avatar.draw_body(self, s, h, -1.0,
-			Avatar.pose(kind, dribble_t, amount),
-			n["look"], n["state"] == "wait")
+		var moving: bool = n["state"] in ["chase", "relocate"]
+		var dir: Vector2 = Vector2(n["target"]) - Vector2(n["pos"]) if moving else Vector2.LEFT
+		var face: float = signf(dir.x) if absf(dir.x) > 1.0 else -1.0
+		Avatar.draw_body(self, s, h, face,
+			Avatar.pose(kind, dribble_t, amount, "", moving),
+			n["look"], n["state"] in ["wait", "relocate"])
 		if n["state"] == "shoot":
 			var t: float = clampf(n["t"], 0.0, 1.0)
 			var from: Vector2 = s + Vector2(-10.0, -h * 0.4)
@@ -2637,6 +2639,15 @@ func _draw_npcs() -> void:
 
 
 # -------------------------------------------------- LA PALLA DELL'ALTRO
+		elif n["state"] == "fall":
+			var t: float = clampf(float(n["t"]) / 0.9, 0.0, 1.0)
+			var floor_pos: Vector2 = _screen(n["target"])
+			var from_rim: Vector2 = _screen(LEFT_RIM) + Vector2(0, -RIM_HEIGHT)
+			var bounce: float = sin(clampf((t - 0.65) / 0.35, 0.0, 1.0) * PI) * 28.0
+			_draw_ball_at(from_rim.lerp(floor_pos - Vector2(0, BALL_R), minf(t / 0.65, 1.0)) - Vector2(0, bounce), BALL_R)
+		elif n["state"] == "chase":
+			_draw_ball_at(_screen(n["target"]) - Vector2(0, BALL_R), BALL_R)
+
 func _foe_launch(from: Vector2, aim: Vector2, ghost: bool) -> void:
 	## Stessa parabola esatta del mio tiro: parte da dove ha tirato lui e
 	## passa per l'arrivo che ha deciso il SUO verdetto.

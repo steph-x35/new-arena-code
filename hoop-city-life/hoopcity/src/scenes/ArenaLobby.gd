@@ -168,13 +168,14 @@ func _tip_off(e: Dictionary) -> void:
 	# Club colours travel with the club: the visitors never show up in our
 	# last-picked practice kit.
 	Game.set_team_kit(1, Season.kit_for(opp))
-	SceneRouter.goto("res://src/match/MatchScene.tscn")
+	SceneRouter.pregame_return_path = "res://src/scenes/ArenaLobby.tscn"
+	SceneRouter.goto("res://src/scenes/PregameWarmup.tscn")
 
 func _show_schedule() -> void:
 	var p: GamePanel = GamePanel.new().build("📅  Schedule", Vector2(900, 620))
 	$UI.add_child(p)
 	var day: int = int(Game.profile.get("day", 1))
-	for e in Season.upcoming(9):
+	for e in Season.schedule():
 		var d: int = int(e["day"])
 		var kind: String = String(e.get("kind", "rest"))
 		var line: String = "Day %d · %s" % [d, Season.label_for(e)]

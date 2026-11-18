@@ -26,6 +26,12 @@ var is_free_throw := false   # this shot counts one and skips normal possession
 var prev_h := 0.0
 var prev_pos := Vector2.ZERO
 var _dribble_falling := true
+var _passing := false
+var _pass_time := 0.0
+var _pass_duration := 0.0
+var _pass_origin := Vector2.ZERO
+var _pass_receiver: Node2D = null
+var shot_flame := false
 var flame := false        # NBA JAM: la palla brucia quando il tiratore è HOT
 
 ## Closed-form ballistic flight. Integrating the arc with Euler steps made
@@ -51,24 +57,33 @@ func attach(p: Node) -> void:
 	holder = p
 	live = false
 	_ana = false
+	_passing = false
+	_pass_receiver = null
 	shooter = null
 	practice_shot = false
+	layup_bank = false
+	shot_flame = false
 	shot_result_pending = false
 	is_free_throw = false
 	vel = Vector2.ZERO
 	vh = 0.0
 	h = 49.0
 	last_touch_team = p.team
+	queue_redraw()
+	p.queue_redraw()
 
 func detach() -> void:
 	holder = null
 	live = true
 
-func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made: bool, by: Node) -> void:
+func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made: bool, by: Node, start_height := 67.0, target_height := Court.RIM_HEIGHT) -> void:
 	## Solve a ballistic arc that lands on the rim in `flight_time` seconds.
 	global_position = from
-	h = 67.0
+	h = start_height
 	shooter = by
+	layup_bank = false
+	rattled = false
+	shot_flame = bool(court.user_heat) and by == court.user
 	made_flag = made
 	practice_shot = not bool(court.is_fixture) and not made
 	shot_result_pending = true
@@ -81,7 +96,7 @@ func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made
 	var k := AIR
 	var fT := (1.0 - exp(-k * flight_time)) / k
 	_ana_v0 = (target - from) / fT
-	var rim_h: float = court.RIM_HEIGHT
+	var rim_h: float = target_height
 	_ana_vh0 = (rim_h - h + (G / k) * flight_time) / fT - G / k
 	vel = _ana_v0
 	vh = _ana_vh0
@@ -93,6 +108,24 @@ func shoot(from: Vector2, target: Vector2, apex: float, flight_time: float, made
 	prev_h = h
 	prev_pos = global_position
 
+func bank_toward(target: Vector2, flight_time: float) -> void:
+	# Rebound from the actual impact point/height to the rim; retain the same
+	# shooter, make/miss verdict and pending foul throughout the flight.
+	var k := AIR
+	var f: float = (1.0 - exp(-k * flight_time)) / k
+	_ana_from = global_position
+	_ana_h0 = h
+	_ana_v0 = (target - global_position) / f
+	_ana_vh0 = (court.RIM_HEIGHT - h + (G / k) * flight_time) / f - G / k
+	_ana_t = 0.0
+	_ana_T = flight_time
+	_ana = true
+	vel = _ana_v0
+	vh = _ana_vh0
+	prev_pos = global_position
+	prev_h = h
+	layup_bank = false
+
 func kill_analytic() -> void:
 	## After any rim/board interaction the ball switches back to plain
 	## Euler physics: bounces and loose-ball rolls do not need arc exactness.
@@ -102,6 +135,7 @@ func kill_analytic() -> void:
 ## Counts 1 -> 0 while the ball is drawn dropping through the ring after a
 ## dunk. Without this the ball was simply switched off at the moment of the
 ## slam, so it never visibly went in.
+var layup_bank := false
 var dunk_drop := 0.0
 ## Through-the-net fall after a slam: drifts from the rim to the centre of
 ## the short baseline, so the ball lands under the stanchion (correct
@@ -109,7 +143,7 @@ var dunk_drop := 0.0
 var dunk_from := Vector2.ZERO
 var dunk_to := Vector2.ZERO
 
-func pass_to(from: Vector2, target: Vector2, speed: float, by: Node) -> void:
+func pass_to(from: Vector2, target: Vector2, speed: float, by: Node, receiver: Node2D = null) -> void:
 	global_position = from
 	h = 55.0
 	shooter = null
@@ -119,7 +153,12 @@ func pass_to(from: Vector2, target: Vector2, speed: float, by: Node) -> void:
 	var d := target - from
 	var t: float = maxf(d.length() / speed, 0.12)
 	vel = d / t
-	vh = (0.5 * G * t * t) * 0.15 / t   # slight loft on the pass
+	vh = 0.0
+	_passing = receiver != null
+	_pass_origin = from
+	_pass_receiver = receiver
+	_pass_time = 0.0
+	_pass_duration = t
 	last_touch_team = by.team
 
 func _physics_process(delta: float) -> void:
@@ -149,11 +188,7 @@ func _physics_process(delta: float) -> void:
 		# Stesso percorso deterministico del campetto; niente lettura del
 		# palmo salvato dal frame precedente, che causava scatti e disallineamento.
 		var off: Dictionary = holder.dribble_ball_offset()
-		if not holder.embedded_dribble and holder.move_t <= 0.0 \
-		and holder.fake_t <= 0.0 and not holder.fake_locked \
-		and Avatar.palms.has(holder.get_instance_id()):
-			var palm: Vector2 = Avatar.palms[holder.get_instance_id()]
-			off = {"x": palm.x, "h": maxf(-palm.y, 4.0)}
+
 		global_position = holder.global_position + Vector2(off["x"], 0)
 		h = off["h"]
 		# Thud exactly at the bottom of the dribble arc. The holder controls
@@ -168,6 +203,16 @@ func _physics_process(delta: float) -> void:
 		return
 	if not live:
 		return
+	if _passing:
+		if is_instance_valid(_pass_receiver):
+			_pass_time = minf(_pass_time + delta, _pass_duration)
+			var progress: float = clampf(_pass_time / _pass_duration, 0.0, 1.0)
+			global_position = _pass_origin.lerp(_pass_receiver.global_position, progress)
+			h = 55.0 + sin(progress * PI) * 12.0
+			queue_redraw()
+			return
+		_passing = false
+		_pass_receiver = null
 
 	prev_h = h
 	prev_pos = global_position
@@ -197,16 +242,19 @@ func _physics_process(delta: float) -> void:
 		if absf(global_position.x) > edge_x:
 			hit_boundary = true
 			global_position.x = clampf(global_position.x, -edge_x, edge_x)
-			vel.x = 0.0
+			vel.x = -signf(global_position.x) * absf(vel.x) * 0.38
 		if absf(global_position.y) > edge_y:
 			hit_boundary = true
 			global_position.y = clampf(global_position.y, -edge_y, edge_y)
-			vel.y = 0.0
+			vel.y = -signf(global_position.y) * absf(vel.y) * 0.38
 		if _ana and hit_boundary:
 			kill_analytic()
 	court.check_ball_collisions(self)
 
 	if h <= 0.0:
+		# A floor impact ends the analytic shot. Otherwise the next frame
+		# overwrites the bounce with the old parabola and drives it into a corner.
+		kill_analytic()
 		h = 0.0
 		if absf(vh) < 60.0:
 			vh = 0.0

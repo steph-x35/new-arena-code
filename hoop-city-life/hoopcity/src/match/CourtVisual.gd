@@ -331,7 +331,7 @@ func _draw_jumbo() -> void:
 	# Live score board hanging over centre court: team screens with the real
 	# score, quarter + clock strip, and a flashing ring on every made basket
 	# (bigger star for threes). Vector-drawn: a dozen calls per frame.
-	if env == "street" or court == null:
+	if env == "street" or court == null or (court.team_size == 2 and String(Game.profile.get("team_practice_stage", "")) != "2v2"):
 		return
 	var jp: Vector2 = _p(Vector2(0.0, -(H * 0.5 + 335.0)))
 	var jy: float = jp.y

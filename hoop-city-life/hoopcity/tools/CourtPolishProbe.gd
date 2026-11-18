@@ -8,15 +8,23 @@ func _ready() -> void:
 	await get_tree().process_frame
 	c.set_process(false)
 	c.set_physics_process(false)
+	# Keep the isolated rim-block scenario independent of player AI and the
+	# match clock while the awaited dunk tweens play.
+	for player in c.players:
+		player.set_physics_process(false)
+		for child in player.get_children():
+			if child is AIBrain: child.set_physics_process(false)
+	seed(1477)
 	var attacker: BallPlayer = c.players.filter(func(p): return p.team == 0)[0]
 	var defender: BallPlayer = c.players.filter(func(p): return p.team == 1)[0]
-	defender.ratings["block"] = 99
+	c.target_score = 10000
+	defender.ratings["block"] = 999
 	var blocked := false
 	var notices := [0]
 	var capture := func(msg: String):
 		if msg == "BLOCKED AT THE RIM!": notices[0] += 1
 	Events.toast.connect(capture)
-	for i in 100:
+	for i in 40:
 		c.awaiting_check = false
 		attacker.global_position = Vector2.ZERO
 		defender.global_position = c.dunk_hang_pos(attacker)
@@ -27,6 +35,10 @@ func _ready() -> void:
 		if c.awaiting_check:
 			blocked = true
 			break
+		# Drain the successful dunk's asynchronous check before retrying;
+		# otherwise its late restart races the rarer blocked attempt.
+		attacker.release_rim()
+		await get_tree().create_timer(0.6).timeout
 	Events.toast.disconnect(capture)
 	var ok: bool = blocked and int(notices[0]) > 0 and c.possession == 1 and c.ball.holder == defender and not attacker.has_ball and not attacker.dunking
 	ok = ok and defender.block_window == 0.0 and not defender.stance and defender.steal_t == 0.0

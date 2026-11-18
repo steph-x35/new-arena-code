@@ -21,6 +21,7 @@ static var palm_valid := false
 ## Ball del match legge SOLO quella del suo holder.
 static var palms := {}
 const SHOOT := "shoot"
+const LAYUP := "layup"
 const DUNK := "dunk"
 const DEFEND := "defend"
 const STEAL := "steal"
@@ -393,7 +394,7 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	# tomahawk arches back), so the plumb rule is lifted for the dunk sample.
 	if slam_pose:
 		lean = float(dk.get("lean", 0.0)) * h * facing
-	var turn: float = 0.0 if back else clampf(absf(facing), 0.0, 1.0)
+	var turn: float = 0.0 if back or bool(p.get("front", false)) else clampf(absf(facing), 0.0, 1.0)
 	var sdir: float = 1.0 if facing >= 0.0 else -1.0
 	var twist: float = 0.0
 
@@ -473,7 +474,10 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	var ball_pos := Vector2.ZERO
 	var has_ball_pos := false
 	for sx in [-1.0, 1.0]:
-		var strong: bool = signf(sx) == signf(hd)
+		var hand_now: float = hd
+		if kind == DRIBBLE and trick in ["crossover", "hand_switch", "behind", "between", "spin", "euro", "dropstep"] and amt > 0.5:
+			hand_now = -hd
+		var strong: bool = signf(sx) == signf(hand_now)
 		var sh_p := Vector2(base.x + sx * sh_w * 0.92 + lean + twist, sh_y + h * 0.04)
 		var elbow: Vector2
 		var hand: Vector2
@@ -493,6 +497,9 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 				floor_y - hl.y * h + float(p.get("rim_drop", 0.0)))
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.5) + sdir * h * 0.06,
 				lerpf(sh_p.y, hand.y, 0.5) + h * 0.02)
+		elif kind == LAYUP and strong:
+			hand = Vector2(base.x + sdir * h * 0.38, floor_y - h * 0.95)
+			elbow = sh_p.lerp(hand, 0.55) + Vector2(-sdir * h * 0.04, h * 0.03)
 		elif kind == STEAL and strong:
 			# Reach with the character's own strong-side arm.
 			hand = Vector2(base.x + sx * h * 0.55 + lean, hip_y - h * 0.18)
@@ -504,17 +511,23 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			var sw2: float = arm_swing * 0.35 * sx
 			hand = Vector2(sh_p.x + sx * h * 0.28 + sw2, hip_y - h * 0.10 + absf(sw2) * 0.25)
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.55), lerpf(sh_p.y, hand.y, 0.42) - h * 0.03)
-		elif kind == DRIBBLE and strong and p.has("dribble_hand"):
-			# Il palmo segue la stessa traiettoria della palla durante il trick.
-			hand = base + (p["dribble_hand"] as Vector2)
-			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.42) + sx * h * 0.05, lerpf(sh_p.y, hand.y, 0.40) + h * 0.03)
 		elif kind == DRIBBLE and strong:
-			# Hand rides the ball: bounce and palm stay glued.
-			var br0: float = h * 0.105 if ball_r < 0.0 else ball_r
+			# The hand pushes at hip height; the ball continues to the floor
+			# and rebounds on its own, not glued to an elongating arm.
+			# At the top of the bounce the palm meets the TOP of the ball;
+			# it then pushes a little before the ball travels independently.
 			var bounce: float = absf(sin(ph * 1.15))
-			hand = Vector2(base.x + hd * h * 0.30, floor_y - bounce * h * 0.55 - br0)
+			var br_hand: float = h * 0.105 if ball_r < 0.0 else ball_r
+			var reach_height: float = h * 0.55 + 2.0 * br_hand
+			var hand_x: float = h * 0.30
+			if trick in ["crossover", "hand_switch", "behind", "between", "spin", "euro", "dropstep"]:
+				bounce = absf(cos((1.0 - amt) * PI))
+				reach_height = h * 0.48 + 2.0 * br_hand
+				hand_x = h * 0.34
+			var hand_height: float = lerpf(h * 0.46, reach_height, pow(bounce, 6.0))
+			hand = Vector2(base.x + hand_now * hand_x, floor_y - hand_height)
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.42) + sx * h * 0.05,
-				lerpf(sh_p.y, hand.y, 0.40) + h * 0.03)
+				lerpf(sh_p.y, hand.y, 0.40))
 		elif bool(p.get("hang", false)) and not bool(p.get("hang_one", false)):
 			# APPESO A DUE MANI: le mani CONVERGONO sul tubo del ferro,
 			# vicine (una appena davanti all'altra, come una vera presa a
@@ -561,13 +574,18 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	match st:
 		1:   # rasato: alone sottilissimo
 			c.draw_arc(head_c, head_r * 0.99, 0, TAU, 20, hair, maxf(1.0, head_r * 0.10))
-		2:   # afro: volume pieno tutto intorno
-			c.draw_circle(head_c, head_r * 1.38, hair)
-			c.draw_arc(head_c, head_r * 1.38, 0, TAU, 24, hair.darkened(0.18), head_r * 0.10)
+		2:   # curls frame the face instead of painting over it
+			if back:
+				c.draw_circle(head_c, head_r * 1.14, hair)
+			else:
+				c.draw_arc(head_c, head_r * 1.08, PI, TAU, 20, hair, head_r * 0.46)
+				for i in 7:
+					var angle := PI + PI * float(i) / 6.0
+					c.draw_circle(head_c + Vector2(cos(angle), sin(angle)) * head_r, head_r * 0.26, hair)
 		3:   # trecce: ciuffi che scendono sul collo
 			c.draw_arc(head_c, head_r * 1.06, PI * 0.95, TAU + PI * 0.05, 18, hair, head_r * 0.30)
-			for i in 4:
-				var bx: float = head_c.x - head_r * 0.75 + head_r * 0.5 * i
+			for i in (4 if back else 2):
+				var bx: float = head_c.x + (head_r * (-0.85 if i == 0 else 0.85) if not back else -head_r * 0.75 + head_r * 0.5 * i)
 				c.draw_line(Vector2(bx, head_c.y + head_r * 0.55),
 					Vector2(bx, head_c.y + head_r * (1.25 + 0.08 * (i % 2))), hair, head_r * 0.16)
 		4:   # ricci: corona di gobbe
@@ -579,13 +597,20 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 		5:   # dreadlocks lunghi: ciuffi compatti fino alle spalle, da dietro
 			# e di lato, con la riga in cima al capo
 			c.draw_arc(head_c, head_r * 1.04, PI * 0.9, TAU + PI * 0.1, 18, hair, head_r * 0.30)
-			for i in 6:
-				var dx: float = head_r * (0.85 - 0.34 * i)
+			for i in (6 if back else 2):
+				var dx: float = head_r * ((0.90 if i == 0 else -0.90) if not back else (0.85 - 0.34 * i))
 				var sway: float = head_r * 0.10 * ((i % 2) * 2 - 1)
 				c.draw_line(Vector2(head_c.x + dx, head_c.y + head_r * 0.45),
 					Vector2(head_c.x + dx + sway, head_c.y + head_r * 1.95), hair, head_r * 0.22)
 			# radice piena sopra la testa
 			c.draw_circle(head_c + Vector2(0, -head_r * 0.55), head_r * 0.72, hair)
+		6: # short side-part
+			c.draw_arc(head_c, head_r * 1.02, PI, TAU, 18, hair, head_r * 0.42)
+			c.draw_line(head_c + Vector2(-head_r * 0.5, -head_r * 0.72), head_c + Vector2(head_r * 0.55, -head_r * 0.84), hair.lightened(0.25), maxf(1.0, head_r * 0.08))
+		7: # textured high top
+			c.draw_arc(head_c, head_r * 1.06, PI, TAU, 18, hair, head_r * 0.48)
+			for i in 5:
+				c.draw_circle(head_c + Vector2((float(i) - 2.0) * head_r * 0.32, -head_r * (0.95 + 0.12 * (i % 2))), head_r * 0.22, hair)
 		_:   # normale
 			if back:
 				# Seen from behind: hair covers the skull, no face.
@@ -640,8 +665,11 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	var bp: Vector2 = ball_pos
 	match kind:
 		DRIBBLE:
-			# Same point the palm already occupies.
-			bp = ball_pos
+			# Ball separates from the hand on each bounce in the street court.
+			bp = Vector2(base.x + hd * h * 0.30,
+				floor_y - absf(sin(ph * 1.15)) * h * 0.55 - br)
+			if p.has("dribble_hand"):
+				bp = base + Vector2(p["dribble_hand"])
 		SHOOT:
 			# cocked above the shoulder, released as amount -> 1
 			bp = Vector2(ball_pos.x + hd * br * 0.4, ball_pos.y - br * 0.9)
@@ -806,7 +834,8 @@ static func draw_ball_flames(c: CanvasItem, center: Vector2, r: float, t: float,
 		return
 	# SCIA: il fuoco scivola ALL'INDIETRO rispetto al moto (parabola vera)
 	var ang: float = (-sv / sp).angle()
-	c.draw_set_transform(center, ang, Vector2.ONE)
+	# Keep the caller's projection/scale. Replacing the canvas transform here
+	# sent the trail away from the ball on the match court.
 	for i in 4:
 		var ph: float = t * 10.0 + float(i) * 1.3
 		var d: float = r * (0.55 + float(i) * 0.42)      # quanto dietro
@@ -815,12 +844,12 @@ static func draw_ball_flames(c: CanvasItem, center: Vector2, r: float, t: float,
 		var ln: float = r * (0.55 + (sin(ph * 1.6) * 0.5 + 0.5) * 0.35)
 		var base := Vector2(d, sway)
 		# lingua di fuoco: goccia allungata che si restringe all'indietro
-		c.draw_circle(base, fw, Color(1.0, 0.34, 0.05, 0.72))
-		c.draw_circle(base + Vector2(ln * 0.45, sway * 0.4), fw * 0.62, Color(1.0, 0.60, 0.10, 0.8))
-		c.draw_circle(base + Vector2(ln * 0.85, sway * 0.7), fw * 0.32, Color(1.0, 0.88, 0.30, 0.85))
+		c.draw_circle(center + base.rotated(ang), fw, Color(1.0, 0.34, 0.05, 0.72))
+		c.draw_circle(center + (base + Vector2(ln * 0.45, sway * 0.4)).rotated(ang), fw * 0.62, Color(1.0, 0.60, 0.10, 0.8))
+		c.draw_circle(center + (base + Vector2(ln * 0.85, sway * 0.7)).rotated(ang), fw * 0.32, Color(1.0, 0.88, 0.30, 0.85))
 	# scintille che si staccano lungo la scia
 	for k in 3:
 		var ph2: float = t * 6.0 + float(k) * 2.0
-		c.draw_circle(Vector2(r * (0.7 + float(k) * 0.55), sin(ph2) * r * 0.28),
+		var spark := Vector2(r * (0.7 + float(k) * 0.55), sin(ph2) * r * 0.28)
+		c.draw_circle(center + spark.rotated(ang),
 			1.4 + 1.2 * absf(sin(ph2)), Color(1.0, 0.85, 0.30, 0.75))
-	c.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

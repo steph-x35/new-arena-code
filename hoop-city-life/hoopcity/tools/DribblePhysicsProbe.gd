@@ -21,7 +21,7 @@ func _ready() -> void:
 		p.move_kind = "hand_switch"
 		p.move_t = p.move_duration * 0.5
 		offset = p.dribble_ball_offset()
-		ok = ok and absf(float(offset["x"])) < 0.01 and absf(float(offset["h"]) - h * 0.26) < 0.01
+		ok = ok and absf(float(offset["x"])) < 0.01 and absf(float(offset["h"]) - Court.BALL_R) < 0.01
 		var ball: Ball = c.ball
 		ball.set_physics_process(false)
 		ball.detach()

@@ -25,7 +25,7 @@ const SEASON_DAYS := 30 # 10 gare, ogni terzo giorno
 ## game at the Pavilion. The user's club keeps the kit picked in the kit
 ## picker; identity kits pre-fill the OPPONENT side before tip-off.
 const TEAM_META := {
-	"Riverside Ravens":   {"short": "RAV", "kit": "royal",    "arena": "Riverside Pavilion", "style": "run",
+	"Riverside Ravens":   {"short": "RAV", "kit": "royal",    "arena": "Hoop City Arena", "style": "run",
 		"names": ["Ferro", "Vance", "Okoye", "Duarte", "Silva"]},
 	"Eastport Dockers":   {"short": "DOC", "kit": "teal",     "arena": "Harbour Yard",       "style": "inside",
 		"names": ["Marek", "Kolo", "Bran", "Osei", "Pike"]},
@@ -41,7 +41,7 @@ const TEAM_META := {
 		"names": ["Nero", "Salt", "Ito", "Maro", "Quist"]},
 	"Cedar Park Rangers": {"short": "CPR", "kit": "scarlet",  "arena": "Cedar Grove",        "style": "grit",
 		"names": ["Wood", "Fenn", "Aro", "Tilo", "Garn"]},
-	"Practice Squad":     {"short": "PRA", "kit": "white",    "arena": "Riverside Pavilion", "style": "none", "names": []},
+	"Practice Squad":     {"short": "PRA", "kit": "white",    "arena": "Hoop City Arena", "style": "none", "names": []},
 	"The Challenger":     {"short": "CHL", "kit": "pink",     "arena": "Streetball Cage",    "style": "none", "names": []},
 }
 
@@ -131,6 +131,47 @@ func _ready() -> void:
 func schedule() -> Array:
 	if not Game.profile.has("schedule") or Game.profile["schedule"].is_empty():
 		Game.profile["schedule"] = _generate()
+	# Older saves could contain twenty fixtures. Keep played/past history,
+	# then retain only as many future games as fit the ten-game season.
+	if int(Game.profile.get("schedule_ten_games_v1", 0)) != 1:
+		var cal: Array = Game.profile["schedule"]
+		var now := int(Game.profile.get("day", 1))
+		var protected := 0
+		for e in cal:
+			if String(e.get("kind", "")) == "game" and (bool(e.get("done", false)) or int(e.get("day", 0)) < now):
+				protected += 1
+		var slots := maxi(10 - protected, 0)
+		for e in cal:
+			if String(e.get("kind", "")) != "game" or bool(e.get("done", false)) or int(e.get("day", 0)) < now:
+				continue
+			if slots > 0:
+				slots -= 1
+			else:
+				e["kind"] = "rest"
+				e["opponent"] = ""
+		Game.profile["schedule_ten_games_v1"] = 1
+	# Some older careers saved a genuinely short calendar, not just a short
+	# display. Extend an active regular season without changing any played or
+	# scheduled days. Once complete, never reopen a finished season/playoff.
+	if int(Game.profile.get("schedule_ten_games_v2", 0)) != 1:
+		var cal: Array = Game.profile["schedule"]
+		var games := 0
+		var last_day := 0
+		for entry in cal:
+			last_day = maxi(last_day, int(entry.get("day", 0)))
+			if String(entry.get("kind", "")) == "game": games += 1
+		var playoff: Dictionary = Game.profile.get("playoff", {})
+		if bool(Game.profile.get("season_active", true)) and not bool(playoff.get("live", false)):
+			var next_day: int = maxi(last_day, int(Game.profile.get("day", 1)))
+			var opponents: Array = TEAMS.filter(func(t): return t != my_team())
+			while games < 10:
+				for kind in ["practice", "weights", "game"]:
+					next_day += 1
+					var opp: String = String(opponents[games % opponents.size()]) if kind == "game" else ""
+					cal.append({"day": next_day, "kind": kind, "opponent": opp,
+						"home": games % 2 == 0, "done": false, "skipped": false, "result": ""})
+				if games < 10: games += 1
+		Game.profile["schedule_ten_games_v2"] = 1
 	return Game.profile["schedule"]
 
 func season_end_day() -> int:
@@ -199,7 +240,8 @@ func mark_done(day: int, result := "") -> void:
 	e["result"] = result
 	SaveSystem.save_game()
 
-func attend_practice() -> void:
+func attend_practice(completed_exercise := false) -> void:
+	if not completed_exercise: return
 	var e := today()
 	if e.is_empty() or String(e["kind"]) != "practice" or bool(e["done"]):
 		return
