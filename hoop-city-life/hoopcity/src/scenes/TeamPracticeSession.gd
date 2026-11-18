@@ -316,6 +316,9 @@ func _play_shoot_up() -> void:
 	user.do_shot_release()
 
 func _begin_user_finish() -> void:
+	# A dunk/layup hides the button during its own press callback; release it
+	# after the callback so it is usable again on the next attempt.
+	shoot_button.call_deferred("force_release")
 	finish_by_user = true
 	play_step = "finish_shot"
 	finish_shot_time = 0.0

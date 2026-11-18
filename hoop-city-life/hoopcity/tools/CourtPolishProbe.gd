@@ -8,6 +8,13 @@ func _ready() -> void:
 	await get_tree().process_frame
 	c.set_process(false)
 	c.set_physics_process(false)
+	# Keep the isolated rim-block scenario independent of player AI and the
+	# match clock while the awaited dunk tweens play.
+	for player in c.players:
+		player.set_physics_process(false)
+		for child in player.get_children():
+			if child is AIBrain: child.set_physics_process(false)
+	seed(1477)
 	var attacker: BallPlayer = c.players.filter(func(p): return p.team == 0)[0]
 	var defender: BallPlayer = c.players.filter(func(p): return p.team == 1)[0]
 	c.target_score = 10000
