@@ -7,8 +7,8 @@ html.vice {
   --line: #51415e;
   --ink: #fff7f2;
   --muted: #d1c9d8;
-  --accent: #fb79ac;
-  --accent-2: #ffa2c2;
+  --accent: #ff56ae;
+  --accent-2: #ff9bc6;
   --cyan: #81e6e0;
   --ok: #98e7dc;
 }
@@ -23,13 +23,12 @@ html.vice .nav, html.vice .nav.scrolled {
   backdrop-filter: blur(18px);
 }
 html.vice .hero {
-  background: linear-gradient(90deg, rgba(20, 15, 35, .89) 0%, rgba(24, 17, 39, .76) 38%, rgba(26, 20, 44, .22) 100%),
-              linear-gradient(0deg, #181424 0%, transparent 22%),
+  background: linear-gradient(90deg, rgba(44, 17, 77, .48), rgba(56, 23, 88, .12) 72%),
+              linear-gradient(0deg, #261b39 0%, transparent 16%),
               url('vice-court.jpg') center 50% / cover no-repeat;
 }
 html.vice .hero::before {
-  background: linear-gradient(0deg, rgba(22, 18, 34, .75), transparent 25%),
-              radial-gradient(ellipse at 70% 25%, rgba(255, 142, 191, .12), transparent 60%);
+  background: linear-gradient(0deg, rgba(45, 22, 66, .30), transparent 24%);
 }
 html.vice .hero::after { display: none; }
 html.vice .hero-moon, html.vice .hero-ball { display: none; }
@@ -43,9 +42,25 @@ html.vice .hero h1 em {
 }
 html.vice .hero .tag { color: #fff3f5; text-shadow: 0 2px 12px #211328; }
 html.vice .badge {
-  background: rgba(37, 26, 52, .66);
+  background: rgba(49, 20, 71, .76);
   border-color: rgba(255, 179, 210, .55);
   color: #ffe1ed;
+}
+/* Keep the tribute legible, small, and distinct from the game title. */
+.vice-credit { display: none; }
+html.vice .vice-credit {
+  display: table;
+  max-width: min(100%, 530px);
+  margin: 0 0 18px;
+  padding: 7px 12px;
+  border: 1px solid rgba(255,255,255,.32);
+  border-radius: 8px;
+  background: rgba(53, 21, 74, .76);
+  color: #fff6fc;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .025em;
+  line-height: 1.4;
 }
 html.vice .btn:not(.ghost), html.vice .nav-dl {
   color: #2a1530;
@@ -67,8 +82,8 @@ html.vice .road li, html.vice .faq details {
 html.vice .final-cta { border-image: linear-gradient(90deg, #f77caf, #8fe5e0, #ffb58d) 1; }
 @media (max-width: 600px) {
   html.vice .hero {
-    background: linear-gradient(90deg, rgba(20,15,35,.89), rgba(24,17,39,.58)),
-                linear-gradient(0deg, #181424 0%, transparent 25%),
+    background: linear-gradient(90deg, rgba(43,17,74,.58), rgba(60,23,83,.25)),
+                linear-gradient(0deg, #261b39 0%, transparent 15%),
                 url('vice-court.jpg') 60% center / cover no-repeat;
   }
 }
