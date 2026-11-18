@@ -1,0 +1,74 @@
+/* An original basketball-court take on a tropical neon sunset.
+   Isolated under .vice so the Christmas look returns after the preview. */
+html.vice {
+  --bg: #131220;
+  --bg2: #19172a;
+  --card: #211d34;
+  --line: #51415e;
+  --ink: #fff7f2;
+  --muted: #d1c9d8;
+  --accent: #fb79ac;
+  --accent-2: #ffa2c2;
+  --cyan: #81e6e0;
+  --ok: #98e7dc;
+}
+html.vice body {
+  background: radial-gradient(ellipse at 86% 8%, rgba(132,74,140,.22), transparent 29%),
+              linear-gradient(165deg, #171224 0%, #191525 42%, #111c2b 100%);
+}
+html.vice .nav, html.vice .nav.scrolled {
+  background: rgba(27, 21, 40, .72);
+  border-bottom: 1px solid rgba(255, 209, 226, .20);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+html.vice .hero {
+  background: linear-gradient(90deg, rgba(20, 15, 35, .89) 0%, rgba(24, 17, 39, .76) 38%, rgba(26, 20, 44, .22) 100%),
+              linear-gradient(0deg, #181424 0%, transparent 22%),
+              url('vice-court.jpg') center 50% / cover no-repeat;
+}
+html.vice .hero::before {
+  background: linear-gradient(0deg, rgba(22, 18, 34, .75), transparent 25%),
+              radial-gradient(ellipse at 70% 25%, rgba(255, 142, 191, .12), transparent 60%);
+}
+html.vice .hero::after { display: none; }
+html.vice .hero-moon, html.vice .hero-ball { display: none; }
+html.vice .hero h1 {
+  color: #fff8f3;
+  text-shadow: 0 3px 24px rgba(23, 14, 39, .75), 3px 4px 0 rgba(117, 66, 112, .60);
+}
+html.vice .hero h1 em {
+  color: #ffa6c9;
+  text-shadow: 0 2px 22px rgba(254, 105, 174, .28), 3px 4px 0 rgba(117, 66, 112, .70);
+}
+html.vice .hero .tag { color: #fff3f5; text-shadow: 0 2px 12px #211328; }
+html.vice .badge {
+  background: rgba(37, 26, 52, .66);
+  border-color: rgba(255, 179, 210, .55);
+  color: #ffe1ed;
+}
+html.vice .btn:not(.ghost), html.vice .nav-dl {
+  color: #2a1530;
+  background: linear-gradient(135deg, #ffb1c5, #fb82b9 60%, #f9a5cf);
+  border-color: rgba(255, 232, 243, .75);
+  box-shadow: inset 0 1px rgba(255,255,255,.65), 0 8px 22px rgba(242,90,161,.23);
+}
+html.vice .btn.ghost, html.vice .nav-heart, html.vice .language-select {
+  background: rgba(34, 27, 48, .68);
+  border: 1px solid rgba(233, 191, 221, .36);
+  color: #fff8fa;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+html.vice .challenge, html.vice .stat, html.vice ul.feats li,
+html.vice .road li, html.vice .faq details {
+  border-color: rgba(243, 177, 215, .19);
+}
+html.vice .final-cta { border-image: linear-gradient(90deg, #f77caf, #8fe5e0, #ffb58d) 1; }
+@media (max-width: 600px) {
+  html.vice .hero {
+    background: linear-gradient(90deg, rgba(20,15,35,.89), rgba(24,17,39,.58)),
+                linear-gradient(0deg, #181424 0%, transparent 25%),
+                url('vice-court.jpg') 60% center / cover no-repeat;
+  }
+}
