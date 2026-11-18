@@ -10,6 +10,11 @@ func _ready() -> void:
 	add_child(game)
 	await get_tree().process_frame
 	var c: Court = game.court
+	# Isolate the inbound from the unrelated intro countdown and AI shots.
+	game.set_process(false)
+	for player in c.players:
+		for child in player.get_children():
+			if child is AIBrain: child.set_physics_process(false)
 	var scorer: BallPlayer = c.user
 	c.give_ball(scorer)
 	scorer.hanging = true
@@ -17,9 +22,12 @@ func _ready() -> void:
 	c.ball.dunk_drop = 1.0
 	c._dunk_scored(scorer)
 	var ok: bool = not c.play_live and c.restarting and not c.try_grab(c.players[1])
+	print("DUNK_RESTART_INITIAL=", ok)
 	await get_tree().create_timer(0.9).timeout
+	print("DUNK_RESTART_INBOUND=", c.inbound_wait, ", possession=", c.possession, ", live=", c.play_live)
 	ok = ok and c.inbound_wait > 0.0 and c.possession == 1 and not c.play_live
 	await get_tree().create_timer(3.3).timeout
+	print("DUNK_RESTART_LIVE=", c.play_live, ", restarting=", c.restarting, ", handler=", c.ball_handler())
 	ok = ok and c.play_live and not c.restarting and c.ball_handler() != null
 	game.queue_free()
 	print("PRACTICE_DUNK_RESTART_OK=", ok)
