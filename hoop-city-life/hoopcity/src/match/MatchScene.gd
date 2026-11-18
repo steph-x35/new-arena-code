@@ -835,6 +835,7 @@ const PAD_LOC := {
 func _button(txt: String, pos: Vector2, sz: Vector2, on_down: Callable, on_up: Callable) -> TouchButton:
 	var b := TouchButton.new()
 	b.icon = Art.icon_for(txt)
+	b.keyboard_key = {"SHOOT": KEY_SPACE, "JUMP": KEY_SPACE, "TRICK": KEY_X, "STEAL": KEY_X, "PASS": KEY_C, "DEFEND": KEY_C, "POST": KEY_V, "P&R": KEY_B, "CHECK": KEY_E}.get(txt, KEY_NONE)
 	b.text = Loc.t(PAD_LOC.get(txt, ""), txt)
 	b.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	b.position = pos

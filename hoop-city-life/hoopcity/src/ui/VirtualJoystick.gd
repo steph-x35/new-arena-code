@@ -18,15 +18,35 @@ var touch_index := -1
 var origin := Vector2.ZERO
 var knob := Vector2.ZERO
 var output := Vector2.ZERO
+var _keys := {}
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_process_input(true)
 
+func _process(_delta: float) -> void:
+	# A scene can disable the joystick while a key is held (e.g. free throws).
+	if not is_processing_input() and not _keys.is_empty():
+		_keys.clear()
+		output = Vector2.ZERO
+		moved.emit(output)
+
 func _hit(p: Vector2) -> bool:
 	return get_global_rect().has_point(p)
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and not event.echo:
+		var code: Key = event.keycode
+		if code not in [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_A, KEY_D, KEY_W, KEY_S]: return
+		var focus := get_viewport().gui_get_focus_owner()
+		if event.pressed and (not is_visible_in_tree() or focus is LineEdit or focus is TextEdit): return
+		if event.pressed: _keys[code] = true
+		else: _keys.erase(code)
+		if touch_index == -1:
+			output = Vector2(float(_keys.has(KEY_RIGHT) or _keys.has(KEY_D)) - float(_keys.has(KEY_LEFT) or _keys.has(KEY_A)), float(_keys.has(KEY_DOWN) or _keys.has(KEY_S)) - float(_keys.has(KEY_UP) or _keys.has(KEY_W))).limit_length(1.0)
+			moved.emit(output)
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventScreenTouch:
 		if event.pressed:
 			if touch_index == -1 and _hit(event.position):
@@ -55,7 +75,8 @@ func _end() -> void:
 	queue_redraw()
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and touch_index != -1:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_keys.clear()
 		_end()
 
 func _draw() -> void:

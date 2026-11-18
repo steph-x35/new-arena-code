@@ -341,6 +341,7 @@ func _build_hud() -> void:
 	var slot_left := Vector2(-292.0, -258.0)
 	var slot_right := Vector2(-128.0, -258.0)
 	btn_shoot = TouchButton.new()
+	btn_shoot.keyboard_key = KEY_SPACE
 	# v2.48.1: gli stessi tasti dell'1v1 offline, parola per parola e icona
 	# per icona (MatchScene): TIRA / FINTA / POST in attacco, SALTA / RUBA /
 	# DIFENDI in difesa. Prima erano scritti a mano in inglese e senza icona,
@@ -357,6 +358,7 @@ func _build_hud() -> void:
 	root.add_child(btn_shoot)
 
 	btn_trick = TouchButton.new()
+	btn_trick.keyboard_key = KEY_X
 	btn_trick.text = Loc.t("match.trick")
 	btn_trick.icon = Art.icon_for("TRICK")
 	btn_trick.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -367,6 +369,7 @@ func _build_hud() -> void:
 	root.add_child(btn_trick)
 
 	btn_post = TouchButton.new()
+	btn_post.keyboard_key = KEY_V
 	btn_post.text = Loc.t("match.post")
 	btn_post.icon = Art.icon_for("POST")
 	btn_post.accent = Color(0.980, 0.780, 0.260)
@@ -380,6 +383,7 @@ func _build_hud() -> void:
 	# DIFENDI: stessa casella del POST, ma in difesa — come l'indoor, dove
 	# attacco e difesa si scambiano le stesse tre caselle.
 	btn_guard = TouchButton.new()
+	btn_guard.keyboard_key = KEY_C
 	btn_guard.text = Loc.t("match.defend")
 	btn_guard.icon = Art.icon_for("DEFEND")
 	btn_guard.hold_mode = true
@@ -395,6 +399,7 @@ func _build_hud() -> void:
 
 	# RUBATA: la casella sinistra in difesa, come lo STEAL dell'indoor.
 	btn_steal = TouchButton.new()
+	btn_steal.keyboard_key = KEY_X
 	btn_steal.text = Loc.t("match.steal")
 	btn_steal.icon = Art.icon_for("STEAL")
 	btn_steal.accent = Color(0.870, 0.290, 0.260)
@@ -411,6 +416,7 @@ func _build_hud() -> void:
 	# pad. Prima era un Button rettangolare senza icona: si vedeva che era
 	# un'altra cosa.
 	btn_check = TouchButton.new()
+	btn_check.keyboard_key = KEY_E
 	btn_check.text = Loc.t("match.check")
 	btn_check.icon = Art.icon_for("CHECK")
 	btn_check.accent = Color(0.980, 0.780, 0.260)
