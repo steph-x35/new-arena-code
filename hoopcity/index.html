@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hoop City Life — Il basket del campetto, gratis su Android</title>
-  <meta name="description" content="Hoop City Life: il gioco di basket 2D del campetto per Android. Green release, schiacciate, il metro del tiro e il campo condiviso in WiFi. Gratis, senza pubblicità nel gioco." />
-  <meta property="og:title" content="Hoop City Life — il basket del campetto, gratis" />
-  <meta property="og:description" content="Green release, schiacciate, il campo condiviso in WiFi col telefono dell'amico. Gratis, solo Android." />
+  <title>Hoop City Life — Street basketball, free on Android</title>
+  <meta name="description" content="Hoop City Life: free 2D street basketball for Android. Shoot, dunk and play on a shared local court." />
+  <meta property="og:title" content="Hoop City Life — free street basketball" />
+  <meta property="og:description" content="Green releases, dunks and a shared local court with a friend. Free, Android only." />
   <meta property="og:image" content="https://steph-x35.github.io/new-arena-code/hoopcity/assets/screens/windmill.png" />
   <meta name="theme-color" content="#12151c" />
   <link rel="icon" href="assets/icon.png" />
@@ -75,6 +75,9 @@
     .nav-links a:hover { color: var(--ink); }
     .nav-links a:hover::after { right: 0; }
     .nav-right { display: flex; align-items: center; gap: 10px; }
+    .language-select { color: var(--ink); background: rgba(28,31,42,.82); border: 1px solid rgba(255,255,255,.3); border-radius: 10px; padding: 9px 6px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .language-select:focus-visible { outline: 3px solid #ffe0a3; outline-offset: 3px; }
+    @media (max-width: 420px) { .nav-inner { padding-left: 12px; padding-right: 12px; gap: 6px; } .nav-right { gap: 5px; } .nav-dl { padding: 10px 9px; } .nav-logo { gap: 5px; } .nav-logo b { font-size: 13px; } }
     .nav-heart {
       display: none; align-items: center; gap: 7px;
       color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 700;
@@ -705,11 +708,15 @@
         <a href="#domande">Domande</a>
       </div>
       <div class="nav-right">
+        <select class="language-select" id="language-select" aria-label="Language / Lingua">
+          <option value="en">EN</option>
+          <option value="it">IT</option>
+        </select>
         <a class="nav-heart" href="https://paypal.me/sakerindustryy" rel="noopener">
           <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/></svg>
           Sostieni
         </a>
-        <a class="nav-dl js-dl" href="https://github.com/steph-x35/new-arena-code/releases/download/v2.49.7/HoopCity-v2.49.7.apk" rel="noopener">
+        <a class="nav-dl js-dl" href="https://github.com/steph-x35/new-arena-code/releases/download/v2.49.8/HoopCity-v2.49.8.apk" rel="noopener">
           <span class="pulse"></span> Scarica
         </a>
       </div>
@@ -765,10 +772,10 @@
               </svg>
             </button>
             <a class="btn js-dl" id="dl"
-               href="https://github.com/steph-x35/new-arena-code/releases/download/v2.49.7/HoopCity-v2.49.7.apk"
+               href="https://github.com/steph-x35/new-arena-code/releases/download/v2.49.8/HoopCity-v2.49.8.apk"
                rel="noopener">
               Scarica l'APK gratuita
-              <small id="dl-sub">Versione 2.49.7</small>
+              <small id="dl-sub">Versione 2.49.8</small>
             </a>
           </div>
           <a class="btn ghost" href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">
@@ -1008,7 +1015,7 @@
       <h2 id="final-title">Pronto per il<br /><em>campetto?</em></h2>
       <p>Scarica l’APK, installalo, gioca. Nessun account da creare.</p>
       <div class="final-actions">
-        <a class="btn js-dl" href="https://github.com/steph-x35/new-arena-code/releases/download/v2.49.7/HoopCity-v2.49.7.apk">Scarica l’APK gratuita</a>
+        <a class="btn js-dl" href="https://github.com/steph-x35/new-arena-code/releases/download/v2.49.8/HoopCity-v2.49.8.apk">Scarica l’APK gratuita</a>
         <a class="btn ghost" href="https://t.me/+2zi4deFsk_c1YjRk" rel="noopener">Canale Telegram<small>avvisi delle nuove versioni</small></a>
       </div>
       <img class="site-qr" src="assets/site-qr.svg" alt="Codice QR per aprire questa pagina sul telefono" />
@@ -1030,6 +1037,44 @@
     </div>
   </footer>
 
+  <script>
+    // Keep the original Italian text nodes so switching never destroys links or markup.
+    (function () {
+      var translations = {"Il gioco": "The game", "La storia": "Our story", "La strada": "The journey", "Domande": "FAQ", "Sostieni": "Support", "Scarica": "Download", "Gratis · Android": "Free · Android", "❄️ Il sito si veste a festa": "❄️ The site is dressed for the holidays", "Halloween al campetto · fino al 5 novembre": "Halloween on the court · through November 5", "Il basket del campetto, in 2D.": "Street basketball in 2D.", "Gratis, senza pubblicità nel gioco.": "Free, with no in-game ads.", "Senza account, senza acquisti in-app. Solo te, la palla e l’asfalto.": "No account, no in-app purchases. Just you, the ball and the court.", "Scopri il nostro sito! 🏀": "Explore our site! 🏀", "Scarica l'APK gratuita": "Download the free APK", "Canale Telegram": "Telegram channel", "avvisi delle nuove versioni": "new release notifications", "Sostieni il lavoro": "Support the project", "PayPal · quanto vuoi": "PayPal · any amount", "Nessun account. Nessun acquisto dentro l'app.": "No account. No in-app purchases.", "Scorri": "Scroll", "La sfida di oggi": "Today's challenge", "Oggi al campetto": "Today on the court", "Cambia ogni giorno · prossima tra": "Changes daily · next in", "Dentro il gioco": "Inside the game", "Com'è,": "See it", "davvero": "for yourself", "Niente render di presentazione: schermate vere del gioco. Scorrono da sole — trascinale, o usa le frecce.": "No staged renders: these are real screenshots. They scroll automatically — drag them or use the arrows.", "Nato al campetto,": "Born on the court,", "non in ufficio": "not in an office", "Il campetto del quartiere: il ferro senza retina, l'asfalto che scotta, il tiro in punta di dita che devi prendere al volo.": "The neighborhood court: a rim without a net, hot asphalt, a shot you have to catch on your fingertips.", "Hoop City Life nasce per portare nel telefono quel basket lì": "Hoop City Life brings that kind of basketball to your phone", "— non quello delle supercar e dei contratti milioni.": "— not the world of supercars and million-dollar contracts.", "È un progetto indipendente: si aggiorna in continuazione, una versione dopo l'altra, e cresce insieme a chi lo gioca. Le idee migliori arrivano dai video e dai commenti su": "This independent project keeps growing with its players, one update at a time. Our best ideas come from videos and comments on", "se hai qualcosa da dire, dillo lì": "if you have something to say, tell us there", "Aggiornamenti rilasciati": "Updates released", "Per giocare, per sempre": "To play, forever", "Sviluppatore, indipendente": "Independent developer", "Giocabile offline": "Playable offline", "Tiro, timing": "Shots, timing", "e ferro": "and the rim", "Il metro del tiro:": "Shot meter:", "rilascia sul verde e il canestro è pulito. Giallo, metà e metà. Rosso, mai.": "release on green for a clean basket. Yellow is fifty-fifty. Red misses.", "Schiacciate vere:": "Real dunks:", "windmill, giro di 360°, tomahawk — e ti ci puoi appendere al ferro.": "windmills, 360s and tomahawks — and you can hang on the rim.", "Le mosse del campetto:": "Street moves:", "eurostep, fadeaway, stepback, cambio mano. Ognuna col suo peso.": "eurosteps, fadeaways, stepbacks and hand switches. Each with its own feel.", "La Sfida Metà Campo:": "Half-court challenge:", "il campetto da solo, con i record da battere.": "solo court action with records to beat.", "Il campo condiviso:": "Shared court:", "due telefoni Android, WiFi o hotspot, lo stesso campetto in tempo reale — col": "two Android phones, Wi-Fi or hotspot, the same court in real time — with", "1v1 a punti": "scored 1v1", "(2 e 3, check, si vince a 11, 15 o 21).": "(2s and 3s, check the ball, play to 11, 15 or 21).", "Entri e giochi:": "Jump in and play:", "niente account, niente attese, niente pubblicità dentro il gioco.": "no account, no waiting and no in-game ads.", "Da dove veniamo,": "Where we've been,", "dove andiamo": "where we're going", "Fatto": "Done", "Il campetto": "The court", "Il gioco da soli: palleggio, tiro, la Sfida Metà Campo e i record personali.": "Solo play: dribbling, shooting, the half-court challenge and personal records.", "Il metro e le schiacciate": "Shot meter and dunks", "Green release, windmill, 360°, tomahawk e la presa del ferro.": "Green releases, windmills, 360s, tomahawks and rim hangs.", "Le mosse scolpite": "Signature moves", "Eurostep, fadeaway, stepback, scivolo: ognuna cambia davvero il tiro.": "Eurosteps, fadeaways, stepbacks and slides: each changes the shot.", "Il campo condiviso": "Shared court", "Due telefoni Android sulla stessa rete WiFi o via hotspot: stesso campetto, in tempo reale.": "Two Android phones on the same Wi-Fi network or hotspot: one court, in real time.", "La finestra delle novità": "What's new panel", "A ogni versione il gioco racconta cosa è cambiato, dentro il gioco.": "Find out what's changed in the game itself.", "Il 1v1 a punti": "Scored 1v1", "Le regole del campetto col punteggio in mano: 2 dentro l'arco, 3 da fuori, CHECK per partire, si vince a 11, 15 o 21.": "Street rules with a scoreboard: 2 inside the arc, 3 outside, check to start, play to 11, 15 or 21.", "Prossimo passo": "Next up", "Il campetto che cresce": "A growing court", "Più squadre e più competizione sulla strada, tenendo pulito quello che c'è.": "More teams and competition on the way, while keeping the game polished.", "Installazione": "Installation", "Tre tocchi e": "Three taps and", "sei dentro": "you're in", "Tocca “Scarica l'APK”": "Tap “Download the APK”", "e aspetta che il download finisca.": "and wait for the download to finish.", "Apri il file scaricato.": "Open the downloaded file.", "Se Android chiede il permesso, consenti “installare app da origini sconosciute”. Si fa una volta sola.": "If Android asks, allow installing apps from this source. You only need to do this once.", "Installa e gioca.": "Install and play.", "Hai già una versione precedente? La nuova si installa sopra: non perdi niente.": "Already have an older version? The update installs over it.", "Le cose che": "Questions", "ci si chiede": "you might have", "È gratis davvero?": "Is it really free?", "Sì: l'APK è gratuita,": "Yes: the APK is free,", "non ci sono acquisti dentro l'app né pubblicità nel gioco": "with no in-app purchases or in-game ads", ". Nessun account da creare.": ". No account required.", "Serve internet per giocare?": "Do I need internet to play?", "No:": "No:", "si gioca offline": "you can play offline", ". Internet serve solo per scaricare gli aggiornamenti — e per il campo condiviso, che funziona in WiFi locale o via hotspot, senza internet.": ". Internet is needed for updates. Shared court works over local Wi-Fi or a hotspot, without internet.", "Ci si gioca in due?": "Can two people play?", "Sì:": "Yes:", "il campo condiviso": "shared court", "mette due telefoni Android sullo stesso campetto, in WiFi locale o con l'hotspot di uno dei due. Non è gioco online: serve stare vicini, come al campetto vero.": "connects two Android phones over local Wi-Fi or a hotspot. It is not online play: you need to be near each other.", "Come faccio a sapere quando esce una versione nuova?": "How do I know when a new version is out?", "Questa pagina": "This page", "punta sempre all'ultima versione": "points to the latest version", ": salvala nei preferiti. Oppure segui il": ": bookmark it, or follow the", "canale Telegram": "Telegram channel", "per gli avvisi.": "for updates.", "Posso sostenerlo?": "Can I support the project?", "Sì, in due modi. Con un caffè su": "Yes, in two ways. Buy us a coffee on", "— quanto vuoi, quando vuoi. Oppure gratis:": "— any amount, any time. Or support us for free:", "giocalo, parlane, mandalo a chi ama il basket": "play it, talk about it and share it with basketball fans", ". È il modo in cui questo progetto cresce.": ". That is how this project grows.", "Pronto per il": "Ready for the", "campetto?": "court?", "Scarica l’APK, installalo, gioca. Nessun account da creare.": "Download the APK, install it and play. No account required.", "Scarica l’APK gratuita": "Download the free APK", "Scansiona per aprire il sito sul telefono": "Scan to open this site on your phone", "Sostieni su PayPal": "Support on PayPal", "Tutte le versioni": "All releases", "· gioco gratuito, nessun acquisto in app, nessuna pubblicità nel gioco": "· free game, no in-app purchases, no in-game ads", "Solo Android · fatto a mano, un aggiornamento alla volta": "Android only · handmade, one update at a time"};
+      var attributeTranslations = {"Saluta il giocatore di Hoop City": "Wave to the Hoop City player", "Precedente": "Previous", "Successiva": "Next", "Il campetto sul telefono": "The court on a phone", "Schiacciata windmill": "Windmill dunk", "Il metro del tiro": "Shot meter", "Schiacciata con giro di 360 gradi": "360-degree dunk", "Partita al campetto": "A game on the court", "Menu principale": "Main menu", "Hoop City Life, schermata di gioco": "Hoop City Life gameplay screenshot", "Codice QR per aprire questa pagina sul telefono": "QR code to open this page on your phone"};
+      var nodes = [], attributes = [];
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        var node = walker.currentNode, parent = node.parentElement;
+        if (!parent || parent.closest('script,style,svg,#dl-sub,#dl-meta,#ch-txt')) continue;
+        var original = node.nodeValue, key = original.trim().replace(/\s+/g, ' ');
+        if (Object.prototype.hasOwnProperty.call(translations, key)) nodes.push({node: node, original: original, key: key});
+      }
+      document.querySelectorAll('[alt],[aria-label]').forEach(function (el) {
+        ['alt','aria-label'].forEach(function (name) {
+          var value = el.getAttribute(name);
+          if (Object.prototype.hasOwnProperty.call(attributeTranslations, value)) attributes.push({el: el, name: name, original: value});
+        });
+      });
+      var select = document.getElementById('language-select');
+      window.siteLanguage = 'en';
+      window.setSiteLanguage = function (lang) {
+        window.siteLanguage = lang === 'it' ? 'it' : 'en';
+        document.documentElement.lang = window.siteLanguage;
+        select.value = window.siteLanguage;
+        nodes.forEach(function (item) {
+          item.node.nodeValue = window.siteLanguage === 'it' ? item.original : item.original.replace(/\S[\s\S]*\S|\S/, translations[item.key]);
+        });
+        attributes.forEach(function (item) { item.el.setAttribute(item.name, window.siteLanguage === 'it' ? item.original : attributeTranslations[item.original]); });
+        document.title = window.siteLanguage === 'it' ? 'Hoop City Life — Il basket del campetto, gratis su Android' : 'Hoop City Life — Street basketball, free on Android';
+        document.querySelector('meta[name="description"]').content = window.siteLanguage === 'it' ? 'Hoop City Life: il gioco di basket 2D del campetto per Android. Gratis, senza pubblicità nel gioco.' : 'Hoop City Life: free 2D street basketball for Android. Shoot, dunk and play on a shared local court.';
+        document.querySelectorAll('#car-dots .dot').forEach(function (dot, i) { dot.setAttribute('aria-label', (window.siteLanguage === 'it' ? 'Schermata ' : 'Screenshot ') + (i + 1)); });
+        window.dispatchEvent(new Event('site-language-change'));
+      };
+      select.addEventListener('change', function () { window.setSiteLanguage(select.value); });
+      window.setSiteLanguage('en');
+    })();
+  </script>
   <script>
     // Il tocco riavvia il saluto, senza interferire con il download.
     (function () {
@@ -1056,6 +1101,24 @@
     // Se il fetch non riesce, restano i valori scritti sopra.
     // ================================================================
     (function () {
+      var latestRelease = null, latestAsset = null;
+      function renderRelease() {
+        var en = window.siteLanguage !== 'it';
+        var sub = document.getElementById('dl-sub'), meta = document.getElementById('dl-meta');
+        if (!latestRelease || !latestAsset) {
+          if (sub) sub.textContent = (en ? 'Version ' : 'Versione ') + '2.49.8';
+          if (meta) meta.textContent = en ? 'Latest version · recently updated' : 'Ultima versione · aggiornata di recente';
+          return;
+        }
+        var v = (latestRelease.tag_name || '').replace(/^v/, '');
+        var mb = Math.round(latestAsset.size / 104857.6) / 10;
+        if (sub) sub.textContent = (en ? 'Version ' : 'Versione ') + v + ' · ' + (en ? mb : mb.toString().replace('.', ',')) + ' MB';
+        var d = latestRelease.published_at ? new Date(latestRelease.published_at) : null;
+        var when = d ? (en ? 'released ' : 'pubblicata il ') + d.toLocaleDateString(en ? 'en-US' : 'it-IT', { day: 'numeric', month: 'long' }) : (en ? 'latest version' : 'ultima versione');
+        if (meta) meta.textContent = (en ? 'Latest version · ' : 'Ultima versione · ') + when;
+      }
+      window.addEventListener('site-language-change', renderRelease);
+      renderRelease();
       fetch('https://api.github.com/repos/steph-x35/new-arena-code/releases?per_page=100')
         .then(function (r) { return r.json(); })
         .then(function (rs) {
@@ -1080,15 +1143,9 @@
           var minimumKey = 2 * 1000000 + 49 * 1000 + 4;
           if (rel && asset && bestKey >= minimumKey) {
             var links = document.querySelectorAll('.js-dl');
-            var sub = document.getElementById('dl-sub');
-            var meta = document.getElementById('dl-meta');
-            var v = (rel.tag_name || '').replace(/^v/, '');
-            var mb = Math.round(asset.size / 104857.6) / 10;
             for (var k = 0; k < links.length; k++) links[k].href = asset.browser_download_url;
-            if (sub) sub.textContent = 'Versione ' + v + ' · ' + mb.toString().replace('.', ',') + ' MB';
-            var d = rel.published_at ? new Date(rel.published_at) : null;
-            var when = d ? 'pubblicata il ' + d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' }) : 'ultima versione';
-            if (meta) meta.textContent = 'Ultima versione · ' + when;
+            latestRelease = rel; latestAsset = asset;
+            renderRelease();
           }
           if (count > 0) {
             var rc = document.getElementById('rel-count');
@@ -1113,11 +1170,14 @@
         'Una partita intera senza toccare il ferro',
         'Chiudi la Sfida Metà Campo senza sbagliare un tiro'
       ];
+      var challengesEn = ['Three green releases in a row off the dribble', 'A windmill and a rim hang', 'A 360-degree dunk', 'Five baskets in a row from the same spot', 'An eurostep and a basket on the same possession', 'A driving tomahawk dunk', 'A whole game without hitting the rim', 'Finish the half-court challenge without missing'];
       var now = new Date();
       var start = new Date(now.getFullYear(), 0, 0);
       var doy = Math.floor((now - start) / 86400000);
       var el = document.getElementById('ch-txt');
-      if (el) el.textContent = challenges[doy % challenges.length];
+      function renderChallenge() { if (el) el.textContent = (window.siteLanguage === 'it' ? challenges : challengesEn)[doy % challenges.length]; }
+      window.addEventListener('site-language-change', renderChallenge);
+      renderChallenge();
 
       var t = document.getElementById('ch-timer');
       function tick() {
@@ -1152,7 +1212,7 @@
       for (var i = 0; i < shots.length; i++) {
         var d = document.createElement('button');
         d.className = 'dot' + (i === 0 ? ' on' : '');
-        d.setAttribute('aria-label', 'Schermata ' + (i + 1));
+        d.setAttribute('aria-label', (window.siteLanguage === 'it' ? 'Schermata ' : 'Screenshot ') + (i + 1));
         (function (idx) {
           d.addEventListener('click', function () { goTo(idx); pauseFor(6000); });
         })(i);
