@@ -1,0 +1,127 @@
+/* An original basketball-court take on a tropical neon sunset.
+   Isolated under .vice so the Christmas look returns after the preview. */
+html.vice {
+  --bg: #131220;
+  --bg2: #19172a;
+  --card: #211d34;
+  --line: #51415e;
+  --ink: #fff7f2;
+  --muted: #d1c9d8;
+  --accent: #ff56ae;
+  --accent-2: #ff9bc6;
+  --cyan: #81e6e0;
+  --ok: #98e7dc;
+}
+html.vice body {
+  background: radial-gradient(ellipse at 86% 8%, rgba(132,74,140,.22), transparent 29%),
+              linear-gradient(165deg, #171224 0%, #191525 42%, #111c2b 100%);
+}
+html.vice .nav, html.vice .nav.scrolled {
+  background: rgba(27, 21, 40, .72);
+  border-bottom: 1px solid rgba(255, 209, 226, .20);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+html.vice .hero {
+  background: linear-gradient(90deg, rgba(44, 17, 77, .48), rgba(56, 23, 88, .12) 72%),
+              linear-gradient(0deg, #261b39 0%, transparent 16%),
+              url('vice-court.jpg') center 50% / cover no-repeat;
+}
+html.vice .hero::before {
+  background: linear-gradient(0deg, rgba(45, 22, 66, .30), transparent 24%);
+}
+html.vice .hero::after { display: none; }
+html.vice .hero-moon, html.vice .hero-ball { display: none; }
+html.vice .hero h1 {
+  color: #fff8f3;
+  text-shadow: 0 3px 24px rgba(23, 14, 39, .75), 3px 4px 0 rgba(117, 66, 112, .60);
+}
+html.vice .hero h1 em {
+  color: #ff38a6;
+  text-shadow: 0 2px 22px rgba(255, 56, 166, .45), 3px 4px 0 rgba(75, 23, 85, .9);
+}
+html.vice .hero .tag { color: #fff3f5; text-shadow: 0 2px 12px #211328; }
+html.vice .badge {
+  background: rgba(49, 20, 71, .76);
+  border-color: rgba(255, 179, 210, .55);
+  color: #ffe1ed;
+}
+/* Keep the tribute legible, small, and distinct from the game title. */
+.vice-credit { display: none; }
+html.vice .vice-credit {
+  display: table;
+  max-width: min(100%, 530px);
+  margin: 0 0 18px;
+  padding: 7px 12px;
+  border: 1px solid rgba(255,255,255,.32);
+  border-radius: 8px;
+  background: rgba(53, 21, 74, .76);
+  color: #fff6fc;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .025em;
+  line-height: 1.4;
+}
+html.vice .btn:not(.ghost), html.vice .nav-dl {
+  color: #2a1530;
+  background: linear-gradient(135deg, #ffb1c5, #fb82b9 60%, #f9a5cf);
+  border-color: rgba(255, 232, 243, .75);
+  box-shadow: inset 0 1px rgba(255,255,255,.65), 0 8px 22px rgba(242,90,161,.23);
+}
+html.vice .btn.ghost, html.vice .nav-heart, html.vice .language-select {
+  background: rgba(34, 27, 48, .68);
+  border: 1px solid rgba(233, 191, 221, .36);
+  color: #fff8fa;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+html.vice .challenge, html.vice .stat, html.vice ul.feats li,
+html.vice .road li, html.vice .faq details {
+  border-color: rgba(243, 177, 215, .19);
+}
+html.vice .final-cta { border-image: linear-gradient(90deg, #f77caf, #8fe5e0, #ffb58d) 1; }
+@media (max-width: 600px) {
+  html.vice .hero {
+    /* Portrait crop: focus on the right-hand hoop and palms. The image
+       gradually melts into the page background as the visitor scrolls. */
+    background:
+      linear-gradient(to bottom, rgba(45, 20, 70, .38) 0px, rgba(45, 20, 70, .18) 330px, rgba(38, 27, 57, .34) 470px, #261b39 690px),
+      url('vice-court.jpg') right 70px / auto 620px no-repeat,
+      #261b39;
+  }
+  html.vice .hero h1 {
+    max-width: 100%;
+    font-size: clamp(48px, 12.7vw, 76px);
+  }
+}
+
+/* Editorial cards inspired by games newsrooms, with Hoop City's own imagery. */
+.court-stories { padding: clamp(65px, 8vw, 110px) 0; }
+.court-stories .wrap { max-width: 1440px; }
+.stories-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 32px; }
+.stories-heading h2 { font-family: Oswald, Impact, sans-serif; font-size: clamp(42px, 5.8vw, 86px); text-transform: uppercase; letter-spacing: -.025em; line-height: .95; }
+.stories-heading h2 em { color: var(--accent-2); font-style: normal; }
+.stories-link { flex-shrink: 0; color: var(--ink); font-size: 14px; font-weight: 800; text-decoration: none; border-bottom: 2px solid var(--accent-2); padding: 0 0 8px; }
+.stories-grid { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 16px; }
+.story-card { display: flex; flex-direction: column; min-width: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.18); border-radius: 18px; color: var(--ink); background: rgba(255,255,255,.06); text-decoration: none; box-shadow: 0 12px 30px rgba(0,0,0,.14); transition: transform .2s ease, border-color .2s ease; }
+.story-card:hover { transform: translateY(-5px); border-color: var(--accent-2); }
+.story-card:focus-visible, .stories-link:focus-visible { outline: 3px solid var(--cyan); outline-offset: 4px; }
+.story-card img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+.story-copy { display: flex; flex: 1; flex-direction: column; gap: 9px; padding: 22px; }
+.story-copy strong { font-size: clamp(20px, 2vw, 27px); line-height: 1.15; letter-spacing: -.02em; }
+.story-copy > span:last-child { margin-top: auto; padding-top: 12px; color: var(--muted); font-weight: 700; font-size: 13px; }
+.story-kicker { font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-2); }
+html.vice .story-card { background: linear-gradient(145deg, rgba(110,63,106,.55), rgba(38,34,61,.88)); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+html.vice .nav-inner { max-width: 1440px; }
+html.vice .hero .wrap { max-width: 1440px; }
+html.vice .hero .badge { letter-spacing: .16em; }
+@media (max-width: 760px) {
+  .stories-heading { align-items: start; flex-direction: column; gap: 20px; }
+  .stories-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .story-feature { grid-column: 1 / -1; }
+  .story-copy { padding: 16px; }
+  .story-copy strong { font-size: 19px; }
+  .story-card img { aspect-ratio: 4 / 3; }
+  .story-feature img { aspect-ratio: 16 / 9; }
+}
+@media (prefers-reduced-motion: reduce) { .story-card { transition: none; } .story-card:hover { transform: none; } }
