@@ -8,6 +8,7 @@ var money_lbl: Label
 var grid: GridContainer
 var detail: Label
 var tab := "meals"
+var _last_touch_ms := -10000
 
 const TABS := [
 	{"id": "meals",   "name": "MEALS"},
@@ -136,10 +137,7 @@ func _tile(id: String, kind: String, price: int) -> void:
 	var have: int = Items.owned_count(id) if kind == "food" else 0
 	var icon := ItemIcon.new().setup(id, kind, have)
 	icon.selected = owned
-	icon.gui_input.connect(func(e):
-		if (e is InputEventScreenTouch and e.pressed) \
-		or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT):
-			_buy(id, kind, price))
+	icon.gui_input.connect(func(e): _item_input(e, id, kind, price, icon))
 	icon.mouse_entered.connect(func(): _describe(id, kind))
 	box.add_child(icon)
 
@@ -160,6 +158,17 @@ func _tile(id: String, kind: String, price: int) -> void:
 	box.add_child(l)
 
 	grid.add_child(box)
+
+func _item_input(e: InputEvent, id: String, kind: String, price: int, icon: Control) -> void:
+	if e is InputEventScreenTouch and e.pressed:
+		_last_touch_ms = Time.get_ticks_msec()
+		icon.accept_event()
+		_buy(id, kind, price)
+	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+		# Godot can emulate a mouse press immediately after the same touch.
+		if e.device == InputEvent.DEVICE_ID_EMULATION or Time.get_ticks_msec() - _last_touch_ms < 700: return
+		icon.accept_event()
+		_buy(id, kind, price)
 
 func _describe(id: String, kind: String) -> void:
 	if kind == "food":

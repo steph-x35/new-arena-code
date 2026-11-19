@@ -494,24 +494,49 @@ func _social() -> void:
 	var posts: Array = Game.profile["social"]
 	if posts.is_empty():
 		_txt("Nothing yet. Go play a game.", 20, Color(1, 1, 1, 0.5))
-	for p in posts:
-		_txt("%s  ·  Day %d %s" % [p["author"], p["day"], p["time"]], 17, Color(0.55, 0.78, 1.0))
-		_txt(String(p["text"]), 20)
-		var likes_row := HBoxContainer.new()
-		likes_row.add_theme_constant_override("separation", 6)
-		body.add_child(likes_row)
-		for cfg in [["heart", int(p["likes"])], ["chat", int(p["comments"].size())]]:
-			var sic := Control.new()
-			sic.custom_minimum_size = Vector2(18, 18)
-			sic.draw.connect(func(): Art.draw_icon(sic, String(cfg[0]),
-				Rect2(Vector2.ZERO, sic.size), Color(1, 1, 1, 0.55)))
-			likes_row.add_child(sic)
-			var sl := Label.new()
-			sl.text = str(cfg[1])
-			sl.add_theme_font_size_override("font_size", 15)
-			sl.modulate = Color(1, 1, 1, 0.45)
-			likes_row.add_child(sl)
+	for post in posts:
+		var p: Dictionary = post
+		_txt("%s  ·  Day %d %s" % [p.get("author", ""), p.get("day", 1), p.get("time", "")], 17, Color(0.55, 0.78, 1.0))
+		_txt(String(p.get("text", "")), 20)
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		body.add_child(row)
+		var like := Button.new()
+		like.text = "     %d" % int(p.get("likes", 0))
+		like.custom_minimum_size = Vector2(115, 48)
+		# Vector heart is independent of the platform's emoji font.
+		like.draw.connect(func():
+			var col := Color(1.0, 0.24, 0.30) if bool(p.get("liked_by_player", false)) else Color(0.68, 0.70, 0.75)
+			Art.draw_icon(like, "heart", Rect2(10, 8, 30, 30), col))
+		like.pressed.connect(func():
+			Game.toggle_social_like(p)
+			like.text = "     %d" % int(p.get("likes", 0))
+			like.queue_redraw())
+		row.add_child(like)
+		var reply := Button.new()
+		var comments: Array = p.get("comments", [])
+		reply.text = "Rispondi · %d" % comments.size() if Loc.lang == "it" else "Reply · %d" % comments.size()
+		reply.custom_minimum_size = Vector2(160, 48)
+		reply.pressed.connect(func(): _social_reply(p))
+		row.add_child(reply)
+		for c in comments:
+			if c is Dictionary:
+				_txt("%s: %s" % [String(c.get("author", "")), String(c.get("text", ""))], 16, Color(0.8, 0.85, 0.95))
+			elif c is String:
+				_txt(String(c), 16, Color(0.8, 0.85, 0.95))
 		_sep()
+
+func _social_reply(post: Dictionary) -> void:
+	var panel := GamePanel.new().build("Rispondi" if Loc.lang == "it" else "Reply", Vector2(720, 440))
+	add_child(panel)
+	var replies := ["Grazie per il supporto! 🏀", "Continuiamo a lavorare 💪", "Alla prossima, squadra!"] if Loc.lang == "it" else ["Thanks for the support! 🏀", "Keep working 💪", "On to the next one, team!"]
+	for text in replies:
+		var message: String = text
+		panel.add_button(message, func():
+			Game.comment_social_post(post, message)
+			panel.close()
+			_refresh())
+	panel.add_button("Annulla" if Loc.lang == "it" else "Cancel", func(): panel.close())
 
 func _calendar() -> void:
 	var day: int = Game.profile["day"]
@@ -521,10 +546,18 @@ func _calendar() -> void:
 	_txt("%d followers" % Season.followers(), 17, Color(0.6, 0.85, 1.0))
 	_sep()
 
-	for e in Season.upcoming(12):
+	# Show the entire season, including already-played games. The old 12-day
+	# window looked like a four-game season even when ten were scheduled.
+	_txt("STAGIONE COMPLETA · scorri per vedere tutte le partite", 16, Color(0.75, 0.87, 1.0))
+	var game_number := 0
+	var fixture_total := 0
+	for entry in Season.schedule():
+		if String(entry.get("kind", "")) == "game": fixture_total += 1
+	for e in Season.schedule():
 		var d: int = int(e["day"])
 		var is_today: bool = d == day
 		var kind: String = String(e["kind"])
+		if kind == "game": game_number += 1
 		var col := Color(1, 1, 1, 0.55)
 		match kind:
 			"game": col = Color(1.0, 0.55, 0.45)
@@ -541,14 +574,15 @@ func _calendar() -> void:
 
 		_txt("Day %d%s" % [d, "   ▸ TODAY" if is_today else ""], 17,
 			Color(1, 0.9, 0.4) if is_today else Color(1, 1, 1, 0.45))
-		_txt("   " + Season.label_for(e) + tag, 19, col)
+		var game_prefix := "GARA %d/%d · " % [game_number, fixture_total] if kind == "game" else ""
+		_txt("   " + game_prefix + Season.label_for(e) + tag, 19, col)
 
 		# Today's practice can be attended or skipped right from the phone.
 		if is_today and kind == "practice" and not bool(e.get("done", false)):
 			_row_button("Go to practice  (+followers)",
 				func():
-					Season.attend_practice()
-					_refresh(), Color(0.7, 1.0, 0.8), 62)
+					SceneRouter.close_phone()
+					SceneRouter.goto("res://src/scenes/TeamCourt.tscn"), Color(0.7, 1.0, 0.8), 62)
 			_row_button("Skip it  (-followers, coach notices)",
 				func():
 					Season.skip_practice()
@@ -614,22 +648,10 @@ func _profile() -> void:
 	if (p.get("season_archive", []) as Array).is_empty() and tro == 0:
 		_txt("Ancora nessuna stagione completata.", 16, Color(1, 1, 1, 0.45))
 	_sep()
-	_txt("ATTRIBUTES   (points: %d)" % p["attr_points"], 20, Color(0.7, 0.9, 1.0))
-	for a in Game.ATTRS:
-		var h := HBoxContainer.new()
-		var l := Label.new()
-		l.text = "%s %d" % [a.capitalize(), Game.attr(a)]
-		l.add_theme_font_size_override("font_size", 18)
-		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		h.add_child(l)
-		var b := Button.new()
-		b.text = "+"
-		b.custom_minimum_size = Vector2(58, 48)
-		b.disabled = p["attr_points"] <= 0
-		b.pressed.connect(func():
-			if Game.spend_point(a): _refresh())
-		h.add_child(b)
-		body.add_child(h)
+	_txt("ATTRIBUTI", 20, Color(0.7, 0.9, 1.0))
+	var editor = preload("res://src/ui/AttributeBuilder.gd").new()
+	body.add_child(editor)
+	editor.build(1, true)
 	_sep()
 	_txt("BADGES", 20, Color(1.0, 0.8, 0.4))
 	if p["badges"].is_empty():

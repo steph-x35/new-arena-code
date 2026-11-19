@@ -15,7 +15,7 @@ const RIM_HEIGHT := Court.RIM_HEIGHT
 const RIM_HALF := 42.0
 const GRAV := 1800.0
 const BALL_R := Court.BALL_R
-const DUNK_FT := 6.5   # si parte dalla semicirconferenza sotto canestro
+const DUNK_FT := 3.5   # si parte dalla semicirconferenza sotto canestro
 const CAM_ZOOM := 1.04
 
 var joystick: VirtualJoystick
@@ -40,6 +40,8 @@ var _prev_mv := Vector2.ZERO
 var _drib_t := 0.0             # dribble thud cadence
 var ideal := 0.55
 var shot_anim := 0.0
+var layup_left := 0.0
+var layup_bank := false
 var shot_made := false
 var net_wobble := 0.0
 var net_t := 0.0
@@ -51,6 +53,7 @@ var dunk_anim := 0.0        # progress within the current phase
 var dust_t := 0.0           # nuvolette all'atterraggio
 var dust_big := false       # atterraggio da slam
 var dunk_phase := ""        # "" | "rise" | "hang" | "drop"
+var dunk_timed := ""        # "" | "perfect" | "early" | "late" (v2.49.0)
 var hang_swing_t := 0.0    # tempo appeso: oscilla dx/sx come un pendolo
 var hang_cam := 0.0        # 0..1: zoom della camera della schiacciata (v2.40.2)
 var hang_lift_now := 0.0   # lift reale dell'hang (il corpo e' piu' basso del rise)
@@ -117,6 +120,11 @@ var hc_expanded := false   # quadratino -> tap -> bottone pieno -> tap -> parte
 
 # street-court bystanders who shoot at the left hoop, so the park feels alive
 var npcs: Array = []
+var talk_button: Button
+var talk_index := -1
+var talking := false
+var rebound_helper := -1
+var stop_helper_button: Button
 
 var lbl_top: Label
 var lbl_mid: Label
@@ -130,6 +138,7 @@ var meter: ShotMeter
 var hud_layer: CanvasLayer
 var court_art: Node2D
 var outdoor := true
+var pregame_warmup := false
 var night_tint: CanvasModulate
 
 func _exit_tree() -> void:
@@ -138,7 +147,7 @@ func _exit_tree() -> void:
 
 func _ready() -> void:
 	Sfx.stop_music()   # solo/1v1 courts: squeaks, swish and bounces only
-	outdoor = String(Game.profile.get("last_building", "park")) != "court"
+	outdoor = not pregame_warmup and String(Game.profile.get("last_building", "park")) != "court"
 	hand_left = Game.shooting_hand() < 0.0
 	hc_best = int(Game.profile.get("hc_best", 0))
 	stat_dunks = int(Game.profile.get("stat_dunks", 0))
@@ -149,15 +158,18 @@ func _ready() -> void:
 	court_art.z_index = -10
 	court_art.visible = true
 	# Se c'e' una sfida in attesa, un NPC ti viene incontro con il dialogo.
-	CareerEvents.offer_if_pending_solo(self)
+	if not pregame_warmup: CareerEvents.offer_if_pending_solo(self)
 	# Outdoor: ambiente (registrazione utente 60s). Indoor: SOLO qui parte
 	# la MUSICA RITMICA dell'utente (3'12" in loop), richiesta esplicita:
 	# mai in citta', mai nell'outdoor, mai nei match.
 	if outdoor:
 		Sfx.start_amb()
 	else:
-		Sfx.play_music("music_rhythm")
+		if not pregame_warmup: Sfx.play_music("music_rhythm")
 	court_art.modulate = Color.WHITE
+	# HALLOWEEN (v2.49.3): se e' periodo, i fari del parco si scaldano verso
+	# l'arancio e compaiono zucche e pipistrelli (piu' sotto, in _draw_park).
+	court_art.set("spooky_floods", outdoor and Spooky.active())
 	if court_art.has_method("apply_env"):
 		court_art.apply_env("street" if outdoor else "arena")
 	else:
@@ -174,8 +186,7 @@ func _ready() -> void:
 	RenderingServer.set_default_clear_color(
 		Color(0.30, 0.44, 0.23) if outdoor else Color(0.10, 0.11, 0.14))
 	_build_hud()
-	if outdoor:
-		_spawn_npcs()
+	_spawn_npcs()
 	set_process(true)
 	queue_redraw()
 
@@ -216,6 +227,22 @@ func _build_hud() -> void:
 	left.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	left.add_child(joystick)
 	root.add_child(left)
+	if not outdoor:
+		talk_button = Button.new()
+		talk_button.text = "•••"
+		talk_button.custom_minimum_size = Vector2(60, 42)
+		talk_button.size = Vector2(60, 42)
+		talk_button.visible = false
+		talk_button.pressed.connect(_talk_to_nearby)
+		root.add_child(talk_button)
+		stop_helper_button = Button.new()
+		stop_helper_button.text = "STOP RIMBALZI"
+		stop_helper_button.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		stop_helper_button.position = Vector2(18, 105)
+		stop_helper_button.custom_minimum_size = Vector2(200, 48)
+		stop_helper_button.visible = false
+		stop_helper_button.pressed.connect(_stop_rebound_helper)
+		root.add_child(stop_helper_button)
 
 	lbl_top = Label.new()
 	lbl_top.add_theme_font_size_override("font_size", 24)
@@ -352,19 +379,67 @@ func _unhandled_input(event: InputEvent) -> void:
 func _spawn_npcs() -> void:
 	var homes := [Vector2(-560.0, -150.0), Vector2(-330.0, 140.0), Vector2(-640.0, 60.0)]
 	var cols := [Color(0.16, 0.45, 0.85), Color(0.72, 0.20, 0.22), Color(0.20, 0.55, 0.30)]
+	if not outdoor:
+		homes = [Vector2(-560.0, -140.0), Vector2(-850.0, 300.0)]
+		cols = [Game.team_colour(0), Game.team_colour(0)]
+	var hair_styles := [0, 1, 2, 3, 4, 5, 6, 7]
+	hair_styles.shuffle()
+	var outfits := [Color(0.18, 0.40, 0.72), Color(0.78, 0.31, 0.18), Color(0.24, 0.58, 0.45), Color(0.65, 0.58, 0.76), Color(0.74, 0.70, 0.55)]
+	outfits.shuffle()
+	var shoes := [Color(0.96, 0.94, 0.91), Color(0.18, 0.20, 0.25), Color(0.85, 0.35, 0.20), Color(0.25, 0.67, 0.72)]
+	shoes.shuffle()
 	for i in homes.size():
+		var look := Avatar.colours(false, cols[i % cols.size()] if outdoor else outfits[i % outfits.size()])
+		if not outdoor:
+			look["shorts"] = outfits[(i + 2) % outfits.size()].darkened(0.25)
+			look["shoes"] = shoes[i % shoes.size()]
+			look["skin"] = [Color(0.76, 0.57, 0.43), Color(0.45, 0.29, 0.22), Color(0.88, 0.70, 0.55)].pick_random()
+		look["hst"] = hair_styles[i]
+		look["hair"] = Game.HAIR_COLORS.pick_random()
 		npcs.append({
+			"name": Season.roster_full_name(Season.my_team(), i + 1),
 			"pos": homes[i],
-			"state": "wait",          # wait -> shoot -> chase -> wait
+			"state": ("rest" if randf() < 0.5 else "chat") if not outdoor and i == 1 else "wait",
+			"face": -1.0,
+			"moving": false,
+			"ankle": not outdoor and i == 1,
 			"t": randf_range(1.0, 4.5),
 			"made": false,
 			"target": homes[i],
 			"col": cols[i % cols.size()],
+			"look": look,
 		})
 
 func _update_npcs(delta: float) -> void:
 	for n in npcs:
+		if talking and talk_index >= 0 and talk_index < npcs.size() and n == npcs[talk_index]:
+			n["moving"] = false
+			continue
+		n["moving"] = false
 		match String(n["state"]):
+			"chat":
+				n["t"] -= delta
+				if n["t"] <= 0.0:
+					n["state"] = "rest"
+					n["t"] = randf_range(5.0, 10.0)
+			"rest":
+				n["t"] -= delta
+				if n["t"] <= 0.0:
+					n["state"] = "chat" if not outdoor else "wait"
+					n["t"] = randf_range(5.0, 10.0)
+			"rebound":
+				# Wait at the basket the user shoots at, not behind the shooter.
+				var goal: Vector2 = RIM + Vector2(-90.0, 65.0)
+				if solo_loose and ball_live and _pick_ok:
+					goal = ball_pos
+					if Vector2(n["pos"]).distance_to(goal) < 65.0 and ball_h < 90.0:
+						_recall_ball()
+						goal = RIM + Vector2(-90.0, 65.0)
+				var toward: Vector2 = goal - n["pos"]
+				if toward.length() > (20.0 if solo_loose else 45.0):
+					n["moving"] = true
+					if absf(toward.x) > 1.0: n["face"] = signf(toward.x)
+					n["pos"] += toward.normalized() * minf(220.0 * delta, toward.length())
 			"wait":
 				n["t"] -= delta
 				if n["t"] <= 0.0:
@@ -382,22 +457,148 @@ func _update_npcs(delta: float) -> void:
 						net_wobble = maxf(net_wobble, 0.5)
 						if court_art != null:
 							court_art.net_bump(0, 0.6)
+					n["state"] = "fall"
+					n["t"] = 0.0
+					n["target"] = LEFT_RIM + Vector2(randf_range(25.0, 90.0), randf_range(-40.0, 40.0))
+			"fall":
+				n["t"] += delta
+				if n["t"] >= 0.9:
 					n["state"] = "chase"
 					n["t"] = 0.0
-					n["target"] = Vector2(randf_range(-720.0, -260.0), randf_range(-220.0, 220.0))
 			"chase":
 				var to: Vector2 = n["target"] - n["pos"]
 				if to.length() < 14.0:
-					n["state"] = "wait"
-					n["t"] = randf_range(2.0, 5.0)
+					n["state"] = "relocate"
+					n["target"] = Vector2(randf_range(-640.0, -260.0), randf_range(-245.0, 245.0))
 				else:
-					n["pos"] += to.normalized() * 95.0 * delta
+					n["moving"] = true
+					if absf(to.x) > 1.0: n["face"] = signf(to.x)
+					n["pos"] += to.normalized() * minf(140.0 * delta, to.length())
+			"relocate":
+				var to: Vector2 = n["target"] - n["pos"]
+				if to.length() < 14.0:
+					n["state"] = "wait"
+					n["t"] = randf_range(1.0, 3.0)
+				else:
+					n["moving"] = true
+					if absf(to.x) > 1.0: n["face"] = signf(to.x)
+					n["pos"] += to.normalized() * minf(150.0 * delta, to.length())
+
+func _stop_rebound_helper() -> void:
+	if rebound_helper >= 0 and rebound_helper < npcs.size():
+		var mate: Dictionary = npcs[rebound_helper]
+		mate["state"] = "relocate"
+		mate["target"] = Vector2(randf_range(-640.0, -260.0), randf_range(-245.0, 245.0))
+		mate["moving"] = false
+	rebound_helper = -1
+	if stop_helper_button != null: stop_helper_button.visible = false
+
+func _update_talk_button() -> void:
+	if outdoor or talk_button == null:
+		return
+	if talking:
+		talk_button.visible = false
+		return
+	talk_index = -1
+	var nearest := 125.0
+	for i in npcs.size():
+		var dist: float = player_pos.distance_to(npcs[i]["pos"])
+		if dist < nearest:
+			nearest = dist
+			talk_index = i
+	talk_button.visible = talk_index >= 0 and not talking
+	if talk_index >= 0:
+		var point: Vector2 = get_viewport().get_canvas_transform() * (_screen(npcs[talk_index]["pos"]) + Vector2(0, -95))
+		talk_button.position = point - Vector2(30, 42)
+
+func _talk_to_nearby() -> void:
+	if talk_index < 0 or talk_index >= npcs.size(): return
+	var which := talk_index
+	talking = true
+	var n: Dictionary = npcs[which]
+	# A letterboxed, two-step conversation inspired by the reference, while
+	# keeping Hoop City's own colours and typography.
+	var overlay := Control.new()
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	hud_layer.add_child(overlay)
+	overlay.tree_exiting.connect(func(): talking = false)
+	for top in [true, false]:
+		var bar := ColorRect.new()
+		bar.color = Color(0.02, 0.025, 0.04, 0.94)
+		bar.set_anchors_preset(Control.PRESET_TOP_WIDE if top else Control.PRESET_BOTTOM_WIDE)
+		bar.offset_top = 0 if top else -55
+		bar.offset_bottom = 55 if top else 0
+		overlay.add_child(bar)
+	var card := PanelContainer.new()
+	card.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	card.position = Vector2(-370, -235)
+	card.custom_minimum_size = Vector2(740, 155)
+	var skin := StyleBoxFlat.new()
+	skin.bg_color = Color(0.95, 0.93, 0.88, 0.98)
+	skin.border_color = Color(0.18, 0.38, 0.51)
+	skin.set_border_width_all(4)
+	skin.set_corner_radius_all(14)
+	skin.set_content_margin_all(16)
+	card.add_theme_stylebox_override("panel", skin)
+	overlay.add_child(card)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 8)
+	card.add_child(col)
+	var who := Label.new()
+	who.text = String(n.get("name", "Compagno di squadra")).to_upper()
+	who.add_theme_font_size_override("font_size", 21)
+	who.add_theme_color_override("font_color", Color(0.72, 0.24, 0.13))
+	col.add_child(who)
+	var line := Label.new()
+	line.text = "Ehi! Ti va di allenarci insieme?"
+	line.add_theme_font_size_override("font_size", 25)
+	line.add_theme_color_override("font_color", Color(0.12, 0.14, 0.19))
+	col.add_child(line)
+	var choices := HBoxContainer.new()
+	choices.add_theme_constant_override("separation", 10)
+	col.add_child(choices)
+	var next := Button.new()
+	next.text = "CONTINUA  ›"
+	choices.add_child(next)
+	next.pressed.connect(func():
+		next.queue_free()
+		line.text = "Che cosa facciamo?"
+		var rebound := Button.new()
+		rebound.text = "RIMBALZI"
+		choices.add_child(rebound)
+		rebound.pressed.connect(func():
+			if rebound_helper >= 0 and rebound_helper < npcs.size(): npcs[rebound_helper]["state"] = "wait"
+			rebound_helper = which
+			n["state"] = "rebound"
+			overlay.queue_free())
+		var duel := Button.new()
+		duel.text = "1v1"
+		choices.add_child(duel)
+		duel.pressed.connect(func():
+			SceneRouter.friendly_1v1 = true
+			SceneRouter.friendly_look = n["look"].duplicate(true)
+			SceneRouter.friendly_name = String(n.get("name", "Compagno"))
+			Game.profile["next_match_mode"] = "1v1"
+			Game.profile["match_is_fixture"] = false
+			Game.profile["next_opponent"] = SceneRouter.friendly_name
+			Game.profile["next_kit_return"] = "res://src/scenes/TeamCourt.tscn"
+			SceneRouter.goto("res://src/match/MatchScene.tscn"))
+		var later := Button.new()
+		later.text = "A DOPO"
+		choices.add_child(later)
+		later.pressed.connect(func(): overlay.queue_free()))
 
 func _process(delta: float) -> void:
 	dribble_t += delta * 4.2
 	net_t += delta
 	net_wobble = HoopArt.decay(net_wobble, delta)
 	trick_t = maxf(trick_t - delta, 0.0)
+	if layup_left > 0.0:
+		var before: float = layup_left
+		layup_left = maxf(0.0, layup_left - delta)
+		if before > 0.42 and layup_left <= 0.42:
+			_release_layup()
 	dust_t = maxf(dust_t - delta, 0.0)
 	if dunk_phase == "hang":
 		hang_swing_t += delta
@@ -445,9 +646,16 @@ func _process(delta: float) -> void:
 		else:
 			cam.position.x = lerpf(cam.position.x, want_x, clampf(4.0 * delta, 0.0, 1.0))
 		cam.position.y = cam_y
-		cam.zoom = Vector2.ONE * CAM_ZOOM * zoom_k
+		if not talking:
+			cam.zoom = cam.zoom.lerp(Vector2.ONE * CAM_ZOOM * zoom_k, clampf(delta * 4.0, 0.0, 1.0))
+		if talking and talk_index >= 0 and talk_index < npcs.size():
+			var focal: Vector2 = _screen((player_pos + Vector2(npcs[talk_index]["pos"])) * 0.5)
+			cam.position = focal + Vector2(0, -35)
+			cam.zoom = cam.zoom.lerp(Vector2.ONE * CAM_ZOOM * 1.45, clampf(delta * 4.0, 0.0, 1.0))
+	_update_npcs(delta)
+	_update_talk_button()
+	if stop_helper_button != null: stop_helper_button.visible = rebound_helper >= 0 and not talking
 	if outdoor:
-		_update_npcs(delta)
 		# Fade the whole park with the day/night cycle, like the city street.
 		if night_tint != null:
 			var c: Color = Game.daylight_color()
@@ -455,7 +663,7 @@ func _process(delta: float) -> void:
 			c = c.lerp(Color(0.72, 0.70, 0.62), 0.55)
 			night_tint.color = night_tint.color.lerp(c, 2.0 * delta)
 
-	if not session_over:
+	if outdoor and not session_over:
 		session_left -= delta
 		if session_left <= 0.0:
 			session_left = 0.0
@@ -548,9 +756,9 @@ func _process(delta: float) -> void:
 		shot_anim += delta
 		if shot_anim > 0.9:
 			shot_anim = 0.0
-	elif not charging and dunk_phase == "":
+	elif not charging and layup_left <= 0.0 and dunk_phase == "" and not talking:
 		var mv: Vector2 = joystick.output
-		player_pos += mv * (155.0 if posting else 255.0) * delta
+		player_pos += mv * (155.0 if posting else 255.0) * Game.speed_factor() * delta
 		# The movement boundary IS the court's painted rectangle.
 		var m := 40.0
 		player_pos.x = clampf(player_pos.x, -Court.COURT_W * 0.5 + m, Court.COURT_W * 0.5 - m)
@@ -562,7 +770,7 @@ func _process(delta: float) -> void:
 			var phx: float = RIM.x - player_pos.x
 			if absf(phx) > 1.0:
 				facing = -signf(phx)
-		if mv.length() > 0.05 and Engine.get_frames_drawn() % 60 == 0:
+		if not pregame_warmup and mv.length() > 0.05 and Engine.get_frames_drawn() % 60 == 0:
 			Game.advance_time(1)
 
 	if charging:
@@ -580,9 +788,10 @@ func _process(delta: float) -> void:
 			Sfx.play("swish", -1.0, randf_range(0.84, 0.90))
 			if want_hang:
 				dunk_phase = "hang"
-				stat_hangs += 1
-				Game.profile["stat_hangs"] = stat_hangs
-				if stat_hangs % 25 == 0:
+				if not pregame_warmup:
+					stat_hangs += 1
+					Game.profile["stat_hangs"] = stat_hangs
+				if not pregame_warmup and stat_hangs % 25 == 0:
 					Events.toast.emit("%d appese al ferro in carriera!" % stat_hangs)
 				Sfx.play("rim", -6.0, 0.72)
 				Sfx.haptic(45)
@@ -614,9 +823,13 @@ func _process(delta: float) -> void:
 
 	var ft: float = _distance_ft()
 	var tag: String = "  ·  DUNK READY" if (can_dunk() and dunk_phase == "") else ""
-	if hc_mode:
+	if pregame_warmup:
+		lbl_top.text = "RISCALDAMENTO  ·  " + Season.my_team() if Loc.lang == "it" else "SHOOTAROUND  ·  " + Season.my_team()
+	elif hc_mode:
 		lbl_top.text = "HALF-COURT · 0:%02d · GREEN %d · RECORD %d · %.0f ft" % [
 			int(session_left), hc_greens, hc_best, ft]
+	elif not outdoor:
+		lbl_top.text = "CAMPO LIBERO · %d/%d · %.0f ft" % [makes, attempts, ft]
 	else:
 		lbl_top.text = "%d:%02d · SCORE %d · %d/%d · streak %d (best %d) · %.0f ft%s" % [
 			int(session_left) / 60, int(session_left) % 60, session_score,
@@ -624,9 +837,7 @@ func _process(delta: float) -> void:
 	lbl_top.modulate = Color(1, 0.45, 0.4) if session_left <= 15.0 else Color(1, 1, 1)
 	if btn_shoot:
 		var want: String = "SHOOT"
-		if solo_loose and not ball_recall:
-			want = Loc.t("solo.get")
-		elif dunk_phase == "hang":
+		if dunk_phase == "hang":
 			want = "LET GO"
 		elif dunk_phase == "rise":
 			want = "DUNK!"
@@ -748,7 +959,8 @@ func _do_trick() -> void:
 	# Same joystick mapping as the match: TRICK + stick direction.
 	var mv: Vector2 = joystick.output if joystick else Vector2.ZERO
 	if mv.length() < 0.25:
-		trick_kind = "hesi"
+		trick_kind = "hand_switch"
+		hand_left = not hand_left
 	elif mv.y > 0.35:
 		trick_kind = "hand_switch"
 		hand_left = not hand_left
@@ -807,7 +1019,7 @@ func _try_spin() -> void:
 	if session_over or solo_loose or charging or dunk_phase != "" or ball_live or trick_t > 0.0:
 		return
 	trick_kind = "spin"
-	trick_t = 0.45
+	trick_t = 0.80
 	Sfx.squeak()
 	hand_left = not hand_left
 	player_pos.x = clampf(player_pos.x + facing * 55.0,
@@ -868,7 +1080,7 @@ func _toggle_hc() -> void:
 ## chi si allena sui green si ritrova senza gambe per il resto della carriera
 ## (e il dunk, che richiede energia, spariva da tutti i court).
 func _drain_energy(v: float) -> void:
-	if hc_mode:
+	if hc_mode or pregame_warmup:
 		return
 	Game.add_energy(v)
 
@@ -913,25 +1125,29 @@ func _pickup_loose() -> void:
 
 
 func _shoot_down() -> void:
-	if shot_anim > 0.0 or dunk_phase != "":
+	if dunk_phase == "rise":
+		_dunk_tap()
+		return
+	if shot_anim > 0.0 or layup_left > 0.0 or dunk_phase != "":
 		return
 	if solo_loose:
-		_recall_ball()
+		Events.toast.emit("Raggiungi la palla per raccoglierla")
 		return
 	if ball_recall:
-		# PRENDI + ricarica subito: la palla in volo verso le mani arriva
-		# ALL'ISTANTE, cosi' la fine dell'animazione non spegne il tiro
-		# appena partito (e niente popup "PALLA!" a meta' tiro).
-		ball_recall = false
-		ball_live = false
+		# A team-mate is returning the rebound: wait until it reaches you.
+		return
 	if can_dunk() and not posting:
 		_start_dunk()
+		return
+	if not hc_mode and not posting and _distance_ft() < 8.0 and player_pos.x <= RIM.x + 8.0:
+		layup_left = 0.80
+		facing = 1.0
 		return
 	charging = true
 	charge = 0.0
 	ideal = clampf(0.42 + _distance_ft() * 0.012, 0.42, 0.78)
 	# The green band tightens with distance and matches the scoring windows.
-	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
+	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot, Game.shot_skill(_distance_ft()))
 	meter.perfect_window = float(w["perfect"])
 	meter.good_window = float(w["good"])
 	# FADEAWAY: levetta INDIETRO mentre carichi -> schienata (stile Kobe):
@@ -943,11 +1159,59 @@ func _shoot_down() -> void:
 		meter.perfect_window = float(w["perfect"]) * 0.72
 		meter.good_window = float(w["good"]) * 0.85
 
+func _release_layup() -> void:
+	# Use the normal shot accounting, then send the ball from the raised hand
+	# to the glass. The board collision redirects it toward the hoop.
+	charging = true
+	ideal = 0.5
+	var made: bool = randf() < lerpf(0.55, 0.90, float(Game.attr_eff("close")) / 99.0)
+	charge = ideal if made else ideal + 1.0
+	_family_tag = "LAYUP"
+	_shoot_up()
+	ball_pos = player_pos + Vector2(64.0 * Game.height_factor() * 0.38, 0.0)
+	ball_h = 64.0 * Game.height_factor() * 0.95 + 45.0
+	var target: Vector2 = RIM + Vector2(55.0, 0.0)
+	var duration := 0.55
+	ball_vel = (target - ball_pos) / duration
+	ball_vh = (RIM_HEIGHT + 25.0 - ball_h + 0.5 * GRAV * duration * duration) / duration
+	layup_bank = true
+	ball_ghost_rim = true
+
+## SCHIACCIATA A TEMPO (v2.49.0, come il dunk meter di 2K27): sali, e premi
+## TIRA quando la pallina dell'anello e' nel verde. A tempo la schiacciata
+## e' pulita e NESSUNA difesa la tocca; fuori tempo la va a schiacciare un
+## uomo che salta addosso (online) e la puo' stoppare.
+func _dunk_window() -> Vector2:
+	## La finestra e' l'ultimo tratto della salita, in frazione 0..1.
+	var rt: float = maxf(dunk_rise_t, 0.05)
+	var dunk_skill: float = float(Game.attr("dunk"))
+	var window: float = lerpf(0.13, 0.21, clampf((dunk_skill - 30.0) / 69.0, 0.0, 1.0))
+	return Vector2(maxf(1.0 - window / rt, 0.55), 1.0)
+
+func _dunk_prog() -> float:
+	return clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)
+
+func _dunk_tap() -> void:
+	if dunk_timed != "":
+		return
+	var prog: float = _dunk_prog()
+	if prog < 0.45:
+		return          # primo tocco troppo presto: si ignora, non si punisce
+	if prog >= _dunk_window().x:
+		dunk_timed = "perfect"
+		Events.popup.emit("PERFECT!", player_pos + Vector2(0, -110),
+			Color(0.30, 1.0, 0.45), true)
+		Sfx.haptic(40)
+	else:
+		dunk_timed = "early"
+
+
 ## Dunk: drive at the rim, rise to the iron, throw it down -- then HANG there
 ## until the dunk button is released.
 func _start_dunk() -> void:
 	dunk_phase = "rise"
 	dunk_anim = 0.0
+	dunk_timed = ""
 	dunk_ball_t = 0.0
 	want_hang = true
 	shot_made = true
@@ -959,9 +1223,10 @@ func _start_dunk() -> void:
 func _dunk_throw() -> void:
 	attempts += 1
 	makes += 1
-	stat_dunks += 1
-	Game.profile["stat_dunks"] = stat_dunks
-	if stat_dunks % 25 == 0:
+	if not pregame_warmup:
+		stat_dunks += 1
+		Game.profile["stat_dunks"] = stat_dunks
+	if not pregame_warmup and stat_dunks % 25 == 0:
 		Events.toast.emit("%d schiacciate in carriera!" % stat_dunks)
 	streak += 1
 	best_streak = maxi(best_streak, streak)
@@ -969,13 +1234,22 @@ func _dunk_throw() -> void:
 	Sfx.haptic(60)
 	if court_art != null:
 		court_art.net_bump(1, 1.0)
-	Events.shot_taken.emit("DUNK %s" % DunkStyle.label(dunk_style), true, 2)
-	Game.add_xp(SPOT_XP + 4, "solo_shots")
+	if not pregame_warmup:
+		Events.shot_taken.emit("DUNK %s" % DunkStyle.label(dunk_style), true, 2)
+		Game.add_xp(SPOT_XP + 4, "solo_shots")
 	_drain_energy(-1.6)
 	session_score += 2
 	dunk_ball_t = 0.0
-	lbl_mid.text = "%s!  x%d" % [DunkStyle.label(dunk_style), streak]
-	lbl_mid.modulate = Color(1.0, 0.75, 0.25)
+	# VERDETTO DEL TEMPO: al campetto non c'e' nessuno che stoppa, quindi la
+	# schiacciata va sempre dentro — ma solo quella a tempo e' "pulita".
+	if dunk_timed == "":
+		dunk_timed = "late"
+	lbl_mid.text = ("PERFECT!  " if dunk_timed == "perfect" else "") \
+		+ "%s!  x%d" % [DunkStyle.label(dunk_style), streak]
+	lbl_mid.modulate = Color(1.0, 0.75, 0.25) if dunk_timed == "perfect" \
+		else Color(0.95, 0.88, 0.70)
+	if dunk_timed == "perfect" and not pregame_warmup:
+		Game.add_xp(3, "solo_shots")
 
 func _drop_from_rim() -> void:
 	if dunk_phase == "hang":
@@ -1024,7 +1298,7 @@ func _shoot_up() -> void:
 		if away.length() > 1.0:
 			player_pos += away.normalized() * 46.0
 
-	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot)
+	var w: Dictionary = ShotSystem.shot_windows(_distance_ft(), hot, Game.shot_skill(_distance_ft()))
 	var pw: float = float(w["perfect"])
 	var gw: float = float(w["good"])
 	var err: float = absf(charge - ideal)
@@ -1073,8 +1347,9 @@ func _shoot_up() -> void:
 			hot = true
 			Events.popup.emit("ON FIRE!", player_pos, Color(1.0, 0.55, 0.15), true)
 		best_streak = maxi(best_streak, streak)
-		CareerEvents.on_solo_make(streak)
-		Game.add_xp(SPOT_XP, "solo_shots")
+		if not pregame_warmup:
+			CareerEvents.on_solo_make(streak)
+			Game.add_xp(SPOT_XP, "solo_shots")
 		var pts: int = 3 if _distance_ft() > Court.THREE_FT else 2
 		session_score += pts
 		lbl_mid.text = (_family_tag + "  " if _family_tag != "" else "") + "+%d  ·  x%d" % [pts, streak]
@@ -1170,6 +1445,7 @@ func _step_ball(delta: float) -> void:
 		_collide_rim()
 		_collide_backboard()
 		_collide_floor()
+		_keep_ball_in_play()
 	ball_spin += ball_vel.x * 0.0004
 
 	if not solo_loose:
@@ -1178,6 +1454,18 @@ func _step_ball(delta: float) -> void:
 			ball_live = false
 		if ball_settled > 1.1:
 			ball_live = false
+
+func _keep_ball_in_play() -> void:
+	# Street/warmup balls remain reachable: reflect and lose energy at the
+	# boundaries instead of running offscreen and being parked at a corner.
+	var edge_x: float = Court.COURT_W * 0.5 - BALL_R
+	var edge_y: float = Court.COURT_H * 0.5 - BALL_R
+	if absf(ball_pos.x) > edge_x:
+		ball_pos.x = clampf(ball_pos.x, -edge_x, edge_x)
+		ball_vel.x = -signf(ball_pos.x) * absf(ball_vel.x) * 0.38
+	if absf(ball_pos.y) > edge_y:
+		ball_pos.y = clampf(ball_pos.y, -edge_y, edge_y)
+		ball_vel.y = -signf(ball_pos.y) * absf(ball_vel.y) * 0.38
 
 ## The ring is a circle in the court plane at rim height. Crossing down
 ## through its middle scores; clipping its edge clangs the iron and snaps the
@@ -1191,26 +1479,7 @@ func _collide_rim() -> void:
 		var cy: float = lerpf(prev_pos.y, ball_pos.y, clampf(f, 0.0, 1.0))
 		var d: Vector2 = Vector2(cx, cy) - RIM
 		var dist: float = d.length()
-		if dist < RIM_HALF - 6.0 or (ball_rattled and dist < RIM_HALF + 6.0):
-			# RIM-RATTLE: anche il court libero deve avere il suo momento
-			# firma (30%): ferro fortissimo, pop sopra il ferro, poi swish.
-			if not ball_rattled and not through_rim and randf() < 0.30:
-				ball_rattled = true
-				var rn_s: Vector2 = (ball_pos - RIM).normalized()
-				if rn_s.length() < 0.1:
-					rn_s = Vector2(1, 0)
-				ball_pos = RIM + rn_s * 9.0
-				ball_vh = randf_range(500.0, 640.0)
-				ball_vel = rn_s * randf_range(30.0, 55.0) + Vector2(randf_range(-25, 25), randf_range(-25, 25))
-				Sfx.play("rim", -0.5, randf_range(0.95, 1.08))
-				net_wobble = 0.9
-				Events.shake.emit(0.60)
-				if court_art != null:
-					if court_art.has_method("rim_fx"):
-						court_art.rim_fx("rattle", RIM)
-					if court_art.has_method("net_bump"):
-						court_art.net_bump(1, 0.9)
-				return
+		if dist < RIM_HALF - 6.0:
 			if not through_rim:
 				through_rim = true
 				scored_this_shot = true
@@ -1251,6 +1520,15 @@ func _collide_backboard() -> void:
 	if ball_h > RIM_HEIGHT - 30.0 and ball_h < RIM_HEIGHT + 90.0:
 		if ball_pos.x > bx and ball_vel.x > 0.0:
 			ball_pos.x = bx
+			if layup_bank:
+				var target: Vector2 = RIM + Vector2(randf_range(-4.0, 4.0), randf_range(-6.0, 6.0)) if shot_made else RIM + Vector2(-randf_range(48.0, 65.0), randf_range(-35.0, 35.0))
+				var t := 0.30
+				ball_vel = (target - ball_pos) / t
+				ball_vh = (RIM_HEIGHT - ball_h + 0.5 * GRAV * t * t) / t
+				layup_bank = false
+				ball_ghost_rim = shot_made
+				Sfx.play("backboard", -7.0)
+				return
 			ball_vel.x = -absf(ball_vel.x) * 0.55
 			ball_vel.y *= 0.8
 			net_wobble = maxf(net_wobble, 0.35)
@@ -1459,6 +1737,12 @@ func _draw_park() -> void:
 			draw_line(Vector2(bx2 + float(b) * 2.6 - 2.6, by2),
 				Vector2(bx2 + float(b) * 2.6 - 2.6 + lean2 + sway, by2 - hgt + float(b)),
 				col2, 1.4)
+	# HALLOWEEN: zucche ai piedi delle panchine e dei cestini, ragnatela sullo
+	# schienale, pipistrelli sopra il muro. Poche, ai bordi del campo: il
+	# campo resta campo.
+	if Spooky.active():
+		_draw_spooky_park(tt, g_top, g_bot)
+
 	# DUE panchine distanziate, DAVANTI a chi guarda (sempre in campo visivo
 	# quando la camera e' ferma: x -330 / +330, vista +/-615)
 	for bx in [-330.0, 330.0]:
@@ -1490,20 +1774,68 @@ func _draw_park() -> void:
 		draw_circle(Vector2(tx + 6.0, ty - 60.0), 7.0, Color(0.65, 0.62, 0.55))
 		draw_circle(Vector2(tx - 8.0, ty - 62.0), 5.0, Color(0.72, 0.70, 0.62))
 
+## HALLOWEEN AL CAMPETTO. `tt` e' il tempo per le ali, la fascia e' quella
+## d'erba fra il bordo campo e il fondo schermo.
+func _draw_spooky_park(tt: float, g_top: float, g_bot: float) -> void:
+	var glow: float = clampf(CourtStage.night_amount() * 1.2, 0.0, 1.0)
+	var lit: bool = glow > 0.28
+	# le notti di fine ottobre sono lunghe: se il gioco dice "giorno" le
+	# zucche restano spente, ma sono li'.
+	var y: float = g_top + 96.0
+	# gruppo di zucche accanto a ogni panchina, e due vicino ai cestini
+	for bx in [-424.0, -236.0, 424.0, 236.0]:
+		Spooky.draw_pumpkin(self, Vector2(bx, y), 15.0, lit, glow)
+		Spooky.draw_pumpkin(self, Vector2(bx + (26.0 if bx < 0.0 else -26.0), y + 4.0),
+			10.0, lit, glow)
+	# due zucche grosse ai lati, sul prato davanti al campo: al centro
+	# finirebbero sotto i piedi di chi gioca
+	Spooky.draw_pumpkin(self, Vector2(-528.0, g_bot - 18.0), 19.0, lit, glow)
+	Spooky.draw_pumpkin(self, Vector2(512.0, g_bot - 12.0), 13.0, lit, glow)
+	# ragnatela sullo spigolo alto dello schienale delle due panchine
+	for bx2 in [-330.0, 330.0]:
+		Spooky.draw_cobweb(self, Vector2(bx2 + 66.0, 240.0), 40.0, -1.0, 1.0, 0.24)
+	# PIPISTRELLI: sopra il muro, cioe' nel cielo (lo schermo sopra y -370)
+	# y: la camera del campetto sta a -40 con zoom 1.04, quindi si vede fino
+	# a y ~ -386 -- la fascia di cielo e' -386..-260. A -430 i pipistrelli
+	# volavano fuori dallo schermo: qui stanno tutti dentro.
+	# Rotta larga 1900 px, cioe' piu' dello schermo: si riavvolgono fuori
+	# campo, non davanti al canestro.
+	for i in 3:
+		var bx3: float = fmod(tt * (34.0 + float(i) * 9.0) + float(i) * 640.0, 1900.0) - 950.0
+		var by3: float = -302.0 - float(i) * 26.0 + sin(tt * 0.8 + float(i) * 2.0) * 12.0
+		Spooky.draw_bat(self, Vector2(bx3, by3), 20.0 - float(i) * 3.0, tt + float(i) * 1.9)
+
+
 func _draw_npcs() -> void:
 	for n in npcs:
 		var s: Vector2 = _screen(n["pos"])
 		var h: float = 64.0 * Game.height_factor() * 0.92
-		var kind := Avatar.DRIBBLE
+		var kind := Avatar.IDLE
 		var amount := 0.0
-		if n["state"] == "shoot":
+		if n["state"] == "wait" or n["state"] == "relocate":
+			kind = Avatar.DRIBBLE
+		elif n["state"] == "chat" or n["state"] == "rest":
+			kind = Avatar.IDLE
+		elif n["state"] == "shoot":
 			kind = Avatar.SHOOT
 			amount = clampf(n["t"], 0.0, 1.0)
-		elif n["state"] == "chase":
+		elif bool(n.get("moving", false)):
 			kind = Avatar.RUN
-		Avatar.draw_body(self, s, h, -1.0,
-			Avatar.pose(kind, dribble_t, amount),
-			Avatar.colours(false, n["col"]), n["state"] == "wait")
+		if n["state"] == "rest" and not outdoor:
+			# The same detailed avatar, compressed at the hips onto the floor.
+			var seat_xf := Transform2D(0.0, Vector2.ONE, 0.0, s) * Transform2D(0.0, Vector2(1.0, 0.68)) * Transform2D(0.0, Vector2.ONE, 0.0, -s)
+			Avatar.draw_body(self, s, h, float(n.get("face", 1.0)), Avatar.pose(Avatar.IDLE, dribble_t), n["look"], false, false, true, BALL_R, seat_xf)
+			draw_line(s + Vector2(-10, -3), s + Vector2(18, -3), Color(0.15, 0.16, 0.22), 7.0)
+			var phone := Rect2(s + Vector2(12, -25), Vector2(9, 14))
+			draw_rect(phone, Color(0.07, 0.08, 0.10))
+			draw_rect(phone.grow(-1.5), Color(0.38, 0.55, 0.63))
+			draw_circle(phone.position + Vector2(4.5, 12.0), 0.8, Color.WHITE)
+		else:
+			Avatar.draw_body(self, s, h, float(n.get("face", -1.0)),
+				Avatar.pose(kind, dribble_t, amount, "", bool(n.get("moving", false))),
+				n["look"], n["state"] in ["wait", "relocate"])
+		if bool(n.get("ankle", false)) and n["state"] != "rest":
+			draw_line(s + Vector2(5, -5), s + Vector2(10, -5), Color(0.87, 0.87, 0.90), 3.0)
 		if n["state"] == "shoot":
 			var t: float = clampf(n["t"], 0.0, 1.0)
 			var from: Vector2 = s + Vector2(-10.0, -h * 0.4)
@@ -1511,6 +1843,15 @@ func _draw_npcs() -> void:
 			var bp: Vector2 = from.lerp(rim_s, t)
 			bp.y -= sin(t * PI) * 150.0
 			_draw_ball_at(bp, BALL_R)
+
+		elif n["state"] == "fall":
+			var t: float = clampf(float(n["t"]) / 0.9, 0.0, 1.0)
+			var floor_pos: Vector2 = _screen(n["target"])
+			var from_rim: Vector2 = _screen(LEFT_RIM) + Vector2(0, -RIM_HEIGHT)
+			var bounce: float = sin(clampf((t - 0.65) / 0.35, 0.0, 1.0) * PI) * 28.0
+			_draw_ball_at(from_rim.lerp(floor_pos - Vector2(0, BALL_R), minf(t / 0.65, 1.0)) - Vector2(0, bounce), BALL_R)
+		elif n["state"] == "chase":
+			_draw_ball_at(_screen(n["target"]) - Vector2(0, BALL_R), BALL_R)
 
 func _draw_player() -> void:
 	var base := player_pos
@@ -1592,6 +1933,11 @@ func _draw_player() -> void:
 				amount = 1.0 - f
 				carry = false
 				slam = DunkStyle.sample(dunk_style, 1.0)
+	elif layup_left > 0.0:
+		kind = Avatar.LAYUP
+		amount = 1.0
+		lift = sin((1.0 - layup_left / 0.80) * PI) * 45.0
+		carry = not ball_live and not solo_loose
 	elif shot_anim > 0.0:
 		kind = Avatar.SHOOT
 		amount = clampf(shot_anim / 0.22, 0.0, 1.0)
@@ -1605,8 +1951,8 @@ func _draw_player() -> void:
 		amount = 1.0 - clampf(charge / maxf(ideal, 0.01), 0.0, 1.0) * 0.85
 	elif trick_t > 0.0:
 		kind = Avatar.DRIBBLE
-		phase = dribble_t * 1.9
-		amount = trick_t / 0.45
+		phase = dribble_t
+		amount = trick_t / (0.80 if trick_kind == "spin" else 0.45)
 	elif solo_loose or ball_live:
 		# SENZA PALLA: come in citta' — si corre, o si sta fermi in piedi.
 		# Niente gesto del palleggio a vuoto con la palla distante.
@@ -1639,20 +1985,22 @@ func _draw_player() -> void:
 			var py: float = screen.y - 6.0 - (i % 2) * (7.0 if dust_big else 5.0)
 			var rr: float = lerpf(9.0, 2.5, kk) if dust_big else lerpf(7.0, 2.5, kk)
 			draw_circle(Vector2(px, py), rr, Color(0.85, 0.80, 0.68, da))
-	# OMBRA REALE durante la schiacciata: a terra, scorre al centro della
-	# semicirconferenza sotto il ferro e cresce con l'altezza.
-	if dunk_phase != "":
-		var sh_world: Vector2 = player_pos.lerp(RIM, clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0)) \
-			if dunk_phase == "rise" else RIM
-		var sh_base: Vector2 = _screen(sh_world)
-		var grow: float = 1.15 + clampf(lift / 240.0, 0.0, 0.35)
-		var rw: float = 14.0 * grow
-		var rh: float = 5.5 * grow
-		var pts: PackedVector2Array = []
-		for i in 20:
-			var ang: float = TAU * float(i) / 20.0
-			pts.append(sh_base + Vector2(cos(ang) * rw, sin(ang) * rh))
-		draw_colored_polygon(pts, Color(0, 0, 0, 0.40))
+	# OMBRA A TERRA (v2.49.2): una sola regola in tutto il gioco — sta sotto
+	# i piedi (o sotto il ferro, in schiacciata) e RIMPICCIOLISCE mentre
+	# sale. Prima cresceva con l'altezza: contro la fisica.
+	var sh_world: Vector2 = draw_base
+	if dunk_phase == "rise":
+		sh_world = player_pos.lerp(RIM, clampf(dunk_anim / maxf(dunk_rise_t, 0.05), 0.0, 1.0))
+	elif dunk_phase != "":
+		sh_world = RIM
+	Avatar.draw_ground_shadow(self, _screen(sh_world), h, lift, 1.0, 0.36)
+	# ANELLO A TERRA (v2.49.0): la schiacciata a tempo mentre sali, il
+	# contest mentre carichi il tiro. Sta sotto i piedi, segue il giocatore.
+	var feet: Vector2 = _screen(draw_base)
+	if not bool(Settings.get_v("lowgfx", false)):
+		if dunk_phase == "rise":
+			var dw: Vector2 = _dunk_window()
+			Avatar.draw_dunk_ring(self, feet, h, _dunk_prog(), dw.x, dw.y, dunk_timed)
 	# SCIA PALLA in volo (stessa del match): fantasmi che svaniscono.
 	# Scia rimossa su richiesta utente.
 	var hold_ball: bool = carry and not ball_live and not solo_loose and trick_t <= 0.0
@@ -1669,7 +2017,7 @@ func _draw_player() -> void:
 	# SPIN MOVE: la rotazione del corpo come in partita (passa di schiena
 	# alla telecamera mentre gira, come lo yaw dei giocatori del match).
 	if trick_t > 0.0 and trick_kind == "spin":
-		po["yaw"] = 2.2 * (1.0 - trick_t / 0.45)
+		po["yaw"] = clampf(1.0 - trick_t / 0.80, 0.0, 1.0)
 	if pump_t > 0.0:
 		po["fake"] = true
 	if not slam.is_empty():
@@ -1677,18 +2025,26 @@ func _draw_player() -> void:
 		po["dunk"] = slam
 	if joystick and joystick.output.y < -0.22 and dunk_phase == "":
 		po["back"] = true
+	elif joystick and joystick.output.y > 0.22 and dunk_phase == "":
+		po["front"] = true
 	if dunk_phase == "hang":
 		# HANG: il giocatore e' appeso al bordo IN PRIMO PIANO, quindi la
 		# mezza retina davanti va SOTTO di lui (la copre lui), non sopra —
 		# disegnata prima del corpo.
 		HoopArt.draw_net_front(self, _rim_screen(), 22.0, 22.0 * HoopArt.RIM_SQUASH,
 			net_wobble, net_t, clampf(court_art.rim_bend[1], 0.0, 1.0), -1.0)
+	var player_colours := Avatar.colours(true)
+	if pregame_warmup:
+		player_colours["jersey"] = Game.team_colour(0)
+		player_colours["shorts"] = Game.team_colour(0).darkened(0.35)
+		player_colours["kit"] = true
+		player_colours["num"] = str(int(Game.profile.get("jersey", 7)))
 	if hang_body and dunk_phase == "hang":
 		# Corpo DRETTO di fronte, braccia standard, oscillazione piccola
 		# attorno alle mani sul labbro del ferro (lato giocatore).
 		draw_set_transform_matrix(Transform2D(hang_theta, hang_pivot))
 		Avatar.draw_body(self, hang_feet_off, h, facing, po,
-			Avatar.colours(true), false, false, true, BALL_R)
+			player_colours, false, false, true, BALL_R)
 		draw_set_transform_matrix(Transform2D())
 	else:
 		var xf := Transform2D()
@@ -1698,21 +2054,19 @@ func _draw_player() -> void:
 			xf = Transform2D(0.0, Vector2.ONE, 0.0, screen) \
 				* Transform2D(0.09 * facing, Vector2(1.0, 0.93)) \
 				* Transform2D(0.0, Vector2.ONE, 0.0, -screen)
-		Avatar.draw_body(self, screen, h, facing, po, Avatar.colours(true), hold_ball,
-			dunk_phase == "", true, BALL_R, xf)
+		Avatar.draw_body(self, screen, h, facing, po, player_colours, hold_ball,
+			false, true, BALL_R, xf)
 	# HEAT CHECK: stesse lingue di fuoco del match (helper condiviso).
 	if hot and not bool(Settings.get_v("lowgfx", false)):
 		Avatar.draw_flames(self, screen + Vector2(0.0, -h * 1.16), Time.get_ticks_msec() / 1000.0)
 
 	if trick_t > 0.0:
-		var f: float = 1.0 - trick_t / 0.45
+		var f: float = 1.0 - trick_t / (0.80 if trick_kind == "spin" else 0.45)
 		var from_side: float = 1.0 if hand_left else -1.0
 		var to_side: float = -from_side
 		var sway: float = lerpf(from_side, to_side, smoothstep(0.0, 1.0, f))
-		var low: float = sin(f * PI)
-		var bp := screen + Vector2(sway * h * 0.34, -h * 0.16 - low * h * 0.10)
-		if trick_kind == "behind":
-			bp.y = screen.y - h * 0.30 + low * h * 0.06
+		var bounce_height: float = BALL_R + absf(cos(f * PI)) * h * 0.48
+		var bp := screen + Vector2(sway * h * 0.34, -bounce_height)
 		_draw_ball_at(bp, BALL_R)
 
 	if ball_live:

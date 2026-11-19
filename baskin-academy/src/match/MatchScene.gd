@@ -93,6 +93,7 @@ func _ready() -> void:
 	Events.rule.connect(_on_rule)
 	_build_inbound_transition()
 	court.inbound_transition.connect(_on_inbound_transition)
+	court.free_throw_transition.connect(_on_free_throw_transition)
 	court.pivot_declare.connect(_on_pivot_declare)
 	Sfx.start_crowd()
 	Sfx.set_match_live(true)
@@ -890,7 +891,9 @@ func _shoot_down() -> void:
 	if court.behind_hoop(u):
 		Events.toast.emit("No shot from behind the hoop")
 		return
-	if court.ft_active and court.ft_shooter == u:
+	# Il metro del libero parte solo a velo alzato: durante la transizione del
+	# fallo lo schermo e' coperto e il tiro non deve nemmeno armarsi.
+	if court.free_throws_armed() and court.ft_shooter == u:
 		u.shot_charge = 0.0
 		u.shot_ideal = 0.5
 		return
@@ -1472,12 +1475,30 @@ func _build_inbound_transition() -> void:
 	inbound_veil.add_child(inbound_caption)
 
 func _on_inbound_transition(_duration: float) -> void:
+	# "RIMESSA" di norma, "FALLO · RIMESSA" quando nasce da un fallo.
+	_play_veil(Loc.t(court.inbound_caption_key),
+		Court.INBOUND_FADE_IN, 0.0, Court.INBOUND_FADE_OUT)
+
+func _on_free_throw_transition(shots: int) -> void:
+	# Stesso velo, tempi piu' larghi: qui si vede la scena del fallo sparire,
+	# la fila sistemarsi e il campo tornare — non un salto secco.
+	_play_veil(Loc.t("match.ft.transition") % shots,
+		Court.FT_FADE_IN, Court.FT_HOLD, Court.FT_FADE_OUT)
+
+## Il velo delle transizioni: cala, resta pieno un istante (e' li' che il
+## campo si riordina, al coperto) e si alza. Una sola curva per rimessa e
+## tiro libero, cosi' i due momenti si sentono come lo stesso gesto.
+func _play_veil(text: String, fade_in: float, hold: float, fade_out: float) -> void:
 	if is_instance_valid(inbound_tween): inbound_tween.kill()
-	inbound_caption.text = Loc.t("match.inbound.transition")
+	inbound_caption.text = text
 	inbound_veil.modulate.a = 0.0
 	inbound_tween = create_tween()
-	inbound_tween.tween_property(inbound_veil, "modulate:a", 1.0, Court.INBOUND_FADE_IN).set_trans(Tween.TRANS_SINE)
-	inbound_tween.tween_property(inbound_veil, "modulate:a", 0.0, Court.INBOUND_FADE_OUT).set_trans(Tween.TRANS_SINE)
+	inbound_tween.tween_property(inbound_veil, "modulate:a", 1.0, fade_in) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	if hold > 0.0:
+		inbound_tween.tween_interval(hold)
+	inbound_tween.tween_property(inbound_veil, "modulate:a", 0.0, fade_out) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func _build_rule_card() -> void:
 	## The contextual rule explainer: top-right, shows the rule behind every

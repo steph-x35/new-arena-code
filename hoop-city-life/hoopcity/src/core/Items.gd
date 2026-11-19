@@ -429,6 +429,9 @@ func consume(id: String) -> String:
 	var f: Dictionary = food(id)
 	if f.is_empty():
 		return ""
+	var old_hunger: float = float(Game.profile["hunger"])
+	var old_energy: float = float(Game.profile["energy"])
+	var old_health: float = float(Game.profile["health"])
 	add(id, -1)
 	Game.add_hunger(float(f["hunger"]))
 	Game.add_energy(float(f["energy"]))
@@ -447,6 +450,8 @@ func consume(id: String) -> String:
 		Game.add_health(hp)
 	Game.advance_time(15)
 	SaveSystem.save_game()
+	Events.food_consumed.emit(float(Game.profile["hunger"]) - old_hunger,
+		float(Game.profile["energy"]) - old_energy, float(Game.profile["health"]) - old_health)
 	if hp < 0.0:
 		Events.toast.emit("%s  🍔 junk food  ❤%+.0f" % [f["name"], hp])
 	return "%s  +%d food  +%d energy" % [f["name"], f["hunger"], f["energy"]]

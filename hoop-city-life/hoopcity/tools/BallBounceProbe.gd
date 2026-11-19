@@ -1,0 +1,49 @@
+extends Node
+
+func _ready() -> void:
+	Game.profile = Game.default_profile()
+	Game.profile["next_match_mode"] = "full"
+	Game.profile["match_is_fixture"] = false
+	var c := Court.new()
+	add_child(c)
+	await get_tree().process_frame
+	c.set_physics_process(false)
+	c.ball.set_physics_process(false)
+	for player in c.players: player.set_physics_process(false)
+	var ball: Ball = c.ball
+	var shooter: BallPlayer = c.user
+	shooter.has_ball = false
+	# A long analytic airball hits the floor and must leave the analytic arc,
+	# rise again, and slow down instead of being recomputed into the corner.
+	ball.shoot(Vector2(100, 0), Vector2(500, 230), 300.0, 0.7, false, shooter)
+	var hit := false
+	var rose := false
+	for i in 600:
+		ball._physics_process(1.0 / 60.0)
+		if ball.h == 0.0 and ball.vh > 100.0:
+			hit = true
+			if ball._ana: break
+		if hit and ball.h > 20.0: rose = true
+	var ok: bool = hit and rose and not ball._ana and ball.h == 0.0 and ball.vel.length() < 1.0
+	# Edge contact sends a loose practice ball inward, not along both edges.
+	ball.detach()
+	ball.practice_shot = true
+	ball.shot_result_pending = false
+	ball.global_position = Vector2(Court.COURT_W * 0.5 - Court.BALL_R - 1, 0)
+	ball.h = 60.0
+	ball.vh = -50.0
+	ball.vel = Vector2(300, 20)
+	ball._physics_process(1.0 / 60.0)
+	ok = ok and ball.vel.x < 0.0 and absf(ball.global_position.x) <= Court.COURT_W * 0.5 - Court.BALL_R
+	# Pickup is the only way to end a physical rebound in a match.
+	c.is_fixture = true
+	ball.shot_result_pending = true
+	ball.practice_shot = false
+	ball.shooter = shooter
+	ball.h = 0.0
+	ball.vh = 220.0
+	c.resolve_missed_shot(ball)
+	ok = ok and ball.holder == null and ball.live and ball.vh == 220.0
+	c.queue_free()
+	print("BALL_BOUNCE_OK=", ok, " hit=", hit, " rose=", rose)
+	get_tree().quit(0 if ok else 1)

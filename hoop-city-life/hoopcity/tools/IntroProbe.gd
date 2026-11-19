@@ -23,6 +23,7 @@ func _clear_news_layers() -> void:
 func _ready() -> void:
 	await get_tree().process_frame
 	Game.profile = Game.default_profile()
+	Settings.data.erase("news_install_seen")
 	var intro = load("res://src/scenes/IntroScene.tscn").instantiate()
 	add_child(intro)
 	for i in 10:
@@ -35,6 +36,8 @@ func _ready() -> void:
 	print("INTRO pass1: pannelli=", n1, " flag=", seen)
 	intro.queue_free()
 	await _clear_news_layers()
+	# Anche una nuova carriera non deve riaprire la finestra.
+	Game.profile = Game.default_profile()
 	var intro2 = load("res://src/scenes/IntroScene.tscn").instantiate()
 	add_child(intro2)
 	for i in 10:
