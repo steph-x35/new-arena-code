@@ -387,7 +387,7 @@ static func net_knot(rim: Vector2, rx: float, ry: float, wobble: float,
 	var pressure := 0.0
 	if contact.x >= 0.0:
 		pressure = smoothstep(0.0, 0.5, contact.x) * (1.0 - smoothstep(1.0, 2.0, contact.x))
-	var bend_x: float = contact.y * rx * 0.30 * f * f * pressure
+	var bend_x: float = contact.y * rx * 0.55 * f * f * pressure
 	var shrink: float = lerpf(1.0, 0.46, f) * (1.0 + 0.12 * sin(f * PI)) + 0.12 * f * pressure
 	var swing: float = sin(phase * 15.0 - f * 2.4) * rx * 0.22 * wobble * f
 	var sd: float = pow((1.0 + cos(a) * pdir) * 0.5, 1.35) * bend * ry * 1.15 * (1.0 - f * 0.55)

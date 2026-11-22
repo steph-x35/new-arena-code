@@ -24,6 +24,24 @@ func _ready() -> void:
 	solo.ball_recall = false
 	solo._shoot_down()
 	ok = ok and solo.solo_loose and not solo.ball_recall
+	# A real scoring crossing in Solo triggers a visible, settling response,
+	# independent of whether the ball has already left the net.
+	solo.ball_live = true
+	solo.through_rim = false
+	solo.prev_h = solo.RIM_HEIGHT + 2.0
+	solo.ball_h = solo.RIM_HEIGHT - 2.0
+	solo.prev_pos = solo.RIM
+	solo.ball_pos = solo.RIM
+	solo.ball_vel = Vector2(220.0, 0.0)
+	solo.ball_vh = -300.0
+	solo._collide_rim()
+	solo._step_net_contact(0.15)
+	ok = ok and solo.through_rim and solo.court_art.solo_net_contact.x > 0.5 and solo.court_art.solo_net_contact.y > 0.9
+	solo.ball_live = false
+	solo._step_net_contact(0.2)
+	ok = ok and solo.court_art.solo_net_contact.x > 1.0 and solo.court_art.solo_net_contact.x < 2.0
+	solo._step_net_contact(0.25)
+	ok = ok and solo.court_art.solo_net_contact.x < 0.0 and Sfx.DUNK_HAPTIC_MS == 260
 	solo.queue_free()
 	await get_tree().process_frame
 	Game.profile["next_match_mode"] = "1v1"

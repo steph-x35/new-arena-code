@@ -1207,7 +1207,7 @@ func _dunk_throw() -> bool:
 		_say("%s  ·  CHECK" % Loc.t("duel.blocked"), 3.0)
 		return false
 	net_wobble = 1.0
-	Sfx.haptic(140)
+	Sfx.dunk_haptic()
 	if court_art != null:
 		court_art.net_bump(1, 1.0)
 	Events.popup.emit("PERFECT!" if dunk_timed == "perfect" else "GREEN!",

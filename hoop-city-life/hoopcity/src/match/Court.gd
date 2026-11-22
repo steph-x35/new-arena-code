@@ -1379,7 +1379,7 @@ func on_dunk_started(p: BallPlayer) -> void:
 	_dunk_scored(p)
 
 func _dunk_scored(p: BallPlayer) -> void:
-	if p.is_user: Sfx.haptic(140)
+	if p.is_user: Sfx.dunk_haptic()
 	if practice_drill:
 		p.has_ball = false
 		_net_bump(0 if hoop_for(p.team).x < 0.0 else 1, 1.0)

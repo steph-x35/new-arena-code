@@ -122,6 +122,12 @@ func apply_settings() -> void:
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Crowd"), _crowd_base_db)
 	AudioServer.set_bus_mute(AudioServer.get_bus_index("Crowd"), crowd_v <= 0.001)
 
+# Longer single pulse only for the player's successful dunk.
+const DUNK_HAPTIC_MS := 260
+
+func dunk_haptic() -> void:
+	haptic(DUNK_HAPTIC_MS)
+
 ## Micro-vibrazione aptica per mobile (safe e silenziosa su desktop/web)
 func haptic(ms: int = 50) -> void:
 	if Settings != null and Settings.has_method("is_vibration_enabled"):

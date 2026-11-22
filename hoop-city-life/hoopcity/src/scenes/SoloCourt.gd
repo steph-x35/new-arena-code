@@ -73,6 +73,7 @@ var ball_settled := 0.0
 var ball_ghost_rim := false
 var through_rim := false
 var net_entry_speed := 0.0
+var net_reaction_left := 0.0
 var scored_this_shot := false
 var ball_rattled := false       # ferro gia' suonato su questo tiro
 var prev_pos := Vector2.ZERO
@@ -672,8 +673,7 @@ func _process(delta: float) -> void:
 
 	var was_live: bool = ball_live
 	_step_ball(delta)
-	var mesh_depth: float = (RIM_HEIGHT - ball_h) / 36.0
-	court_art.solo_net_contact = Vector2(mesh_depth, clampf(net_entry_speed / 180.0, -1.0, 1.0)) if ball_live and through_rim and mesh_depth >= 0.0 and mesh_depth <= 2.0 and ball_pos.distance_to(RIM) < 70.0 else Vector2(-1.0, 0.0)
+	_step_net_contact(delta)
 	if was_live and not ball_live:
 		reset_timer = RESET_DELAY
 	if reset_timer > 0.0:
@@ -1234,7 +1234,7 @@ func _dunk_throw() -> void:
 	streak += 1
 	best_streak = maxi(best_streak, streak)
 	net_wobble = 1.0
-	Sfx.haptic(140)
+	Sfx.dunk_haptic()
 	if court_art != null:
 		court_art.net_bump(1, 1.0)
 	if not pregame_warmup:
@@ -1473,6 +1473,18 @@ func _keep_ball_in_play() -> void:
 ## The ring is a circle in the court plane at rim height. Crossing down
 ## through its middle scores; clipping its edge clangs the iron and snaps the
 ## net without scoring.
+func _step_net_contact(delta: float) -> void:
+	# Net retains a short elastic response after the real ball exits. This
+	# changes only the drawing, never the ball or rebound physics.
+	if net_reaction_left <= 0.0:
+		court_art.solo_net_contact = Vector2(-1.0, 0.0)
+		return
+	net_reaction_left = maxf(net_reaction_left - delta, 0.0)
+	var elapsed: float = 0.55 - net_reaction_left
+	var depth: float = lerpf(0.0, 1.0, clampf(elapsed / 0.22, 0.0, 1.0))
+	if elapsed > 0.22: depth = 1.0 + clampf((elapsed - 0.22) / 0.33, 0.0, 1.0)
+	court_art.solo_net_contact = Vector2(depth, clampf(net_entry_speed / 180.0, -1.0, 1.0)) if net_reaction_left > 0.0 else Vector2(-1.0, 0.0)
+
 func _collide_rim() -> void:
 	if ball_h <= RIM_HEIGHT and prev_h >= RIM_HEIGHT and ball_vh < 0.0:
 		_pick_ok = true
@@ -1486,6 +1498,7 @@ func _collide_rim() -> void:
 			if not through_rim:
 				through_rim = true
 				net_entry_speed = ball_vel.x
+				net_reaction_left = 0.55
 				scored_this_shot = true
 				net_wobble = 1.0
 				Sfx.play("swish", -2.5)
@@ -2099,8 +2112,13 @@ func _draw_player() -> void:
 		near_net = true
 	if near_net and dunk_phase != "hang":
 		var contact: Vector2 = court_art.solo_net_contact
-		HoopArt.draw_net_front(self, _rim_screen(), 22.0, 22.0 * HoopArt.RIM_SQUASH,
-			net_wobble, net_t, clampf(court_art.rim_bend[1], 0.0, 1.0), -1.0, contact.x, contact.y)
+		# Match the animated hoop's exact position and phase, so foreground
+		# strands and rear mesh do not separate around the ball.
+		var wobble: float = court_art.net_wobble[1]
+		var phase: float = court_art.t
+		var rim: Vector2 = _rim_screen() + Vector2(sin(phase * 47.0) * wobble * 22.0 * 0.22, -absf(sin(phase * 29.0)) * wobble * 22.0 * 0.12)
+		HoopArt.draw_net_front(self, rim, 22.0, 22.0 * HoopArt.RIM_SQUASH,
+			wobble, phase, clampf(court_art.rim_bend[1], 0.0, 1.0), -1.0, contact.x, contact.y)
 
 func _draw_ball_at(p: Vector2, r: float) -> void:
 	draw_circle(p, r, Color(0.95, 0.55, 0.15))
