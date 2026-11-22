@@ -26,11 +26,11 @@ jobs:
         run: |
           python3 - <<'PY'
           import zipfile, glob, hashlib
+          rows=[]
           for folder in ['previous','latest']:
               path=glob.glob(folder+'/*.apk')[0]
               with zipfile.ZipFile(path) as z:
-                  matches=[x for x in z.namelist() if any(n in x for n in ['HoopArt','Court.gd','SoloCourt','Sfx.gd'])]
-                  print('::notice::'+folder+' files='+str(matches))
-                  for n in matches:
-                      print('::notice::'+folder+' '+n+' sha256='+hashlib.sha256(z.read(n)).hexdigest())
+                  for n in ['assets/src/match/HoopArt.gdc','assets/src/match/Court.gdc','assets/src/scenes/SoloCourt.gdc']:
+                      rows.append(folder+' '+n+'='+hashlib.sha256(z.read(n)).hexdigest())
+          print('::notice::'+' | '.join(rows))
           PY
