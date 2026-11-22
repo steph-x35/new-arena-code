@@ -638,12 +638,12 @@
     }
   </style>
   <link rel="stylesheet" href="assets/vice-theme.css" />
-  <!-- Tema tropicale prima di Natale 2026; poi torna il tema stagionale. -->
+  <!-- Tema natalizio dal 6 novembre al 6 gennaio; gli altri temi seguono il calendario. -->
   <script>
     (function () {
       var d = new Date(), m = d.getMonth() + 1, day = d.getDate();
-      var winter = d < new Date(2027, 0, 7) || m === 12 || (m === 11 && day >= 6) || (m === 1 && day <= 6);
-      var vice = d >= new Date(2026, 9, 20) && d < new Date(2026, 11, 25);
+      var winter = m === 12 || (m === 11 && day >= 6) || (m === 1 && day <= 6);
+      var vice = d >= new Date(2026, 9, 20) && d < new Date(2026, 10, 6);
       if (vice) document.documentElement.classList.add('vice');
       else if (winter) document.documentElement.classList.add('winter');
       else if ((m === 10 && day >= 18) || (m === 11 && day <= 5)) document.documentElement.classList.add('hw');
