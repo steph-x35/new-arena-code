@@ -184,14 +184,16 @@ func _physics_process(delta: float) -> void:
 			_drop_start_h = h
 		dunk_drop = maxf(dunk_drop - delta * 1.7, 0.0)
 		var f: float = 1.0 - dunk_drop            # 0 at the rim, 1 on the floor
-		# Start exactly at the current height, without jumping back above the rim.
-		h = maxf(_drop_start_h * (1.0 - f * f), 0.0)
+		# Spend a little longer inside the mesh, then fall to the floor in the
+		# same total time, without changing the inbound or dunk timing.
+		var mesh_exit: float = maxf(_drop_start_h - 36.0, 0.0)
+		if f < 0.55:
+			h = lerpf(_drop_start_h, mesh_exit, smoothstep(0.0, 0.55, f))
+		else:
+			h = lerpf(mesh_exit, 0.0, smoothstep(0.55, 1.0, f))
 		if dunk_to != dunk_from:
 			global_position = dunk_from.lerp(dunk_to, f * f)
-		elif absf(net_entry_velocity) > 1.0:
-			# Keep a little horizontal momentum as the ball passes the mesh.
-			var in_mesh: float = maxf(0.0, (Court.RIM_HEIGHT - h) / 36.0)
-			global_position = dunk_from + Vector2(clampf(net_entry_velocity / 180.0, -1.0, 1.0) * 14.0 * smoothstep(0.0, 0.8, in_mesh), 0.0)
+
 		queue_redraw()
 		return
 	z_index = 40

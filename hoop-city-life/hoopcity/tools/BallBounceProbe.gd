@@ -58,13 +58,13 @@ func _ready() -> void:
 	ok = ok and ball.h < Court.RIM_HEIGHT - 10.0 and ball.h > Court.RIM_HEIGHT - 45.0
 	for i in 40: ball._physics_process(1.0 / 60.0)
 	ok = ok and ball.dunk_drop == 0.0 and ball.h == 0.0
-	# Knot displacement follows direction and depth; the top remains attached.
+	# No sudden contact-driven bend; near and far mesh use the same knots.
 	var still: Vector2 = HoopArt.net_knot(Vector2.ZERO, 22.0, 8.0, 0.0, 0.0, 0.0, -1.0, 0.7, 0.0, Vector2(-1, 0))
 	var right: Vector2 = HoopArt.net_knot(Vector2.ZERO, 22.0, 8.0, 0.0, 0.0, 0.0, -1.0, 0.7, 0.0, Vector2(0.7, 1))
 	var left: Vector2 = HoopArt.net_knot(Vector2.ZERO, 22.0, 8.0, 0.0, 0.0, 0.0, -1.0, 0.7, 0.0, Vector2(0.7, -1))
 	var anchored: Vector2 = HoopArt.net_knot(Vector2.ZERO, 22.0, 8.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, Vector2(0.7, 1))
 	var relaxed: Vector2 = HoopArt.net_knot(Vector2.ZERO, 22.0, 8.0, 0.0, 0.0, 0.0, -1.0, 0.7, 0.0, Vector2(2.0, 1))
-	ok = ok and right.x - left.x > 20.0 and anchored.is_equal_approx(Vector2(22, 0)) and relaxed.is_equal_approx(still)
+	ok = ok and right.is_equal_approx(still) and left.is_equal_approx(still) and anchored.is_equal_approx(Vector2(22, 0)) and relaxed.is_equal_approx(still)
 	ball.dunk_drop = 0.5
 	ball.h = Court.RIM_HEIGHT - 18.0
 	ball.net_entry_velocity = -320.0

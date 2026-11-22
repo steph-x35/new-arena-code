@@ -1442,7 +1442,7 @@ func _score_basket(b: Ball) -> void:
 		b.dunk_to = hoop
 		b.global_position = hoop
 		b.h = RIM_HEIGHT
-		_net_bump(0 if hoop.x < 0.0 else 1, 1.0)
+		_net_bump(0 if hoop.x < 0.0 else 1, 0.35 if b.swish_clean else 0.7)
 		Sfx.play("swish", -3.5)
 		practice_finish.emit(true)
 		return
@@ -1462,7 +1462,7 @@ func _score_basket(b: Ball) -> void:
 		Sfx.play("swish", -4.0)
 		Sfx.cheer(false)
 		Events.popup.emit("+1", hoop, Color(0.7, 1.0, 0.75), false)
-		_net_bump(0 if hoop.x < 0 else 1, 1.0)
+		_net_bump(0 if hoop.x < 0 else 1, 0.35 if b.swish_clean else 0.7)
 		_rim_fx("swish", hoop)
 		b.is_free_throw = false
 		ft_timer = 10.0
@@ -1519,7 +1519,7 @@ func _score_basket(b: Ball) -> void:
 	b.global_position = hoop
 	b.h = RIM_HEIGHT
 	play_live = false
-	_net_bump(0 if hoop.x < 0.0 else 1, 1.0)
+	_net_bump(0 if hoop.x < 0.0 else 1, 0.35 if b.swish_clean else 0.7)
 	_rim_fx("swish", hoop)
 	await get_tree().create_timer(0.70).timeout
 	if not is_instance_valid(self) or finished:
