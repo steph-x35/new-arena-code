@@ -1234,7 +1234,7 @@ func _dunk_throw() -> void:
 	streak += 1
 	best_streak = maxi(best_streak, streak)
 	net_wobble = 1.0
-	Sfx.haptic(60)
+	Sfx.haptic(140)
 	if court_art != null:
 		court_art.net_bump(1, 1.0)
 	if not pregame_warmup:

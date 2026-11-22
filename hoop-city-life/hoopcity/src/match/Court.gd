@@ -1379,6 +1379,7 @@ func on_dunk_started(p: BallPlayer) -> void:
 	_dunk_scored(p)
 
 func _dunk_scored(p: BallPlayer) -> void:
+	if p.is_user: Sfx.haptic(140)
 	if practice_drill:
 		p.has_ball = false
 		_net_bump(0 if hoop_for(p.team).x < 0.0 else 1, 1.0)
@@ -1400,7 +1401,6 @@ func _dunk_scored(p: BallPlayer) -> void:
 	_rim_fx("swish", hoop_for(p.team))
 	# La rete CANTA anche sulla schiacciata: swish piu' cupo e spinto.
 	Sfx.play("swish", -1.5, randf_range(0.84, 0.92))
-	Sfx.haptic(60)
 	Events.toast.emit("%s! +%d" % [DunkStyle.label(p.dunk_style), pts])
 	p.has_ball = false
 	if team_size == 2 and not one_on_one:

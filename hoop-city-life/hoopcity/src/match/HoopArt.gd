@@ -378,17 +378,21 @@ static func draw_hoop_perspective(c: CanvasItem, rim: Vector2, rim_half: float,
 	c.draw_line(Vector2(rim.x, rim.y - ry), Vector2(rim.x, by + bh + 8.0), red, 8.0)
 
 ## Net for the head-on hoop: a cone of mesh hanging under the ring.
-# Both halves share the same knots, so the foreground strands line up with
-# the back of the mesh. No artificial rapid sideways curvature.
+# Both halves share the same knots. A small, smooth bend follows the ball
+# while the top stays attached to the rim.
 static func net_knot(rim: Vector2, rx: float, ry: float, wobble: float,
 		phase: float, bend: float, pdir: float, f: float, a: float,
-		_contact: Vector2) -> Vector2:
+		contact: Vector2) -> Vector2:
 	var depth: float = rx * 1.25 + pow(wobble, 0.55) * rx * 0.45
-	var shrink: float = lerpf(1.0, 0.46, f) * (1.0 + 0.12 * sin(f * PI))
+	var pressure := 0.0
+	if contact.x >= 0.0:
+		pressure = smoothstep(0.0, 0.5, contact.x) * (1.0 - smoothstep(1.0, 2.0, contact.x))
+	var bend_x: float = contact.y * rx * 0.30 * f * f * pressure
+	var shrink: float = lerpf(1.0, 0.46, f) * (1.0 + 0.12 * sin(f * PI)) + 0.12 * f * pressure
 	var swing: float = sin(phase * 15.0 - f * 2.4) * rx * 0.22 * wobble * f
 	var sd: float = pow((1.0 + cos(a) * pdir) * 0.5, 1.35) * bend * ry * 1.15 * (1.0 - f * 0.55)
-	return Vector2(rim.x + cos(a) * rx * shrink + swing + pdir * sd * 0.12,
-		rim.y + depth * f + sin(a) * ry * shrink + sd)
+	return Vector2(rim.x + cos(a) * rx * shrink + swing + pdir * sd * 0.12 + bend_x,
+		rim.y + depth * f + sin(a) * ry * shrink + sd + pressure * 1.5 * f)
 
 static func draw_net_perspective(c: CanvasItem, rim: Vector2, rx: float,
 		ry: float, wobble := 0.0, phase := 0.0, bend := 0.0, pdir := -1.0,
