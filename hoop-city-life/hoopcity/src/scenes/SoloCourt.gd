@@ -2094,8 +2094,9 @@ func _draw_player() -> void:
 	elif dunk_phase == "hang" or dunk_phase == "drop":
 		near_net = true
 	if near_net and dunk_phase != "hang":
+		var net_depth: float = clampf((RIM_HEIGHT - ball_h) / 36.0, 0.0, 1.0) if ball_live and through_rim else -1.0
 		HoopArt.draw_net_front(self, _rim_screen(), 22.0, 22.0 * HoopArt.RIM_SQUASH,
-			net_wobble, net_t, clampf(court_art.rim_bend[1], 0.0, 1.0), -1.0)
+			net_wobble, net_t, clampf(court_art.rim_bend[1], 0.0, 1.0), -1.0, net_depth)
 
 func _draw_ball_at(p: Vector2, r: float) -> void:
 	draw_circle(p, r, Color(0.95, 0.55, 0.15))

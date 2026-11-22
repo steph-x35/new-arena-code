@@ -420,43 +420,35 @@ static func draw_net_perspective(c: CanvasItem, rim: Vector2, rx: float,
 ## instead of sliding across the front of it. Same geometry as
 ## draw_net_perspective -- only the bottom arcs of each ring are painted.
 static func draw_net_front(c: CanvasItem, rim: Vector2, rx: float,
-		ry: float, wobble := 0.0, phase := 0.0, bend := 0.0, pdir := -1.0) -> void:
+		ry: float, wobble := 0.0, phase := 0.0, bend := 0.0, pdir := -1.0,
+		ball_depth := -1.0) -> void:
+	# Diamond strands on the near side, rather than opaque horizontal bars.
+	# The local bulge travels down with the ball and then relaxes.
 	var rows := 7
-	var snap: float = pow(wobble, 0.55)
-	var depth: float = rx * 1.25 + snap * rx * 0.45
-	var col := Color(0.96, 0.97, 1.0, 1.0)
-	# ANCHE la mezza rete davanti segue il ferro piegato (stessa mensola).
-	var bend_amt: float = bend * ry * 1.15
+	var cols := 8
+	var depth: float = rx * 1.25 + pow(wobble, 0.55) * rx * 0.45
+	var col := Color(0.96, 0.97, 1.0, 0.9)
+	var grid := []
 	for row in rows + 1:
 		var f: float = float(row) / rows
-		if f < 0.12:
-			continue
-		var shrink: float = lerpf(1.0, 0.46, f) * (1.0 + 0.12 * sin(f * PI))
-		var y: float = rim.y + depth * f
+		var bulge := 0.0
+		if ball_depth >= 0.0:
+			bulge = maxf(0.0, 1.0 - absf(f - ball_depth) / 0.38) * 0.30
+		var shrink: float = lerpf(1.0, 0.46, f) * (1.0 + 0.12 * sin(f * PI)) + bulge * f
 		var swing: float = sin(phase * 15.0 - f * 2.4) * rx * 0.5 * wobble * f
-		var prev := Vector2.INF
-		for k in 9:
-			var a: float = PI * float(k) / 8.0     # bottom half of the ring
-			var sd: float = pow((1.0 + cos(a) * pdir) * 0.5, 1.35) 				* bend_amt * (1.0 - f * 0.55)
-			var pt := Vector2(rim.x + cos(a) * rx * shrink + swing + pdir * sd * 0.12,
-				y + sin(a) * ry * shrink + sd)
-			if prev != Vector2.INF:
-				c.draw_line(prev, pt, col, 3.2)
-			prev = pt
-	# gathered hem, so the bottom of the basket reads as closed
-	var hem_f := 1.0
-	var hem_shrink: float = lerpf(1.0, 0.46, hem_f) * (1.0 + 0.12 * sin(hem_f * PI))
-	var hy: float = rim.y + depth * hem_f
-	var hswing: float = sin(phase * 15.0 - hem_f * 2.4) * rx * 0.5 * wobble * hem_f
-	var hem_prev := Vector2.INF
-	for k in 13:
-		var a: float = PI * float(k) / 12.0
-		var sd: float = pow((1.0 + cos(a) * pdir) * 0.5, 1.35) 			* bend_amt * (1.0 - hem_f * 0.55)
-		var pt := Vector2(rim.x + cos(a) * rx * hem_shrink + hswing + pdir * sd * 0.12,
-			hy + sin(a) * ry * hem_shrink + sd)
-		if hem_prev != Vector2.INF:
-			c.draw_line(hem_prev, pt, col.darkened(0.15), 2.0)
-		hem_prev = pt
+		var ring := []
+		for k in cols + 1:
+			var a: float = PI * float(k) / cols
+			var sd: float = pow((1.0 + cos(a) * pdir) * 0.5, 1.35) * bend * ry * 1.15 * (1.0 - f * 0.55)
+			ring.append(Vector2(rim.x + cos(a) * rx * shrink + swing + pdir * sd * 0.12,
+				rim.y + depth * f + sin(a) * ry * shrink + sd + bulge * 3.0))
+		grid.append(ring)
+	for row in rows:
+		for k in cols:
+			c.draw_line(grid[row][k], grid[row + 1][k + 1], col, 1.7)
+			c.draw_line(grid[row][k + 1], grid[row + 1][k], col, 1.7)
+	for k in cols:
+		c.draw_line(grid[rows][k], grid[rows][k + 1], col.darkened(0.12), 1.8)
 
 static func draw_hoop_profile(c: CanvasItem, rim: Vector2, dir: float,
 		floor_y: float, wobble := 0.0, phase := 0.0, scale := 1.0) -> void:

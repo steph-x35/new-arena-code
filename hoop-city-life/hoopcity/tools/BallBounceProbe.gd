@@ -44,6 +44,19 @@ func _ready() -> void:
 	ball.vh = 220.0
 	c.resolve_missed_shot(ball)
 	ok = ok and ball.holder == null and ball.live and ball.vh == 220.0
+	# A made shot must begin at the rim without teleporting upward, then
+	# visibly descend through the net before reaching the floor.
+	ball.dunk_from = c.hoop_for(0)
+	ball.dunk_to = ball.dunk_from
+	ball.global_position = ball.dunk_from
+	ball.h = Court.RIM_HEIGHT
+	ball.dunk_drop = 1.0
+	ball._physics_process(1.0 / 60.0)
+	ok = ok and ball.h <= Court.RIM_HEIGHT and ball.h > Court.RIM_HEIGHT - 2.0
+	for i in 12: ball._physics_process(1.0 / 60.0)
+	ok = ok and ball.h < Court.RIM_HEIGHT - 10.0 and ball.h > Court.RIM_HEIGHT - 45.0
+	for i in 40: ball._physics_process(1.0 / 60.0)
+	ok = ok and ball.dunk_drop == 0.0 and ball.h == 0.0
 	c.queue_free()
 	print("BALL_BOUNCE_OK=", ok, " hit=", hit, " rose=", rose)
 	get_tree().quit(0 if ok else 1)

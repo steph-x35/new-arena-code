@@ -1438,7 +1438,7 @@ func _score_basket(b: Ball) -> void:
 		b.dunk_from = hoop
 		b.dunk_to = hoop
 		b.global_position = hoop
-		b.h = RIM_HEIGHT + 8.0
+		b.h = RIM_HEIGHT
 		_net_bump(0 if hoop.x < 0.0 else 1, 1.0)
 		Sfx.play("swish", -3.5)
 		practice_finish.emit(true)
@@ -1455,7 +1455,7 @@ func _score_basket(b: Ball) -> void:
 		b.global_position = hoop
 		b.dunk_from = hoop
 		b.dunk_to = hoop
-		b.h = RIM_HEIGHT + 8.0
+		b.h = RIM_HEIGHT
 		Sfx.play("swish", -4.0)
 		Sfx.cheer(false)
 		Events.popup.emit("+1", hoop, Color(0.7, 1.0, 0.75), false)
@@ -1514,7 +1514,7 @@ func _score_basket(b: Ball) -> void:
 	b.dunk_from = hoop
 	b.dunk_to = hoop
 	b.global_position = hoop
-	b.h = RIM_HEIGHT + 8.0
+	b.h = RIM_HEIGHT
 	play_live = false
 	_net_bump(0 if hoop.x < 0.0 else 1, 1.0)
 	_rim_fx("swish", hoop)
