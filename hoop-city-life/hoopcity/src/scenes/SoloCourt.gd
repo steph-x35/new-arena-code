@@ -2115,10 +2115,10 @@ func _draw_player() -> void:
 		# Match the animated hoop's exact position and phase, so foreground
 		# strands and rear mesh do not separate around the ball.
 		var wobble: float = court_art.net_wobble[1]
-		var phase: float = court_art.t
-		var rim: Vector2 = _rim_screen() + Vector2(sin(phase * 47.0) * wobble * 22.0 * 0.22, -absf(sin(phase * 29.0)) * wobble * 22.0 * 0.12)
+		var net_phase: float = court_art.t
+		var rim: Vector2 = _rim_screen() + Vector2(sin(net_phase * 47.0) * wobble * 22.0 * 0.22, -absf(sin(net_phase * 29.0)) * wobble * 22.0 * 0.12)
 		HoopArt.draw_net_front(self, rim, 22.0, 22.0 * HoopArt.RIM_SQUASH,
-			wobble, phase, clampf(court_art.rim_bend[1], 0.0, 1.0), -1.0, contact.x, contact.y)
+			wobble, net_phase, clampf(court_art.rim_bend[1], 0.0, 1.0), -1.0, contact.x, contact.y)
 
 func _draw_ball_at(p: Vector2, r: float) -> void:
 	draw_circle(p, r, Color(0.95, 0.55, 0.15))
