@@ -673,7 +673,7 @@ func _process(delta: float) -> void:
 	var was_live: bool = ball_live
 	_step_ball(delta)
 	var mesh_depth: float = (RIM_HEIGHT - ball_h) / 36.0
-	court_art.solo_net_contact = Vector2(mesh_depth, clampf(net_entry_speed / 320.0, -1.0, 1.0)) if ball_live and through_rim and mesh_depth >= 0.0 and mesh_depth <= 2.0 and ball_pos.distance_to(RIM) < 70.0 else Vector2(-1.0, 0.0)
+	court_art.solo_net_contact = Vector2(mesh_depth, clampf(net_entry_speed / 180.0, -1.0, 1.0)) if ball_live and through_rim and mesh_depth >= 0.0 and mesh_depth <= 2.0 and ball_pos.distance_to(RIM) < 70.0 else Vector2(-1.0, 0.0)
 	if was_live and not ball_live:
 		reset_timer = RESET_DELAY
 	if reset_timer > 0.0:

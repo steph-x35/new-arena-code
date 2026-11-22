@@ -682,8 +682,11 @@ func _step_free_throws(delta: float) -> void:
 		ft_time += delta
 		court.ball.global_position = ft_end.lerp(ft_land, clampf(ft_time / 0.55, 0.0, 1.0))
 		court.ball.h = maxf(Court.RIM_HEIGHT * (1.0 - ft_time / 0.55), 0.0)
+		var mesh_depth: float = (Court.RIM_HEIGHT - court.ball.h) / 36.0
+		court.ball.net_manual_contact = Vector2(mesh_depth, clampf((ft_end.x - ft_start.x) / 180.0, -1.0, 1.0)) if ft_made and mesh_depth <= 2.0 else Vector2(-1.0, 0.0)
 		court.ball.queue_redraw()
 		if ft_time >= 0.55:
+			court.ball.net_manual_contact = Vector2(-1.0, 0.0)
 			court.ball.global_position = ft_land
 			court.ball.h = 0.0
 			court.ball.vel = Vector2(randf_range(-100.0, -30.0), randf_range(-80.0, 80.0))

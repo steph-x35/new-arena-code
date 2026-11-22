@@ -387,15 +387,16 @@ static func net_knot(rim: Vector2, rx: float, ry: float, wobble: float,
 	var bulge := 0.0
 	var pull := 0.0
 	if contact.x >= 0.0:
-		var release: float = 1.0 - smoothstep(1.0, 2.0, contact.x)
-		bulge = maxf(0.0, 1.0 - absf(f - contact.x) / 0.42) * release
-		# The lower strands trail the ball; the rim's knots never move.
-		pull = contact.y * rx * 0.65 * f * minf(contact.x * 2.0, 1.0) * release
-	var shrink: float = lerpf(1.0, 0.46, f) * (1.0 + 0.12 * sin(f * PI)) + bulge * 0.33 * f
+		var release: float = 1.0 - smoothstep(1.15, 2.0, contact.x)
+		bulge = maxf(0.0, 1.0 - absf(f - contact.x) / 0.55) * release
+		# Fixed top, curved lower half: pull follows incoming momentum, not
+		# a canned sideways sway. The last row bends markedly behind the rim.
+		pull = contact.y * rx * 1.55 * pow(f, 1.55) * smoothstep(0.0, 0.38, contact.x) * release
+	var shrink: float = lerpf(1.0, 0.46, f) * (1.0 + 0.12 * sin(f * PI)) + bulge * 0.70 * f
 	var swing: float = sin(phase * 15.0 - f * 2.4) * rx * 0.22 * wobble * f
 	var sd: float = pow((1.0 + cos(a) * pdir) * 0.5, 1.35) * bend * ry * 1.15 * (1.0 - f * 0.55)
 	return Vector2(rim.x + cos(a) * rx * shrink + swing + pdir * sd * 0.12 + pull,
-		rim.y + depth * f + sin(a) * ry * shrink + sd + bulge * 4.0 * f)
+		rim.y + depth * f + sin(a) * ry * shrink + sd + bulge * 11.0 * f)
 
 static func draw_net_perspective(c: CanvasItem, rim: Vector2, rx: float,
 		ry: float, wobble := 0.0, phase := 0.0, bend := 0.0, pdir := -1.0,

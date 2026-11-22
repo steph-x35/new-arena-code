@@ -26,7 +26,7 @@ func _draw() -> void:
 		if ball == null or ball.global_position.distance_to(hoop) >= 55.0:
 			continue
 		# Do not paint a net over an airball or a miss beside the basket.
-		var through: bool = ball.dunk_drop > 0.0 or (ball.shot_result_pending and ball.vh < 0.0 and ball.h <= Court.RIM_HEIGHT and ball.h > Court.RIM_HEIGHT - 45.0)
+		var through: bool = ball.net_manual_contact.x >= 0.0 or ball.dunk_drop > 0.0 or (ball.shot_result_pending and ball.vh < 0.0 and ball.h <= Court.RIM_HEIGHT and ball.h > Court.RIM_HEIGHT - 45.0)
 		if not through:
 			continue
 		var foot: Vector2 = CourtStage.m_project(hoop, hh)

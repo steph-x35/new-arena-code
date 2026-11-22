@@ -54,6 +54,7 @@ func _ready() -> void:
 func attach(p: Node) -> void:
 	# Una nuova presa annulla la caduta precedente, mai il contrario.
 	dunk_drop = 0.0
+	net_manual_contact = Vector2(-1.0, 0.0)
 	holder = p
 	live = false
 	_ana = false
@@ -140,13 +141,15 @@ var dunk_drop := 0.0
 var _drop_start_h := 0.0
 # Horizontal momentum sampled at the scoring crossing, in court pixels/sec.
 var net_entry_velocity := 0.0
+var net_manual_contact := Vector2(-1.0, 0.0)
 
 func net_contact() -> Vector2:
 	# x = depth into the mesh, y = sideways pull; negative depth means inactive.
+	if net_manual_contact.x >= 0.0: return net_manual_contact
 	if dunk_drop <= 0.0: return Vector2(-1.0, 0.0)
 	var depth: float = (Court.RIM_HEIGHT - h) / 36.0
 	if depth < -0.2 or depth > 2.0: return Vector2(-1.0, 0.0)
-	return Vector2(maxf(depth, 0.0), clampf(net_entry_velocity / 320.0, -1.0, 1.0))
+	return Vector2(maxf(depth, 0.0), clampf(net_entry_velocity / 180.0, -1.0, 1.0))
 ## Through-the-net fall after a slam: drifts from the rim to the centre of
 ## the short baseline, so the ball lands under the stanchion (correct
 ## perspective) instead of piling up at the dunker's feet.
@@ -185,6 +188,10 @@ func _physics_process(delta: float) -> void:
 		h = maxf(_drop_start_h * (1.0 - f * f), 0.0)
 		if dunk_to != dunk_from:
 			global_position = dunk_from.lerp(dunk_to, f * f)
+		elif absf(net_entry_velocity) > 1.0:
+			# Keep a little horizontal momentum as the ball passes the mesh.
+			var in_mesh: float = maxf(0.0, (Court.RIM_HEIGHT - h) / 36.0)
+			global_position = dunk_from + Vector2(clampf(net_entry_velocity / 180.0, -1.0, 1.0) * 14.0 * smoothstep(0.0, 0.8, in_mesh), 0.0)
 		queue_redraw()
 		return
 	z_index = 40

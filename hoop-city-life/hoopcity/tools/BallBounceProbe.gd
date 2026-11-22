@@ -64,7 +64,7 @@ func _ready() -> void:
 	var left: Vector2 = HoopArt.net_knot(Vector2.ZERO, 22.0, 8.0, 0.0, 0.0, 0.0, -1.0, 0.7, 0.0, Vector2(0.7, -1))
 	var anchored: Vector2 = HoopArt.net_knot(Vector2.ZERO, 22.0, 8.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, Vector2(0.7, 1))
 	var relaxed: Vector2 = HoopArt.net_knot(Vector2.ZERO, 22.0, 8.0, 0.0, 0.0, 0.0, -1.0, 0.7, 0.0, Vector2(2.0, 1))
-	ok = ok and right.x > left.x and anchored.is_equal_approx(Vector2(22, 0)) and relaxed.is_equal_approx(still)
+	ok = ok and right.x - left.x > 20.0 and anchored.is_equal_approx(Vector2(22, 0)) and relaxed.is_equal_approx(still)
 	ball.dunk_drop = 0.5
 	ball.h = Court.RIM_HEIGHT - 18.0
 	ball.net_entry_velocity = -320.0
