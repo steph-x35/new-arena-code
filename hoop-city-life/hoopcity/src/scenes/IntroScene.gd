@@ -22,15 +22,23 @@ var ui: Control
 var buttons: VBoxContainer
 var title_lbl: Label
 var sub_lbl: Label
+var showcase: Control
+var showcase_a: TextureRect
+var showcase_b: TextureRect
+var showcase_time := 0.0
+const SHOWCASE := [preload("res://assets/menu/campo.jpg"), preload("res://assets/menu/azione.jpg"), preload("res://assets/menu/canestro.jpg"), preload("res://assets/menu/pubblico.jpg"), preload("res://assets/menu/squadra.jpg"), preload("res://assets/menu/schiacciata.jpg")]
 
 const FLOOR_Y := 250.0
 ## Rim sits 370px above the floor line -- a believable 10ft at this scale.
 const HOOP := Vector2(340.0, -120.0)
 const T_SWISH := 3.05
+var intro_music_before := 0.0
 var _news_shown := false       # la finestra NOVITA' esce una volta sola
 
 func _ready() -> void:
 	Sfx.play_life()
+	intro_music_before = Sfx.music.volume_db
+	Sfx.music.volume_db = minf(intro_music_before + 3.0, 0.0)
 	var layer := CanvasLayer.new()
 	add_child(layer)
 	ui = Control.new()
@@ -38,10 +46,30 @@ func _ready() -> void:
 	ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(ui)
 
+	# Genuine in-game frames, softly panning and crossfading behind the menu.
+	showcase = Control.new()
+	showcase.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	showcase.clip_contents = true
+	showcase.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	showcase.modulate.a = 0.0
+	ui.add_child(showcase)
+	showcase_a = _showcase_frame()
+	showcase_b = _showcase_frame()
+	var tint := ColorRect.new()
+	tint.color = Color(0.06, 0.055, 0.05, 0.43)
+	tint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	showcase.add_child(tint)
+
 	title_lbl = Label.new()
 	title_lbl.text = "HOOP CITY LIFE"
 	title_lbl.add_theme_font_size_override("font_size", 92)
-	title_lbl.add_theme_color_override("font_color", Color(0.10, 0.12, 0.18))
+	title_lbl.add_theme_color_override("font_color", Color(1.0, 0.95, 0.82))
+	title_lbl.add_theme_color_override("font_outline_color", Color(0.26, 0.12, 0.06))
+	title_lbl.add_theme_constant_override("outline_size", 6)
+	title_lbl.add_theme_color_override("font_shadow_color", Color(0.03, 0.03, 0.04, 0.75))
+	title_lbl.add_theme_constant_override("shadow_offset_x", 5)
+	title_lbl.add_theme_constant_override("shadow_offset_y", 6)
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	# A full-width strip with centred text. PRESET_CENTER_TOP anchors the
 	# label's LEFT edge to the middle of the screen, so offsetting by half its
@@ -53,7 +81,9 @@ func _ready() -> void:
 	sub_lbl = Label.new()
 	sub_lbl.text = Loc.t("tagline")
 	sub_lbl.add_theme_font_size_override("font_size", 22)
-	sub_lbl.add_theme_color_override("font_color", Color(0.22, 0.25, 0.33))
+	sub_lbl.add_theme_color_override("font_color", Color(1.0, 0.95, 0.84))
+	sub_lbl.add_theme_color_override("font_outline_color", Color(0.15, 0.10, 0.07))
+	sub_lbl.add_theme_constant_override("outline_size", 3)
 	sub_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	# Full-width strip, same reason as the title above.
 	sub_lbl.set_anchors_preset(Control.PRESET_TOP_WIDE)
@@ -61,7 +91,7 @@ func _ready() -> void:
 	ui.add_child(sub_lbl)
 
 	buttons = VBoxContainer.new()
-	buttons.add_theme_constant_override("separation", 12)
+	buttons.add_theme_constant_override("separation", 8)
 	buttons.modulate.a = 0.0
 	ui.add_child(buttons)
 
@@ -88,14 +118,57 @@ func _ready() -> void:
 	ui.add_child(skip)
 	skip.name = "SkipHint"
 
+	var signature := Label.new()
+	signature.text = "@saker_life"
+	signature.add_theme_font_size_override("font_size", 15)
+	signature.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.78))
+	signature.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	signature.position = Vector2(-125, -28)
+	signature.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ui.add_child(signature)
 	_layout()
 	get_viewport().size_changed.connect(_layout)
+
+func _showcase_frame() -> TextureRect:
+	var frame := TextureRect.new()
+	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	frame.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	showcase.add_child(frame)
+	return frame
+
+func _animate_showcase(delta: float) -> void:
+	showcase_time += delta
+	var index: int = int(showcase_time / 8.0) % SHOWCASE.size()
+	var phase: float = fmod(showcase_time, 8.0)
+	showcase_a.texture = SHOWCASE[index]
+	showcase_b.texture = SHOWCASE[(index + 1) % SHOWCASE.size()]
+	showcase_b.modulate.a = clampf((phase - 6.8) / 1.2, 0.0, 1.0)
+	var view: Vector2 = showcase.size
+	showcase_a.pivot_offset = view * 0.5
+	showcase_b.pivot_offset = view * 0.5
+	showcase_a.scale = Vector2.ONE * (1.08 + phase * 0.006)
+	showcase_b.scale = Vector2.ONE * 1.08
+	showcase_a.position.x = -phase * 3.0
 
 func _add_btn(text: String, cb: Callable) -> void:
 	var b := Button.new()
 	b.text = text
-	b.custom_minimum_size = Vector2(420, 78)
-	b.add_theme_font_size_override("font_size", 26)
+	b.custom_minimum_size = Vector2(470, 68)
+	b.add_theme_font_size_override("font_size", 25)
+	var glass := StyleBoxFlat.new()
+	glass.bg_color = Color(0.12, 0.14, 0.20, 0.48)
+	glass.border_color = Color(0.86, 0.92, 1.0, 0.78)
+	glass.set_border_width_all(2)
+	glass.set_corner_radius_all(24)
+	glass.shadow_color = Color(0, 0, 0, 0.35)
+	glass.shadow_size = 8
+	b.add_theme_stylebox_override("normal", glass)
+	var over := glass.duplicate() as StyleBoxFlat
+	over.bg_color = Color(0.47, 0.38, 0.36, 0.65)
+	b.add_theme_stylebox_override("hover", over)
+	b.add_theme_stylebox_override("pressed", over)
 	b.pressed.connect(cb)
 	buttons.add_child(b)
 
@@ -114,9 +187,12 @@ func _layout() -> void:
 	sub_lbl.position = Vector2(0.0, s.y * 0.10 + 104.0)
 	sub_lbl.custom_minimum_size = Vector2(0.0, 30.0)
 	sub_lbl.size = Vector2(s.x, 30.0)
-	# buttons: bottom-left, clear of the hoop on the right
-	buttons.position = Vector2(64, s.y - 78.0 * buttons.get_child_count()
-		- 12.0 * maxi(buttons.get_child_count() - 1, 0) - 40.0)
+	# Centre the translucent buttons below the title on every screen.
+	var width: float = minf(470.0, s.x - 40.0)
+	for button in buttons.get_children():
+		button.custom_minimum_size.x = width
+	var height: float = 68.0 * buttons.get_child_count() + 8.0 * maxi(buttons.get_child_count() - 1, 0)
+	buttons.position = Vector2((s.x - width) * 0.5, maxf(s.y * 0.10 + 140.0, s.y - height - 75.0))
 
 func _unhandled_input(event: InputEvent) -> void:
 	var tap: bool = (event is InputEventScreenTouch and event.pressed) \
@@ -147,6 +223,8 @@ func _show_news() -> void:
 	News.maybe_show(get_tree())
 
 func _process(delta: float) -> void:
+	_animate_showcase(delta)
+	showcase.modulate.a = move_toward(showcase.modulate.a, 1.0 if done or t >= T_SWISH else 0.0, delta * 1.2)
 	if done:
 		net_wobble = maxf(0.0, net_wobble - delta * 2.0)
 		flash = maxf(0.0, flash - delta * 2.2)
@@ -306,3 +384,6 @@ func _draw_ball() -> void:
 		Color(0.30, 0.15, 0.06), 2.2)
 	draw_arc(c + Vector2(cos(a1), sin(a1)) * 9.0, 24.0, a1 + 1.1, a1 + 2.1, 12,
 		Color(0.30, 0.15, 0.06), 2.0)
+
+func _exit_tree() -> void:
+	if Sfx.music != null: Sfx.music.volume_db = intro_music_before

@@ -1,6 +1,6 @@
 extends Node
 
-const VERSION := "2.47.7"
+const VERSION := "2.49.8"
 
 ## Difficoltà scelta nelle impostazioni: 0 Facile, 1 Normale, 2 Duro, 3 Incubo.
 ## Moltiplica la skill dell'AI e alza il suo MINIMO: con "Duro" anche i
@@ -26,7 +26,7 @@ func diff_floor() -> float:
 ## Autoloaded as `Game`.
 
 const ATTRS := [
-	"close", "mid", "three", "handle", "pass", "speed", "accel",
+	"close", "dunk", "mid", "three", "handle", "pass", "speed", "accel",
 	"stamina", "defense", "steal", "block", "rebound"
 ]
 
@@ -68,7 +68,7 @@ func default_profile() -> Dictionary:
 		"furniture": [],           # ids of furniture placed upstairs
 
 		"attrs": {
-			"close": 55, "mid": 52, "three": 48, "handle": 58, "pass": 55,
+			"close": 55, "dunk": 52, "mid": 52, "three": 48, "handle": 58, "pass": 55,
 			"speed": 62, "accel": 60, "stamina": 60, "defense": 50,
 			"steal": 48, "block": 40, "rebound": 45,
 		},
@@ -138,7 +138,7 @@ const HAIR_COLORS := [
 
 func hair_style() -> int:
 	## 0 normale, 1 rasato, 2 afro, 3 trecce, 4 ricci.
-	return clampi(int(profile.get("hair_style", 0)), 0, 5)
+	return clampi(int(profile.get("hair_style", 0)), 0, 7)
 
 func skin_color() -> Color:
 	return SKIN_TONES[clampi(int(profile.get("skin", 1)), 0, SKIN_TONES.size() - 1)]
@@ -150,6 +150,25 @@ func shooting_hand() -> float:
 	## +1 = right handed, -1 = left handed. Drives which side the ball is
 	## dribbled and released from.
 	return -1.0 if String(profile.get("hand", "R")) == "L" else 1.0
+
+const ATTR_LABELS := {
+	"close": "Layup", "dunk": "Schiacciata", "mid": "Tiro dalla media", "three": "Tiro da tre",
+	"handle": "Palleggio", "pass": "Passaggi", "speed": "Velocità", "accel": "Accelerazione",
+	"stamina": "Resistenza", "defense": "Difesa", "steal": "Rubata", "block": "Stoppata", "rebound": "Rimbalzo"
+}
+const ATTR_EFFECTS := {
+	"close": "Finestra vicino al ferro", "dunk": "Finestra schiacciata a tempo", "mid": "Finestra dalla media distanza",
+	"three": "Finestra oltre l'arco", "handle": "Protezione palla e finte", "pass": "Velocità del passaggio",
+	"speed": "Velocità in partita", "accel": "Rapidità di partenza", "stamina": "Consumo e recupero energia in campo",
+	"defense": "Pressione sul tiratore", "steal": "Probabilità di rubare palla",
+	"block": "Possibilità di stoppata", "rebound": "Possibilità di rimbalzo"
+}
+
+func shot_skill(distance_ft: float) -> float:
+	return ShotSystem.rating_for_distance(float(attr("close")), float(attr("mid")), float(attr("three")), distance_ft)
+
+func speed_factor() -> float:
+	return lerpf(0.92, 1.08, clampf((float(attr("speed")) - 30.0) / 69.0, 0.0, 1.0))
 
 func attr(a: String) -> int:
 	return int(profile["attrs"].get(a, 50))
@@ -179,14 +198,87 @@ func add_xp(amount: int, source := "") -> void:
 func xp_for_next_level() -> int:
 	return 200 + (profile["level"] - 1) * 120
 
+## Le allocazioni sono separate dai bonus ottenuti con libri e allenamenti.
+## Un vecchio salvataggio diventa la base senza perdere alcun attributo.
+func ensure_attribute_builder() -> void:
+	if typeof(profile.get("attribute_base")) == TYPE_DICTIONARY and not profile["attribute_base"].is_empty():
+		return
+	var base: Dictionary = profile.get("attrs", {}).duplicate(true)
+	if not base.has("dunk"):
+		base["dunk"] = int(base.get("close", 55))
+	profile["attribute_base"] = base
+	profile["attribute_alloc"] = {}
+	for a in ATTRS:
+		profile["attribute_alloc"][a] = 0
+	profile["attrs"] = base.duplicate(true)
+
+func attribute_cost(a: String, next_direct: int) -> int:
+	var rating: int = int(profile["attribute_base"].get(a, 50)) + next_direct
+	return 3 if rating > 85 else (2 if rating > 70 else 1)
+
+func rebuild_attributes() -> void:
+	var base: Dictionary = profile["attribute_base"]
+	var alloc: Dictionary = profile["attribute_alloc"]
+	var links := {
+		"close": {"dunk": 0.20, "mid": 0.10},
+		"dunk": {"close": 0.15}, "mid": {"close": 0.10, "three": 0.15},
+		"three": {"mid": 0.10}, "handle": {"speed": 0.10},
+		"defense": {"steal": 0.15}, "rebound": {"block": 0.10},
+	}
+	for a in ATTRS:
+		var bonus := 0.0
+		for source in links:
+			var targets: Dictionary = links[source]
+			if targets.has(a):
+				bonus += float(alloc.get(source, 0)) * float(targets[a])
+		profile["attrs"][a] = clampi(int(base.get(a, 50)) + int(alloc.get(a, 0)) + int(floor(bonus)), 1, 99)
+
+func allocate_attribute(a: String, target: int) -> bool:
+	ensure_attribute_builder()
+	if not a in ATTRS: return false
+	var alloc: Dictionary = profile["attribute_alloc"]
+	var current := int(alloc.get(a, 0))
+	var desired: int = clampi(target, 0, maxi(0, 99 - int(profile["attribute_base"].get(a, 50))))
+	var changed := false
+	while current > desired:
+		profile["attr_points"] += attribute_cost(a, current)
+		current -= 1
+		alloc[a] = current
+		changed = true
+	while current < desired:
+		rebuild_attributes()
+		if attr(a) >= 99: break
+		var cost := attribute_cost(a, current + 1)
+		if int(profile.get("attr_points", 0)) < cost: break
+		profile["attr_points"] -= cost
+		current += 1
+		alloc[a] = current
+		changed = true
+	if changed:
+		rebuild_attributes()
+		# Un badge segue i requisiti attuali: non rimane attivo se i punti
+		# che lo sbloccavano vengono spostati altrove.
+		for id in BADGES:
+			var eligible := true
+			for req in BADGES[id]["req"]:
+				if attr(req) < int(BADGES[id]["req"][req]): eligible = false
+			if not eligible:
+				profile["badges"].erase(id)
+		Events.attribute_up.emit(a, attr(a))
+		check_badges()
+	return changed
+
 func spend_point(a: String) -> bool:
-	if profile["attr_points"] <= 0: return false
-	if attr(a) >= 99: return false
-	profile["attr_points"] -= 1
-	profile["attrs"][a] += 1
-	Events.attribute_up.emit(a, profile["attrs"][a])
+	ensure_attribute_builder()
+	return allocate_attribute(a, int(profile["attribute_alloc"].get(a, 0)) + 1)
+
+func add_attribute_bonus(a: String, amount: int) -> void:
+	ensure_attribute_builder()
+	if not a in ATTRS: return
+	profile["attribute_base"][a] = clampi(int(profile["attribute_base"].get(a, 50)) + amount, 1, 99)
+	rebuild_attributes()
+	Events.attribute_up.emit(a, attr(a))
 	check_badges()
-	return true
 
 func check_badges() -> void:
 	for id in BADGES:
@@ -219,12 +311,30 @@ func add_health(v: float) -> void:
 	Events.health_changed.emit(profile["health"])
 
 func add_money(v: int) -> void:
-	# I GUADAGNI (non le spese) scalano con la difficolta scelta:
-	# FACILE 70% - NORMALE 85% - DURO 100% - INCUBO 125%.
+	# Rewards are calculated exactly once, then kept in the save until claimed.
 	if v > 0:
-		v = int(round(v * diff_pay()))
-	profile["money"] = max(0, profile["money"] + v)
+		var reward := int(round(v * diff_pay()))
+		if reward > 0:
+			var pending: Array = profile.get("pending_money_rewards", [])
+			pending.append(reward)
+			profile["pending_money_rewards"] = pending
+			Events.money_rewards_pending.emit()
+			# Let the caller finish updating the match/job before saving.
+			SaveSystem.call_deferred("save_game")
+		return
+	profile["money"] = maxi(0, int(profile["money"]) + v)
 	Events.money_changed.emit(profile["money"])
+
+func claim_money_reward() -> int:
+	var pending: Array = profile.get("pending_money_rewards", [])
+	if pending.is_empty():
+		return 0
+	var reward: int = maxi(0, int(pending.pop_front()))
+	profile["pending_money_rewards"] = pending
+	profile["money"] = int(profile["money"]) + reward
+	Events.money_changed.emit(profile["money"])
+	SaveSystem.save_game()
+	return reward
 
 func add_rep(v: int) -> void:
 	profile["rep"] = clampi(profile["rep"] + v, 0, 100)
@@ -382,6 +492,18 @@ func add_social_post(author: String, text: String, likes: int) -> void:
 	if profile["social"].size() > 60:
 		profile["social"].resize(60)
 	Events.social_post_added.emit(post)
+
+func toggle_social_like(post: Dictionary) -> void:
+	var was_liked := bool(post.get("liked_by_player", false))
+	post["liked_by_player"] = not was_liked
+	post["likes"] = maxi(0, int(post.get("likes", 0)) + (-1 if was_liked else 1))
+	SaveSystem.save_game()
+
+func comment_social_post(post: Dictionary, text: String) -> void:
+	if not post.has("comments") or not post["comments"] is Array:
+		post["comments"] = []
+	post["comments"].append({"author": String(profile.get("name", "Player")), "text": text})
+	SaveSystem.save_game()
 
 func add_message(from: String, text: String) -> void:
 	profile["messages"].push_front({"from": from, "text": text, "day": profile["day"], "time": clock_string()})

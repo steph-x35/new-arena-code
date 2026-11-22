@@ -21,6 +21,7 @@ static var palm_valid := false
 ## Ball del match legge SOLO quella del suo holder.
 static var palms := {}
 const SHOOT := "shoot"
+const LAYUP := "layup"
 const DUNK := "dunk"
 const DEFEND := "defend"
 const STEAL := "steal"
@@ -53,6 +54,10 @@ static func _items() -> Node:
 ## off it so one figure works at 46 px in a match and 300 px in the creator.
 ## `trick` ("" or crossover/stepback/behind/hand_switch/hesi) adds the body
 ## language of a dribble move on top of the DRIBBLE pose.
+# Keep faces in performance mode too: it may be enabled automatically mid-match.
+static func face_visible(back: bool, head_r: float) -> bool:
+	return not back and head_r > 4.0
+
 static func pose(kind := IDLE, phase := 0.0, amount := 0.0,
 		trick := "", walk := false) -> Dictionary:
 	return {"kind": kind, "phase": phase, "amount": clampf(amount, 0.0, 1.0),
@@ -106,16 +111,25 @@ static func accessory_col(slot: String) -> Color:
 ## `front` selects the two-lens glasses (face toward camera) vs one lens
 ## (profile). Called after the head so the hat covers the hair.
 static func draw_accessories(c: CanvasItem, head: Vector2, r: float,
-		dir := 1.0, front := true) -> void:
+		dir := 1.0, front := true, look := {}) -> void:
 	# Draw even on the small match figures (their heads are ~6 px, so the old
 	# 7 px threshold silently dropped the hat and glasses on the court).
 	if r < 3.0:
 		return
+	# v2.48.1: se chi disegna SA chi sta disegnando (il `look` che arriva
+	# dall'altro telefono, o il proprio cols), cappello e occhiali vengono da
+	# li'. Senza `look` resta il profilo salvato qui, come prima: cosi' ogni
+	# altro posto del gioco continua a funzionare identico.
 	var hat_id: String = outfit_id("hat")
 	var hat_col: Color = accessory_col("hat")
+	if look.has("hat"):
+		hat_id = String(look.get("hat", ""))
+		hat_col = Color(look.get("hat_col", Color(0, 0, 0, 0)))
 	if not hat_id.is_empty() and hat_col.a > 0.0:
 		draw_hat(c, head, r, dir, hat_col, hat_id)
 	var gl_col: Color = accessory_col("glasses")
+	if look.has("glasses"):
+		gl_col = Color(look.get("glasses_col", Color(0, 0, 0, 0)))
 	if gl_col.a > 0.0:
 		draw_glasses(c, head, r, front, gl_col, dir)
 
@@ -254,6 +268,7 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	var swing := 0.0         # leg cycle
 	var arm_swing := 0.0     # arm cycle (walking swings the arms too)
 	var arm_up := 0.0        # 0 = down, 1 = fully extended overhead
+	var spread := 0.0        # 0 = braccia addosso, 1 = aperte di lato (difesa)
 	var lean := 0.0
 	var leg_tuck := 0.0      # knees pulled up (dunk sample)
 
@@ -273,8 +288,11 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			crouch = 0.0
 			lean = 0.0
 		DEFEND:
-			crouch = h * 0.03
-			arm_up = 0.22
+			# POSA DI DIFESA VERA: gambe piegate (il bacino scende di un
+			# quinto della gamba) e braccia APERTE di lato, non davanti.
+			crouch = h * 0.095
+			arm_up = 0.16
+			spread = 1.0
 			lean = 0.0
 			# in movimento la posa difensiva CAMMINA (passo strisciato):
 			# senza ciclo delle gambe il difensore scivolerebbe sul campo.
@@ -376,7 +394,7 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	# tomahawk arches back), so the plumb rule is lifted for the dunk sample.
 	if slam_pose:
 		lean = float(dk.get("lean", 0.0)) * h * facing
-	var turn: float = 0.0 if back else clampf(absf(facing), 0.0, 1.0)
+	var turn: float = 0.0 if back or bool(p.get("front", false)) else clampf(absf(facing), 0.0, 1.0)
 	var sdir: float = 1.0 if facing >= 0.0 else -1.0
 	var twist: float = 0.0
 
@@ -385,11 +403,10 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	var sh_y: float = floor_y - h * 0.80 + crouch * 0.6
 	var head_y: float = floor_y - h * 0.90 - head_r * 0.35 + crouch * 0.5
 
-	# --- shadow stays on the ground and shrinks as he rises
+	# --- shadow stays on the ground and shrinks as he rises (una sola
+	#     implementazione per tutto il gioco: Avatar.draw_ground_shadow)
 	if shadow:
-		var s: float = clampf(1.0 - lift / (h * 1.2), 0.30, 1.0)
-		c.draw_colored_polygon(_ellipse(Vector2(base.x, base.y + h * 0.04),
-			Vector2(h * 0.26 * s, h * 0.075 * s)), Color(0, 0, 0, 0.28 * s))
+		draw_ground_shadow(c, base, h, lift, 1.0, 0.28)
 
 	# --- legs: opposite stride ONLY while walking. Standing still = planted.
 	var tuck: float = (lift / maxf(h, 1.0)) * h * 0.16 + leg_tuck
@@ -457,7 +474,10 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	var ball_pos := Vector2.ZERO
 	var has_ball_pos := false
 	for sx in [-1.0, 1.0]:
-		var strong: bool = signf(sx) == signf(hd)
+		var hand_now: float = hd
+		if kind == DRIBBLE and trick in ["crossover", "hand_switch", "behind", "between", "spin", "euro", "dropstep"] and amt > 0.5:
+			hand_now = -hd
+		var strong: bool = signf(sx) == signf(hand_now)
 		var sh_p := Vector2(base.x + sx * sh_w * 0.92 + lean + twist, sh_y + h * 0.04)
 		var elbow: Vector2
 		var hand: Vector2
@@ -477,17 +497,37 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 				floor_y - hl.y * h + float(p.get("rim_drop", 0.0)))
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.5) + sdir * h * 0.06,
 				lerpf(sh_p.y, hand.y, 0.5) + h * 0.02)
+		elif kind == LAYUP and strong:
+			hand = Vector2(base.x + sdir * h * 0.38, floor_y - h * 0.95)
+			elbow = sh_p.lerp(hand, 0.55) + Vector2(-sdir * h * 0.04, h * 0.03)
 		elif kind == STEAL and strong:
 			# Reach with the character's own strong-side arm.
 			hand = Vector2(base.x + sx * h * 0.55 + lean, hip_y - h * 0.18)
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.45), lerpf(sh_p.y, hand.y, 0.40))
+		elif spread > 0.01 and not slam_pose:
+			# DIFESA, BRACCIA APERTE: la mano esce di lato all'altezza del
+			# fianco, il gomito leggermente piegato in fuori. Camminando
+			# oscillano appena, cosi' il passo strisciato si legge.
+			var sw2: float = arm_swing * 0.35 * sx
+			hand = Vector2(sh_p.x + sx * h * 0.28 + sw2, hip_y - h * 0.10 + absf(sw2) * 0.25)
+			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.55), lerpf(sh_p.y, hand.y, 0.42) - h * 0.03)
 		elif kind == DRIBBLE and strong:
-			# Hand rides the ball: bounce and palm stay glued.
-			var br0: float = h * 0.105 if ball_r < 0.0 else ball_r
+			# The hand pushes at hip height; the ball continues to the floor
+			# and rebounds on its own, not glued to an elongating arm.
+			# At the top of the bounce the palm meets the TOP of the ball;
+			# it then pushes a little before the ball travels independently.
 			var bounce: float = absf(sin(ph * 1.15))
-			hand = Vector2(base.x + hd * h * 0.30, floor_y - bounce * h * 0.55 - br0)
+			var br_hand: float = h * 0.105 if ball_r < 0.0 else ball_r
+			var reach_height: float = h * 0.55 + 2.0 * br_hand
+			var hand_x: float = h * 0.30
+			if trick in ["crossover", "hand_switch", "behind", "between", "spin", "euro", "dropstep"]:
+				bounce = absf(cos((1.0 - amt) * PI))
+				reach_height = h * 0.48 + 2.0 * br_hand
+				hand_x = h * 0.34
+			var hand_height: float = lerpf(h * 0.46, reach_height, pow(bounce, 6.0))
+			hand = Vector2(base.x + hand_now * hand_x, floor_y - hand_height)
 			elbow = Vector2(lerpf(sh_p.x, hand.x, 0.42) + sx * h * 0.05,
-				lerpf(sh_p.y, hand.y, 0.40) + h * 0.03)
+				lerpf(sh_p.y, hand.y, 0.40))
 		elif bool(p.get("hang", false)) and not bool(p.get("hang_one", false)):
 			# APPESO A DUE MANI: le mani CONVERGONO sul tubo del ferro,
 			# vicine (una appena davanti all'altra, come una vera presa a
@@ -519,8 +559,7 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 			palms[c.get_instance_id()] = hand
 
 	# --- neck, head, hair, and a real face: two eyes, a nose and a mouth.
-	# LOWGFX: su dispositivi lenti il viso dettagliato e i decori capelli
-	# sono i primi a saltare (a distanza di gioco non si vedono).
+	# LOWGFX semplifica i capelli, ma non deve cancellare il viso.
 	var lowgfx: bool = bool(Settings.get_v("lowgfx", false))
 	c.draw_line(Vector2(base.x + lean + twist, sh_y),
 		Vector2(base.x + lean + twist, head_y + head_r * 0.5), skin, lw * 0.7)
@@ -535,13 +574,18 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	match st:
 		1:   # rasato: alone sottilissimo
 			c.draw_arc(head_c, head_r * 0.99, 0, TAU, 20, hair, maxf(1.0, head_r * 0.10))
-		2:   # afro: volume pieno tutto intorno
-			c.draw_circle(head_c, head_r * 1.38, hair)
-			c.draw_arc(head_c, head_r * 1.38, 0, TAU, 24, hair.darkened(0.18), head_r * 0.10)
+		2:   # curls frame the face instead of painting over it
+			if back:
+				c.draw_circle(head_c, head_r * 1.14, hair)
+			else:
+				c.draw_arc(head_c, head_r * 1.08, PI, TAU, 20, hair, head_r * 0.46)
+				for i in 7:
+					var angle := PI + PI * float(i) / 6.0
+					c.draw_circle(head_c + Vector2(cos(angle), sin(angle)) * head_r, head_r * 0.26, hair)
 		3:   # trecce: ciuffi che scendono sul collo
 			c.draw_arc(head_c, head_r * 1.06, PI * 0.95, TAU + PI * 0.05, 18, hair, head_r * 0.30)
-			for i in 4:
-				var bx: float = head_c.x - head_r * 0.75 + head_r * 0.5 * i
+			for i in (4 if back else 2):
+				var bx: float = head_c.x + (head_r * (-0.85 if i == 0 else 0.85) if not back else -head_r * 0.75 + head_r * 0.5 * i)
 				c.draw_line(Vector2(bx, head_c.y + head_r * 0.55),
 					Vector2(bx, head_c.y + head_r * (1.25 + 0.08 * (i % 2))), hair, head_r * 0.16)
 		4:   # ricci: corona di gobbe
@@ -553,13 +597,20 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 		5:   # dreadlocks lunghi: ciuffi compatti fino alle spalle, da dietro
 			# e di lato, con la riga in cima al capo
 			c.draw_arc(head_c, head_r * 1.04, PI * 0.9, TAU + PI * 0.1, 18, hair, head_r * 0.30)
-			for i in 6:
-				var dx: float = head_r * (0.85 - 0.34 * i)
+			for i in (6 if back else 2):
+				var dx: float = head_r * ((0.90 if i == 0 else -0.90) if not back else (0.85 - 0.34 * i))
 				var sway: float = head_r * 0.10 * ((i % 2) * 2 - 1)
 				c.draw_line(Vector2(head_c.x + dx, head_c.y + head_r * 0.45),
 					Vector2(head_c.x + dx + sway, head_c.y + head_r * 1.95), hair, head_r * 0.22)
 			# radice piena sopra la testa
 			c.draw_circle(head_c + Vector2(0, -head_r * 0.55), head_r * 0.72, hair)
+		6: # short side-part
+			c.draw_arc(head_c, head_r * 1.02, PI, TAU, 18, hair, head_r * 0.42)
+			c.draw_line(head_c + Vector2(-head_r * 0.5, -head_r * 0.72), head_c + Vector2(head_r * 0.55, -head_r * 0.84), hair.lightened(0.25), maxf(1.0, head_r * 0.08))
+		7: # textured high top
+			c.draw_arc(head_c, head_r * 1.06, PI, TAU, 18, hair, head_r * 0.48)
+			for i in 5:
+				c.draw_circle(head_c + Vector2((float(i) - 2.0) * head_r * 0.32, -head_r * (0.95 + 0.12 * (i % 2))), head_r * 0.22, hair)
 		_:   # normale
 			if back:
 				# Seen from behind: hair covers the skull, no face.
@@ -567,7 +618,7 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 				c.draw_arc(head_c, head_r, 0, TAU, 20, hair.darkened(0.15), head_r * 0.18)
 			else:
 				c.draw_arc(head_c, head_r, PI, TAU, 16, hair, head_r * 0.62)
-	if (not back) and head_r > 4.0 and not lowgfx:
+	if face_visible(back, head_r):
 		var eye_r: float = maxf(head_r * 0.11, 1.0)
 		var eye_dy: float = head_r * 0.06
 		var eye_col := Color(0.10, 0.09, 0.12)
@@ -602,7 +653,7 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 
 	# --- equipped hat & glasses, over the hair and eyes
 	if acc:
-		draw_accessories(c, head_c, head_r, facing, turn < 0.5)
+		draw_accessories(c, head_c, head_r, facing, turn < 0.5, cols)
 
 	# --- ball. One consistent radius everywhere (a caller may pin it so the
 	#     dribble and the shot use the SAME size).
@@ -614,8 +665,11 @@ static func draw_body(c: CanvasItem, base: Vector2, h: float, facing: float,
 	var bp: Vector2 = ball_pos
 	match kind:
 		DRIBBLE:
-			# Same point the palm already occupies.
-			bp = ball_pos
+			# Ball separates from the hand on each bounce in the street court.
+			bp = Vector2(base.x + hd * h * 0.30,
+				floor_y - absf(sin(ph * 1.15)) * h * 0.55 - br)
+			if p.has("dribble_hand"):
+				bp = base + Vector2(p["dribble_hand"])
 		SHOOT:
 			# cocked above the shoulder, released as amount -> 1
 			bp = Vector2(ball_pos.x + hd * br * 0.4, ball_pos.y - br * 0.9)
@@ -653,6 +707,88 @@ static func _ellipse(c: Vector2, r: Vector2) -> PackedVector2Array:
 		var a: float = TAU * i / 18.0
 		p.append(c + Vector2(cos(a) * r.x, sin(a) * r.y))
 	return p
+
+
+## OMBRA A TERRA, UNA SOLA PER TUTTO IL GIOCO.
+## Sta sempre sui piedi (mai in aria col corpo) e RIMPICCIOLISCE man mano che
+## il giocatore sale: a terra e' piena, a un metro e' meta', in cima al salto
+## e' un nocciolo sbiadito. Prima cresceva — era il contrario della fisica.
+static func draw_ground_shadow(c: CanvasItem, feet: Vector2, h: float,
+		lift: float, wide := 1.0, alpha := 0.32) -> void:
+	var k: float = clampf(lift / maxf(h * 2.4, 1.0), 0.0, 0.78)
+	var s: float = 1.0 - k
+	var a: float = alpha * (1.0 - 0.42 * k)
+	c.draw_colored_polygon(_ellipse(feet + Vector2(0.0, h * 0.02),
+		Vector2(h * 0.27 * s * wide, h * 0.078 * s * wide)), Color(0, 0, 0, a))
+
+
+## ------------------------------------------------------------ foot rings
+## L'anello sotto i piedi, come l'indicatore di NBA 2K: verde = libero,
+## giallo = una mano in faccia, rosso = coperto. Dodici trattini su
+## un'ellisse schiacciata come il campo, cosi' sta a terra e non a mezz'aria.
+## Minimale apposta: niente numeri, niente scritte — si legge di lato.
+static func _ell_arc(center: Vector2, rx: float, ry: float,
+		a0: float, a1: float, n := 12) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	for i in n + 1:
+		var a: float = lerpf(a0, a1, float(i) / float(n))
+		pts.append(center + Vector2(cos(a) * rx, sin(a) * ry))
+	return pts
+
+static func draw_contest_ring(c: CanvasItem, feet: Vector2, h: float,
+		contest: float, t := 0.0) -> void:
+	var k: float = clampf(contest, 0.0, 1.0)
+	var rx: float = maxf(h * 0.34, 15.0) * (1.0 + 0.10 * k)
+	var ry: float = rx * 0.36
+	var col := Color(0.30, 0.95, 0.45)          # libero
+	if k > 0.72:
+		col = Color(1.0, 0.30, 0.26)            # coperto
+	elif k > 0.38:
+		col = Color(1.0, 0.80, 0.22)            # contestato
+	var a: float = 0.72
+	if k > 0.72:
+		# quando e' rosso pulsa: si vede da lontano che stai forzando
+		a = 0.55 + 0.45 * (0.5 + 0.5 * sin(t * 9.0))
+	for i in 12:
+		var a0: float = TAU * float(i) / 12.0 + 0.09
+		var a1: float = TAU * float(i + 1) / 12.0 - 0.09
+		var pts: PackedVector2Array = _ell_arc(feet, rx, ry, a0, a1, 6)
+		c.draw_polyline(pts, Color(col, a * (0.55 + 0.45 * k)), maxf(h * 0.035, 2.0))
+
+## Anello della SCHIACCIATA A TEMPO (come il dunk meter di 2K27, ma a terra):
+## una pista grigia, la finestra verde, e una pallina che corre mentre sali.
+## Quando la pallina e' nel verde, TIRA: schiacciata pulita, non stoppabile.
+static func draw_dunk_ring(c: CanvasItem, feet: Vector2, h: float,
+		prog: float, lo: float, hi: float, graded := "") -> void:
+	var rx: float = maxf(h * 0.40, 18.0)
+	var ry: float = rx * 0.36
+	c.draw_polyline(_ell_arc(feet, rx, ry, 0.0, TAU, 40), Color(1, 1, 1, 0.13), maxf(h * 0.030, 2.0))
+	c.draw_polyline(_ell_arc(feet, rx, ry, TAU * lo, TAU * hi, 14),
+		Color(0.30, 1.0, 0.42, 0.95), maxf(h * 0.055, 3.0))
+	var a: float = TAU * clampf(prog, 0.0, 1.0)
+	var dot: Vector2 = feet + Vector2(cos(a) * rx, sin(a) * ry)
+	# la pallina: bianca mentre sali, verde quando sei nella finestra
+	var dc := Color(1, 1, 1, 0.95)
+	if prog >= lo and prog <= hi:
+		dc = Color(0.45, 1.0, 0.55)
+	elif graded == "perfect":
+		dc = Color(0.30, 1.0, 0.45)
+	elif graded != "":
+		dc = Color(1.0, 0.45, 0.38)
+	c.draw_circle(dot, maxf(h * 0.055, 3.0), dc)
+
+## LOCKDOWN: 3 difese buone di fila. Anello azzurro che gira piano, sotto i
+## piedi — il gemello freddo delle fiamme dell'attacco.
+static func draw_lockdown_ring(c: CanvasItem, feet: Vector2, h: float, t: float) -> void:
+	var rx: float = maxf(h * 0.36, 16.0)
+	var ry: float = rx * 0.36
+	var ph: float = fmod(t * 1.4, 1.0)
+	for i in 14:
+		var a0: float = TAU * (float(i) + ph) / 14.0
+		var pts: PackedVector2Array = _ell_arc(feet, rx, ry, a0, a0 + 0.16, 4)
+		c.draw_polyline(pts, Color(0.45, 0.85, 1.0, 0.55), maxf(h * 0.030, 2.0))
+	c.draw_polyline(_ell_arc(feet, rx + 3.0, ry + 2.0, 0.0, TAU, 40),
+		Color(0.45, 0.85, 1.0, 0.18 + 0.10 * sin(t * 6.0)), maxf(h * 0.018, 1.5))
 
 
 ## HEAT CHECK: lingue di fuoco disegnate a 3 strati (base arancio, pancia
@@ -698,7 +834,8 @@ static func draw_ball_flames(c: CanvasItem, center: Vector2, r: float, t: float,
 		return
 	# SCIA: il fuoco scivola ALL'INDIETRO rispetto al moto (parabola vera)
 	var ang: float = (-sv / sp).angle()
-	c.draw_set_transform(center, ang, Vector2.ONE)
+	# Keep the caller's projection/scale. Replacing the canvas transform here
+	# sent the trail away from the ball on the match court.
 	for i in 4:
 		var ph: float = t * 10.0 + float(i) * 1.3
 		var d: float = r * (0.55 + float(i) * 0.42)      # quanto dietro
@@ -707,12 +844,12 @@ static func draw_ball_flames(c: CanvasItem, center: Vector2, r: float, t: float,
 		var ln: float = r * (0.55 + (sin(ph * 1.6) * 0.5 + 0.5) * 0.35)
 		var base := Vector2(d, sway)
 		# lingua di fuoco: goccia allungata che si restringe all'indietro
-		c.draw_circle(base, fw, Color(1.0, 0.34, 0.05, 0.72))
-		c.draw_circle(base + Vector2(ln * 0.45, sway * 0.4), fw * 0.62, Color(1.0, 0.60, 0.10, 0.8))
-		c.draw_circle(base + Vector2(ln * 0.85, sway * 0.7), fw * 0.32, Color(1.0, 0.88, 0.30, 0.85))
+		c.draw_circle(center + base.rotated(ang), fw, Color(1.0, 0.34, 0.05, 0.72))
+		c.draw_circle(center + (base + Vector2(ln * 0.45, sway * 0.4)).rotated(ang), fw * 0.62, Color(1.0, 0.60, 0.10, 0.8))
+		c.draw_circle(center + (base + Vector2(ln * 0.85, sway * 0.7)).rotated(ang), fw * 0.32, Color(1.0, 0.88, 0.30, 0.85))
 	# scintille che si staccano lungo la scia
 	for k in 3:
 		var ph2: float = t * 6.0 + float(k) * 2.0
-		c.draw_circle(Vector2(r * (0.7 + float(k) * 0.55), sin(ph2) * r * 0.28),
+		var spark := Vector2(r * (0.7 + float(k) * 0.55), sin(ph2) * r * 0.28)
+		c.draw_circle(center + spark.rotated(ang),
 			1.4 + 1.2 * absf(sin(ph2)), Color(1.0, 0.85, 0.30, 0.75))
-	c.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

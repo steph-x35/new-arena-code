@@ -1,10 +1,12 @@
 extends Node
 ## Central audio: one-shot SFX pool, reactive crowd bed and looping music.
-## Autoloaded as `Sfx`. Every sound in the game is procedural (assets/sfx),
-## so there are no licensing dependencies. Volumes follow the Settings sliders.
+## Autoloaded as `Sfx`. Volumes follow the Settings sliders; the user's
+## supplied crowd chants and horn live alongside the existing sound assets.
 
 const SFX_DIR := "res://assets/sfx/"
 const POOL_SIZE := 18
+const USER_HORN := preload("res://assets/sfx/user/nba-horn.mp3")
+const DEFENSE_CHANTS := [preload("res://assets/sfx/user/defense-chant.mp3"), preload("res://assets/sfx/user/defense-nba.mp3")]
 
 ## Every one-shot in the game. Kept as an explicit list so the export packer
 ## always includes them (see _ready).
@@ -25,6 +27,13 @@ var _pool_i := 0
 var _bounce_i := 0
 
 var crowd: AudioStreamPlayer
+var defense_chant: AudioStreamPlayer
+var defense_chant_index := 0
+var _chant_level := 0.0
+var _chant_target := 0.0
+const CHANT_FADE_IN := 1.2
+const CHANT_FADE_OUT := 1.0
+const CHANT_VOLUME_DB := -8.0
 var music: AudioStreamPlayer
 var amb: AudioStreamPlayer
 var ambient: AudioStreamPlayer        # traffic bed (city), dedicated loop
@@ -54,6 +63,10 @@ func _ready() -> void:
 	crowd = AudioStreamPlayer.new()
 	crowd.bus = "Crowd"
 	add_child(crowd)
+	defense_chant = AudioStreamPlayer.new()
+	defense_chant.bus = "Crowd"
+	defense_chant.volume_db = -8.0
+	add_child(defense_chant)
 	music = AudioStreamPlayer.new()
 	music.bus = "Music"
 	add_child(music)
@@ -79,6 +92,9 @@ func _ready() -> void:
 			_streams[n] = s
 		else:
 			push_warning("Sfx: missing stream " + n)
+	# All existing buzzer calls now use the supplied horn without affecting
+	# the fallback loading of the other WAV effects.
+	_streams["buzzer"] = USER_HORN
 	# Garanzia di LOOP a runtime, qualunque sia lo stato dell'import: questi
 	# suoni devono girare all'infinito (pioggia, lounge, jazz, folla).
 	for n in ["traffic_loop", "rain_loop", "music_lounge", "music_jazz", "music_jazz2", "crowd_amb", "court_amb", "music_rhythm"]:
@@ -128,7 +144,7 @@ func play(name: String, volume_db := 0.0, pitch := 1.0) -> void:
 	_play_impl(_pool, name, volume_db, pitch)
 
 func _play_impl(pool: Array, name: String, volume_db: float, pitch: float) -> void:
-	var s: AudioStreamWAV = _streams.get(name)
+	var s: AudioStream = _streams.get(name)
 	if s == null:
 		return
 	var p: AudioStreamPlayer = pool[0]
@@ -173,15 +189,44 @@ func start_crowd() -> void:
 				crowd.stream = st
 		if crowd.stream == null:
 			crowd.stream = _streams.get("crowd_amb")
+	if crowd.stream != null and not crowd.playing:
 		_crowd_vol = -14.0
 		crowd.volume_db = -14.0
 		crowd.play()
 		set_hype(0.0)
 
 func stop_crowd() -> void:
+	stop_defense_chant(true)
 	if crowd.playing:
 		crowd.stop()
 	_hype = 0.0
+
+# Crowd chants are separate from the SFX pool so Crowd settings control them
+# and we can stop them immediately when the possession changes.
+func play_defense_chant() -> void:
+	if not match_live or defense_chant == null or defense_chant.playing:
+		return
+	defense_chant.stream = DEFENSE_CHANTS[defense_chant_index % DEFENSE_CHANTS.size()]
+	defense_chant_index += 1
+	_chant_level = 0.0
+	_chant_target = 1.0
+	defense_chant.volume_db = -80.0
+	defense_chant.play()
+
+func stop_defense_chant(immediate := false) -> void:
+	_chant_target = 0.0
+	if immediate and defense_chant != null:
+		_chant_level = 0.0
+		defense_chant.stop()
+
+func _update_defense_chant(delta: float) -> void:
+	if defense_chant == null or not defense_chant.playing:
+		return
+	var fade_time := CHANT_FADE_IN if _chant_target > _chant_level else CHANT_FADE_OUT
+	_chant_level = move_toward(_chant_level, _chant_target, delta / fade_time)
+	defense_chant.volume_db = CHANT_VOLUME_DB + linear_to_db(maxf(_chant_level, 0.0001))
+	if _chant_level <= 0.0 and _chant_target == 0.0:
+		defense_chant.stop()
 
 ## Ambiente del court ESTERNO (registrazione dell'utente): player dedicato,
 ## non puo' essere rubato dal pool dei one-shot.
@@ -225,6 +270,7 @@ func ooh() -> void:
 		play("crowd_ooh", -7.0, randf_range(0.95, 1.06))
 
 func _process(delta: float) -> void:
+	_update_defense_chant(delta)
 	_squeak_cd = maxf(0.0, _squeak_cd - delta)
 	if _duck_t > 0.0:
 		_duck_t -= delta
@@ -347,3 +393,4 @@ func set_match_live(v: bool) -> void:
 	match_live = v
 	if not v:
 		_chaos_t = 0.0
+		stop_defense_chant(true)

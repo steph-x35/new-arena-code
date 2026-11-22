@@ -13,7 +13,7 @@ signal turnover(by: BallPlayer)
 
 # --- ratings 1..99 (copied in from Game profile or generated for NPCs) ---
 var ratings := {
-	"close": 55, "mid": 52, "three": 48, "handle": 58, "pass": 55,
+	"close": 55, "dunk": 52, "mid": 52, "three": 48, "handle": 58, "pass": 55,
 	"speed": 62, "accel": 60, "stamina": 60, "defense": 50,
 	"steal": 48, "block": 40, "rebound": 45,
 }
@@ -44,12 +44,14 @@ var leaving := false                # walking OFF to the bench
 var bench_target := Vector2.ZERO    # where the sub walk is heading
 var last_dir := Vector2.RIGHT
 var cooldown_steal := 0.0
+var user_steal_attempts := 0
 var cooldown_move := 0.0
 var possession_time := 0.0
 var move_t := 0.0                     # >0 while a crossover/stepback animates
 var move_kind := ""                   # crossover / stepback / behind / hand_switch / hesi
 var hand_side := 1.0                  # which hand the ball is in (flips on a move)
-const MOVE_DUR := 0.45                # seconds a dribble move plays out on screen
+var move_duration := 0.65
+const MOVE_DUR := 0.65                # seconds a dribble move plays out on screen
 
 # --- vertical game: jump / block / dunk -----------------------------------
 ## `air` is height ABOVE the floor in pixels; the sprite is offset by it so a
@@ -58,6 +60,7 @@ var air := 0.0
 var air_v := 0.0
 var jumping := false
 var block_window := 0.0        # >0 = contesting, can swat a shot
+var layup_t := 0.0
 var dunking := false
 var posting := false              # POST UP: spalle al canestro, gioca col dosbo
 var hanging := false           # holding the rim after a dunk
@@ -65,12 +68,15 @@ var hang_t := 0.0
 var dunk_held := false         # true while the dunk button is held
 var hang_saw_hold := false     # saw the button held AFTER we grabbed the rim
 var dunk_charge := 0.0
+var lockdown := false                 # v2.49.0: 3 difese buone di fila
+var def_good := 0
 var shot_anim := 0.0           # follow-through timer after a released shot
 var fade_t := 0.0              # animazione FADEAWAY: schienata indietro
 var euro_t := 0.0              # EUROSTEP a due tempi: 1 laterale, 2 verso il ferro
 var euro_finish := false       # al secondo tempo: chiude a schiacciata o layup
 var combo_pullup := false      # combo TRICK->TIRA entro mezzo secondo
 var stepback_t := 0.0          # finestra STEPBACK 3 dopo lo stepback
+var embedded_dribble := false # disegnata dall'avatar come allo street court
 var dribble_phase := 0.0       # orologio palleggio: 4.2 costante COME IL SOLO
 var fake_t := 0.0              # pump-fake timer
 var fake_locked := false       # finta in partita = palla raccolta al petto
@@ -99,11 +105,12 @@ var _low := false              # lowgfx: niente dettagli costosi
 var shoe_col := Color(0.90, 0.90, 0.92)
 var skin_col := Color(0.72, 0.53, 0.38)
 var hair_col := Color(0.16, 0.13, 0.12)
+var friendly_look: Dictionary = {}
 var hair_style_v := 0          # taglio PROPRIO (gli NPC non copiano il profilo)
 
 const GRAV := 2600.0
-const JUMP_V := 900.0
-const DUNK_RANGE_FT := 6.5
+const JUMP_V := 760.0
+const DUNK_RANGE_FT := 3.5
 
 var court: Node2D
 
@@ -115,6 +122,29 @@ func _ready() -> void:
 	z_index = 10
 	add_to_group("players")
 	add_to_group("team_%d" % team)
+
+func reset_action_state() -> void:
+	shot_charge = -1.0
+	shot_anim = 0.0
+	layup_t = 0.0
+	ai_windup_t = -1.0
+	dunking = false
+	dunk_held = false
+	hanging = false
+	jumping = false
+	air = 0.0
+	air_v = 0.0
+	landing = 0.0
+	move_t = 0.0
+	move_input = Vector2.ZERO
+	velocity = Vector2.ZERO
+	fake_locked = false
+	queue_redraw()
+
+func clear_defensive_pose() -> void:
+	stance = false
+	block_window = 0.0
+	steal_t = 0.0
 
 func setup_from_profile() -> void:
 	ratings = Game.profile["attrs"].duplicate()
@@ -131,7 +161,7 @@ func max_speed() -> float:
 	# stamina or ball-carriage scaling -- the same number the shoot-around and
 	# the street court use, so a scrimmage never feels like a different speed.
 	if is_user:
-		return 205.0
+		return 205.0 * Game.speed_factor()
 	# Velocita' base alzata (+5% su tutti, stesso moltiplicatore AI/utente:
 	# nessuna squilibratura, solo meno "pendenza" dopo la rimessa).
 	var s: float = BASE_SPEED * (0.76 + float(ratings["speed"]) / 99.0 * 0.55)
@@ -157,6 +187,11 @@ func has_badge(b: String) -> bool:
 	return b in badges
 
 func _physics_process(delta: float) -> void:
+	# Durante il timeout il campo muove i giocatori verso e dalla panchina.
+	if court != null and court.timeout_active > 0.0:
+		anim_t += delta * 5.2
+		queue_redraw()
+		return
 	# While walking to/from the bench the Court moves this node directly:
 	# no input, no brain, no court clamping (the bench is out of bounds).
 	if entering or leaving:
@@ -180,6 +215,7 @@ func _physics_process(delta: float) -> void:
 	if court == null or not court.play_live:
 		fake_locked = false   # fine possessione: il lock dei passi svanisce
 	move_t = maxf(0.0, move_t - delta)
+	layup_t = maxf(0.0, layup_t - delta)
 	_update_stamina(delta)
 
 	_update_air(delta)
@@ -197,7 +233,7 @@ func _physics_process(delta: float) -> void:
 	# Frozen before tip-off (the 3-second countdown) and after the whistle --
 	# except during 5v5 inbound wait: everyone but the inbounder keeps moving.
 	if court != null and not court.play_live:
-		var _inbound_phase: bool = not court.one_on_one and (court.inbound_wait > 0.0 or court.restarting)
+		var _inbound_phase: bool = not court.one_on_one and court.inbound_wait > 0.0
 		if not (_inbound_phase and self != court.ball_handler()):
 			wish = Vector2.ZERO
 	# DEFENSE: with GUARD held, glue to the ball-handler and stay between him
@@ -228,6 +264,10 @@ func _physics_process(delta: float) -> void:
 		wish = Vector2.ZERO
 	if wish.length() > 1.0: wish = wish.normalized()
 
+	# Set the feet while gathering/releasing a jumper; dunks retain their drive.
+	if not dunking and not hanging and (shot_charge >= 0.0 or ai_windup_t >= 0.0 or shot_anim > 0.0):
+		wish = Vector2.ZERO
+		velocity = Vector2.ZERO
 	var target := wish * max_speed()
 	if posting:
 		target *= 0.6   # back-down: spingi il difensore col peso, si va piano
@@ -270,6 +310,7 @@ func _physics_process(delta: float) -> void:
 	dribble_intensity = 1.0 if has_ball else clampf(velocity.length() / 200.0, 0.4, 1.4)
 
 	if has_ball:
+		clear_defensive_pose()
 		possession_time += delta
 		guarding = false
 		_check_pressure(delta)
@@ -485,6 +526,19 @@ func do_jump(for_block := false, lunge := 230.0) -> void:
 					if absf(to.x) > 1.0:
 						facing = signf(to.x)
 
+func do_layup() -> void:
+	if court == null or not court.play_live or not has_ball or jumping or hanging or layup_t > 0.0: return
+	layup_t = 0.85
+	move_t = 0.0
+	jumping = true
+	air_v = jump_height() * 0.68
+	var toward: Vector2 = (court.hoop_for(team) - global_position).normalized()
+	if absf(toward.x) > 0.1: facing = signf(toward.x)
+	velocity = toward * 165.0
+	await get_tree().create_timer(0.38).timeout
+	if not is_inside_tree() or court == null or not court.play_live or not has_ball or layup_t <= 0.0: return
+	court.attempt_shot(self, 0.08, true)
+
 func do_dunk(forced_style := "") -> void:
 	if not can_dunk() or jumping or hanging:
 		return
@@ -607,7 +661,7 @@ func do_shot_release() -> void:
 	# actually scores.
 	if court != null:
 		var ft: float = court.px_to_ft(global_position.distance_to(court.hoop_for(team)))
-		var w: Dictionary = ShotSystem.shot_windows(ft, court != null and court.user_heat)
+		var w: Dictionary = ShotSystem.shot_windows(ft, court != null and court.user_heat, Game.shot_skill(ft) if is_user else 60.0)
 		err *= ShotSystem.PERFECT_WINDOW / maxf(float(w["perfect"]), 0.001)
 	# FADEAWAY: rilascio andando VIA dal ferro (post hop o combo stick
 	# indietro): l'animazione della schienata parte col follow-through.
@@ -643,11 +697,12 @@ func do_move(kind: String) -> bool:
 	## crossover / stepback / behind-the-back / hand switch / hesitation --
 	## a short burst, a visible ball-handling animation, and a defender shake
 	## chance. Returns false when the move could not be attempted.
-	if cooldown_move > 0.0 or not has_ball:
+	if cooldown_move > 0.0 or move_t > 0.0 or not has_ball:
 		return false
-	cooldown_move = 0.32
+	move_duration = 0.80 if kind == "spin" else (0.45 if is_user else MOVE_DUR)
+	cooldown_move = move_duration
 	stamina = maxf(0.0, stamina - 6.0)
-	move_t = MOVE_DUR
+	move_t = move_duration
 	move_kind = kind
 	# Le scarpe STRIDANO sui cambi di direzione netti (trick/crossover/spin).
 	Sfx.squeak()
@@ -655,8 +710,11 @@ func do_move(kind: String) -> bool:
 	match kind:
 		"crossover":
 			# plant and drive the other way, flipping the ball to the other hand
-			velocity += Vector2(-facing, 0) * 190.0
-			facing = -facing
+			if not is_user:
+				velocity += Vector2(-facing, 0) * 190.0
+				facing = -facing
+			elif absf(move_input.x) > 0.15:
+				facing = signf(move_input.x)
 			hand_side = -hand_side
 		"spin":
 			# SPIN MOVE 360: esplosione in avanti, il corpo gira (yaw visivo
@@ -666,12 +724,15 @@ func do_move(kind: String) -> bool:
 			stamina = maxf(0.0, stamina - 2.0)
 		"behind":
 			# behind-the-back: same lane change, ball hidden behind the body
-			velocity += Vector2(facing, 0) * 150.0
-			facing = -facing
+			if not is_user:
+				velocity += Vector2(facing, 0) * 150.0
+				facing = -facing
+			elif absf(move_input.x) > 0.15:
+				facing = signf(move_input.x)
 			hand_side = -hand_side
 		"hand_switch":
 			# cambio mano: settle and swap hands without changing direction
-			velocity *= 0.70
+			if not is_user: velocity *= 0.70
 			hand_side = -hand_side
 		"stepback":
 			stepback_t = 0.9   # apri la finestra dello STEPBACK 3
@@ -682,10 +743,14 @@ func do_move(kind: String) -> bool:
 				var d: Vector2 = global_position - hoop
 				if d.length() > 8.0:
 					away = d.normalized()
-			velocity = away * 320.0
-			global_position += away * 28.0
+			if is_user:
+				global_position += away * 70.0
+				if court != null: court.clamp_to_court(self)
+			else:
+				velocity = away * 320.0
+				global_position += away * 28.0
 		"hesi":
-			velocity *= 0.25
+			if not is_user: velocity *= 0.25
 		"euro":
 			# EUROSTEP A DUE TEMPI CON FINISH: primo tempo scatto laterale
 			# attorno al difensore, secondo tempo (a 0.30s) esplosione verso
@@ -746,6 +811,8 @@ func carry_ball_offset() -> Dictionary:
 	## like the player jumping alone and the ball being switched off.
 	## Positions come from the very same DunkStyle sample the body is drawn
 	## from, so the ball cannot drift off the palm.
+	if layup_t > 0.0 and has_ball:
+		return {"active": true, "x": facing * _body_h() * 0.38, "h": air + _body_h() * 0.95}
 	if not (dunking and not hanging):
 		return {"active": false}
 	var s: Dictionary = DunkStyle.sample(dunk_style, clampf(dunk_t, 0.0, 1.0))
@@ -755,50 +822,18 @@ func carry_ball_offset() -> Dictionary:
 	return {"active": true, "x": bl.x * hb * sdir, "h": air + bl.y * hb}
 
 func dribble_ball_offset() -> Dictionary:
-	# Same bounce the avatar palm uses (anim_t * 1.6), so the ball sits IN the hand.
+	# Identico al campetto: altezza del pallone e passaggio tra le mani.
 	var hs: float = hand_side if absf(hand_side) > 0.1 else 1.0
 	var hb: float = 64.0 * height_f
-	# FINTA: palla TENUTA in mano davanti al petto, come nel court libero —
-	# niente palleggio durante la finta.
 	if fake_t > 0.0 or fake_locked:
-		var fh: float = air + hb * (0.42 if fake_t > 0.12 else 0.55)
-		return {"x": hs * hb * 0.20, "h": fh}
-	# Bounce SINCRONO con il braccio dell'avatar: stesso phase che la
-	# mano usa (durante un trick il braccio accelera a anim_t*1.9: anche
-	# la palla accelera. Prima restava sul proprio orologio lento).
-	var _arm_ph: float = anim_t * 1.9 if move_t > 0.0 else dribble_phase
-	var bounce: float = absf(sin(_arm_ph * 1.15))
-	var side := hs * hb * 0.34
-	var hh := bounce * hb * 0.55 + Court.BALL_R
-	if move_t > 0.0:
-		var f: float = 1.0 - move_t / MOVE_DUR     # 0..1 progress
-		var low: float = sin(f * PI)
-		match move_kind:
-			"crossover":
-				# scambio di mano con overshoot: la palla scatta oltre la gamba
-				side = lerpf(side, -side, smoothstep(0.0, 1.0, f)) * (1.0 + 0.18 * low)
-				hh = 27.0 + low * 40.0
-			"behind":
-				side = lerpf(side, -side, smoothstep(0.0, 1.0, f))
-				hh = 14.0 + low * 26.0
-			"hand_switch":
-				side = lerpf(side, -side, smoothstep(0.0, 1.0, f)) * (1.0 + 0.12 * low)
-				hh = 22.0 + low * 34.0
-			"stepback":
-				side *= 0.7
-				hh = 19.0 + low * 31.0
-			"hesi":
-				hh = 16.0
-			"spin":
-				# la palla AVVOLGE il corpo: giro completo attorno al giocatore
-				side = hs * sin(f * TAU) * hb * 0.46
-				hh = 24.0 + low * 22.0
-			"between":
-				# sotto la gamba: la palla scende quasi a terra al centro
-				# del corpo e risale sull'altra mano.
-				side = lerpf(side, -side, smoothstep(0.15, 0.85, f))
-				side *= (1.0 - 0.85 * low)   # il tragitto passa vicino a x=0
-				hh = Court.BALL_R + 2.0 + (1.0 - low) * 34.0
+		return {"x": hs * hb * 0.20, "h": air + hb * (0.42 if fake_t > 0.12 else 0.55)}
+	var side: float = hs * hb * 0.30
+	var hh: float = absf(sin(dribble_phase * 1.15)) * hb * 0.55 + Court.BALL_R
+	if move_t > 0.0 and move_kind in ["crossover", "hand_switch", "behind", "between", "spin", "euro", "dropstep"]:
+		var f: float = 1.0 - move_t / move_duration
+		side = lerpf(-hs, hs, smoothstep(0.0, 1.0, f)) * hb * 0.34
+		# Down to the parquet halfway through, then back to the other hand.
+		hh = Court.BALL_R + absf(cos(f * PI)) * hb * 0.48
 	return {"x": side, "h": hh}
 
 ## An off-ball cut: a short burst in the direction you are pushing, used to
@@ -826,8 +861,15 @@ func chase(target: Vector2) -> void:
 	if absf(dir.x) > 1.0:
 		facing = signf(dir.x)
 
+# Valid attempts in the same defensive possession. The third and further
+# attempts are an even split between steal and foul.
+static func user_steal_outcome(attempt: int, roll: float) -> String:
+	if attempt >= 3:
+		return "steal" if roll < 0.5 else "foul"
+	return "steal" if roll < (0.1 if attempt == 1 else 0.3) else "miss"
+
 func try_steal() -> void:
-	if cooldown_steal > 0.0: return
+	if cooldown_steal > 0.0 or air > 8.0 or jumping: return
 	cooldown_steal = 1.15
 	steal_t = 0.38
 	var bh: BallPlayer = court.ball_handler()
@@ -839,6 +881,24 @@ func try_steal() -> void:
 			facing = signf(to.x)
 	var dist := to.length()
 	if dist > 70.0: return
+	if is_user:
+		user_steal_attempts += 1
+		var outcome := user_steal_outcome(user_steal_attempts, randf())
+		if outcome == "foul":
+			court.call_foul(self, bh)
+			return
+		if outcome == "miss":
+			return
+		bh.has_ball = false
+		court.give_ball(self)
+		Sfx.play("steal", -1.0)
+		Sfx.cheer(false)
+		Sfx.haptic(35)
+		Events.toast.emit("STEAL!")
+		Events.popup.emit("STEAL!", global_position, Color(0.45, 0.85, 1.0), false)
+		def_credit()
+		court.stat_add("stl", 1)
+		return
 	var chance: float = (ratings["steal"] / 99.0) * 0.16 * lerpf(1.05, 0.35, dist / 70.0)
 	chance *= lerpf(1.10, 0.40, bh.ratings["handle"] / 99.0)
 	if has_badge("pickpocket"): chance *= 1.12
@@ -851,9 +911,10 @@ func try_steal() -> void:
 			Sfx.haptic(35)
 		Events.toast.emit("STEAL!")
 		Events.popup.emit("STEAL!", global_position, Color(0.45, 0.85, 1.0), false)
+		def_credit()
 		if is_user: court.stat_add("stl", 1)
 	else:
-		var foul_risk := 0.05 * (1.0 if not has_badge("pickpocket") else 0.7)
+		var foul_risk: float = lerpf(0.18, 0.07, clampf(float(ratings["defense"]) / 99.0, 0.0, 1.0)) * (1.0 if not has_badge("pickpocket") else 0.7)
 		if randf() < foul_risk:
 			court.call_foul(self, bh)
 
@@ -869,12 +930,44 @@ func contest_value_against(shooter_pos: Vector2) -> float:
 	# whole point of the block is the timing.
 	if block_window > 0.0:
 		c *= 1.35
+	if lockdown: c *= 1.20   # LOCKDOWN: la difesa pesa di piu'
 	return clampf(c, 0.0, 1.0)
+
+func def_credit() -> void:
+	## LOCKDOWN (v2.49.0): tre difese buone di fila — rubata, stoppata o un
+	## tiro sbagliato che ho contestato forte. Il gemello difensivo dell'ON FIRE.
+	def_good += 1
+	if def_good >= 3 and not lockdown:
+		lockdown = true
+		def_good = 0
+		if is_user:
+			Events.popup.emit("LOCKDOWN!", global_position + Vector2(0, -80),
+				Color(0.45, 0.85, 1.0), true)
+			Sfx.haptic(30)
+
+func clear_lockdown() -> void:
+	lockdown = false
+	def_good = 0
+
+func _near_ball_handler() -> bool:
+	## Sto difendendo QUALCUNO (non il vuoto): serve a tenere la posa di
+	## difesa mentre mi muovo, invece di correre impettito.
+	if court == null:
+		return false
+	if not court.has_method("ball_handler"):
+		return false
+	var bh = court.ball_handler()
+	if bh == null or bh == self:
+		return false
+	if not is_instance_valid(bh):
+		return false
+	return global_position.distance_to((bh as Node2D).global_position) < 190.0
+
 
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
 	# Kit colours chosen before tip-off. Team 0 is you, team 1 the opponent.
-	var col: Color = Game.team_colour(team)
+	var col: Color = Game.team_colour(0 if has_meta("practice_kit") else team)
 	# The match simulation stays top-down; the tilt is applied here, at draw
 	# time, so the AI and collisions never have to know about the camera.
 	# Players further from the camera are drawn smaller and higher up.
@@ -883,6 +976,12 @@ func _draw() -> void:
 	var dscale: float = CourtStage.m_scale(position.y, ch)
 	draw_set_transform(proj - position, 0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale)
 	var h := 64.0 * height_f
+	if bool(Settings.get_v("show_player_names", true)):
+		var label: String = Season.short_player_name(display_name)
+		var font: Font = ThemeDB.fallback_font
+		draw_string(font, Vector2(-57, 42 if is_user else 28), label, HORIZONTAL_ALIGNMENT_CENTER, 114, 14, Color.WHITE)
+	# No animated contest/lockdown ring: projected world coordinates inside
+	# this player transform could draw a second ring far away in the stands.
 	# Pass aim: a blue disc on the floor under the teammate the joystick
 	# is pointing at.
 	if court != null and court.aimed == self:
@@ -905,7 +1004,10 @@ func _draw() -> void:
 	# Dunk pose, sampled from the shared catalogue. Empty for everything else.
 	var slam: Dictionary = {}
 	var rim_drop_v := 0.0
-	if fake_t > 0.0:
+	if layup_t > 0.0:
+		kind = Avatar.LAYUP
+		amount = 1.0
+	elif fake_t > 0.0:
 		kind = Avatar.SHOOT
 		amount = 0.35 * (fake_t / 0.32)
 	elif shot_anim > 0.0:
@@ -932,10 +1034,10 @@ func _draw() -> void:
 		kind = Avatar.DUNK
 		amount = clampf(dunk_t, 0.0, 1.0)
 		slam = DunkStyle.sample(dunk_style, dunk_t)
-	elif block_window > 0.0 or air > 4.0:
+	elif not has_ball and (block_window > 0.0 or air > 4.0):
 		kind = Avatar.REACH
 		amount = clampf(air / 150.0, 0.0, 1.0)
-	elif steal_t > 0.0:
+	elif not has_ball and steal_t > 0.0:
 		kind = Avatar.STEAL
 		amount = 1.0
 	elif shot_charge >= 0.0:
@@ -956,6 +1058,11 @@ func _draw() -> void:
 			kind = Avatar.IDLE
 	elif has_ball:
 		kind = Avatar.DRIBBLE
+	elif stance and _near_ball_handler():
+		# v2.49.2: la posa di difesa si tiene anche mentre si SCIVOLA di
+		# lato a inseguire l'uomo (gambe che camminano, braccia aperte).
+		# Prima si correva in piedi appena ci si muoveva: sembrava pattinare.
+		kind = Avatar.DEFEND
 	else:
 		kind = Avatar.RUN
 
@@ -964,7 +1071,8 @@ func _draw() -> void:
 	var trick := ""
 	if move_t > 0.0 and has_ball and not (hanging or dunking):
 		kind = Avatar.DRIBBLE
-		phase = anim_t * 1.9
+		phase = dribble_phase
+		amount = move_t / move_duration
 		trick = move_kind
 	elif kind == Avatar.DRIBBLE:
 		# PARITA' COURT SOLO: fermo e in corsa il braccio del palleggio
@@ -986,10 +1094,18 @@ func _draw() -> void:
 		cols["skin"] = skin_col
 		cols["hair"] = hair_col
 		cols["shoes"] = shoe_col
-		cols["jersey"] = col
-		cols["shorts"] = col.darkened(0.40)
+		cols["jersey"] = get_meta("practice_colour", col)
+		cols["shorts"] = Color(cols["jersey"]).darkened(0.40)
 		cols["muscle"] = 0.0
-	cols["hst"] = hair_style_v if not is_user else Game.hair_style()
+	# The teammate challenge is casual: keep the player's street clothes and
+	# the very same teammate appearance instead of forcing team uniforms.
+	if court != null and court.friendly_1v1:
+		if is_user:
+			cols = Avatar.colours(true)
+		else:
+			cols = friendly_look.duplicate(true) if not friendly_look.is_empty() else Avatar.colours(false, col)
+		cols["kit"] = false
+	cols["hst"] = int(friendly_look.get("hst", hair_style_v)) if (not is_user and court != null and court.friendly_1v1) else (hair_style_v if not is_user else Game.hair_style())
 	if is_user:
 		# Il fisico cresce con le sessioni di panca/squat: spalle e braccia
 		# piu' grosse anche in partita, coerenti con la palestra.
@@ -1002,12 +1118,15 @@ func _draw() -> void:
 	var po: Dictionary = Avatar.pose(kind, phase, amount, dunk_trick, walking)
 	po["yell"] = dunking or hanging
 	po["hand"] = hand_side
+	if move_t > 0.0 and has_ball and not (hanging or dunking):
+		var dribble: Dictionary = dribble_ball_offset()
+		po["dribble_hand"] = Vector2(float(dribble["x"]), -float(dribble["h"]))
 	if fade_t > 0.0:
 		po["lean_back"] = clampf(fade_t / 0.75, 0.0, 1.0)
 	if move_t > 0.0 and move_kind == "spin":
 		# giro 360: il torso mostra le spalle a meta' mossa (Avatar gestisce
 		# back/yaw) e ritorna frontale alla fine.
-		po["yaw"] = clampf(sin((1.0 - move_t / MOVE_DUR) * PI) * 1.7, 0.0, 1.0)
+		po["yaw"] = clampf(1.0 - move_t / move_duration, 0.0, 1.0)
 	if fake_t > 0.0:
 		po["fake"] = true
 	if not slam.is_empty():
@@ -1027,57 +1146,51 @@ func _draw() -> void:
 	# Stick UP (toward the far sideline) = seen from behind, every court.
 	if move_input.y < -0.22 and not hanging:
 		po["back"] = true
+	if is_user and move_input.y > 0.22 and not hanging and not dunking:
+		po["front"] = true
 	# Hang: slightly bigger figure + a long shadow on the floor so he reads
 	# as dangling in front of the glass, not standing on it.
 	var feet := Vector2(0, -air_draw)
 	if hanging:
 		# appeso: oscillazione dx/sx (pendolo attorno al ferro)
 		feet.x = sin(Time.get_ticks_msec() * 0.003) * 12.0
-	# OMBRA REALE (richiesta utente): durante la schiacciata sta A TERRA,
-	# scorre al centro della semicirconferenza sotto il ferro e DIVENTA
-	# PIU' GRANDE mentre sali. Mai in aria con il corpo.
-	var air_norm: float = clampf(air_draw / 240.0, 0.0, 1.2)
+	# OMBRA A TERRA (v2.49.2): UNA sola regola in tutto il gioco — sta sui
+	# piedi (o sotto il ferro, se sta schiacciando) e RIMPICCIOLISCE mentre
+	# sale. Prima cresceva con l'altezza: era il contrario della fisica, e
+	# chi saltava per stoppare sembrava gonfiarsi.
 	if dunking and court != null:
 		var rim_g: Vector2 = court.hoop_for(team)
 		var sh_pos: Vector2 = global_position.lerp(rim_g, clampf(dunk_t * 0.85, 0.0, 1.0)) - global_position
-		var shs2: float = 1.2 + clampf(air_norm, 0.0, 1.0) * 0.45
-		draw_colored_polygon(PackedVector2Array([
-			sh_pos + Vector2(-h * 0.20 * shs2, 8.0), sh_pos + Vector2(h * 0.20 * shs2, 8.0),
-			sh_pos + Vector2(h * 0.09, 17.0), sh_pos + Vector2(-h * 0.09, 17.0)]),
-			Color(0, 0, 0, 0.40))
+		Avatar.draw_ground_shadow(self, sh_pos, h, air_draw, 1.15, 0.36)
 	elif hanging and court != null:
 		h *= 1.08
 		var rim_g2: Vector2 = court.hoop_for(team)
-		var sh2: Vector2 = rim_g2 - global_position
-		var shs: float = 2.0
-		draw_colored_polygon(PackedVector2Array([
-			sh2 + Vector2(-h * 0.22 * shs, 8.0), sh2 + Vector2(h * 0.22 * shs, 8.0),
-			sh2 + Vector2(h * 0.10, 18.0), sh2 + Vector2(-h * 0.10, 18.0)]),
-			Color(0, 0, 0, 0.42))
-	elif air_draw > 12.0:
-		var shs3: float = 1.0 + air_norm * 0.6
-		draw_colored_polygon(PackedVector2Array([
-			Vector2(-h * 0.20 * shs3, 8.0), Vector2(h * 0.20 * shs3, 8.0),
-			Vector2(h * 0.09, 17.0), Vector2(-h * 0.09, 17.0)]),
-			Color(0, 0, 0, 0.36))
+		Avatar.draw_ground_shadow(self, rim_g2 - global_position, h, air_draw, 1.0, 0.34)
+	else:
+		# a terra, in salto o in caduta: sempre sotto i piedi, sempre reale
+		Avatar.draw_ground_shadow(self, Vector2.ZERO, h, air_draw, 1.0, 0.32)
 	# The caller's court transform is handed to the avatar so a spinning slam
 	# can compose its own turn on top of the projection.
 	_low = bool(Settings.get_v("lowgfx", false))
-	Avatar.draw_body(self, feet, h, facing, po, cols, false, air_draw < 12.0 and not dunking, is_user,
-		-1.0, Transform2D(0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale, 0.0, proj - position))
+	var was_embedded := embedded_dribble
+	embedded_dribble = has_ball and kind == Avatar.DRIBBLE and fake_t <= 0.0 and not fake_locked
+	if was_embedded != embedded_dribble and court != null and court.ball != null and court.ball.holder == self:
+		court.ball.queue_redraw()
+	Avatar.draw_body(self, feet, h, facing, po, cols, embedded_dribble, false, is_user,
+		Court.BALL_R, Transform2D(0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale, 0.0, proj - position))
 	# HEAT CHECK: lingue di fuoco sopra la testa (stesse del court solo)
 	if court != null and court.user_heat and is_user and not bool(Settings.get_v("lowgfx", false)):
 		Avatar.draw_flames(self, feet + Vector2(0.0, -h * 1.16), Time.get_ticks_msec() / 1000.0)
 
 	# A small chevron over the user's head keeps him identifiable now that he
 	# wears the same jersey as his team-mates.
-	# P&R hold: label the screener so the play is readable.
-	for c in get_children():
-		if c.get("role") == "screener" and c.get("pnr_hold"):
-			var ly: float = -h - 14.0 - air_draw
-			draw_string(ThemeDB.fallback_font, Vector2(-28.0, ly), "SCREEN",
-				HORIZONTAL_ALIGNMENT_CENTER, 56.0, 16, Color(1.0, 0.92, 0.25))
-			break
+	# Identify the screener from the moment the play is called, not only
+	# after he reaches the screen; keep it visible while rolling to the rim.
+	if court != null and court.user != null and team == court.user.team and (court.pnr_screener == self or court.pnr_roller == self):
+		var ly: float = -h - 22.0 - air_draw
+		draw_colored_polygon(PackedVector2Array([Vector2(-8, ly - 16), Vector2(8, ly - 16), Vector2(0, ly - 5)]), Color(1.0, 0.78, 0.18))
+		draw_string(ThemeDB.fallback_font, Vector2(-38.0, ly - 19), "BLOCCO" if court.pnr_screener == self else "ROLL",
+			HORIZONTAL_ALIGNMENT_CENTER, 76.0, 16, Color(1.0, 0.92, 0.25))
 
 	if is_user:
 		var my: float = -h - 8.0 - air_draw
@@ -1100,9 +1213,7 @@ func _draw() -> void:
 			var r: float = lerpf(9.0, 2.5, k) if dust_big else lerpf(7.0, 2.5, k)
 			draw_circle(Vector2(px, py), r, Color(0.85, 0.80, 0.68, da))
 		draw_set_transform(proj - position, 0.0, Vector2(1.0 - squash * 0.5, 1.0 + squash) * dscale)
-	# stance indicator
-	if stance and not _low:
-		draw_arc(Vector2.ZERO, 26, 0, TAU, 24, Color(0.3, 0.9, 1.0, 0.5), 2.0)
+
 	# Two small bars tracking the user under his feet: stamina (in-match wind)
 	# and energy (the day's reserves). A ring above the head was easy to lose
 	# against the crowd, and it never showed energy at all.

@@ -16,7 +16,7 @@ const TEAMS := [
 	"Northgate Wolves", "Old Mill Saints", "Bayview Tide", "Cedar Park Rangers",
 ]
 const DEFAULT_TEAM := "Riverside Ravens"
-const SEASON_DAYS := 60
+const SEASON_DAYS := 30 # 10 gare, ogni terzo giorno
 
 # ------------------------------------------------------------------ club identity
 ## Who each club IS, beyond a name: scoreboard abbreviation, colours it wears,
@@ -25,7 +25,7 @@ const SEASON_DAYS := 60
 ## game at the Pavilion. The user's club keeps the kit picked in the kit
 ## picker; identity kits pre-fill the OPPONENT side before tip-off.
 const TEAM_META := {
-	"Riverside Ravens":   {"short": "RAV", "kit": "royal",    "arena": "Riverside Pavilion", "style": "run",
+	"Riverside Ravens":   {"short": "RAV", "kit": "royal",    "arena": "Hoop City Arena", "style": "run",
 		"names": ["Ferro", "Vance", "Okoye", "Duarte", "Silva"]},
 	"Eastport Dockers":   {"short": "DOC", "kit": "teal",     "arena": "Harbour Yard",       "style": "inside",
 		"names": ["Marek", "Kolo", "Bran", "Osei", "Pike"]},
@@ -41,7 +41,7 @@ const TEAM_META := {
 		"names": ["Nero", "Salt", "Ito", "Maro", "Quist"]},
 	"Cedar Park Rangers": {"short": "CPR", "kit": "scarlet",  "arena": "Cedar Grove",        "style": "grit",
 		"names": ["Wood", "Fenn", "Aro", "Tilo", "Garn"]},
-	"Practice Squad":     {"short": "PRA", "kit": "white",    "arena": "Riverside Pavilion", "style": "none", "names": []},
+	"Practice Squad":     {"short": "PRA", "kit": "white",    "arena": "Hoop City Arena", "style": "none", "names": []},
 	"The Challenger":     {"short": "CHL", "kit": "pink",     "arena": "Streetball Cage",    "style": "none", "names": []},
 }
 
@@ -62,6 +62,22 @@ func style_of(team: String) -> String:
 
 func roster_names(team: String) -> Array:
 	return _meta(team)["names"]
+
+## Nomi stabili per squadra e posizione in roster, senza dipendere dal caso.
+func roster_full_name(team: String, slot: int) -> String:
+	var names: Array = roster_names(team)
+	if names.is_empty():
+		names = ["Blake", "Vance", "Okoye", "Reyes", "Silva", "Duarte", "Bran", "Kolo"]
+	var first := ["Miles", "Alex", "Jordan", "Leo", "Marcus", "Noah", "Chris", "David"]
+	var index: int = posmod(slot, names.size())
+	var first_index: int = posmod(hash(team) + index, first.size())
+	return "%s %s" % [first[first_index], names[index]]
+
+func short_player_name(full_name: String) -> String:
+	var parts := full_name.strip_edges().split(" ", false)
+	if parts.size() < 2:
+		return full_name.strip_edges()
+	return "%s. %s" % [parts[0].left(1).to_upper(), parts[parts.size() - 1]]
 
 ## The kit a club wears. The user's club always wears what was picked in the
 ## kit picker; everyone else wears club colours — unless that would clash
@@ -115,7 +131,55 @@ func _ready() -> void:
 func schedule() -> Array:
 	if not Game.profile.has("schedule") or Game.profile["schedule"].is_empty():
 		Game.profile["schedule"] = _generate()
+	# Older saves could contain twenty fixtures. Keep played/past history,
+	# then retain only as many future games as fit the ten-game season.
+	if int(Game.profile.get("schedule_ten_games_v1", 0)) != 1:
+		var cal: Array = Game.profile["schedule"]
+		var now := int(Game.profile.get("day", 1))
+		var protected := 0
+		for e in cal:
+			if String(e.get("kind", "")) == "game" and (bool(e.get("done", false)) or int(e.get("day", 0)) < now):
+				protected += 1
+		var slots := maxi(10 - protected, 0)
+		for e in cal:
+			if String(e.get("kind", "")) != "game" or bool(e.get("done", false)) or int(e.get("day", 0)) < now:
+				continue
+			if slots > 0:
+				slots -= 1
+			else:
+				e["kind"] = "rest"
+				e["opponent"] = ""
+		Game.profile["schedule_ten_games_v1"] = 1
+	# Some older careers saved a genuinely short calendar, not just a short
+	# display. Extend an active regular season without changing any played or
+	# scheduled days. Once complete, never reopen a finished season/playoff.
+	if int(Game.profile.get("schedule_ten_games_v2", 0)) != 1:
+		var cal: Array = Game.profile["schedule"]
+		var games := 0
+		var last_day := 0
+		for entry in cal:
+			last_day = maxi(last_day, int(entry.get("day", 0)))
+			if String(entry.get("kind", "")) == "game": games += 1
+		var playoff: Dictionary = Game.profile.get("playoff", {})
+		if bool(Game.profile.get("season_active", true)) and not bool(playoff.get("live", false)):
+			var next_day: int = maxi(last_day, int(Game.profile.get("day", 1)))
+			var opponents: Array = TEAMS.filter(func(t): return t != my_team())
+			while games < 10:
+				for kind in ["practice", "weights", "game"]:
+					next_day += 1
+					var opp: String = String(opponents[games % opponents.size()]) if kind == "game" else ""
+					cal.append({"day": next_day, "kind": kind, "opponent": opp,
+						"home": games % 2 == 0, "done": false, "skipped": false, "result": ""})
+				if games < 10: games += 1
+		Game.profile["schedule_ten_games_v2"] = 1
 	return Game.profile["schedule"]
+
+func season_end_day() -> int:
+	# I calendari già in corso mantengono la durata salvata.
+	var end := SEASON_DAYS
+	for entry in schedule():
+		end = maxi(end, int(entry.get("day", 0)))
+	return end
 
 func _generate() -> Array:
 	var rng := RandomNumberGenerator.new()
@@ -176,7 +240,8 @@ func mark_done(day: int, result := "") -> void:
 	e["result"] = result
 	SaveSystem.save_game()
 
-func attend_practice() -> void:
+func attend_practice(completed_exercise := false) -> void:
+	if not completed_exercise: return
 	var e := today()
 	if e.is_empty() or String(e["kind"]) != "practice" or bool(e["done"]):
 		return
@@ -229,6 +294,8 @@ func _on_day(_d: int) -> void:
 		Game.profile["skipped_practices"] = int(Game.profile.get("skipped_practices", 0)) + 1
 		Contacts.receive(Contacts.COACH, "Missed practice yesterday. Where were you?")
 	elif String(e["kind"]) == "game":
+		if int(Game.profile.get("match_day", -1)) == prev:
+			return # partita in corso, si segna solo al fischio finale
 		e["done"] = true
 		e["skipped"] = true
 		add_followers(-int(followers() * 0.10))

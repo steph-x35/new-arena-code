@@ -62,7 +62,7 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add hc_smoke_errors.log
             git commit -m "ci: log errori smoke Hoop City" || true
-            git push origin arena/01a0cac8-new-arena-code || true
+            git push origin ${GITHUB_REF_NAME} || true
           fi
           exit $ERR
 
@@ -153,10 +153,23 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add smoke_errors.log
             git commit -m "ci: smoke test errors log" || true
-            git pull --rebase origin arena/01a0cac8-new-arena-code || true
-            git push origin arena/01a0cac8-new-arena-code || true
+            git pull --rebase origin ${GITHUB_REF_NAME} || true
+            git push origin ${GITHUB_REF_NAME} || true
           fi
           exit $ERR
+
+      - name: Test gameplay e attributi
+        run: |
+          cd hoop-city-life/hoopcity
+          for SC in tools/TimeoutInboundProbe.tscn tools/AttributeBuilderProbe.tscn tools/SeasonProbe.tscn tools/CourtPolishProbe.tscn tools/DribblePhysicsProbe.tscn tools/GameplayRegressionProbe.tscn tools/MoneyRewardProbe.tscn tools/MatchImprovementsProbe.tscn tools/TeamCourtUpdateProbe.tscn tools/PracticeFlowProbe.tscn tools/ChillCourtProbe.tscn tools/UserSoundsProbe.tscn tools/FriendlyCourtProbe.tscn tools/CalendarCompleteProbe.tscn tools/CourtLifeProbe.tscn tools/ControlsAndIconsProbe.tscn tools/FoulsSubsFlameProbe.tscn tools/AndOneProbe.tscn tools/PracticeBasicsProbe.tscn tools/TeamPracticeSessionProbe.tscn tools/PracticeDunkRestartProbe.tscn tools/MatchStoppageProbe.tscn tools/LayupProbe.tscn tools/PregameProbe.tscn tools/BallBounceProbe.tscn tools/KeyboardProbe.tscn; do
+            if ! timeout 90 godot --headless "res://$SC" > /tmp/probe-result.txt 2>&1; then
+              echo "::error::Probe $SC failed"
+              details=$(tail -30 /tmp/probe-result.txt | tr '\n' '|')
+              echo "::error::$details"
+              exit 1
+            fi
+            cat /tmp/probe-result.txt
+          done
 
       - name: Export Android APK
         run: |
@@ -165,8 +178,8 @@ jobs:
           echo "Importing project assets in headless mode..."
           godot -v --headless --import 2>&1 | tee /tmp/import.log || true
           echo "Exporting Android APK..."
-          godot -v --headless --export-release "Android" build/HoopCity-v2.47.7.apk 2>&1 | tee /tmp/export.log || true
-          if [ ! -f "build/HoopCity-v2.47.7.apk" ]; then
+          godot -v --headless --export-release "Android" build/HoopCity-v2.49.8.apk 2>&1 | tee /tmp/export.log || true
+          if [ ! -f "build/HoopCity-v2.49.8.apk" ]; then
             echo "=== EXPORT FAILED! Printing log: ==="
             cat /tmp/export.log | tail -n 80
             cp /tmp/export.log $GITHUB_WORKSPACE/build_error.log
@@ -175,7 +188,7 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add build_error.log
             git commit -m "ci: debug export failure log" || true
-            git push origin arena/01a0cac8-new-arena-code || true
+            git push origin ${GITHUB_REF_NAME} || true
             exit 1
           fi
           echo "Signing and aligning APK with project keystore via apksigner..."
@@ -183,55 +196,24 @@ jobs:
             --ks-pass pass:android \
             --ks-key-alias androiddebugkey \
             --key-pass pass:android \
-            build/HoopCity-v2.47.7.apk
+            build/HoopCity-v2.49.8.apk
           echo "Verifying APK signature..."
-          apksigner verify --verbose build/HoopCity-v2.47.7.apk
+          apksigner verify --verbose build/HoopCity-v2.49.8.apk
           echo "Checking APK launcher icons..."
-          unzip -l build/HoopCity-v2.47.7.apk | grep -i "mipmap" | head -n 20
-          ls -lh build/HoopCity-v2.47.7.apk
+          unzip -l build/HoopCity-v2.49.8.apk | grep -i "mipmap" | head -n 20
+          ls -lh build/HoopCity-v2.49.8.apk
           echo "Verifica permessi APK (la stanza WiFi li richiede)..."
-          aapt dump permissions build/HoopCity-v2.47.7.apk
-          if ! aapt dump permissions build/HoopCity-v2.47.7.apk | grep -q "android.permission.INTERNET"; then
+          aapt dump permissions build/HoopCity-v2.49.8.apk
+          if ! aapt dump permissions build/HoopCity-v2.49.8.apk | grep -q "android.permission.INTERNET"; then
             echo "!!! MANCA android.permission.INTERNET: la stanza condivisa non può aprirsi"
             exit 1
           fi
 
-      - name: Create or Update GitHub Release with APK
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cp hoop-city-life/hoopcity/build/HoopCity-v2.47.7.apk /tmp/HoopCity-v2.47.7.apk
-          gh release delete v2.47.7 -y --cleanup-tag || true
-          # TAG ORFANO: se la create e' morta a meta' (tag creato, release no),
-          # --cleanup-tag non lo rimuove perche' la release non esiste — e ogni
-          # tentativo dopo fallisce con "tag already exists". Via il tag a mano.
-          git push origin --delete v2.47.7 || true
-          sleep 5
-          # L'API delle release ogni tanto perde colpi (race delete/create):
-          # tre tentativi prima di arrendersi.
-          ok=0
-          for i in 1 2 3; do
-            if gh release create v2.47.7 /tmp/HoopCity-v2.47.7.apk \
-              --title "Hoop City Life v2.47.7" \
-              --prerelease \
-              --notes "v2.47.7 (prova, non pubblica) — SOLO TIRI LIBERI 🏀 Il campo condiviso in due, senza il 1v1: nessun pulsante SFIDA, nessuna sfida in arrivo, nessuna partita a punti. Invio posizioni a 60 Hz e giocatore avversario proiettato in avanti (ritardo ~50 ms invece di ~120), pacchetti numerati cosi' il WiFi non lo fa piu' scattare all'indietro. Nel menu NOVITA' resta solo GIOCA CON UN AMICO: via il blocco del 1v1 a punti."
-              --target arena/c747a5c9-new-arena-code; then
-              ok=1
-              break
-            fi
-            echo "release create: tentativo $i fallito, riprovo..."
-            sleep 10
-          done
-          if [ "$ok" != "1" ]; then
-            # RACE API: la create puo' riuscire lato server e tornare comunque
-            # errore; i tentativi dopo falliscono perche' la release esiste gia'.
-            # Se la release c'e' (con l'APK), e' andata bene.
-            if gh release view v2.47.7 > /dev/null 2>&1 \
-            && gh release view v2.47.7 --json assets -q '.assets | length' | grep -q -v "^0$"; then
-              echo "Release creata (il primo tentativo era riuscito lato server)."
-            else
-              echo "!!! IMPOSSIBILE CREARE LA RELEASE"
-              exit 1
-            fi
-          fi
-          echo "Release created successfully."
+      - name: Upload APK di prova
+        if: github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: HoopCity-anteprima-android
+          path: hoop-city-life/hoopcity/build/HoopCity-v2.49.8.apk
+          if-no-files-found: error
+          retention-days: 7
