@@ -134,7 +134,8 @@ static func draw_hoop_front(c: CanvasItem, rim: Vector2, scale := 1.0,
 ## lies to the left, so the whole assembly mirrors correctly at each end.
 static func draw_hoop_unified(c: CanvasItem, rim: Vector2, rim_half: float,
 	floor_y: float, face: float, wobble := 0.0, phase := 0.0,
-	lean := 0.0, base_dx := 98.0, rim_bend := 0.0) -> void:
+	lean := 0.0, base_dx := 98.0, rim_bend := 0.0,
+	contact := Vector2(-1.0, 0.0)) -> void:
 	## Real hoop: pole plants at the CENTRE of the short baseline, then an L
 	## gooseneck bolts to the BACK of the glass. The ring sits centred on that
 	## board. The orange shooter's square is painted ON the glass, parallel to
@@ -255,7 +256,7 @@ static func draw_hoop_unified(c: CanvasItem, rim: Vector2, rim_half: float,
 
 	# Rim centred on the board (same along-centre as the square).
 	draw_net_perspective(c, Vector2(rx, ry), rim_half, rim_half * RIM_SQUASH,
-		wobble, phase, rim_bend, face)
+		wobble, phase, rim_bend, face, contact)
 	# Short orange bracket from the bottom-centre of the glass to the ring.
 	var hitch := (bl + br) * 0.5
 	c.draw_colored_polygon(PackedVector2Array([
@@ -377,71 +378,61 @@ static func draw_hoop_perspective(c: CanvasItem, rim: Vector2, rim_half: float,
 	c.draw_line(Vector2(rim.x, rim.y - ry), Vector2(rim.x, by + bh + 8.0), red, 8.0)
 
 ## Net for the head-on hoop: a cone of mesh hanging under the ring.
+# Both halves share the exact same knots. The top stays fixed to the rim;
+# the travelling contact bulges the strands and pulls them with the shot.
+static func net_knot(rim: Vector2, rx: float, ry: float, wobble: float,
+		phase: float, bend: float, pdir: float, f: float, a: float,
+		contact: Vector2) -> Vector2:
+	var depth: float = rx * 1.25 + pow(wobble, 0.55) * rx * 0.45
+	var bulge := 0.0
+	var pull := 0.0
+	if contact.x >= 0.0:
+		var release: float = 1.0 - smoothstep(1.0, 2.0, contact.x)
+		bulge = maxf(0.0, 1.0 - absf(f - contact.x) / 0.42) * release
+		# The lower strands trail the ball; the rim's knots never move.
+		pull = contact.y * rx * 0.65 * f * minf(contact.x * 2.0, 1.0) * release
+	var shrink: float = lerpf(1.0, 0.46, f) * (1.0 + 0.12 * sin(f * PI)) + bulge * 0.33 * f
+	var swing: float = sin(phase * 15.0 - f * 2.4) * rx * 0.22 * wobble * f
+	var sd: float = pow((1.0 + cos(a) * pdir) * 0.5, 1.35) * bend * ry * 1.15 * (1.0 - f * 0.55)
+	return Vector2(rim.x + cos(a) * rx * shrink + swing + pdir * sd * 0.12 + pull,
+		rim.y + depth * f + sin(a) * ry * shrink + sd + bulge * 4.0 * f)
+
 static func draw_net_perspective(c: CanvasItem, rim: Vector2, rx: float,
-		ry: float, wobble := 0.0, phase := 0.0, bend := 0.0, pdir := -1.0) -> void:
+		ry: float, wobble := 0.0, phase := 0.0, bend := 0.0, pdir := -1.0,
+		contact := Vector2(-1.0, 0.0)) -> void:
 	var rows := 7
 	var cols := 14
-	var snap: float = pow(wobble, 0.55)
-	var depth: float = rx * 1.25 + snap * rx * 0.45
 	var col := Color(0.93, 0.94, 0.97, 0.85)
-	# La RETE SEGUE IL FERRO piegato: l'anello in cima resta agganciato
-	# (offset pieno), verso l'orlo raccolto la maglia si smorza.
-	var bend_amt: float = bend * ry * 1.15
 	var grid := []
 	for row in rows + 1:
-		var f: float = float(row) / rows
-		# Billow slightly below the rim, the way a real net kicks out where the
-		# ball first punches through, then taper to the gathered bottom.
-		var shrink: float = lerpf(1.0, 0.46, f) * (1.0 + 0.12 * sin(f * PI))
-		var y: float = rim.y + depth * f
-		var swing: float = sin(phase * 15.0 - f * 2.4) * rx * 0.5 * wobble * f
 		var ring := []
 		for k in cols:
-			var a: float = TAU * float(k) / cols
-			var sd: float = pow((1.0 + cos(a) * pdir) * 0.5, 1.35) 				* bend_amt * (1.0 - f * 0.55)
-			ring.append(Vector2(rim.x + cos(a) * rx * shrink + swing + pdir * sd * 0.12,
-				y + sin(a) * ry * shrink + sd))
+			ring.append(net_knot(rim, rx, ry, wobble, phase, bend, pdir,
+				float(row) / rows, TAU * float(k) / cols, contact))
 		grid.append(ring)
-	# top hem: the loops that hook over the ring
 	for k in cols:
-		var nx: int = (k + 1) % cols
-		c.draw_line(grid[0][k], grid[0][nx], col, 2.0)
+		c.draw_line(grid[0][k], grid[0][(k + 1) % cols], col, 2.0)
 	for row in rows:
 		for k in cols:
-			var nx2: int = (k + 1) % cols
-			c.draw_line(grid[row][k], grid[row + 1][nx2], col, 1.6)
-			c.draw_line(grid[row][nx2], grid[row + 1][k], col, 1.6)
+			var next: int = (k + 1) % cols
+			c.draw_line(grid[row][k], grid[row + 1][next], col, 1.6)
+			c.draw_line(grid[row][next], grid[row + 1][k], col, 1.6)
 	for k in cols:
-		var nx3: int = (k + 1) % cols
-		c.draw_line(grid[rows][k], grid[rows][nx3], col.darkened(0.15), 1.8)
+		c.draw_line(grid[rows][k], grid[rows][(k + 1) % cols], col.darkened(0.15), 1.8)
 
-## The near (camera-side) half of the net only. Drawn OVER the ball when it is
-## dropping through the basket, so the ball reads as passing BEHIND the mesh
-## instead of sliding across the front of it. Same geometry as
-## draw_net_perspective -- only the bottom arcs of each ring are painted.
 static func draw_net_front(c: CanvasItem, rim: Vector2, rx: float,
 		ry: float, wobble := 0.0, phase := 0.0, bend := 0.0, pdir := -1.0,
-		ball_depth := -1.0) -> void:
-	# Diamond strands on the near side, rather than opaque horizontal bars.
-	# The local bulge travels down with the ball and then relaxes.
+		ball_depth := -1.0, ball_push := 0.0) -> void:
 	var rows := 7
-	var cols := 8
-	var depth: float = rx * 1.25 + pow(wobble, 0.55) * rx * 0.45
+	var cols := 7 # half of the full 14-column net
 	var col := Color(0.96, 0.97, 1.0, 0.9)
+	var contact := Vector2(ball_depth, ball_push)
 	var grid := []
 	for row in rows + 1:
-		var f: float = float(row) / rows
-		var bulge := 0.0
-		if ball_depth >= 0.0:
-			bulge = maxf(0.0, 1.0 - absf(f - ball_depth) / 0.38) * 0.30
-		var shrink: float = lerpf(1.0, 0.46, f) * (1.0 + 0.12 * sin(f * PI)) + bulge * f
-		var swing: float = sin(phase * 15.0 - f * 2.4) * rx * 0.5 * wobble * f
 		var ring := []
 		for k in cols + 1:
-			var a: float = PI * float(k) / cols
-			var sd: float = pow((1.0 + cos(a) * pdir) * 0.5, 1.35) * bend * ry * 1.15 * (1.0 - f * 0.55)
-			ring.append(Vector2(rim.x + cos(a) * rx * shrink + swing + pdir * sd * 0.12,
-				rim.y + depth * f + sin(a) * ry * shrink + sd + bulge * 3.0))
+			ring.append(net_knot(rim, rx, ry, wobble, phase, bend, pdir,
+				float(row) / rows, PI * float(k) / cols, contact))
 		grid.append(ring)
 	for row in rows:
 		for k in cols:

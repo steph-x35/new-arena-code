@@ -35,7 +35,7 @@ func _draw() -> void:
 		var shake: float = sin(vis.t * 47.0) * wobble * 22.0 * 0.22
 		var bounce: float = absf(sin(vis.t * 29.0)) * wobble * 22.0 * 0.12
 		var net_rim := Vector2(foot.x + shake, foot.y - vis.rim_height - bounce)
-		var ball_depth: float = clampf((Court.RIM_HEIGHT - ball.h) / 36.0, 0.0, 1.0)
+		var contact: Vector2 = ball.net_contact()
 		HoopArt.draw_net_front(self, net_rim,
 			22.0, 22.0 * HoopArt.RIM_SQUASH, wobble, vis.t,
-			clampf(vis.rim_bend[idx], 0.0, 1.0), -s, ball_depth)
+			clampf(vis.rim_bend[idx], 0.0, 1.0), -s, contact.x, contact.y)

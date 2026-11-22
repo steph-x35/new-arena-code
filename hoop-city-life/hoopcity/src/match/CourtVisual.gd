@@ -23,6 +23,8 @@ var fx_at := Vector2.ZERO
 var _idle := 0.0
 ## v1.9: link to the match so benches/table/crowd fill follow the game state.
 var court: Node = null
+# Standalone court modes feed the same contact data without a match Court.
+var solo_net_contact := Vector2(-1.0, 0.0)
 # PIEGA DEL FERRO: chi si appende al canestro lo piega (molla smorzata).
 # rim_bend[0]/[1] = ferro sinistro/destro; solo_hang serve allo street court.
 var rim_bend := [0.0, 0.0]
@@ -148,7 +150,7 @@ func _process(delta: float) -> void:
 	## Only re-rasterise when something is actually animating. Redrawing 350
 	## spectators every frame tanked the sim and would burn phone battery.
 	fx_t = maxf(0.0, fx_t - delta * 1.6)
-	var live: bool = net_wobble[0] > 0.0 or net_wobble[1] > 0.0 or crowd_hype > 0.0 or fx_t > 0.0
+	var live: bool = net_wobble[0] > 0.0 or net_wobble[1] > 0.0 or crowd_hype > 0.0 or fx_t > 0.0 or (court != null and court.ball != null and court.ball.dunk_drop > 0.0) or solo_net_contact.x >= 0.0
 	# Marquee housekeeping: live messages age out, ads rotate slowly. A change
 	# on the strip schedules one redraw through the idle path below.
 	if marquee_t > 0.0:
@@ -400,9 +402,12 @@ func _draw() -> void:
 		var lean: float = (near.x - far.x) / maxf(near.y - far.y, 1.0)
 		var idx: int = 0 if s < 0.0 else 1
 		var base_dx: float = absf(baseline.x - rim_floor.x)
+		var contact := solo_net_contact if idx == 1 else Vector2(-1.0, 0.0)
+		if court != null and court.ball != null and court.ball.global_position.distance_to(Vector2(hx, 0.0)) < 55.0:
+			contact = court.ball.net_contact()
 		HoopArt.draw_hoop_unified(self, Vector2(rim_floor.x, rim_floor.y - rim_height),
 			22.0, rim_floor.y + 6.0, -s, net_wobble[idx], t, lean, maxf(base_dx, 64.0),
-			clampf(rim_bend[idx], 0.0, 1.0))
+			clampf(rim_bend[idx], 0.0, 1.0), contact)
 	_draw_rim_fx()
 	_draw_jumbo()
 

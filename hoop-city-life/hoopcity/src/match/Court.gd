@@ -1367,6 +1367,7 @@ func on_dunk_started(p: BallPlayer) -> void:
 	if ball:
 		ball.live = false
 		ball.detach()
+		ball.net_entry_velocity = 0.0
 		ball.dunk_drop = 1.0
 		# start at the hand on the iron, land at the centre of the restricted
 		# arc (the floor point under the rim): reads as "through the net".
@@ -1430,6 +1431,8 @@ func _dunk_scored(p: BallPlayer) -> void:
 	_inbound(1 - p.team)
 
 func _score_basket(b: Ball) -> void:
+	# Preserve the actual entry direction before the ball is stopped at the rim.
+	b.net_entry_velocity = b.vel.x
 	if practice_drill:
 		var hoop: Vector2 = hoop_for(b.shooter.team)
 		b.shot_result_pending = false
