@@ -51,6 +51,7 @@ func _ready() -> void:
 	ball.global_position = ball.dunk_from
 	ball.h = Court.RIM_HEIGHT
 	ball.dunk_drop = 1.0
+	ball.live = false
 	ball._physics_process(1.0 / 60.0)
 	ok = ok and ball.h <= Court.RIM_HEIGHT and ball.h > Court.RIM_HEIGHT - 2.0
 	for i in 12: ball._physics_process(1.0 / 60.0)
