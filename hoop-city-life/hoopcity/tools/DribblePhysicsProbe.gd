@@ -44,6 +44,29 @@ func _ready() -> void:
 	await get_tree().process_frame
 	var edge: Array = duel._bound_loose_ball(Vector2(2000.0, 20.0), Vector2(300.0, 20.0))
 	ok = ok and edge[0].x <= Court.COURT_W * 0.5 - duel.BALL_R and edge[1].x == 0.0
+	# Both players' made shots animate the shared court net; misses do not.
+	duel.through_rim = false
+	duel.prev_h = duel.RIM_HEIGHT + 2.0
+	duel.ball_h = duel.RIM_HEIGHT - 2.0
+	duel.prev_pos = duel.RIM
+	duel.ball_pos = duel.RIM
+	duel.ball_vel = Vector2(220.0, 0.0)
+	duel.ball_vh = -300.0
+	duel._collide_rim()
+	duel._step_net_contact(0.15)
+	ok = ok and duel.through_rim and duel.court_art.solo_net_contact.x > 0.5 and duel.court_art.solo_net_contact.y > 0.9
+	duel.fb_through = false
+	duel.fb_prev_h = duel.RIM_HEIGHT + 2.0
+	duel.fb_h = duel.RIM_HEIGHT - 2.0
+	duel.fb_prev_pos = duel.RIM
+	duel.fb_pos = duel.RIM
+	duel.fb_vel = Vector2(-220.0, 0.0)
+	duel.fb_vh = -300.0
+	duel._foe_ball_rim()
+	duel._step_net_contact(0.15)
+	ok = ok and duel.fb_through and duel.court_art.solo_net_contact.y < -0.9
+	duel._step_net_contact(0.5)
+	ok = ok and duel.court_art.solo_net_contact.x < 0.0
 	var previous: int = int(Settings.get_v("floor_style", 0))
 	Settings.set_v("floor_style", 1)
 	ok = ok and CourtStage.floor_colours()["base"] == CourtStage.floor_colours(1)["base"]

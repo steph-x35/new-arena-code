@@ -147,9 +147,9 @@ func net_contact() -> Vector2:
 	# x = depth into the mesh, y = sideways pull; negative depth means inactive.
 	if net_manual_contact.x >= 0.0: return net_manual_contact
 	if dunk_drop <= 0.0: return Vector2(-1.0, 0.0)
-	var depth: float = (Court.RIM_HEIGHT - h) / 36.0
-	if depth < -0.2 or depth > 2.0: return Vector2(-1.0, 0.0)
-	return Vector2(maxf(depth, 0.0), clampf(net_entry_velocity / 180.0, -1.0, 1.0))
+	var depth: float = HoopArt.net_reaction_depth((1.0 - dunk_drop) / 1.7)
+	if depth < 0.0: return Vector2(-1.0, 0.0)
+	return Vector2(depth, clampf(net_entry_velocity / 180.0, -1.0, 1.0))
 ## Through-the-net fall after a slam: drifts from the rim to the centre of
 ## the short baseline, so the ball lands under the stanchion (correct
 ## perspective) instead of piling up at the dunker's feet.

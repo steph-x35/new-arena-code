@@ -1481,8 +1481,7 @@ func _step_net_contact(delta: float) -> void:
 		return
 	net_reaction_left = maxf(net_reaction_left - delta, 0.0)
 	var elapsed: float = 0.55 - net_reaction_left
-	var depth: float = lerpf(0.0, 1.0, clampf(elapsed / 0.22, 0.0, 1.0))
-	if elapsed > 0.22: depth = 1.0 + clampf((elapsed - 0.22) / 0.33, 0.0, 1.0)
+	var depth: float = HoopArt.net_reaction_depth(elapsed)
 	court_art.solo_net_contact = Vector2(depth, clampf(net_entry_speed / 180.0, -1.0, 1.0)) if net_reaction_left > 0.0 else Vector2(-1.0, 0.0)
 
 func _collide_rim() -> void:

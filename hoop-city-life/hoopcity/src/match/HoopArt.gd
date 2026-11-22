@@ -378,6 +378,13 @@ static func draw_hoop_perspective(c: CanvasItem, rim: Vector2, rim_half: float,
 	c.draw_line(Vector2(rim.x, rim.y - ry), Vector2(rim.x, by + bh + 8.0), red, 8.0)
 
 ## Net for the head-on hoop: a cone of mesh hanging under the ring.
+# Shared visual response for Solo, matches, practice and shared court.
+# The mesh settles after the ball has exited; this never alters ball physics.
+static func net_reaction_depth(elapsed: float) -> float:
+	if elapsed < 0.0 or elapsed >= 0.55: return -1.0
+	if elapsed <= 0.22: return elapsed / 0.22
+	return 1.0 + (elapsed - 0.22) / 0.33
+
 # Both halves share the same knots. A small, smooth bend follows the ball
 # while the top stays attached to the rim.
 static func net_knot(rim: Vector2, rx: float, ry: float, wobble: float,

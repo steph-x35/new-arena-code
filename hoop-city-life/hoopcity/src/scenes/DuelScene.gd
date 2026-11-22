@@ -122,6 +122,8 @@ var ball_spin := 0.0
 var ball_settled := 0.0
 var prev_h := 0.0
 var prev_pos := Vector2.ZERO
+var net_reaction_left := 0.0
+var net_entry_speed := 0.0
 var through_rim := false      # la palla e' gia' passata nel canestro
 var ball_rattled := false     # ha gia' sbattuto sul ferro (rattle)
 var ball_ghost := false       # tiro verde: passa pulito, niente ferro
@@ -489,6 +491,7 @@ func _process(delta: float) -> void:
 	dribble_t += delta * 4.2
 	net_t += delta
 	net_wobble = HoopArt.decay(net_wobble, delta)
+	_step_net_contact(delta)
 	pump_t = maxf(0.0, pump_t - delta)
 	dust_t = maxf(0.0, dust_t - delta)
 	shot_anim = maxf(0.0, shot_anim - delta * 4.5)
@@ -1402,6 +1405,19 @@ func _bound_loose_ball(pos: Vector2, vel: Vector2) -> Array:
 	return [pos, vel]
 
 
+func _step_net_contact(delta: float) -> void:
+	if court_art == null: return
+	if net_reaction_left <= 0.0:
+		court_art.solo_net_contact = Vector2(-1.0, 0.0)
+		return
+	net_reaction_left = maxf(0.0, net_reaction_left - delta)
+	var depth: float = HoopArt.net_reaction_depth(0.55 - net_reaction_left)
+	court_art.solo_net_contact = Vector2(depth, clampf(net_entry_speed / 180.0, -1.0, 1.0)) if depth >= 0.0 else Vector2(-1.0, 0.0)
+
+func _start_net_contact(speed: float) -> void:
+	net_entry_speed = speed
+	net_reaction_left = 0.55
+
 func _collide_rim() -> void:
 	## Stessa fisica del campetto solo: il punto esatto in cui la palla
 	## attraversa l'altezza del ferro decide swish, rattle o ferro e poi.
@@ -1418,6 +1434,7 @@ func _collide_rim() -> void:
 				# DENTRO: la RETINA TRATTIENE la palla — la rallenta, cosi'
 				# si vede passare dentro la rete, col suo swish.
 				through_rim = true
+				_start_net_contact(ball_vel.x)
 				net_wobble = 1.0
 				Sfx.play("swish", -2.5)
 				Sfx.haptic(35)
@@ -2327,6 +2344,14 @@ func _distance_ft() -> float:
 	return player_pos.distance_to(RIM) / Court.PX_PER_FT
 
 
+func _draw_ball_net_front() -> void:
+	var wobble: float = court_art.net_wobble[1]
+	var phase: float = court_art.t
+	var rim: Vector2 = _rim_screen() + Vector2(sin(phase * 47.0) * wobble * 22.0 * 0.22, -absf(sin(phase * 29.0)) * wobble * 22.0 * 0.12)
+	var contact: Vector2 = court_art.solo_net_contact
+	HoopArt.draw_net_front(self, rim, 22.0, 22.0 * HoopArt.RIM_SQUASH,
+		wobble, phase, clampf(court_art.rim_bend[1], 0.0, 1.0), -1.0, contact.x, contact.y)
+
 func _draw() -> void:
 	_draw_three_flash()
 	_draw_npcs()
@@ -2342,15 +2367,13 @@ func _draw() -> void:
 		# la mezza retina DAVANTI alla palla che sta passando: si legge come
 		# "dentro la rete" (lo stesso trucco del campetto solo)
 		if ball_h < RIM_HEIGHT + 30.0 and (ball_pos - RIM).length() < 70.0:
-			HoopArt.draw_net_front(self, _rim_screen(), 22.0,
-				22.0 * HoopArt.RIM_SQUASH, net_wobble, net_t, 0.0, -1.0)
+			_draw_ball_net_front()
 	# la palla dell'altro (quando e' in volo): simulata qui, fluida
 	if fb_live:
 		var fbs: Vector2 = _screen(fb_pos)
 		_draw_ball_at(Vector2(fbs.x, fbs.y - fb_h), BALL_R, fb_spin)
 		if fb_h < RIM_HEIGHT + 30.0 and (fb_pos - RIM).length() < 70.0:
-			HoopArt.draw_net_front(self, _rim_screen(), 22.0,
-				22.0 * HoopArt.RIM_SQUASH, net_wobble, net_t, 0.0, -1.0)
+			_draw_ball_net_front()
 	# Nomi sotto i piedi, lontani dallo shot meter.
 	if bool(Settings.get_v("show_player_names", true)):
 		_draw_name(player_pos, String(Game.profile.get("name", "Player")), Color(0.55, 0.85, 1.0))
@@ -2706,6 +2729,7 @@ func _foe_ball_rim() -> void:
 		if dist < RIM_HALF - 6.0:
 			if not fb_through:
 				fb_through = true
+				_start_net_contact(fb_vel.x)
 				net_wobble = 1.0
 				Sfx.play("swish", -2.5)
 				if court_art != null:
