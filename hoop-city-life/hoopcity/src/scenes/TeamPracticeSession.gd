@@ -56,6 +56,14 @@ var ambient_balls := [
 	{"state": "ready", "time": -0.8, "pos": Vector2.ZERO, "height": 45.0},
 	{"state": "ready", "time": -2.0, "pos": Vector2.ZERO, "height": 45.0}]
 
+# Shooting stations use the actual match ball and shooting mechanic.
+var station_kind := ""
+var station_index := 0
+var station_makes := 0
+var station_attempts := 0
+var station_spots: Array[Vector2] = []
+var station_back: Button
+
 var ft_land := Vector2.ZERO
 
 func setup(scene: Node2D) -> void:
@@ -143,7 +151,7 @@ func _build_ui() -> void:
 	joystick.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	joystick.sensitivity = float(Settings.get_v("joystick_sensitivity", 1.0))
 	joystick.moved.connect(func(v):
-		if mode == "play" or (mode == "ft" and ft_state == "rebound"): user.move_input = v)
+		if mode == "play" or mode == "stations" or (mode == "ft" and ft_state == "rebound"): user.move_input = v)
 	left.add_child(joystick)
 	joystick.set_process_input(false)
 	title = Label.new()
@@ -196,6 +204,17 @@ func _build_ui() -> void:
 	finish.offset_right = -20.0
 	finish.offset_top = 18.0
 	finish.offset_bottom = 68.0
+	station_back = Button.new()
+	station_back.text = "CAMBIA ESERCIZIO"
+	station_back.custom_minimum_size = Vector2(220, 48)
+	station_back.pressed.connect(_leave_stations)
+	station_back.visible = false
+	root.add_child(station_back)
+	station_back.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	station_back.offset_left = -260.0
+	station_back.offset_right = -20.0
+	station_back.offset_top = 132.0
+	station_back.offset_bottom = 180.0
 	var quit := Button.new()
 	quit.text = "LASCIA"
 	quit.custom_minimum_size = Vector2(110, 45)
@@ -222,6 +241,8 @@ func _position_plays() -> void:
 
 func _show_choices() -> void:
 	mode = "choose"
+	station_back.visible = false
+	meter.visible = false
 	play_step = ""
 	user.move_input = Vector2.ZERO
 	joystick.set_process_input(false)
@@ -232,7 +253,7 @@ func _show_choices() -> void:
 	selector.visible = true
 	for child in selector.get_children(): child.queue_free()
 	title.text = "ALLENAMENTO · SCHEMI 5v5"
-	detail.text = "Scegli uno schema, poi vai alla fila dei liberi."
+	detail.text = "Scegli uno schema o un esercizio di tiro."
 	for i in PLAYS.size():
 		var index: int = i
 		var b := Button.new()
@@ -240,12 +261,80 @@ func _show_choices() -> void:
 		b.custom_minimum_size = Vector2(270, 48)
 		b.pressed.connect(func(): _start_play(index))
 		selector.add_child(b)
+	for kind in ["three", "mid"]:
+		var drill_kind: String = kind
+		var drill := Button.new()
+		drill.text = "TIRO · 5 SPOT DA TRE" if kind == "three" else "TIRO · 5 SPOT DALLA MEDIA"
+		drill.custom_minimum_size = Vector2(270, 48)
+		drill.pressed.connect(func(): _start_stations(drill_kind))
+		selector.add_child(drill)
 	var ft := Button.new()
 	ft.text = "FILA TIRI LIBERI"
 	ft.custom_minimum_size = Vector2(270, 48)
 	ft.disabled = completed == 0
 	ft.pressed.connect(_start_free_throws)
 	selector.add_child(ft)
+
+func _start_stations(kind: String) -> void:
+	_position_plays()
+	station_kind = kind
+	station_index = 0
+	station_makes = 0
+	station_attempts = 0
+	# Positions are relative to the right-hand rim, from corner to corner.
+	var rim: Vector2 = court.hoop_for(0)
+	var offsets: Array = [Vector2(-110, -425), Vector2(-340, -340), Vector2(-460, 0), Vector2(-340, 340), Vector2(-110, 425)] if kind == "three" else [Vector2(-115, -205), Vector2(-240, -170), Vector2(-280, 0), Vector2(-240, 170), Vector2(-115, 205)]
+	station_spots.clear()
+	for offset in offsets: station_spots.append(rim + Vector2(offset))
+	mode = "stations"
+	selector.visible = false
+	station_back.visible = true
+	user.set_physics_process(true)
+	joystick.set_process_input(true)
+	action.visible = false
+	action.set_process_input(false)
+	shoot_button.visible = false
+	shoot_button.set_process_input(false)
+	passer = attack[1]
+	# Other players keep practising on the opposite half.
+	for i in defense.size():
+		defense[i].global_position = [Vector2(-330, -265), Vector2(-370, -260), Vector2(-180, 200), Vector2(-620, 150), Vector2(-500, -100)][i]
+		defense[i].stance = false
+	for i in range(2, attack.size()):
+		attack[i].global_position = Vector2(-140 - i * 65, -330)
+	user.global_position = station_spots[0] + Vector2(-85, 0)
+	_station_next()
+
+func _station_next() -> void:
+	destination = station_spots[station_index]
+	play_step = "station_move"
+	shoot_button.visible = false
+	shoot_button.set_process_input(false)
+	meter.visible = false
+	pass_active = false
+	court.give_ball(passer)
+	passer.global_position = court.hoop_for(0) + Vector2(-100, 0)
+	title.text = "5 SPOT · " + ("DA TRE" if station_kind == "three" else "DALLA MEDIA")
+	detail.text = "Spot %d/5 · Canestri %d · Vai al cerchio per ricevere." % [station_index + 1, station_makes]
+
+func _leave_stations() -> void:
+	if user.hanging: user.release_rim()
+	user.shot_charge = -1.0
+	play_charge = -1.0
+	pass_active = false
+	court.ball.shot_result_pending = false
+	court.ball.dunk_drop = 0.0
+	court.ball.live = false
+	court.ball.set_physics_process(true)
+	_position_plays()
+	_show_choices()
+
+func _station_result(made: bool) -> void:
+	station_attempts += 1
+	if made: station_makes += 1
+	finish_shot_time = 0.0
+	play_step = "station_result"
+	detail.text = ("Canestro!" if made else "Sbagliato.") + " Preparati al prossimo spot."
 
 func _start_play(index: int) -> void:
 	current_play = index
@@ -293,7 +382,8 @@ func _action_up() -> void:
 		_release_user_ft()
 
 func _play_shoot_down() -> void:
-	if mode != "play" or play_step != "pass_again" or not user.has_ball: return
+	if not ((mode == "play" and play_step == "pass_again") or (mode == "stations" and play_step == "station_shoot")): return
+	if not user.has_ball: return
 	if user.can_dunk():
 		_begin_user_finish()
 		user.dunk_held = false
@@ -320,7 +410,7 @@ func _begin_user_finish() -> void:
 	# after the callback so it is usable again on the next attempt.
 	shoot_button.call_deferred("force_release")
 	finish_by_user = true
-	play_step = "finish_shot"
+	play_step = "station_flight" if mode == "stations" else "finish_shot"
 	finish_shot_time = 0.0
 	shoot_button.visible = false
 	shoot_button.set_process_input(false)
@@ -329,6 +419,9 @@ func _begin_user_finish() -> void:
 	detail.text = "Concludi a canestro!"
 
 func _on_practice_finish(made: bool) -> void:
+	if mode == "stations" and play_step == "station_flight":
+		_station_result(made)
+		return
 	if mode != "play" or play_step != "finish_shot": return
 	finish_made = made
 	finish_shot_time = 0.0
@@ -353,7 +446,12 @@ func _step_pass() -> void:
 	if not pass_active or court.ball._pass_time < court.ball._pass_duration: return
 	pass_active = false
 	court.give_ball(pass_to)
-	if play_step == "passing_out":
+	if mode == "stations" and play_step == "station_pass":
+		play_step = "station_shoot"
+		shoot_button.visible = true
+		shoot_button.set_process_input(true)
+		detail.text = "Spot %d/5 · Ricevuto! Tieni premuto TIRA e rilascia sul verde." % (station_index + 1)
+	elif play_step == "passing_out":
 		play_step = "cut"
 		detail.text = "Taglia verso il cerchio verde."
 	elif play_step == "returning":
@@ -425,7 +523,7 @@ func _shoot_free_throw(made: bool) -> void:
 
 func _physics_process(delta: float) -> void:
 	clock += delta
-	if mode == "play":
+	if mode == "play" or mode == "stations":
 		_step_pass()
 		if play_charge >= 0.0 and user.shot_charge < 0.0:
 			# Player's normal safety release fired at maximum charge.
@@ -460,9 +558,25 @@ func _physics_process(delta: float) -> void:
 				action.set_process_input(true)
 				shoot_button.visible = true
 				shoot_button.set_process_input(true)
+		if mode == "stations":
+			if play_step == "station_move" and user.global_position.distance_to(destination) < 38.0:
+				play_step = "station_pass"
+				_start_pass(passer, user)
+				detail.text = "Il compagno ti passa la palla."
+			elif play_step == "station_result":
+				finish_shot_time += delta
+				if finish_shot_time >= 1.0:
+					station_index += 1
+					if station_index >= station_spots.size():
+						var result := "ESERCIZIO FINITO · %d/%d CANESTRI" % [station_makes, station_attempts]
+						_leave_stations()
+						detail.text = result + " · Scegli il prossimo esercizio."
+					else:
+						_station_next()
+			_step_ambient(delta)
 		# Five defenders shadow their assignments without breaking the drill's
 		# scripted passes; they move as the offence cuts and changes sides.
-		for i in 5:
+		for i in (5 if mode == "play" else 0):
 			var mark: BallPlayer = attack[i]
 			var guard_spot: Vector2 = mark.global_position + (court.hoop_for(0) - mark.global_position).normalized() * 62.0
 			_move_npc(defense[i], guard_spot, delta)
@@ -473,7 +587,7 @@ func _physics_process(delta: float) -> void:
 			_start_pass(passer, user)
 		# The named pick-and-roll includes a real teammate approaching the
 		# defender, planting, then cutting toward the hoop after the user moves.
-		if current_play == 2:
+		if mode == "play" and current_play == 2:
 			var screener: BallPlayer = attack[2]
 			var goal := Vector2(390, -55) if play_step in ["pass", "passing_out", "cut"] else Vector2(680, 20)
 			_move_npc(screener, goal, delta)
@@ -568,8 +682,11 @@ func _step_free_throws(delta: float) -> void:
 		ft_time += delta
 		court.ball.global_position = ft_end.lerp(ft_land, clampf(ft_time / 0.55, 0.0, 1.0))
 		court.ball.h = maxf(Court.RIM_HEIGHT * (1.0 - ft_time / 0.55), 0.0)
+		var mesh_depth: float = HoopArt.net_reaction_depth(ft_time)
+		court.ball.net_manual_contact = Vector2(mesh_depth, clampf((ft_end.x - ft_start.x) / 180.0, -1.0, 1.0)) if ft_made and mesh_depth >= 0.0 else Vector2(-1.0, 0.0)
 		court.ball.queue_redraw()
 		if ft_time >= 0.55:
+			court.ball.net_manual_contact = Vector2(-1.0, 0.0)
 			court.ball.global_position = ft_land
 			court.ball.h = 0.0
 			court.ball.vel = Vector2(randf_range(-100.0, -30.0), randf_range(-80.0, 80.0))
@@ -615,7 +732,7 @@ func _step_free_throws(delta: float) -> void:
 				detail.text = "Giro completato. Continua o termina l'allenamento."
 
 func _draw() -> void:
-	if mode == "play" and play_step == "cut":
+	if (mode == "play" and play_step == "cut") or (mode == "stations" and play_step == "station_move"):
 		var target: Vector2 = CourtStage.m_project(destination, Court.COURT_H)
 		var origin: Vector2 = CourtStage.m_project(user.global_position, Court.COURT_H)
 		draw_arc(target, 32, 0, TAU, 32, Color(0.3, 1, 0.5, 0.9), 4)
@@ -623,7 +740,7 @@ func _draw() -> void:
 	elif mode == "play" and play_step == "pass_again":
 		var target: Vector2 = CourtStage.m_project(receiver.global_position, Court.COURT_H)
 		draw_arc(target, 34, 0, TAU, 32, Color(0.35, 0.75, 1.0, 0.85), 4)
-	elif mode == "ft":
+	if mode == "ft" or mode == "stations":
 		for ball_data in ambient_balls:
 			var point: Vector2 = CourtStage.m_project(ball_data["pos"], Court.COURT_H)
 			point.y -= float(ball_data["height"])

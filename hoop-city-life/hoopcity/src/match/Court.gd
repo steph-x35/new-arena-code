@@ -1367,6 +1367,7 @@ func on_dunk_started(p: BallPlayer) -> void:
 	if ball:
 		ball.live = false
 		ball.detach()
+		ball.net_entry_velocity = 0.0
 		ball.dunk_drop = 1.0
 		# start at the hand on the iron, land at the centre of the restricted
 		# arc (the floor point under the rim): reads as "through the net".
@@ -1378,6 +1379,7 @@ func on_dunk_started(p: BallPlayer) -> void:
 	_dunk_scored(p)
 
 func _dunk_scored(p: BallPlayer) -> void:
+	if p.is_user: Sfx.dunk_haptic()
 	if practice_drill:
 		p.has_ball = false
 		_net_bump(0 if hoop_for(p.team).x < 0.0 else 1, 1.0)
@@ -1399,7 +1401,6 @@ func _dunk_scored(p: BallPlayer) -> void:
 	_rim_fx("swish", hoop_for(p.team))
 	# La rete CANTA anche sulla schiacciata: swish piu' cupo e spinto.
 	Sfx.play("swish", -1.5, randf_range(0.84, 0.92))
-	Sfx.haptic(60)
 	Events.toast.emit("%s! +%d" % [DunkStyle.label(p.dunk_style), pts])
 	p.has_ball = false
 	if team_size == 2 and not one_on_one:
@@ -1430,6 +1431,8 @@ func _dunk_scored(p: BallPlayer) -> void:
 	_inbound(1 - p.team)
 
 func _score_basket(b: Ball) -> void:
+	# Preserve the actual entry direction before the ball is stopped at the rim.
+	b.net_entry_velocity = b.vel.x
 	if practice_drill:
 		var hoop: Vector2 = hoop_for(b.shooter.team)
 		b.shot_result_pending = false
@@ -1438,8 +1441,8 @@ func _score_basket(b: Ball) -> void:
 		b.dunk_from = hoop
 		b.dunk_to = hoop
 		b.global_position = hoop
-		b.h = RIM_HEIGHT + 8.0
-		_net_bump(0 if hoop.x < 0.0 else 1, 1.0)
+		b.h = RIM_HEIGHT
+		_net_bump(0 if hoop.x < 0.0 else 1, 0.35 if b.swish_clean else 0.7)
 		Sfx.play("swish", -3.5)
 		practice_finish.emit(true)
 		return
@@ -1455,11 +1458,11 @@ func _score_basket(b: Ball) -> void:
 		b.global_position = hoop
 		b.dunk_from = hoop
 		b.dunk_to = hoop
-		b.h = RIM_HEIGHT + 8.0
+		b.h = RIM_HEIGHT
 		Sfx.play("swish", -4.0)
 		Sfx.cheer(false)
 		Events.popup.emit("+1", hoop, Color(0.7, 1.0, 0.75), false)
-		_net_bump(0 if hoop.x < 0 else 1, 1.0)
+		_net_bump(0 if hoop.x < 0 else 1, 0.35 if b.swish_clean else 0.7)
 		_rim_fx("swish", hoop)
 		b.is_free_throw = false
 		ft_timer = 10.0
@@ -1514,9 +1517,9 @@ func _score_basket(b: Ball) -> void:
 	b.dunk_from = hoop
 	b.dunk_to = hoop
 	b.global_position = hoop
-	b.h = RIM_HEIGHT + 8.0
+	b.h = RIM_HEIGHT
 	play_live = false
-	_net_bump(0 if hoop.x < 0.0 else 1, 1.0)
+	_net_bump(0 if hoop.x < 0.0 else 1, 0.35 if b.swish_clean else 0.7)
 	_rim_fx("swish", hoop)
 	await get_tree().create_timer(0.70).timeout
 	if not is_instance_valid(self) or finished:

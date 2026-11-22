@@ -84,6 +84,35 @@ func _ready() -> void:
 	ok = ok and session.play_step == "finish_wait" and game.court.ball.dunk_drop > 0.0
 	session._physics_process(0.9)
 	ok = ok and session.completed == 3
+	# Five shooting stations: actual teammate pass, match shot and results.
+	for kind in ["three", "mid"]:
+		session._start_stations(kind)
+		ok = ok and session.station_spots.size() == 5 and session.station_back.visible
+		for spot in 5:
+			ok = ok and session.play_step == "station_move" and session.station_index == spot
+			session.user.global_position = session.destination
+			session._physics_process(0.01)
+			ok = ok and session.play_step == "station_pass"
+			game.court.ball._physics_process(2.0)
+			session._step_pass()
+			ok = ok and session.play_step == "station_shoot" and session.user.has_ball
+			session._play_shoot_down()
+			session.user.shot_charge = session.user.shot_ideal
+			session._play_shoot_up()
+			ok = ok and session.play_step == "station_flight" and game.court.ball._ana
+			game.court.ball.set_physics_process(false)
+			for tick in 240:
+				game.court.ball._physics_process(1.0 / 60.0)
+				if session.play_step != "station_flight": break
+			ok = ok and session.play_step == "station_result"
+			session._physics_process(1.1)
+		ok = ok and session.mode == "choose" and session.station_attempts == 5
+	# Cancel mid-flight must restore the selection and a usable ball.
+	session._start_stations("three")
+	session.user.global_position = session.destination
+	session._physics_process(0.01)
+	session._leave_stations()
+	ok = ok and session.mode == "choose" and session.user.has_ball and not session.pass_active
 	# One shot each: rotate the real five-player line and enable finish only
 	# after the whole line has completed its turns.
 	session._start_free_throws()

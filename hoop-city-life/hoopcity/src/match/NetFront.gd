@@ -23,15 +23,19 @@ func _draw() -> void:
 		var idx: int = 0 if s < 0.0 else 1
 		# Same as street court: near mesh only while the ball is dropping
 		# through THIS rim, so it reads as going behind the net.
-		var near := false
-		if ball != null:
-			var dropping: bool = ball.dunk_drop > 0.0 \
-				or (ball.h < Court.RIM_HEIGHT + 40.0 and ball.h > 2.0 \
-				and ball.global_position.distance_to(hoop) < 90.0)
-			near = dropping
-		if not near:
+		if ball == null or ball.global_position.distance_to(hoop) >= 55.0:
+			continue
+		# Do not paint a net over an airball or a miss beside the basket.
+		var through: bool = ball.net_manual_contact.x >= 0.0 or ball.dunk_drop > 0.0 or (ball.shot_result_pending and ball.vh < 0.0 and ball.h <= Court.RIM_HEIGHT and ball.h > Court.RIM_HEIGHT - 45.0)
+		if not through:
 			continue
 		var foot: Vector2 = CourtStage.m_project(hoop, hh)
-		HoopArt.draw_net_front(self, Vector2(foot.x, foot.y - vis.rim_height),
-			22.0, 22.0 * HoopArt.RIM_SQUASH, vis.net_wobble[idx], vis.t,
-			clampf(vis.rim_bend[idx], 0.0, 1.0), -s)
+		# The full hoop moves slightly on impact; the foreground must follow it.
+		var wobble: float = vis.net_wobble[idx]
+		var shake: float = sin(vis.t * 47.0) * wobble * 22.0 * 0.22
+		var bounce: float = absf(sin(vis.t * 29.0)) * wobble * 22.0 * 0.12
+		var net_rim := Vector2(foot.x + shake, foot.y - vis.rim_height - bounce)
+		var contact: Vector2 = ball.net_contact()
+		HoopArt.draw_net_front(self, net_rim,
+			22.0, 22.0 * HoopArt.RIM_SQUASH, wobble, vis.t,
+			clampf(vis.rim_bend[idx], 0.0, 1.0), -s, contact.x, contact.y)

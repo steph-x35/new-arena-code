@@ -54,6 +54,7 @@ func _ready() -> void:
 func attach(p: Node) -> void:
 	# Una nuova presa annulla la caduta precedente, mai il contrario.
 	dunk_drop = 0.0
+	net_manual_contact = Vector2(-1.0, 0.0)
 	holder = p
 	live = false
 	_ana = false
@@ -137,6 +138,18 @@ func kill_analytic() -> void:
 ## slam, so it never visibly went in.
 var layup_bank := false
 var dunk_drop := 0.0
+var _drop_start_h := 0.0
+# Horizontal momentum sampled at the scoring crossing, in court pixels/sec.
+var net_entry_velocity := 0.0
+var net_manual_contact := Vector2(-1.0, 0.0)
+
+func net_contact() -> Vector2:
+	# x = depth into the mesh, y = sideways pull; negative depth means inactive.
+	if net_manual_contact.x >= 0.0: return net_manual_contact
+	if dunk_drop <= 0.0: return Vector2(-1.0, 0.0)
+	var depth: float = HoopArt.net_reaction_depth((1.0 - dunk_drop) / 1.7)
+	if depth < 0.0: return Vector2(-1.0, 0.0)
+	return Vector2(depth, clampf(net_entry_velocity / 180.0, -1.0, 1.0))
 ## Through-the-net fall after a slam: drifts from the rim to the centre of
 ## the short baseline, so the ball lands under the stanchion (correct
 ## perspective) instead of piling up at the dunker's feet.
@@ -167,11 +180,20 @@ func _physics_process(delta: float) -> void:
 	if dunk_drop > 0.0:
 		z_index = 8
 		holder = null
+		if dunk_drop >= 1.0:
+			_drop_start_h = h
 		dunk_drop = maxf(dunk_drop - delta * 1.7, 0.0)
 		var f: float = 1.0 - dunk_drop            # 0 at the rim, 1 on the floor
-		h = maxf(lerpf(Court.RIM_HEIGHT + 26.0, 0.0, f * f), 0.0)
+		# Spend a little longer inside the mesh, then fall to the floor in the
+		# same total time, without changing the inbound or dunk timing.
+		var mesh_exit: float = maxf(_drop_start_h - 36.0, 0.0)
+		if f < 0.55:
+			h = lerpf(_drop_start_h, mesh_exit, smoothstep(0.0, 0.55, f))
+		else:
+			h = lerpf(mesh_exit, 0.0, smoothstep(0.55, 1.0, f))
 		if dunk_to != dunk_from:
 			global_position = dunk_from.lerp(dunk_to, f * f)
+
 		queue_redraw()
 		return
 	z_index = 40
@@ -283,7 +305,13 @@ func _draw() -> void:
 	draw_set_transform(proj - position, 0.0, Vector2.ONE * dscale)
 	var r: float = Court.BALL_R
 	draw_ellipse_filled(Vector2(0, 0), Vector2(r * 0.92 * shadow_scale, r * 0.35 * shadow_scale), Color(0, 0, 0, 0.28 * shadow_scale))
-	var c := Vector2(0, -h)
+	# The rim is drawn at an unscaled height. At the basket blend out the
+	# player's depth scaling so the ball actually crosses the drawn opening.
+	var rim := Vector2(signf(global_position.x) * (Court.COURT_W * 0.5 - Court.FIBA_HOOP_INSET), 0.0)
+	var rim_align: float = 1.0 - smoothstep(40.0, 180.0, global_position.distance_to(rim))
+	rim_align *= smoothstep(Court.RIM_HEIGHT - 100.0, Court.RIM_HEIGHT - 35.0, h)
+	var visual_h: float = lerpf(h, h / dscale, rim_align)
+	var c := Vector2(0, -visual_h)
 	# STESSA PALLA del court solo (Avatar): stessa tinta, stesse cuciture.
 	draw_circle(c, r, Color(0.95, 0.55, 0.15))
 	draw_arc(c, r, 0, TAU, 16, Color(0.35, 0.18, 0.07), maxf(r * 0.14, 1.0))
