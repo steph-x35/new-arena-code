@@ -1,0 +1,36 @@
+name: Inspect preview APK contents
+on:
+  push:
+    branches: [arena/65c3199c-new-arena-code]
+    paths: [.github/workflows/inspect-apk.yml]
+permissions:
+  actions: read
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: HoopCity-anteprima-android
+          run-id: 45046699366
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: latest
+      - uses: actions/download-artifact@v4
+        with:
+          name: HoopCity-anteprima-android
+          run-id: 45044805088
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: previous
+      - name: Compare packaged scripts
+        run: |
+          python3 - <<'PY'
+          import zipfile, glob, hashlib
+          for folder in ['previous','latest']:
+              path=glob.glob(folder+'/*.apk')[0]
+              with zipfile.ZipFile(path) as z:
+                  matches=[x for x in z.namelist() if any(n in x for n in ['HoopArt','Court.gd','SoloCourt','Sfx.gd'])]
+                  print('::notice::'+folder+' files='+str(matches))
+                  for n in matches:
+                      print('::notice::'+folder+' '+n+' sha256='+hashlib.sha256(z.read(n)).hexdigest())
+          PY
