@@ -1,0 +1,32 @@
+name: Share Hoop City preview APK
+on:
+  push:
+    branches: [arena/65c3199c-new-arena-code]
+    paths: [.github/workflows/share-hoopcity-preview.yml]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  share:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download previously tested preview
+        uses: actions/download-artifact@v4
+        with:
+          name: HoopCity-anteprima-android
+          run-id: 45043776682
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: preview-apk
+      - name: Publish separately marked preview
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          test -f preview-apk/HoopCity-v2.49.8.apk
+          cp preview-apk/HoopCity-v2.49.8.apk preview-apk/HoopCity-anteprima.apk
+          gh release create anteprima-hcl-curva-df934f1 preview-apk/HoopCity-anteprima.apk \
+            --target df934f1651d52567abb59c7720c34e077d227897 \
+            --title 'Hoop City Life - anteprima rete curva' \
+            --notes 'APK di anteprima per i test. Non è una versione ufficiale.' \
+            --prerelease --latest=false
