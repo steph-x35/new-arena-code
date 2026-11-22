@@ -1,0 +1,32 @@
+name: Share Hoop City preview APK
+on:
+  push:
+    branches: [arena/65c3199c-new-arena-code]
+    paths: [.github/workflows/share-hoopcity-preview.yml]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  share:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download previously tested preview
+        uses: actions/download-artifact@v4
+        with:
+          name: HoopCity-anteprima-android
+          run-id: 45048279234
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: preview-apk
+      - name: Publish separately marked preview
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          test -f preview-apk/HoopCity-v2.49.8.apk
+          cp preview-apk/HoopCity-v2.49.8.apk preview-apk/HoopCity-anteprima.apk
+          gh release create anteprima-hcl-solo-1f9a665 preview-apk/HoopCity-anteprima.apk \
+            --target 1f9a665e9246988b71f84ddb6d4975bcc1c4f114 \
+            --title 'Hoop City Life - anteprima court solo' \
+            --notes 'APK di anteprima per i test. Non è una versione ufficiale.' \
+            --prerelease --latest=false
